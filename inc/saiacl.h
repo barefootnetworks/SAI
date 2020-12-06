@@ -1333,6 +1333,33 @@ typedef enum _sai_acl_table_attr_t
     SAI_ACL_TABLE_ATTR_CUSTOM_RANGE_START = 0x10000000,
 
     /**
+     * @brief Virtual router object
+     *
+     * @type bool
+     * @flags CREATE_ONLY
+     * @default false
+     */
+    SAI_ACL_TABLE_ATTR_EXTENSIONS_FIELD_VRF = SAI_ACL_TABLE_ATTR_CUSTOM_RANGE_START,
+
+    /**
+     * @brief Src IPv6 Address 64B
+     *
+     * @type bool
+     * @flags CREATE_ONLY
+     * @default false
+     */
+    SAI_ACL_TABLE_ATTR_EXTENSIONS_FIELD_SRC_IPV6_64B,
+
+    /**
+     * @brief Dst IPv6 Address 64B
+     *
+     * @type bool
+     * @flags CREATE_ONLY
+     * @default false
+     */
+    SAI_ACL_TABLE_ATTR_EXTENSIONS_FIELD_DST_IPV6_64B,
+
+    /**
      * @brief End of Custom range base
      */
     SAI_ACL_TABLE_ATTR_CUSTOM_RANGE_END
@@ -2722,6 +2749,44 @@ typedef enum _sai_acl_entry_attr_t
 
     /** Custom range base value */
     SAI_ACL_ENTRY_ATTR_CUSTOM_RANGE_START = 0x10000000,
+
+    /**
+     * @brief Override VRF based on other criteria
+     *
+     * @type sai_acl_action_data_t sai_object_id_t
+     * @flags CREATE_AND_SET
+     * @objects SAI_OBJECT_TYPE_VIRTUAL_ROUTER
+     * @default disabled
+     */
+    SAI_ACL_ENTRY_ATTR_EXTENSIONS_ACTION_SET_VRF,
+
+    /**
+     * @brief Src IPv6 Address 64B
+     *
+     * @type sai_acl_field_data_t sai_ip6_t
+     * @flags CREATE_AND_SET
+     * @default disabled
+     */
+    SAI_ACL_ENTRY_ATTR_EXTENSIONS_FIELD_SRC_IPV6_64B,
+
+    /**
+     * @brief Dst IPv6 Address 64B
+     *
+     * @type sai_acl_field_data_t sai_ip6_t
+     * @flags CREATE_AND_SET
+     * @default disabled
+     */
+    SAI_ACL_ENTRY_ATTR_EXTENSIONS_FIELD_DST_IPV6_64B,
+
+    /**
+     * @brief Virtual router object
+     *
+     * @type sai_acl_field_data_t sai_object_id_t
+     * @flags CREATE_AND_SET
+     * @objects SAI_OBJECT_TYPE_VIRTUAL_ROUTER
+     * @default disabled
+     */
+    SAI_ACL_ENTRY_ATTR_EXTENSIONS_FIELD_VRF,
 
     /** End of custom range base */
     SAI_ACL_ENTRY_ATTR_CUSTOM_RANGE_END

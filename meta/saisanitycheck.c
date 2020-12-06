@@ -1796,7 +1796,7 @@ void check_attr_acl_fields(
 
             if (md->objecttype == SAI_OBJECT_TYPE_ACL_ENTRY &&
                     md->attrid >= SAI_ACL_ENTRY_ATTR_FIELD_START &&
-                    md->attrid  <= SAI_ACL_ENTRY_ATTR_FIELD_END)
+                    md->attrid  <= SAI_ACL_ENTRY_ATTR_CUSTOM_RANGE_END)
             {
                 break;
 
@@ -1856,7 +1856,7 @@ void check_attr_acl_fields(
 
             if (md->objecttype != SAI_OBJECT_TYPE_ACL_ENTRY ||
                     md->attrid < SAI_ACL_ENTRY_ATTR_ACTION_START ||
-                    md->attrid > SAI_ACL_ENTRY_ATTR_ACTION_END)
+                    md->attrid > SAI_ACL_ENTRY_ATTR_CUSTOM_RANGE_END)
             {
                 META_MD_ASSERT_FAIL(md, "acl action may only be set on acl action");
             }

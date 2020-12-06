@@ -735,6 +735,9 @@ typedef enum _sai_acl_stage_t
     /** Egress Stage */
     SAI_ACL_STAGE_EGRESS,
 
+    /** Lookup Stage */
+    SAI_ACL_STAGE_LOOKUP,
+
     /** Ingress Stage */
     SAI_ACL_STAGE_INGRESS_MACSEC,
 
@@ -1078,6 +1081,30 @@ typedef struct _sai_port_err_status_list_t
 } sai_port_err_status_list_t;
 
 /**
+ * @brief Attribute data for #SAI_PORT_ATTR_TUPLE
+ */
+typedef struct _sai_tuple_t
+{
+    /** key */
+    int32_t key;
+
+    /** value */
+    int32_t value;;
+} sai_tuple_t;
+
+/**
+ * @brief Attribute data for #SAI_PORT_ATTR_TUPLE_LIST
+ */
+typedef struct _sai_tuple_list_t
+{
+    /** Number of entries in the list */
+    uint32_t count;
+
+    /** tuple list */
+    sai_tuple_t *list;
+} sai_tuple_list_t;
+
+/**
  * @brief Data Type
  *
  * To use enum values as attribute value is sai_int32_t s32
@@ -1236,6 +1263,13 @@ typedef union _sai_attribute_value_t
 
     /** @validonly meta->attrvaluetype == SAI_ATTR_VALUE_TYPE_PORT_ERR_STATUS_LIST */
     sai_port_err_status_list_t porterror;
+
+    /** @validonly meta->attrvaluetype == SAI_ATTR_VALUE_TYPE_TUPLE */
+    sai_tuple_t  tuple;
+
+    /** @validonly meta->attrvaluetype == SAI_ATTR_VALUE_TYPE_TUPLE_LIST */
+    sai_tuple_t  tuplelist;
+
 } sai_attribute_value_t;
 
 /**
