@@ -678,6 +678,7 @@ void check_attr_object_type_provided(
         case SAI_ATTR_VALUE_TYPE_ACL_ACTION_DATA_IPV6:
         case SAI_ATTR_VALUE_TYPE_ACL_ACTION_DATA_IP_ADDRESS:
         case SAI_ATTR_VALUE_TYPE_IPV4:
+        case SAI_ATTR_VALUE_TYPE_IPV6:
 
         case SAI_ATTR_VALUE_TYPE_MACSEC_SAK:
         case SAI_ATTR_VALUE_TYPE_MACSEC_AUTH_KEY:
@@ -910,6 +911,7 @@ void check_attr_default_required(
         case SAI_ATTR_VALUE_TYPE_TIMESPEC:
         case SAI_ATTR_VALUE_TYPE_IPV4:
         case SAI_ATTR_VALUE_TYPE_SYSTEM_PORT_CONFIG:
+        case SAI_ATTR_VALUE_TYPE_IPV6:
             break;
 
         case SAI_ATTR_VALUE_TYPE_CHARDATA:
@@ -2540,6 +2542,7 @@ void check_attr_is_primitive(
         case SAI_ATTR_VALUE_TYPE_UINT8:
         case SAI_ATTR_VALUE_TYPE_TIMESPEC:
         case SAI_ATTR_VALUE_TYPE_IPV4:
+        case SAI_ATTR_VALUE_TYPE_IPV6:
         case SAI_ATTR_VALUE_TYPE_MACSEC_SAK:
         case SAI_ATTR_VALUE_TYPE_MACSEC_AUTH_KEY:
         case SAI_ATTR_VALUE_TYPE_MACSEC_SALT:
@@ -3372,7 +3375,9 @@ void check_objects_for_loops_recursive(
         {
             if (m->attrid == SAI_PORT_ATTR_EGRESS_MIRROR_SESSION ||
                     m->attrid == SAI_PORT_ATTR_INGRESS_MIRROR_SESSION ||
-                    m->attrid == SAI_PORT_ATTR_EGRESS_BLOCK_PORT_LIST)
+                    m->attrid == SAI_PORT_ATTR_EGRESS_BLOCK_PORT_LIST ||
+                    m->attrid == SAI_PORT_ATTR_INGRESS_SAMPLE_MIRROR_SESSION ||
+                    m->attrid == SAI_PORT_ATTR_EGRESS_SAMPLE_MIRROR_SESSION)
             {
                 continue;
             }
@@ -3957,7 +3962,9 @@ void check_acl_table_fields_and_acl_entry_fields()
          * check acl table flags and attr value type
          */
 
-        if (mtable->attrid == SAI_ACL_TABLE_ATTR_FIELD_ACL_RANGE_TYPE)
+        if ((mtable->attrid == SAI_ACL_TABLE_ATTR_FIELD_ACL_RANGE_TYPE) ||
+        ((mtable->attrid >= SAI_ACL_TABLE_ATTR_USER_DEFINED_FIELD_GROUP_MIN) &&
+        (mtable->attrid <= SAI_ACL_TABLE_ATTR_USER_DEFINED_FIELD_GROUP_MAX)))
         {
             /*
              * This field is exception, it's not bool, it's a list and it's

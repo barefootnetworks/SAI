@@ -219,11 +219,17 @@ typedef enum _sai_port_interface_type_t
     /** Interface type CR */
     SAI_PORT_INTERFACE_TYPE_CR,
 
+    /** Interface type CR2 */
+    SAI_PORT_INTERFACE_TYPE_CR2,
+
     /** Interface type CR4 */
     SAI_PORT_INTERFACE_TYPE_CR4,
 
     /** Interface type SR */
     SAI_PORT_INTERFACE_TYPE_SR,
+
+    /** Interface type SR2 */
+    SAI_PORT_INTERFACE_TYPE_SR2,
 
     /** Interface type SR4 */
     SAI_PORT_INTERFACE_TYPE_SR4,
@@ -239,6 +245,22 @@ typedef enum _sai_port_interface_type_t
 
     /** Interface type KR4 */
     SAI_PORT_INTERFACE_TYPE_KR4,
+
+    /** Interface type CAUI */
+    SAI_PORT_INTERFACE_TYPE_CAUI,
+
+    /** Interface type GMII */
+    SAI_PORT_INTERFACE_TYPE_GMII,
+
+    /** Interface type SFI */
+    SAI_PORT_INTERFACE_TYPE_SFI,
+
+    /** Interface type XLAUI */
+    SAI_PORT_INTERFACE_TYPE_XLAUI,
+
+    /** Interface type MAX */
+    SAI_PORT_INTERFACE_TYPE_MAX,
+
 } sai_port_interface_type_t;
 
 /**
@@ -274,6 +296,25 @@ typedef enum _sai_port_link_training_rx_status_t
 } sai_port_link_training_rx_status_t;
 
 /**
+ * @brief Attribute data for #SAI_PORT_ATTR_PRBS_RX_STATUS
+ */
+typedef enum _sai_port_prbs_rx_status_t
+{
+    /** PRBS is locked and error_count is 0 */
+    SAI_PORT_PRBS_RX_STATUS_OK,
+
+    /** PRBS is locked, but there are errors */
+    SAI_PORT_PRBS_RX_STATUS_LOCK_WITH_ERRORS,
+
+    /** PRBS not locked */
+    SAI_PORT_PRBS_RX_STATUS_NOT_LOCKED,
+
+    /** PRBS locked but there is loss of lock since last call */
+    SAI_PORT_PRBS_RX_STATUS_LOST_LOCK,
+
+} sai_port_prbs_rx_status_t;
+
+/**
  * @brief Attribute data for #SAI_PORT_ATTR_PRBS_CONFIG
  * PRBS configuration to enable transmitter, receiver or both
  */
@@ -291,6 +332,22 @@ typedef enum _sai_port_prbs_config_t
     /** Enable PRBS Transmitter */
     SAI_PORT_PRBS_CONFIG_ENABLE_TX
 } sai_port_prbs_config_t;
+
+/**
+ * @brief Attribute data for #SAI_PORT_CONNECTOR_ATTR_FAILOVER_MODE
+ * Used for Failover mode configuration on port
+ */
+typedef enum _sai_port_connector_failover_mode_t
+{
+    /** Failover mode disable */
+    SAI_PORT_CONNECTOR_FAILOVER_MODE_DISABLE,
+
+    /** Configure Failover mode on primary port */
+    SAI_PORT_CONNECTOR_FAILOVER_MODE_PRIMARY,
+
+    /** Configure Failover mode on secondary port */
+    SAI_PORT_CONNECTOR_FAILOVER_MODE_SECONDARY
+} sai_port_connector_failover_mode_t;
 
 /**
  * @brief Attribute Id in sai_set_port_attribute() and
@@ -370,6 +427,20 @@ typedef enum _sai_port_attr_t
      * @objects SAI_OBJECT_TYPE_SCHEDULER_GROUP
      */
     SAI_PORT_ATTR_QOS_SCHEDULER_GROUP_LIST,
+
+    /**
+     * @brief The sum of the headroom size of the ingress priority groups belonging to this port
+     *        should not exceed the SAI_PORT_ATTR_QOS_MAXIMUM_HEADROOM_SIZE value.
+     *
+     * This attribute is applicable only for per-port, per-PG headroom model
+     * (which means SAI_BUFFER_POOL_ATTR_XOFF_SIZE is zero)
+     *
+     * For the platforms which don't have this limitation, 0 should be returned.
+     *
+     * @type sai_uint32_t
+     * @flags READ_ONLY
+     */
+    SAI_PORT_ATTR_QOS_MAXIMUM_HEADROOM_SIZE,
 
     /**
      * @brief Query list of supported port speed(full-duplex) in Mbps
@@ -913,6 +984,32 @@ typedef enum _sai_port_attr_t
     SAI_PORT_ATTR_EGRESS_SAMPLEPACKET_ENABLE,
 
     /**
+     * @brief Enable/Disable Samplepacket session
+     *
+     * Enable sample ingress mirroring by assigning list of mirror object ids Disable
+     * sample ingress mirroring by assigning object_count as 0 in objlist
+     *
+     * @type sai_object_list_t
+     * @flags CREATE_AND_SET
+     * @objects SAI_OBJECT_TYPE_MIRROR_SESSION
+     * @default empty
+     */
+    SAI_PORT_ATTR_INGRESS_SAMPLE_MIRROR_SESSION,
+
+    /**
+     * @brief Enable/Disable Samplepacket session
+     *
+     * Enable sample egress mirroring by assigning list of mirror object ids Disable
+     * sample egress mirroring by assigning object_count as 0 in objlist
+     *
+     * @type sai_object_list_t
+     * @flags CREATE_AND_SET
+     * @objects SAI_OBJECT_TYPE_MIRROR_SESSION
+     * @default empty
+     */
+    SAI_PORT_ATTR_EGRESS_SAMPLE_MIRROR_SESSION,
+
+    /**
      * @brief Attach/Detach policer to port
      *
      * Set policer id = #SAI_NULL_OBJECT_ID to disable policer on port.
@@ -1352,8 +1449,6 @@ typedef enum _sai_port_attr_t
     /**
      * @brief Configure Interface type
      *
-     * Valid when SAI_SWITCH_ATTR_TYPE == SAI_SWITCH_TYPE_PHY
-     *
      * @type sai_port_interface_type_t
      * @flags CREATE_AND_SET
      * @default SAI_PORT_INTERFACE_TYPE_NONE
@@ -1436,6 +1531,14 @@ typedef enum _sai_port_attr_t
     SAI_PORT_ATTR_PRBS_LOCK_LOSS_STATUS,
 
     /**
+     * @brief Attribute data for #SAI_PORT_ATTR_PRBS_RX_STATUS
+     *
+     * @type sai_port_prbs_rx_status_t
+     * @flags READ_ONLY
+     */
+    SAI_PORT_ATTR_PRBS_RX_STATUS,
+
+    /**
      * @brief Attribute data for #SAI_PORT_ATTR_AUTO_NEG_STATUS
      *
      * Auto negotiation (AN) done state: 0 for AN in progress, 0 for AN done
@@ -1452,7 +1555,7 @@ typedef enum _sai_port_attr_t
      * @flags CREATE_AND_SET
      * @default false
      */
-    SAI_PORT_ATTR_DECREMENT_TTL,
+    SAI_PORT_ATTR_DISABLE_DECREMENT_TTL,
 
     /**
      * @brief Enable EXP -> TC MAP on port
@@ -2790,6 +2893,37 @@ typedef enum _sai_port_connector_attr_t
      * @objects SAI_OBJECT_TYPE_PORT
      */
     SAI_PORT_CONNECTOR_ATTR_LINE_SIDE_PORT_ID,
+
+    /**
+     * @brief System Side Port ID
+     *
+     * @type sai_object_id_t
+     * @flags CREATE_ONLY
+     * @objects SAI_OBJECT_TYPE_PORT
+     * @allownull true
+     * @default SAI_NULL_OBJECT_ID
+     */
+    SAI_PORT_CONNECTOR_ATTR_SYSTEM_SIDE_FAILOVER_PORT_ID,
+
+    /**
+     * @brief Line Side Port ID
+     *
+     * @type sai_object_id_t
+     * @flags CREATE_ONLY
+     * @objects SAI_OBJECT_TYPE_PORT
+     * @allownull true
+     * @default SAI_NULL_OBJECT_ID
+     */
+    SAI_PORT_CONNECTOR_ATTR_LINE_SIDE_FAILOVER_PORT_ID,
+
+    /**
+     * @brief Configure the failover mode on port
+     *
+     * @type sai_port_connector_failover_mode_t
+     * @flags CREATE_AND_SET
+     * @default SAI_PORT_CONNECTOR_FAILOVER_MODE_DISABLE
+     */
+    SAI_PORT_CONNECTOR_ATTR_FAILOVER_MODE,
 
     /**
      * @brief End of attributes
