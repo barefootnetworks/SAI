@@ -26,6 +26,7 @@ DLD - Dead Lock Detection
 DLDR - Dead Lock Detection and Recovery
 DLL - Dynamic Link Library
 DLR - Dead Lock Recovery
+DMA - Direct Memory Access
 DNAT - Destination Network Address Translation
 DSCP - Differentiated Services Code Point
 DTEL - Data Plane Telemetry
@@ -128,7 +129,10 @@ VXLAN - Virtual Extensible LAN
 WCMP - Weighted Cost Multipath
 WRED - Weighted Random Early Detection
 WWW - World Wide Web
-XG - (*,G) Any-source Multicast
+XAUI - 10 Gbps Attachment Unit Interface
+XFI - 10 Gbps Chip to Chip Interface
+XG - (*,G) Any-source Multicast4
+XGMII - 10 Gbps Media Independent Interface
 XLAUI - 40 Gbps Attachment Unit Interface
 XPN - Extended Packet Number
 XOFF - Transmitter Off

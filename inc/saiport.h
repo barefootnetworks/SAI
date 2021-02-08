@@ -258,6 +258,21 @@ typedef enum _sai_port_interface_type_t
     /** Interface type XLAUI */
     SAI_PORT_INTERFACE_TYPE_XLAUI,
 
+    /** Interface type KR2 */
+    SAI_PORT_INTERFACE_TYPE_KR2,
+
+    /** Interface type CAUI */
+    SAI_PORT_INTERFACE_TYPE_CAUI4,
+
+    /** Interface type XAUI */
+    SAI_PORT_INTERFACE_TYPE_XAUI,
+
+    /** Interface type XFI */
+    SAI_PORT_INTERFACE_TYPE_XFI,
+
+    /** Interface type XGMII */
+    SAI_PORT_INTERFACE_TYPE_XGMII,
+
     /** Interface type MAX */
     SAI_PORT_INTERFACE_TYPE_MAX,
 
@@ -656,6 +671,8 @@ typedef enum _sai_port_attr_t
 
     /**
      * @brief Query/Configure list of Advertised port speed (Full-Duplex) in Mbps
+     *
+     * Used when auto negotiation is on. Empty list means all supported values are enabled.
      *
      * @type sai_u32_list_t
      * @flags CREATE_AND_SET
@@ -1456,6 +1473,17 @@ typedef enum _sai_port_attr_t
     SAI_PORT_ATTR_INTERFACE_TYPE,
 
     /**
+     * @brief Configure advertised interface type list
+     *
+     * Used when auto negotiation is on. Empty list means all supported values are enabled.
+     *
+     * @type sai_s32_list_t sai_port_interface_type_t
+     * @flags CREATE_AND_SET
+     * @default empty
+     */
+    SAI_PORT_ATTR_ADVERTISED_INTERFACE_TYPE,
+
+    /**
      * @brief Configure port reference clock in hertz
      *
      * @type sai_uint64_t
@@ -2110,6 +2138,62 @@ typedef enum _sai_port_stat_t
 
     /** SAI port stat PFC 7 tx duration */
     SAI_PORT_STAT_PFC_7_TX_PAUSE_DURATION,
+
+    /**
+     * @brief PFC pause duration for RX and TX per PFC priority in micro seconds [uint64_t]
+     *
+     * RX pause duration for certain priority is a the duration in micro seconds converted
+     * from quanta in ingress pause frame for that priority (a pause frame received by the
+     * switch).
+     * While TX pause duration for certain priority is the duration in micro seconds converted
+     * from quanta in egress pause frame for that priority (a pause frame sent by the switch).
+     */
+    SAI_PORT_STAT_PFC_0_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 0 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_0_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 1 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_1_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 1 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_1_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 2 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_2_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 2 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_2_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 3 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_3_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 3 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_3_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 4 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_4_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 4 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_4_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 5 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_5_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 5 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_5_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 6 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_6_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 6 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_6_TX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 7 rx duration in micro seconds */
+    SAI_PORT_STAT_PFC_7_RX_PAUSE_DURATION_US,
+
+    /** SAI port stat PFC 7 tx duration in micro seconds */
+    SAI_PORT_STAT_PFC_7_TX_PAUSE_DURATION_US,
 
     /** PFC based ON to OFF pause transitions counter per PFC priority [uint64_t] */
     SAI_PORT_STAT_PFC_0_ON2OFF_RX_PKTS,
