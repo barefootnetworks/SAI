@@ -340,3 +340,26 @@ bool sai_metadata_is_condition_met(
 
     return met;
 }
+
+bool sai_metadata_get_enum_attr_value(
+        _In_ const char *attr_id_name,
+        _In_ const char *attr_value_name,
+	_Out_ sai_attr_id_t *attr_id,
+	_Out_ int *attr_value)
+{
+    unsigned int i;
+    const sai_attr_metadata_t *m = sai_metadata_get_attr_metadata_by_attr_id_name(attr_id_name);
+    if(m) {
+        if(attr_id) *attr_id = m->attrid;
+	if(m->isenum) {
+            for(i=0;i<m->enummetadata->valuescount;i++) {
+                if(!strcmp(m->enummetadata->valuesnames[i], attr_value_name)) {
+                    if(attr_value) *attr_value = m->enummetadata->values[i];
+	            return true;
+                }
+            }
+	}
+    }
+    return false;
+}
+

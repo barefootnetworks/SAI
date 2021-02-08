@@ -163,6 +163,24 @@ extern bool sai_metadata_is_condition_met(
         _In_ const sai_attribute_t *attr_list);
 
 /**
+ * @brief Gets enum from names
+ *
+ * returns enum of attr and values
+ *
+ * @param[in] attr_id_name Attribute id name
+ * @param[in] attr_value_name Attribute value name
+ * @param[in] attr_id Attribute id enum
+ * @param[in] attr_value Attribute value enum
+ *
+ * @return True if condition found
+ */
+extern bool sai_metadata_get_enum_attr_value(
+        _In_ const char *attr_id_name,
+        _In_ const char *attr_value_name,
+        _Out_ sai_attr_id_t *attr_id,
+        _Out_ int *attr_value);
+
+/**
  * @}
  */
 #endif /** __SAIMETADATAUTILS_H_ */

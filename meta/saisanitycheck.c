@@ -1798,7 +1798,7 @@ void check_attr_acl_fields(
 
             if (md->objecttype == SAI_OBJECT_TYPE_ACL_ENTRY &&
                     md->attrid >= SAI_ACL_ENTRY_ATTR_FIELD_START &&
-                    md->attrid  <= SAI_ACL_ENTRY_ATTR_CUSTOM_RANGE_END)
+                    md->attrid  <= SAI_ACL_ENTRY_ATTR_FIELD_END)
             {
                 break;
 
@@ -1858,7 +1858,7 @@ void check_attr_acl_fields(
 
             if (md->objecttype != SAI_OBJECT_TYPE_ACL_ENTRY ||
                     md->attrid < SAI_ACL_ENTRY_ATTR_ACTION_START ||
-                    md->attrid > SAI_ACL_ENTRY_ATTR_CUSTOM_RANGE_END)
+                    md->attrid > SAI_ACL_ENTRY_ATTR_ACTION_END)
             {
                 META_MD_ASSERT_FAIL(md, "acl action may only be set on acl action");
             }
@@ -4660,6 +4660,26 @@ int main(int argc, char **argv)
 
     printf("\n [ %s ]\n\n", sai_metadata_get_status_name(SAI_STATUS_SUCCESS));
 
+sai_attr_id_t id;
+int value;
+if(sai_metadata_get_enum_attr_value( "SAI_ROUTER_INTERFACE_ATTR_TYPE", "SAI_ROUTER_INTERFACE_TYPE_PORT", &id, &value))
+  printf("%d %d\n", id, value);
+
+unsigned int i, j;
+for(i=0;i<sai_metadata_all_enums_count;i++) {
+	const sai_enum_metadata_t* emd = sai_metadata_all_enums[i];
+	 if(!strcmp(emd->name, "sai_router_interface_attr_t")) {
+		for(j=0; j< emd->valuescount; j++) {
+			printf("%s : %d\n", emd->valuesnames[j], emd->values[j]);
+		}
+                printf("\n");
+	 }
+	 if(!strcmp(emd->name, "sai_router_interface_type_t")) {
+		for(j=0; j< emd->valuescount; j++) {
+			printf("%s : %d\n", emd->valuesnames[j], emd->values[j]);
+		}
+	 }
+}
     SAI_META_LOG_EXIT();
 
     return 0;
