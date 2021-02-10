@@ -1,4 +1,21 @@
-/*
+/**
+ * Copyright (c) 20XX Microsoft Open Technologies, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License"); you may
+ *    not use this file except in compliance with the License. You may obtain
+ *    a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT
+ *    LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS
+ *    FOR A PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+ *
+ *    See the Apache Version 2.0 License for specific language governing
+ *    permissions and limitations under the License.
+ *
+ *    Microsoft would like to thank the following companies for their review and
+ *    assistance with these files: Intel Corporation, Mellanox Technologies Ltd,
+ *    Dell Products, L.P., Facebook, Inc., Marvell International Ltd.
  *
  * @file    saip4ext.h
  *
@@ -18,58 +35,58 @@
 typedef enum _sai_p4_ext_table_attr_t
 {
     /**
-     * @brief Table attributes start
+     * @brief Start of attributes
      */
-    SAI_P4_TABLE_ATTR_START,
+    SAI_P4_EXT_TABLE_ATTR_START,
 
     /**
-     * @brief 
-     * Action ID to set as default action for table
+     * @brief Action ID to set as default action for table
+     *
      * @type sai_s8_list_t
+     * @flags CREATE_AND_SET
      */
-    SAI_P4_TABLE_ATTR_DEFAULT_ACTION = SAI_P4_TABLE_ATTR_START,
+    SAI_P4_EXT_TABLE_ATTR_DEFAULT_ACTION = SAI_P4_EXT_TABLE_ATTR_START,
 
     /**
      * @brief End of P4 Table attributes
      */
-    SAI_P4_TABLE_ATTR_END,
+    SAI_P4_EXT_TABLE_ATTR_END,
 
     /**
      * @brief Custom range base value start
      */
-    SAI_P4_TABLE_ATTR_CUSTOM_RANGE_START = 0x10000000,
+    SAI_P4_EXT_TABLE_ATTR_CUSTOM_RANGE_START = 0x10000000,
 
     /**
      * @brief End of Custom range base
      */
-    SAI_P4_TABLE_ATTR_CUSTOM_RANGE_END
+    SAI_P4_EXT_TABLE_ATTR_CUSTOM_RANGE_END
 
 } sai_p4_ext_table_attr_t;
-
 
 /**
  * @brief Set P4 table attribute
  *
- * @param[in] p4_table_id The P4 table id
+ * @param[in] p4_ext_table_id The P4 table
  * @param[in] attr Attribute
  *
  * @return #SAI_STATUS_SUCCESS on success, failure status code on error
  */
 typedef sai_status_t (*sai_set_p4_ext_table_attribute_fn)(
-        _In_ sai_uint32_t p4_table_id,
+        _In_ sai_s8_list_t p4_ext_table_id,
         _In_ const sai_attribute_t *attr);
 
 /**
  * @brief Get P4 table attribute
  *
- * @param[in] p4_table_id P4 table id
+ * @param[in] p4_ext_table_id P4 table
  * @param[in] attr_count Number of attributes
  * @param[inout] attr_list Array of attributes
  *
  * @return #SAI_STATUS_SUCCESS on success, failure status code on error
  */
 typedef sai_status_t (*sai_get_p4_ext_table_attribute_fn)(
-        _In_ sai_uint32_t p4_table_id,
+        _In_ sai_s8_list_t p4_ext_table_id,
         _In_ uint32_t attr_count,
         _Inout_ sai_attribute_t *attr_list);
 
@@ -125,11 +142,23 @@ typedef enum _sai_p4_ext_entry_attr_t
 
 } sai_p4_ext_entry_attr_t;
 
+/**
+ * @brief P4 Ext entry
+ */
+typedef struct _sai_p4_ext_entry_t
+{
+    /**
+     * @brief Switch ID
+     *
+     * @objects SAI_OBJECT_TYPE_SWITCH
+     */
+    sai_object_id_t switch_id;
+} sai_p4_ext_entry_t;
 
 /**
  * @brief Create an P4 table entry
  *
- * @param[out] p4_entry_id The P4 entry id
+ * @param[out] p4_ext_entry_id The P4 table id
  * @param[in] switch_id The Switch Object id
  * @param[in] attr_count Number of attributes
  * @param[in] attr_list Array of attributes
@@ -137,7 +166,7 @@ typedef enum _sai_p4_ext_entry_attr_t
  * @return #SAI_STATUS_SUCCESS on success, failure status code on error
  */
 typedef sai_status_t (*sai_create_p4_ext_entry_fn)(
-        _Out_ sai_object_id_t *p4_entry_id,
+        _Out_ sai_object_id_t *p4_ext_entry_id,
         _In_ sai_object_id_t switch_id,
         _In_ uint32_t attr_count,
         _In_ const sai_attribute_t *attr_list);
@@ -145,36 +174,36 @@ typedef sai_status_t (*sai_create_p4_ext_entry_fn)(
 /**
  * @brief Delete an P4 entry
  *
- * @param[in] p4_entry_id The P4 entry id
+ * @param[in] p4_ext_entry_id The P4 table id
  *
  * @return #SAI_STATUS_SUCCESS on success, failure status code on error
  */
 typedef sai_status_t (*sai_remove_p4_ext_entry_fn)(
-        _In_ sai_object_id_t p4_entry_id);
+        _In_ sai_object_id_t p4_ext_entry_id);
 
 /**
  * @brief Set P4 Table entry attribute
  *
- * @param[in] p4_entry_id The P4 entry id
+ * @param[in] p4_ext_entry_id The P4 table id
  * @param[in] attr Attribute
  *
  * @return #SAI_STATUS_SUCCESS on success, failure status code on error
  */
 typedef sai_status_t (*sai_set_p4_ext_entry_attribute_fn)(
-        _In_ sai_object_id_t p4_entry_id,
+        _In_ sai_object_id_t p4_ext_entry_id,
         _In_ const sai_attribute_t *attr);
 
 /**
  * @brief Get P4 entry attribute
  *
- * @param[in] p4_entry_id P4 entry id
+ * @param[in] p4_ext_entry_id P4 table id
  * @param[in] attr_count Number of attributes
  * @param[inout] attr_list Array of attributes
  *
  * @return #SAI_STATUS_SUCCESS on success, failure status code on error
  */
 typedef sai_status_t (*sai_get_p4_ext_entry_attribute_fn)(
-        _In_ sai_object_id_t p4_entry_id,
+        _In_ sai_object_id_t p4_ext_entry_id,
         _In_ uint32_t attr_count,
         _Inout_ sai_attribute_t *attr_list);
 

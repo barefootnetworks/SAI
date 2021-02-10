@@ -277,6 +277,7 @@ typedef enum _sai_object_type_t
     SAI_OBJECT_TYPE_MACSEC_SA                = 92,
     SAI_OBJECT_TYPE_SYSTEM_PORT              = 93,
     SAI_OBJECT_TYPE_FINE_GRAINED_HASH_FIELD  = 94,
+    SAI_OBJECT_TYPE_P4_EXT_ENTRY             = 95,
     SAI_OBJECT_TYPE_MAX,  /* Must remain in last position */
 } sai_object_type_t;
 
@@ -1082,26 +1083,26 @@ typedef struct _sai_port_err_status_list_t
 } sai_port_err_status_list_t;
 
 /**
- * @brief Attribute data for #SAI_PORT_ATTR_TUPLE
+ * @brief Attribute data for key value
  */
 typedef struct _sai_tuple_t
 {
-    /** key */
+    /** Key */
     int32_t key;
 
-    /** value */
+    /** Value */
     int32_t value;;
 } sai_tuple_t;
 
 /**
- * @brief Attribute data for #SAI_PORT_ATTR_TUPLE_LIST
+ * @brief Attribute data for list of key value pairs
  */
 typedef struct _sai_tuple_list_t
 {
     /** Number of entries in the list */
     uint32_t count;
 
-    /** tuple list */
+    /** Tuple list */
     sai_tuple_t *list;
 } sai_tuple_list_t;
 

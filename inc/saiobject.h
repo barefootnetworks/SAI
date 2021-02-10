@@ -34,6 +34,7 @@
 #include <sairoute.h>
 #include <saimpls.h>
 #include <sainat.h>
+#include <saip4ext.h>
 
 /**
  * @defgroup SAIOBJECT SAI - Object API definitions.
@@ -76,6 +77,9 @@ typedef union _sai_object_key_entry_t
 
     /** @validonly object_type == SAI_OBJECT_TYPE_NAT_ENTRY */
     sai_nat_entry_t           nat_entry;
+
+    /** @validonly object_type == SAI_OBJECT_TYPE_P4_EXT_ENTRY */
+    sai_p4_ext_entry_t        p4_ext_entry;
 
 } sai_object_key_entry_t;
 
