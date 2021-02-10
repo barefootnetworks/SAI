@@ -278,6 +278,7 @@ typedef enum _sai_object_type_t
     SAI_OBJECT_TYPE_SYSTEM_PORT              = 93,
     SAI_OBJECT_TYPE_FINE_GRAINED_HASH_FIELD  = 94,
     SAI_OBJECT_TYPE_P4_EXT_ENTRY             = 95,
+    SAI_OBJECT_TYPE_P4_EXT_TABLE             = 96,
     SAI_OBJECT_TYPE_MAX,  /* Must remain in last position */
 } sai_object_type_t;
 
@@ -1083,30 +1084,6 @@ typedef struct _sai_port_err_status_list_t
 } sai_port_err_status_list_t;
 
 /**
- * @brief Attribute data for key value
- */
-typedef struct _sai_tuple_t
-{
-    /** Key */
-    int32_t key;
-
-    /** Value */
-    int32_t value;;
-} sai_tuple_t;
-
-/**
- * @brief Attribute data for list of key value pairs
- */
-typedef struct _sai_tuple_list_t
-{
-    /** Number of entries in the list */
-    uint32_t count;
-
-    /** Tuple list */
-    sai_tuple_t *list;
-} sai_tuple_list_t;
-
-/**
  * @brief Data Type
  *
  * To use enum values as attribute value is sai_int32_t s32
@@ -1265,12 +1242,6 @@ typedef union _sai_attribute_value_t
 
     /** @validonly meta->attrvaluetype == SAI_ATTR_VALUE_TYPE_PORT_ERR_STATUS_LIST */
     sai_port_err_status_list_t porterror;
-
-    /** @validonly meta->attrvaluetype == SAI_ATTR_VALUE_TYPE_TUPLE */
-    sai_tuple_t  tuple;
-
-    /** @validonly meta->attrvaluetype == SAI_ATTR_VALUE_TYPE_TUPLE_LIST */
-    sai_tuple_t  tuplelist;
 
 } sai_attribute_value_t;
 

@@ -134,6 +134,11 @@ typedef enum _sai_p4_ext_entry_attr_t
      */
     SAI_P4_EXT_ENTRY_ATTR_PARAMETER_ID,
 
+    /**
+     * @brief End of attributes
+     */
+    SAI_P4_EXT_ENTRY_ATTR_END,
+
     /** Custom range base value */
     SAI_P4_EXT_ENTRY_ATTR_CUSTOM_RANGE_START = 0x10000000,
 
