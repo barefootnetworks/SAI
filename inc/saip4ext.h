@@ -40,9 +40,9 @@ typedef enum _sai_p4_ext_entry_attr_t
     /**
      * @brief SAI P4 EXT table id
      *
-     * @type sai_uint32_t
+     * @type sai_s8_list_t
      * @flags CREATE_AND_SET
-     * @default 0
+     * @default empty
      */
     SAI_P4_EXT_ENTRY_ATTR_TABLE_ID = SAI_P4_EXT_ENTRY_ATTR_START,
 
@@ -58,9 +58,9 @@ typedef enum _sai_p4_ext_entry_attr_t
     /**
      * @brief SAI P4 EXT Action id
      *
-     * @type sai_uint32_t
+     * @type sai_s8_list_t
      * @flags CREATE_AND_SET
-     * @default 0
+     * @default empty
      */
     SAI_P4_EXT_ENTRY_ATTR_ACTION_ID,
 
