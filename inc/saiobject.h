@@ -34,7 +34,6 @@
 #include <sairoute.h>
 #include <saimpls.h>
 #include <sainat.h>
-#include <saip4ext.h>
 
 /**
  * @defgroup SAIOBJECT SAI - Object API definitions.
