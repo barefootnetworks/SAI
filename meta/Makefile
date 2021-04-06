@@ -75,20 +75,11 @@ OBJ = saimetadata.o saimetadatautils.o saiserialize.o
 
 SYMBOLS = $(OBJ:=.symbols)
 
-all: toolsversions saisanitycheck saimetadatatest saiserializetest saidepgraph.svg $(SYMBOLS)
+all: saisanitycheck saimetadatatest saiserializetest saidepgraph.svg $(SYMBOLS) sairpc
 	./checkheaders.pl ../inc ../inc
 	./saimetadatatest >/dev/null
 	./saiserializetest >/dev/null
 	./saisanitycheck
-
-toolsversions:
-	@make -v | grep -i make
-	@gcc --version | grep gcc
-	@perl --version | grep version
-	@aspell --version
-	@dot -V
-	@doxygen -v | perl -npe 'print "doxygen: "'
-	@nm --version | grep nm
 
 CONSTHEADERS = saimetadatatypes.h saimetadatalogger.h saimetadatautils.h saiserialize.h
 
@@ -130,6 +121,13 @@ saidepgraph.gv: saidepgraphgen
 saidepgraph.svg: saidepgraph.gv
 	dot -Tsvg saidepgraph.gv > $@
 
+gensairpc: xml
+	rpc/gensairpc.pl --sai .. --no-meta-build
+
+sairpc: gensairpc
+	mkdir -p generated
+	mv rpc/generated/* generated
+
 .PHONY: clean
 
 clean:
@@ -137,3 +135,5 @@ clean:
 	rm -f saimetadata.h saimetadata.c saimetadatatest.c
 	rm -f saisanitycheck saimetadatatest saiserializetest saidepgraphgen
 	rm -rf xml html dist
+	rm -rf rpc/generated
+	rm -rf generated
