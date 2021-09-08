@@ -16,6 +16,11 @@
 #    Dell Products, L.P., Facebook, Inc
 #
 
+ifdef SAITHRIFTV2
+SAITHRIFT_PATH=test/saithriftv2
+else
+SAITHRIFT_PATH=test/saithrift
+endif
 
 .PHONY: test doc clean
 
@@ -26,10 +31,10 @@ test:
 	make -C test
 
 saithrift-build:
-	make -C test/saithrift
+	make -C $(SAITHRIFT_PATH)
 
 saithrift-install: saithrift-build
-	make -C test/saithrift install
+	make -C $(SAITHRIFT_PATH) install
 
 clean:
-	make -C test clean    
+	make -C test clean
