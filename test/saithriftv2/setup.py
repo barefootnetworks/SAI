@@ -6,8 +6,8 @@ saithrift is python client library to connect to sai thrift server.
 
 setup (name='saithrift',
         version='0.9',
-        package_dir={'switch_sai_thrift': 'gen-py/sai'},
-        packages=['switch_sai_thrift'],
+        package_dir={'sai_thrift': 'gen-py/sai'},
+        packages=['sai_thrift'],
         description='saithrift is python client library to connect to sai thrift server.',
         long_description=long_description,
         author='Guohan Lu',

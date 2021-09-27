@@ -88,6 +88,7 @@ install-lib: $(ODIR)/librpcserver.a
 	$(INSTALL) -D ./switch_sai_rpc_server.h $(DESTDIR)/usr/include/switch_sai_rpc_server.h
 
 install-pylib: clientlib
+	cp generated/sai_adapter.py gen-py/sai/
 	python setup.py install --prefix $(DESTDIR)/usr/local$(prefix)
 
 install: install-lib install-pylib
