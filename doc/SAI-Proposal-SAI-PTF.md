@@ -16,6 +16,22 @@ The contribution consists of two parts:
 1. Auto-generation framework using existing SAI meta infrastructure
 2. New PTF tests using this new framework
 
+## Curent state of testing
+
+Currently there are three main directories in which tests are stored:
+- basic_router (contains simple test to illustrate L3 route setup)
+- sai_ut (contains C++ unit tests for L2/L3 objects using google-test)
+- saithrift (contains PTF based functional tests for L2, L3, tunnel, mirror, ~125 test cases)
+First two haven't been updated for almost 3 years, third is updated very rarely.
+
+In order to add a new test it is necessary to:
+1. Add an entry in switch_sai.thrift.
+2. Add RPC server method for new entry in switch_sai_rpc_server.cpp.
+3. Add a python wrapper in switch.py (if applicable).
+4. Write a new test
+
+The main goal of autogeneration framework is to generate first three steps based on SAI headers to facilitate the process of writing new tests.
+
 ## Autogeneration
 
 ![anatomy of a ptf test](figures/anatomy_of_a_ptf_test.png "Figure 1: Anatomy of a PTF test")
@@ -62,7 +78,7 @@ make
 make clean - C <root>/meta
 ```
 
-Use --no-meta-build because SAI meta are already built with make.
+Use --no-meta-build because SAI meta are already built with make. Additionally gensairpc script provides --help option.
 
 ## Test execution
 
@@ -80,17 +96,17 @@ The tests themselves are based on python unittest framework (https://docs.python
 
 Tests have to inherit from one of two base classes - SaiHelper or SaiHelperBase. SaiHelperBase is the base class that runs initial configuration for all tests. 
 
-SaiHelperBase initializes switch, gets several switch attributes and stores them into class attributes that are later to be used by tests. The attributes that are stored are:
+SaiHelperBase initializes switch, gets several switch attributes and stores them into class attributes that are later to be used in tests. The attributes that are stored are:
 - default_vlan_id
 - default_vrf
 - default_1q_bridge
 - acl_stage_ingress
 - acl_stage_egress
 - number_of_active_ports
-- port_list stored into variables self.portX
+- port numbers stored into variables portX
 
 SaiHelper inherits from SaiHelperBase but provides additional configuration.
-The based configuration created by SaiHelper looks like this:
+The base configuration created by SaiHelper looks like this:
 
 | Name       | Vlan ID | Ports | Tagging |
 | ----------- | ------------ | ------------ | ------------ |
@@ -116,7 +132,7 @@ If tests intend to have more complicated setUp() then the one that is created in
 
 ## Example API
 
-Example API for SAI_ROUTE_ENTRY_OBJ.
+Example API for SAI_OBJECT_TYPE_ROUTE_ENTRY.
 
 **sai_adapter.py**
 
