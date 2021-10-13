@@ -25,9 +25,9 @@ Currently there are three main directories in which tests are stored:
 First two haven't been updated for almost 3 years, third is updated very rarely.
 
 In order to add a new test it is necessary to:
-1. Add an entry in switch_sai.thrift.
-2. Add RPC server method for new entry in switch_sai_rpc_server.cpp.
-3. Add a python wrapper in switch.py (if applicable).
+1. Add an entry in [switch_sai.thrift](https://github.com/opencomputeproject/SAI/blob/b2487f0ef018435a036c0b6a8238e7ae737eb3a2/test/saithrift/src/switch_sai.thrift).
+2. Add RPC server method for new entry in [switch_sai_rpc_server.cpp](https://github.com/opencomputeproject/SAI/blob/b2487f0ef018435a036c0b6a8238e7ae737eb3a2/test/saithrift/src/switch_sai_rpc_server.cpp).
+3. Add a python wrapper in [switch.py](https://github.com/opencomputeproject/SAI/blob/b2487f0ef018435a036c0b6a8238e7ae737eb3a2/test/saithrift/tests/switch.py) (if applicable).
 4. Write a new test
 
 The main goal of autogeneration framework is to generate first three steps based on SAI headers to facilitate the process of writing new tests.
@@ -50,7 +50,7 @@ These files should be generated once, per every SAI version that needs to be tes
 | Input files                                                  | Output files                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | **Templates** <br /> - *sai.thrift.tt* <br /><br />**SAI headers** <br /> - *SAI meta* generates XML files with *Doxygen* | **sai.thrit** <br /> - thrift RPC "header" <br /> - generated from scratch <br /> - needed by thrift to generate *sai_rcp_server.skeleton.cpp* <br /> - skeleton is used to generate *sai_rpc_server.cpp.tt* template |
-| **Templates** <br /> - *sai_rpc_server_functions.tt* <br /> - *sai_rpc_server_helper_functions.tt* <br /><br />**Auto-generated templates** <br /> - *sai_rpc_server.cpp.tt* (by Thrift from *sai.thift*) <br /><br />**SAI headers** <br /> - *SAI meta* generates XML files with *Doxygen* | **sai_rpc_server.cpp** <br /> - thrift server <br /> - need *sai.thrift* and *Thrift* itself for generation |
+| **Templates** <br /> - *sai_rpc_server_functions.tt* <br /> - *sai_rpc_server_helper_functions.tt* <br /><br />**Auto-generated templates** <br /> - *sai_rpc_server.cpp.tt* (by Thrift from *sai.thrift*) <br /><br />**SAI headers** <br /> - *SAI meta* generates XML files with *Doxygen* | **sai_rpc_server.cpp** <br /> - thrift server <br /> - need *sai.thrift* and *Thrift* itself for generation |
 | **Templates** <br /> - *sai_adapter.py.tt* <br /> - *sai_adapter_utils.tt* <br /><br />**SAI headers** <br /> - *SAI meta* generates XML files with *Doxygen* | **sai_adapter.py** <br /> - thrift client and main SAI PTF test library <br /> - generated from scratch |
 
 
@@ -62,14 +62,7 @@ __Figure 2: Autogeneration - parsing__
 ![autogeneration gensairpc](figures/autogeneration_gensairpc.png "Figure 3: Autogeneration - gensairpc")
 __Figure 3: Autogeneration - parsing__
 
-Autogeneration:
-
-```
-cd <root>/meta/
-./gensairpc.pl --clean
-```
-
-When upgrading SAI:
+Autogeneration when upgrading SAI:
 
 ```
 cd <root>/meta
@@ -103,7 +96,7 @@ SaiHelperBase initializes switch, gets several switch attributes and stores them
 - acl_stage_ingress
 - acl_stage_egress
 - number_of_active_ports
-- port numbers stored into variables portX
+- port numbers stored into variables portX, where X is the number of port
 
 SaiHelper inherits from SaiHelperBase but provides additional configuration.
 The base configuration created by SaiHelper looks like this:
@@ -609,7 +602,7 @@ sai_thrift_remove_route_entry(self.client, self.route_entry)
 
 ## Implemented tests
 
-Tests are divided into per-feature files such as saivlan.py, saifdb.py etc. Following features are being tested:
+Tests are divided into per-feature files such as saivlan.py, saifdb.py etc (~900 test cases). Following features are being tested:
 
 - acl
 - bridgeport
