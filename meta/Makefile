@@ -85,6 +85,7 @@ all: toolsversions saisanitycheck saimetadatatest saiserializetest saidepgraph.s
 	./saimetadatatest >/dev/null
 	./saiserializetest >/dev/null
 	./saisanitycheck
+	./gensairpc.pl --clean
 
 toolsversions:
 	@make -v | grep -i make

@@ -13,6 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# @file    gensairpc.pl
+#
+# @brief   This module generates RPC interface of SAI for PTF
 
 use strict;
 use warnings;
@@ -32,7 +36,7 @@ use File::Copy;
 use Template;
 use Carp;
 
-use lib catdir( dirname( rel2abs(__FILE__) ), 'perl' );
+use lib catdir( dirname( rel2abs(__FILE__) ), 'rpc' );
 
 use Utils::Format;
 use Utils;
@@ -635,21 +639,17 @@ gensairpc.pl - generate RPC interface of SAI for PTF
 
 =head1 SYNOPSIS
 
-  cd <root>/submodules/SAI/meta
+  cd <root>/meta
   make
-  cp saimetadata.c ../../../sai/.
-  cp saimetadata.h ../../../sai/.
+  ./gensairpc.pl --clean
 
-  cd <root>/sai
-  ./gensairpc.pl --clean --no-meta-build
-
-  make clean -C <root>/submodules/SAI/meta
+  make clean -C <root>/meta
 
 =head1 DESCRIPTION
 
 This script generates RPC interface of SAI function for PTF tests. It should be used after SAI interface update.
 
-For more details see the development documentation (perl/README.md).
+For more details see the development documentation (rpc/README.md).
 
 =head1 USAGE
 
@@ -662,10 +662,6 @@ In order to run, just call:
 Before committing it is a good idea to clean before generation:
 
   ./gensairpc.pl --clean
-
-If SAI meta is already built, then don't it again:
-
-  ./gensairpc.pl --clean --no-meta-build
 
 In order to generate debug files and avoid cleanup, use --dbg or --dump flags. Use --experimental to generate extensions and experimental code.
 

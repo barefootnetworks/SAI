@@ -2,21 +2,17 @@ NAME
     gensairpc.pl - generate RPC interface of SAI for PTF
 
 SYNOPSIS
-      cd <root>/submodules/SAI/meta
+      cd <root>/meta
       make
-      cp saimetadata.c ../../../sai/.
-      cp saimetadata.h ../../../sai/.
-
-      cd <root>/sai
       ./gensairpc.pl --clean
 
-      make clean -C <root>/submodules/SAI/meta
+      make clean -C <root>/meta
 
 DESCRIPTION
     This script generates RPC interface of SAI function for PTF tests. It
     should be used after SAI interface update.
 
-    For more details see the development documentation (perl/README.md).
+    For more details see the development documentation (rpc/README.md).
 
 USAGE
     All files should be present in bf-switch/sai and SAI meta should be
@@ -28,10 +24,6 @@ USAGE
       ./gensairpc.pl
 
     Before committing it is a good idea to clean before generation:
-
-      ./gensairpc.pl --clean
-
-    If SAI meta is already built, then don't it again:
 
       ./gensairpc.pl --clean
 
