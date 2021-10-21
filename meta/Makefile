@@ -78,14 +78,13 @@ OBJ = saimetadata.o saimetadatautils.o saiserialize.o
 
 SYMBOLS = $(OBJ:=.symbols)
 
-all: toolsversions saisanitycheck saimetadatatest saiserializetest saidepgraph.svg $(SYMBOLS)
+all: toolsversions saisanitycheck saimetadatatest saiserializetest saidepgraph.svg $(SYMBOLS) sai.thrift sai_rpc_server.cpp sai_adapter.py
 	./checkheaders.pl ../inc ../inc
 	./checkenumlock.sh
 	./checkancestry.sh
 	./saimetadatatest >/dev/null
 	./saiserializetest >/dev/null
 	./saisanitycheck
-	./gensairpc.pl --clean
 
 toolsversions:
 	@make -v | grep -i make
@@ -106,6 +105,9 @@ EXTRA = acronyms.txt aspell.en.pws *.pm *.cap
 
 saimetadatatest.c saimetadata.c saimetadata.h: xml $(XMLDEPS) parse.pl $(CONSTHEADERS) $(EXTRA)
 	perl -I. parse.pl
+
+sai.thrift sai_rpc_server.cpp sai_adapter.py: xml $(XMLDEPS) gensairpc.pl
+	perl gensairpc.pl
 
 HEADERS = saimetadata.h $(CONSTHEADERS)
 
@@ -142,4 +144,5 @@ clean:
 	rm -f *.o *~ .*~ *.tmp .*.swp .*.swo *.bak sai*.gv sai*.svg *.o.symbols doxygen*.db
 	rm -f saimetadata.h saimetadata.c saimetadatatest.c
 	rm -f saisanitycheck saimetadatatest saiserializetest saidepgraphgen
-	rm -rf xml html dist temp
+	rm -f sai.thrift sai_rpc_server.cpp sai_adapter.py
+	rm -rf xml html dist temp generated

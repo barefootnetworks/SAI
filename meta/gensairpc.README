@@ -1,13 +1,6 @@
 NAME
     gensairpc.pl - generate RPC interface of SAI for PTF
 
-SYNOPSIS
-      cd <root>/meta
-      make
-      ./gensairpc.pl --clean
-
-      make clean -C <root>/meta
-
 DESCRIPTION
     This script generates RPC interface of SAI function for PTF tests. It
     should be used after SAI interface update.
@@ -15,17 +8,13 @@ DESCRIPTION
     For more details see the development documentation (rpc/README.md).
 
 USAGE
-    All files should be present in bf-switch/sai and SAI meta should be
-    cloned in ../submodules/SAI/meta/ The script should be called from its
-    directory (calling from other directories will be supported soon).
-
     In order to run, just call:
 
       ./gensairpc.pl
 
     Before committing it is a good idea to clean before generation:
 
-      ./gensairpc.pl --clean
+      ./gensairpc.pl --clean-meta
 
     In order to generate debug files and avoid cleanup, use --dbg or --dump
     flags. Use --experimental to generate extensions and experimental code.
@@ -42,5 +31,4 @@ DEPENDENCIES
       libmoosex-aliases-perl
       libnamespace-autoclean-perl
       libgetopt-long-descriptive-perl
-      clang-format-3.6 (optional)
 

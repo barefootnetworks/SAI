@@ -1,22 +1,27 @@
 #!/usr/bin/env perl
-
-# Copyright 2021-present Intel Corporation.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2014 Microsoft Open Technologies, Inc.
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR
+#    CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT
+#    LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS
+#    FOR A PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+#
+#    See the Apache Version 2.0 License for specific language governing
+#    permissions and limitations under the License.
+#
+#    Microsoft would like to thank the following companies for their review and
+#    assistance with these files: Intel Corporation, Mellanox Technologies Ltd,
+#    Dell Products, L.P., Facebook, Inc., Marvell International Ltd.
 #
 # @file    gensairpc.pl
 #
 # @brief   This module generates RPC interface of SAI for PTF
+#
 
 use strict;
 use warnings;
@@ -73,7 +78,6 @@ my $templates_dir =
 
 # Parameters
 my $sai_dir = catdir( dirname($script_dir) );
-my $ptf_dir = catdir( dirname($script_dir), 'test', 'saithrift', 'tests' );
 
 #<<<
 ( my $args, my $usage ) = describe_options(
@@ -82,7 +86,7 @@ my $ptf_dir = catdir( dirname($script_dir), 'test', 'saithrift', 'tests' );
     [ 'experimental|e',  'Generate also experimental files',                                                                      { default => 0 }        ],
     [ 'dist',            'Create the standalone \'gensairpc\' script (experimental)',                                             { default => 0 }        ],
     [ 'dump|d',          'Dump all data to the file',                                                                             { default => 0 }        ],
-    [ 'clean|c',         'Perform clean before generation',                                                                       { default => 0 }        ],
+    [ 'clean-meta|c',    'Perform clean meta before generation',                                                                  { default => 0 }        ],
     [ 'verbose|v',       'Print more details',                                                                                    { default => 0 }        ],
     [ 'mandatory-attrs', 'Make mandatory attributes obligatory in sai_adapter.py',                                                { default => 0 }        ],
     [ 'dev-utils:s',     'Generate additional development utils within the generated code. Additional options: [=log,zero]',      { default => 0 }        ],
@@ -107,7 +111,7 @@ my $verbose = $args->verbose;
 $dump    = 1 if $dbg;
 $verbose = 1 if $dump;
 my $experimental  = $args->experimental;
-my $clean         = $args->clean;
+my $clean         = $args->clean_meta;
 my $mandatory_attrs = $args->mandatory_attrs;
 my $dev_utils       = ( $args->dev_utils ne q{} ? $args->dev_utils : 1 );
 my $attr_header     = $args->attr_header;
@@ -117,10 +121,6 @@ my $sai_meta_dir = catdir( $sai_dir, 'meta' );
 my $sai_parse_path = catfile( $sai_meta_dir, 'parse.pl' );
 
 -d $sai_dir or die "\"$sai_dir\" directory is invalid";
-unless ( -d $ptf_dir ) {
-    say "\"$ptf_dir\" directory is invalid, sai_adapter.py won't be installed";
-    undef $ptf_dir;
-}
 
 # Declare SAI meta global variables, its libraries need them
 our $XMLDIR           = catdir( $sai_meta_dir, 'xml' );
@@ -141,13 +141,11 @@ utils->import;
 if ($clean) {
     say colored( "Removing \"$GEN_DIR\" directory...", 'bold blue' );
     rmtree $gen_dir;
-}
-
-# Generate Doxygen xml files
-if ($clean) {
     say colored( 'Cleaning SAI meta...', 'bold blue' );
     system 'make clean -C ' . $sai_meta_dir;
 }
+
+# Generate Doxygen xml files
 say colored( 'Building SAI meta XML...', 'bold blue' );
 system 'make xml -C ' . $sai_meta_dir;
 
@@ -178,12 +176,12 @@ my $template = Template->new( ABSOLUTE => 1 );
 
 say colored( 'Generating sai.thrift...', 'bold blue' );
 $template->process( catfile( $templates_dir, 'sai.thrift.tt' ),
-    $vars, catfile( $gen_dir, 'sai.thrift' ) )
+    $vars, catfile( $run_dir, 'sai.thrift' ) )
   or die $template->error();
 
 say colored( 'Generating Thrift files...', 'bold blue' );
 chdir $gen_dir;
-system 'thrift -o . --gen cpp -r sai.thrift';
+system 'thrift -o . --gen cpp -r ../sai.thrift';
 chdir $run_dir;
 
 say colored( 'Generating sai_rpc_server.cpp.tt...', 'bold blue' );
@@ -203,11 +201,11 @@ say "$fn_definitions functions processed";
 
 say colored( 'Generating sai_rpc_server.cpp...', 'bold blue' );
 $template->process( catfile( $gen_dir, 'templates', 'sai_rpc_server.cpp.tt' ),
-    $vars, catfile( $gen_dir, 'sai_rpc_server.cpp' ) )
+    $vars, catfile( $run_dir, 'sai_rpc_server.cpp' ) )
   or die $template->error();
 
-say 'Formatting sai_rpc_server.cpp...' if $verbose;
-Utils::Format->cpp( catfile( $gen_dir, 'sai_rpc_server.cpp' ) );
+# say 'Formatting sai_rpc_server.cpp...' if $verbose;
+# Utils::Format->cpp( catfile( $gen_dir, 'sai_rpc_server.cpp' ) );
 
 if ($attr_header) {
     say 'Generating gensaiattrs.c...';
@@ -226,40 +224,17 @@ if ($attr_header) {
 
 say colored( 'Generating sai_adapter.py...', 'bold blue' );
 $template->process( catfile( $templates_dir, 'sai_adapter.py.tt' ),
-    $vars, catfile( $gen_dir, 'sai_adapter.py' ) )
+    $vars, catfile( $run_dir, 'sai_adapter.py' ) )
   or die $template->error();
 
-say 'Formatting sai_adapter.py...' if $verbose;
-Utils::Format->python( catfile( $gen_dir, 'sai_adapter.py' ) );
+# say 'Formatting sai_adapter.py...' if $verbose;
+# Utils::Format->python( catfile( $gen_dir, 'sai_adapter.py' ) );
 
 # Generate documentation
 unless ( $ENV{PAR_TEMP} ) {
     say 'Generating README...' if $dump;
     Utils->generate_readme( $script_path, ( $dump ? $gen_dir : undef ) );
 }
-
-# Perform cleanup (disabled for debug builds)
-unless ($dump) {
-    say colored( 'Cleaning SAI meta...', 'bold blue' );
-    system 'make clean -C ' . $sai_meta_dir;
-
-    say colored( 'Removing temporary files...', 'bold blue' );
-    rmtree catdir( $gen_dir,    'gen-cpp' );
-    rmtree catdir( $gen_dir,    'templates' );
-    unlink catdir( $script_dir, 'pod2htmd.tmp' );
-    unlink glob( catdir( $gen_dir, 'gensaiattrs*' ) );
-
-    if ($ptf_dir) {
-        say colored( 'Moving sai_adapter.py...', 'bold blue' );
-        move catdir( $gen_dir, 'sai_adapter.py' ), $ptf_dir;
-    }
-}
-elsif ($ptf_dir) {
-    say colored( 'Copying sai_adapter.py...', 'bold blue' );
-    copy catdir( $gen_dir, 'sai_adapter.py' ), $ptf_dir;
-}
-
-say "sai_adapter.py kept in \"$GEN_DIR\" directory" unless ($ptf_dir);
 
 # Thrift tools can generate the skeleton of RPC server file.
 # Replace it with the Template Toolkit template, so that we can
@@ -270,6 +245,8 @@ sub generate_server_template_from_skeleton {
 
     my $definitions = 0;
 
+    say {$server_template}
+      '/* AUTOGENERATED FILE! DO NOT EDIT */';
     say {$server_template}
       '[% PROCESS "$templates_dir/sai_rpc_server_functions.tt" -%]';
     say {$server_template}
@@ -632,52 +609,3 @@ sub get_function {
 }
 
 __END__
-
-=head1 NAME
-
-gensairpc.pl - generate RPC interface of SAI for PTF
-
-=head1 SYNOPSIS
-
-  cd <root>/meta
-  make
-  ./gensairpc.pl --clean
-
-  make clean -C <root>/meta
-
-=head1 DESCRIPTION
-
-This script generates RPC interface of SAI function for PTF tests. It should be used after SAI interface update.
-
-For more details see the development documentation (rpc/README.md).
-
-=head1 USAGE
-
-All files should be present in bf-switch/sai and SAI meta should be cloned in ../submodules/SAI/meta/ The script should be called from its directory (calling from other directories will be supported soon).
-
-In order to run, just call:
-
-  ./gensairpc.pl
-
-Before committing it is a good idea to clean before generation:
-
-  ./gensairpc.pl --clean
-
-In order to generate debug files and avoid cleanup, use --dbg or --dump flags. Use --experimental to generate extensions and experimental code.
-
-For more information, use --help:
-
-  ./gensairpc.pl --help
-
-=head1 DEPENDENCIES
-
-Ubuntu packages:
-
-  libtemplate-perl
-  libconst-fast-perl
-  libmoosex-aliases-perl
-  libnamespace-autoclean-perl
-  libgetopt-long-descriptive-perl
-  clang-format-3.6 (optional)
-
-=cut
