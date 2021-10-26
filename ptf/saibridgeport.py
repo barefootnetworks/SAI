@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 Thrift SAI interface Bridge Port tests
 """
 
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
 from ptf.testutils import *
@@ -31,7 +29,7 @@ class BridgePortAttributeTest(SaiHelper):
     '''
 
     def setUp(self):
-        SaiHelper.setUp(self)
+        super(BridgePortAttributeTest).setUp(self)
 
         self.port24_bp = sai_thrift_create_bridge_port(
             self.client,
@@ -43,60 +41,58 @@ class BridgePortAttributeTest(SaiHelper):
         self.assertTrue(self.port24_bp != 0)
 
     def runTest(self):
-        try:
-            # bridge_id
-            # get
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, bridge_id=True)
-            self.assertEqual(attr['bridge_id'], self.default_1q_bridge)
+        # bridge_id
+        # get
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, bridge_id=True)
+        self.assertEqual(attr['bridge_id'], self.default_1q_bridge)
 
-            # type
-            # get
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, type=True)
-            self.assertEqual(attr['type'], SAI_BRIDGE_PORT_TYPE_PORT)
+        # type
+        # get
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, type=True)
+        self.assertEqual(attr['type'], SAI_BRIDGE_PORT_TYPE_PORT)
 
-            # port_id
-            # get
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, port_id=True)
-            self.assertEqual(attr['port_id'], self.port24)
+        # port_id
+        # get
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, port_id=True)
+        self.assertEqual(attr['port_id'], self.port24)
 
-            # fdb_learning_mode
-            # get
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, fdb_learning_mode=True)
-            self.assertEqual(attr['fdb_learning_mode'],
-                             SAI_BRIDGE_PORT_FDB_LEARNING_MODE_HW)
-            # set
-            status = sai_thrift_set_bridge_port_attribute(
-                self.client,
-                self.port24_bp,
-                fdb_learning_mode=SAI_BRIDGE_PORT_FDB_LEARNING_MODE_DISABLE)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, fdb_learning_mode=True)
-            self.assertEqual(attr['fdb_learning_mode'],
-                             SAI_BRIDGE_PORT_FDB_LEARNING_MODE_DISABLE)
+        # fdb_learning_mode
+        # get
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, fdb_learning_mode=True)
+        self.assertEqual(attr['fdb_learning_mode'],
+                         SAI_BRIDGE_PORT_FDB_LEARNING_MODE_HW)
+        # set
+        status = sai_thrift_set_bridge_port_attribute(
+            self.client,
+            self.port24_bp,
+            fdb_learning_mode=SAI_BRIDGE_PORT_FDB_LEARNING_MODE_DISABLE)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, fdb_learning_mode=True)
+        self.assertEqual(attr['fdb_learning_mode'],
+                         SAI_BRIDGE_PORT_FDB_LEARNING_MODE_DISABLE)
 
-            # admin_state
-            # get
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, admin_state=True)
-            self.assertEqual(attr['admin_state'], True)
-            # set
-            status = sai_thrift_set_bridge_port_attribute(
-                self.client, self.port24_bp, admin_state=False)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            attr = sai_thrift_get_bridge_port_attribute(
-                self.client, self.port24_bp, admin_state=True)
-            self.assertEqual(attr['admin_state'], False)
-        finally:
-            pass
+        # admin_state
+        # get
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, admin_state=True)
+        self.assertEqual(attr['admin_state'], True)
+        # set
+        status = sai_thrift_set_bridge_port_attribute(
+            self.client, self.port24_bp, admin_state=False)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        attr = sai_thrift_get_bridge_port_attribute(
+            self.client, self.port24_bp, admin_state=True)
+        self.assertEqual(attr['admin_state'], False)
 
     def tearDown(self):
         sai_thrift_remove_bridge_port(self.client, self.port24_bp)
-        SaiHelper.tearDown(self)
+
+        super(BridgePortAttributeTest).tearDown(self)
 
 
 class BridgePortCreationTest(SaiHelper):
@@ -105,11 +101,8 @@ class BridgePortCreationTest(SaiHelper):
     '''
 
     def runTest(self):
-        try:
-            self.noBpDropTest()
-            self.bpTypePortCreationTest()  # other port types are not supported
-        finally:
-            pass
+        self.noBpDropTest()
+        self.bpTypePortCreationTest()
 
     def noBpDropTest(self):
         '''
@@ -125,14 +118,10 @@ class BridgePortCreationTest(SaiHelper):
 
         pkt = simple_udp_packet(eth_src=src_mac, eth_dst=dst_mac, pktlen=100)
 
-        try:
-            print("Sending packet on port with no bridge port created")
-            send_packet(self, no_bp_port, pkt)
-            verify_no_other_packets(self)
-            print("\tPacket dropped. OK")
-
-        finally:
-            pass
+        print("Sending packet on port with no bridge port created")
+        send_packet(self, no_bp_port, pkt)
+        verify_no_other_packets(self)
+        print("\tPacket dropped. OK")
 
     def bpTypePortCreationTest(self):
         '''
@@ -185,7 +174,7 @@ class BridgePortStateTest(SaiHelper):
     '''
 
     def setUp(self):
-        super(BridgePortStateTest, self).setUp()
+        super(BridgePortStateTest).setUp()
 
         self.vlan_id = 10
         self.src_mac = "00:11:11:11:11:11"
@@ -210,11 +199,8 @@ class BridgePortStateTest(SaiHelper):
                                               pktlen=104)
 
     def runTest(self):
-        try:
-            self.bpStateDownFlushTest()
-            self.bpStateDownNoLearnTest()
-        finally:
-            pass
+        self.bpStateDownFlushTest()
+        self.bpStateDownNoLearnTest()
 
     def bpStateDownFlushTest(self):
         '''
