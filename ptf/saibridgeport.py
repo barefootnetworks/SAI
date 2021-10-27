@@ -29,7 +29,7 @@ class BridgePortAttributeTest(SaiHelper):
     '''
 
     def setUp(self):
-        super(BridgePortAttributeTest).setUp(self)
+        super(BridgePortAttributeTest, self).setUp()
 
         self.port24_bp = sai_thrift_create_bridge_port(
             self.client,
@@ -92,7 +92,7 @@ class BridgePortAttributeTest(SaiHelper):
     def tearDown(self):
         sai_thrift_remove_bridge_port(self.client, self.port24_bp)
 
-        super(BridgePortAttributeTest).tearDown(self)
+        super(BridgePortAttributeTest, self).tearDown()
 
 
 class BridgePortCreationTest(SaiHelper):
@@ -152,8 +152,6 @@ class BridgePortCreationTest(SaiHelper):
             self.assertTrue(test_lag_member2 != 0)
 
             lag_bp = sai_thrift_create_bridge_port(
-                self.client,
-                bridge_id=self.default_1q_bridge,
                 port_id=test_lag,
                 type=SAI_BRIDGE_PORT_TYPE_PORT,
                 admin_state=True)
@@ -174,7 +172,7 @@ class BridgePortStateTest(SaiHelper):
     '''
 
     def setUp(self):
-        super(BridgePortStateTest).setUp()
+        super(BridgePortStateTest, self).setUp()
 
         self.vlan_id = 10
         self.src_mac = "00:11:11:11:11:11"

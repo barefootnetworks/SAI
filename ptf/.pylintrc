@@ -155,7 +155,8 @@ disable=print-statement,
         redefined-outer-name,           # *We use 'status' variable, imported from adapter.
         missing-raises-doc,
         no-member,                      # cpu_queue4 not found
-        consider-using-f-string         # Python 3 string style
+        consider-using-f-string,        # Python3-specific string style
+        super-with-arguments            # Python3-specific super() calls
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
