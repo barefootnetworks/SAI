@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 Thrift SAI interface RIF tests
 """
 
-from __future__ import print_function
-
 import binascii
 
 from sai_thrift.sai_headers import *
@@ -30,7 +28,6 @@ from ptf.thriftutils import *
 from sai_base_test import *
 
 
-# pylint: disable=too-many-public-methods
 class L3InterfaceTest(SaiHelper):
     """
     This class contains base router interface tests for regular L3 port RIFs
@@ -112,34 +109,27 @@ class L3InterfaceTest(SaiHelper):
             self.client, self.route_lag1, next_hop_id=self.nhop3)
 
     def runTest(self):
-        try:
-            self.ipv4DisableTest()
-            self.ipv6DisableTest()
-            self.macUpdateTest()
-            self.ipv4FibTest()
-            self.ipv4FibLPMTest()
-            self.ipv4MtuTest()
-            self.ipv4IngressAclTest()
-            # This is a profile dependent test and requires
-            # egress bd label support. Test is being
-            # disabled in scope of SWI-3692. Will be
-            # re-enabled separately with profile level knob
-            # self.ipv4EgressAclTest()
-            self.ipv4FibLagTest()
-            self.ipv6FibTest()
-            self.ipv6FibLpmTest()
-            self.ipv6MtuTest()
-            self.ipv6FibLagTest()
-            self.rifSharedMtuTest()
-            # self.mcastDisableTest()  # profile-dependend
-            self.rifStatsTest()
-            self.loopbackRifTest()
-            self.negativeRifTest()
-            self.duplicatePortRifCreationTest()
-            self.rifMyIPTest()
-            self.rifCreateOrUpdateRmacTest()
-        finally:
-            pass
+        self.ipv4DisableTest()
+        self.ipv6DisableTest()
+        self.macUpdateTest()
+        self.ipv4FibTest()
+        self.ipv4FibLPMTest()
+        self.ipv4MtuTest()
+        self.ipv4IngressAclTest()
+        self.ipv4EgressAclTest()
+        self.ipv4FibLagTest()
+        self.ipv6FibTest()
+        self.ipv6FibLpmTest()
+        self.ipv6MtuTest()
+        self.ipv6FibLagTest()
+        self.rifSharedMtuTest()
+        self.mcastDisableTest()
+        self.rifStatsTest()
+        self.loopbackRifTest()
+        self.negativeRifTest()
+        self.duplicatePortRifCreationTest()
+        self.rifMyIPTest()
+        self.rifCreateOrUpdateRmacTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry0)
@@ -177,41 +167,37 @@ class L3InterfaceTest(SaiHelper):
                                     ip_id=105,
                                     ip_ttl=63)
 
-        try:
-            print("Sending packet on port %d, forward" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet on port %d, forward" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Disable IPv4 on ingress RIF")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.port11_rif, admin_v4_state=False)
-            time.sleep(3)
+        print("Disable IPv4 on ingress RIF")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.port11_rif, admin_v4_state=False)
+        time.sleep(3)
 
-            initial_stats = sai_thrift_get_port_stats(self.client, self.port11)
-            if_in_discards_pre = initial_stats['SAI_PORT_STAT_IF_IN_DISCARDS']
+        initial_stats = sai_thrift_get_port_stats(self.client, self.port11)
+        if_in_discards_pre = initial_stats['SAI_PORT_STAT_IF_IN_DISCARDS']
 
-            print("Sending packet on port %d, discard" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=3)
-            stats = sai_thrift_get_port_stats(self.client, self.port11)
-            if_in_discards = stats['SAI_PORT_STAT_IF_IN_DISCARDS']
-            self.assertTrue(if_in_discards_pre + 1 == if_in_discards)
-            self.port11_rif_counter_in += 1
+        print("Sending packet on port %d, discard" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=3)
+        stats = sai_thrift_get_port_stats(self.client, self.port11)
+        if_in_discards = stats['SAI_PORT_STAT_IF_IN_DISCARDS']
+        self.assertTrue(if_in_discards_pre + 1 == if_in_discards)
+        self.port11_rif_counter_in += 1
 
-            print("Enable IPv4 on ingress RIF")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.port11_rif, admin_v4_state=True)
+        print("Enable IPv4 on ingress RIF")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.port11_rif, admin_v4_state=True)
 
-            print("Sending packet on port %d, forward" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending packet on port %d, forward" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def ipv6DisableTest(self):
         """
@@ -232,39 +218,35 @@ class L3InterfaceTest(SaiHelper):
             ipv6_src='2000::1',
             ipv6_hlim=63)
 
-        try:
-            print("Sending packet on port %d, forward" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet on port %d, forward" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Disable IPv6 on ingress RIF")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.port11_rif, admin_v6_state=False)
-            initial_stats = sai_thrift_get_port_stats(self.client, self.port11)
-            if_in_discards_pre = initial_stats['SAI_PORT_STAT_IF_IN_DISCARDS']
+        print("Disable IPv6 on ingress RIF")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.port11_rif, admin_v6_state=False)
+        initial_stats = sai_thrift_get_port_stats(self.client, self.port11)
+        if_in_discards_pre = initial_stats['SAI_PORT_STAT_IF_IN_DISCARDS']
 
-            print("Sending packet on port %d, discard" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            stats = sai_thrift_get_port_stats(self.client, self.port11)
-            if_in_discards = stats['SAI_PORT_STAT_IF_IN_DISCARDS']
-            self.assertTrue(if_in_discards_pre + 1 == if_in_discards)
-            self.port11_rif_counter_in += 1
+        print("Sending packet on port %d, discard" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        stats = sai_thrift_get_port_stats(self.client, self.port11)
+        if_in_discards = stats['SAI_PORT_STAT_IF_IN_DISCARDS']
+        self.assertTrue(if_in_discards_pre + 1 == if_in_discards)
+        self.port11_rif_counter_in += 1
 
-            print("Enable IPv6 on ingress RIF")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.port11_rif, admin_v6_state=True)
+        print("Enable IPv6 on ingress RIF")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.port11_rif, admin_v6_state=True)
 
-            print("Sending packet on port %d, forward" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending packet on port %d, forward" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def macUpdateTest(self):
         """
@@ -299,56 +281,52 @@ class L3InterfaceTest(SaiHelper):
                                      ip_id=105,
                                      ip_ttl=63)
 
-        try:
-            print("Sending packet on port %d with mac %s, forward"
-                  % (self.dev_port11, ROUTER_MAC))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet on port %d with mac %s, forward"
+              % (self.dev_port11, ROUTER_MAC))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Updating src_mac_address to %s" % (new_router_mac))
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.port11_rif, src_mac_address=new_router_mac)
-            attrs = sai_thrift_get_router_interface_attribute(
-                self.client, self.port11_rif, src_mac_address=True)
-            self.assertEqual(attrs["src_mac_address"], new_router_mac)
-            # still forwarded since rmac is same as switch default rmac
-            print("Sending packet on port %d with mac %s, forwarded"
-                  % (self.dev_port11, ROUTER_MAC))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Updating src_mac_address to %s" % (new_router_mac))
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.port11_rif, src_mac_address=new_router_mac)
+        attrs = sai_thrift_get_router_interface_attribute(
+            self.client, self.port11_rif, src_mac_address=True)
+        self.assertEqual(attrs["src_mac_address"], new_router_mac)
+        # still forwarded since rmac is same as switch default rmac
+        print("Sending packet on port %d with mac %s, forwarded"
+              % (self.dev_port11, ROUTER_MAC))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet on port %d with mac %s, forward"
-                  % (self.dev_port11, new_router_mac))
-            send_packet(self, self.dev_port11, pkt1)
-            verify_packet(self, exp_pkt1, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet on port %d with mac %s, forward"
+              % (self.dev_port11, new_router_mac))
+        send_packet(self, self.dev_port11, pkt1)
+        verify_packet(self, exp_pkt1, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Reverting src_mac_address to %s" % (ROUTER_MAC))
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.port11_rif, src_mac_address=ROUTER_MAC)
-            attrs = sai_thrift_get_router_interface_attribute(
-                self.client, self.port11_rif, src_mac_address=True)
-            self.assertEqual(attrs["src_mac_address"], ROUTER_MAC)
-            print("Sending packet on port %d with mac %s, dropped"
-                  % (self.dev_port11, new_router_mac))
-            send_packet(self, self.dev_port11, pkt1)
-            verify_no_other_packets(self, timeout=1)
-            self.port11_rif_counter_in += 1
+        print("Reverting src_mac_address to %s" % (ROUTER_MAC))
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.port11_rif, src_mac_address=ROUTER_MAC)
+        attrs = sai_thrift_get_router_interface_attribute(
+            self.client, self.port11_rif, src_mac_address=True)
+        self.assertEqual(attrs["src_mac_address"], ROUTER_MAC)
+        print("Sending packet on port %d with mac %s, dropped"
+              % (self.dev_port11, new_router_mac))
+        send_packet(self, self.dev_port11, pkt1)
+        verify_no_other_packets(self, timeout=1)
+        self.port11_rif_counter_in += 1
 
-            print("Sending packet on port %d with mac %s, forward"
-                  % (self.dev_port11, ROUTER_MAC))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending packet on port %d with mac %s, forward"
+              % (self.dev_port11, ROUTER_MAC))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def ipv4FibTest(self):
         """
@@ -391,24 +369,20 @@ class L3InterfaceTest(SaiHelper):
                                       sgt_other=4,
                                       inner_frame=pkt)
 
-        try:
-            print("Sending packet port %d -> port %d (192.168.0.1 -> "
-                  "10.10.10.1)" % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (192.168.0.1 -> "
+              "10.10.10.1)" % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending gre encapsulated packet port %d -> port %d "
-                  "(192.168.0.1 -> 10.10.10.1)"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, gre_pkt)
-            verify_packet(self, exp_gre_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending gre encapsulated packet port %d -> port %d "
+              "(192.168.0.1 -> 10.10.10.1)"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, gre_pkt)
+        verify_packet(self, exp_gre_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def ipv4FibLPMTest(self):
         """
@@ -429,16 +403,12 @@ class L3InterfaceTest(SaiHelper):
                                     ip_id=105,
                                     ip_ttl=63)
 
-        try:
-            print("Sending packet port %d -> port %d (192.168.0.1 -> "
-                  "11.11.11.0/24) LPM" % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending packet port %d -> port %d (192.168.0.1 -> "
+              "11.11.11.0/24) LPM" % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def ipv4MtuTest(self):
         """
@@ -899,119 +869,115 @@ class L3InterfaceTest(SaiHelper):
                                         ip_id=105,
                                         ip_ttl=63)
 
-        try:
-            print("Sending packet port %d -> lag 1 (192.168.0.1 -> "
-                  "12.10.10.1)" % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet_any_port(
-                self, exp_pkt, [self.dev_port4, self.dev_port5,
-                                self.dev_port6])
-            self.port11_rif_counter_in += 1
-            self.lag1_rif_counter_out += 1
+        print("Sending packet port %d -> lag 1 (192.168.0.1 -> "
+              "12.10.10.1)" % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet_any_port(
+            self, exp_pkt, [self.dev_port4, self.dev_port5,
+                            self.dev_port6])
+        self.port11_rif_counter_in += 1
+        self.lag1_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port4, self.dev_port10))
-            send_packet(self, self.dev_port4, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port4, self.dev_port10))
+        send_packet(self, self.dev_port4, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port5, self.dev_port10))
-            send_packet(self, self.dev_port5, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port5, self.dev_port10))
+        send_packet(self, self.dev_port5, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port6, self.dev_port10))
-            send_packet(self, self.dev_port6, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port6, self.dev_port10))
+        send_packet(self, self.dev_port6, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d dropped" % self.dev_port24)
-            send_packet(self, self.dev_port24, pkt_lag)
-            verify_no_other_packets(self, timeout=1)
+        print("Sending packet port %d dropped" % self.dev_port24)
+        send_packet(self, self.dev_port24, pkt_lag)
+        verify_no_other_packets(self, timeout=1)
 
-            lag_member = sai_thrift_create_lag_member(
-                self.client, lag_id=self.lag1, port_id=self.port24)
+        lag_member = sai_thrift_create_lag_member(
+            self.client, lag_id=self.lag1, port_id=self.port24)
 
-            print("Sending packet port %d-> lag 1 (192.168.0.1 -> 12.10.10.1)"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet_any_port(
-                self, exp_pkt, [self.dev_port4, self.dev_port5,
-                                self.dev_port6, self.dev_port24])
-            self.port11_rif_counter_in += 1
-            self.lag1_rif_counter_out += 1
+        print("Sending packet port %d-> lag 1 (192.168.0.1 -> 12.10.10.1)"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet_any_port(
+            self, exp_pkt, [self.dev_port4, self.dev_port5,
+                            self.dev_port6, self.dev_port24])
+        self.port11_rif_counter_in += 1
+        self.lag1_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port4, self.dev_port10))
-            send_packet(self, self.dev_port4, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port4, self.dev_port10))
+        send_packet(self, self.dev_port4, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port5, self.dev_port10))
-            send_packet(self, self.dev_port5, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port5, self.dev_port10))
+        send_packet(self, self.dev_port5, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port6, self.dev_port10))
-            send_packet(self, self.dev_port6, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port6, self.dev_port10))
+        send_packet(self, self.dev_port6, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port24, self.dev_port10))
-            send_packet(self, self.dev_port24, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port24, self.dev_port10))
+        send_packet(self, self.dev_port24, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            sai_thrift_remove_lag_member(self.client, lag_member)
+        sai_thrift_remove_lag_member(self.client, lag_member)
 
-            print("Sending packet port %d -> lag 1 (192.168.0.1 -> 12.10.10.1)"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet_any_port(
-                self, exp_pkt, [self.dev_port4, self.dev_port5,
-                                self.dev_port6])
-            self.port11_rif_counter_in += 1
-            self.lag1_rif_counter_out += 1
+        print("Sending packet port %d -> lag 1 (192.168.0.1 -> 12.10.10.1)"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet_any_port(
+            self, exp_pkt, [self.dev_port4, self.dev_port5,
+                            self.dev_port6])
+        self.port11_rif_counter_in += 1
+        self.lag1_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port4, self.dev_port10))
-            send_packet(self, self.dev_port4, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port4, self.dev_port10))
+        send_packet(self, self.dev_port4, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port5, self.dev_port10))
-            send_packet(self, self.dev_port5, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port5, self.dev_port10))
+        send_packet(self, self.dev_port5, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d (12.10.10.1 -> "
-                  "10.10.10.1)" % (self.dev_port6, self.dev_port10))
-            send_packet(self, self.dev_port6, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d (12.10.10.1 -> "
+              "10.10.10.1)" % (self.dev_port6, self.dev_port10))
+        send_packet(self, self.dev_port6, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d dropped" % self.dev_port24)
-            send_packet(self, self.dev_port24, pkt_lag)
-            verify_no_other_packets(self, timeout=1)
-
-        finally:
-            pass
+        print("Sending packet port %d dropped" % self.dev_port24)
+        send_packet(self, self.dev_port24, pkt_lag)
+        verify_no_other_packets(self, timeout=1)
 
     def ipv6FibTest(self):
         """
@@ -1032,17 +998,13 @@ class L3InterfaceTest(SaiHelper):
             ipv6_src='2000::1',
             ipv6_hlim=63)
 
-        try:
-            print("Sending packet port %d -> port %d (2000::1 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa)"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending packet port %d -> port %d (2000::1 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa)"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def ipv6FibLpmTest(self):
         """
@@ -1061,16 +1023,12 @@ class L3InterfaceTest(SaiHelper):
                                       ipv6_src='2000::1',
                                       ipv6_hlim=63)
 
-        try:
-            print("Sending packet port %d -> port %d (2000::1 -> 4000::1) "
-                  "LPM entry 4000::0/65" % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.port11_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
-
-        finally:
-            pass
+        print("Sending packet port %d -> port %d (2000::1 -> 4000::1) "
+              "LPM entry 4000::0/65" % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.port11_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
     def ipv6MtuTest(self):
         """
@@ -1317,142 +1275,138 @@ class L3InterfaceTest(SaiHelper):
             ipv6_src='1234:5678:9abc:def0:1122:3344:5566:7788',
             ipv6_hlim=63)
 
-        try:
-            print("Sending packet port %d -> lag 1 (2000::1 -> "
-                  "1234:5678:9abc:def0:1122:3344:5566:7788)"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet_any_port(
-                self, exp_pkt, [self.dev_port4, self.dev_port5,
-                                self.dev_port6])
-            self.port11_rif_counter_in += 1
-            self.lag1_rif_counter_out += 1
+        print("Sending packet port %d -> lag 1 (2000::1 -> "
+              "1234:5678:9abc:def0:1122:3344:5566:7788)"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet_any_port(
+            self, exp_pkt, [self.dev_port4, self.dev_port5,
+                            self.dev_port6])
+        self.port11_rif_counter_in += 1
+        self.lag1_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port4, self.dev_port10))
-            send_packet(self, self.dev_port4, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port4, self.dev_port10))
+        send_packet(self, self.dev_port4, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port5, self.dev_port10))
-            send_packet(self, self.dev_port5, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port5, self.dev_port10))
+        send_packet(self, self.dev_port5, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port6, self.dev_port10))
-            send_packet(self, self.dev_port6, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port6, self.dev_port10))
+        send_packet(self, self.dev_port6, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d" % self.dev_port24, " dropped")
-            send_packet(self, self.dev_port24, pkt_lag)
-            verify_no_other_packets(self, timeout=1)
+        print("Sending packet port %d" % self.dev_port24, " dropped")
+        send_packet(self, self.dev_port24, pkt_lag)
+        verify_no_other_packets(self, timeout=1)
 
-            lag_member = sai_thrift_create_lag_member(
-                self.client, lag_id=self.lag1, port_id=self.port24)
+        lag_member = sai_thrift_create_lag_member(
+            self.client, lag_id=self.lag1, port_id=self.port24)
 
-            print("Sending packet port %d -> lag 1 (2000::1 -> "
-                  "1234:5678:9abc:def0:1122:3344:5566:7788)"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet_any_port(
-                self, exp_pkt, [self.dev_port4, self.dev_port5,
-                                self.dev_port6, self.dev_port24])
-            self.port11_rif_counter_in += 1
-            self.lag1_rif_counter_out += 1
+        print("Sending packet port %d -> lag 1 (2000::1 -> "
+              "1234:5678:9abc:def0:1122:3344:5566:7788)"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet_any_port(
+            self, exp_pkt, [self.dev_port4, self.dev_port5,
+                            self.dev_port6, self.dev_port24])
+        self.port11_rif_counter_in += 1
+        self.lag1_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port4, self.dev_port10))
-            send_packet(self, self.dev_port4, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port4, self.dev_port10))
+        send_packet(self, self.dev_port4, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port5, self.dev_port10))
-            send_packet(self, self.dev_port5, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port5, self.dev_port10))
+        send_packet(self, self.dev_port5, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port6, self.dev_port10))
-            send_packet(self, self.dev_port6, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port6, self.dev_port10))
+        send_packet(self, self.dev_port6, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port24, self.dev_port10))
-            send_packet(self, self.dev_port24, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port24, self.dev_port10))
+        send_packet(self, self.dev_port24, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            sai_thrift_remove_lag_member(self.client, lag_member)
+        sai_thrift_remove_lag_member(self.client, lag_member)
 
-            print("Sending packet port %d -> lag 1 (2000::1 -> "
-                  "1234:5678:9abc:def0:1122:3344:5566:7788)"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet_any_port(
-                self, exp_pkt, [self.dev_port4, self.dev_port5,
-                                self.dev_port6])
-            self.port11_rif_counter_in += 1
-            self.lag1_rif_counter_out += 1
+        print("Sending packet port %d -> lag 1 (2000::1 -> "
+              "1234:5678:9abc:def0:1122:3344:5566:7788)"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet_any_port(
+            self, exp_pkt, [self.dev_port4, self.dev_port5,
+                            self.dev_port6])
+        self.port11_rif_counter_in += 1
+        self.lag1_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port4, self.dev_port10))
-            send_packet(self, self.dev_port4, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port4, self.dev_port10))
+        send_packet(self, self.dev_port4, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port5, self.dev_port10))
-            send_packet(self, self.dev_port5, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port5, self.dev_port10))
+        send_packet(self, self.dev_port5, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d -> port %d "
-                  "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
-                  "1234:5678:9abc:def0:4422:1133:5577:99aa"
-                  % (self.dev_port6, self.dev_port10))
-            send_packet(self, self.dev_port6, pkt_lag)
-            verify_packet(self, exp_pkt_lag, self.dev_port10)
-            self.lag1_rif_counter_in += 1
-            self.port10_rif_counter_out += 1
+        print("Sending packet port %d -> port %d "
+              "(1234:5678:9abc:def0:1122:3344:5566:7788 -> "
+              "1234:5678:9abc:def0:4422:1133:5577:99aa"
+              % (self.dev_port6, self.dev_port10))
+        send_packet(self, self.dev_port6, pkt_lag)
+        verify_packet(self, exp_pkt_lag, self.dev_port10)
+        self.lag1_rif_counter_in += 1
+        self.port10_rif_counter_out += 1
 
-            print("Sending packet port %d" % self.dev_port24, " dropped")
-            send_packet(self, self.dev_port24, pkt_lag)
-            verify_no_other_packets(self, timeout=1)
-
-        finally:
-            pass
+        print("Sending packet port %d" % self.dev_port24, " dropped")
+        send_packet(self, self.dev_port24, pkt_lag)
+        verify_no_other_packets(self, timeout=1)
 
     def rifSharedMtuTest(self):
         """
@@ -1647,7 +1601,6 @@ class L3InterfaceTest(SaiHelper):
             sai_thrift_remove_next_hop(self.client, nhop2)
             sai_thrift_remove_neighbor_entry(self.client, neighbor_entry2)
 
-    # disabled - SWI-3648
     def mcastDisableTest(self):
         """
         Verify IPv4 multicast packets are dropped when V4_MCAST_ENABLE
@@ -1852,52 +1805,48 @@ class L3InterfaceTest(SaiHelper):
         """
         print("\nnegativeRifTest()")
 
-        try:
-            port24_rif = sai_thrift_create_router_interface(
-                self.client,
-                type=SAI_ROUTER_INTERFACE_TYPE_PORT,
-                virtual_router_id=self.default_vrf,
-                port_id=self.port24,
-                admin_v4_state=True)
+        port24_rif = sai_thrift_create_router_interface(
+            self.client,
+            type=SAI_ROUTER_INTERFACE_TYPE_PORT,
+            virtual_router_id=self.default_vrf,
+            port_id=self.port24,
+            admin_v4_state=True)
 
-            self.assertTrue(sai_thrift_remove_router_interface(
-                self.client, port24_rif) == 0)
-            self.assertTrue(sai_thrift_remove_router_interface(
-                self.client, port24_rif) != 0)
+        self.assertTrue(sai_thrift_remove_router_interface(
+            self.client, port24_rif) == 0)
+        self.assertTrue(sai_thrift_remove_router_interface(
+            self.client, port24_rif) != 0)
 
-            # Non existing RIF
-            rif_attr = sai_thrift_get_router_interface_attribute(
-                self.client, router_interface_oid=port24_rif, mtu=True)
-            self.assertEqual(self.status(), SAI_STATUS_ITEM_NOT_FOUND)
-            self.assertEqual(rif_attr, None)
+        # Non existing RIF
+        rif_attr = sai_thrift_get_router_interface_attribute(
+            self.client, router_interface_oid=port24_rif, mtu=True)
+        self.assertEqual(self.status(), SAI_STATUS_ITEM_NOT_FOUND)
+        self.assertEqual(rif_attr, None)
 
-            self.assertNotEqual(
-                sai_thrift_set_router_interface_attribute(
-                    self.client, router_interface_oid=port24_rif, mtu=200),
-                SAI_STATUS_SUCCESS)
+        self.assertNotEqual(
+            sai_thrift_set_router_interface_attribute(
+                self.client, router_interface_oid=port24_rif, mtu=200),
+            SAI_STATUS_SUCCESS)
 
-            rif_attr = sai_thrift_get_router_interface_attribute(
-                self.client, router_interface_oid=port24_rif, mtu=True)
-            self.assertEqual(self.status(), SAI_STATUS_ITEM_NOT_FOUND)
-            self.assertEqual(rif_attr, None)
+        rif_attr = sai_thrift_get_router_interface_attribute(
+            self.client, router_interface_oid=port24_rif, mtu=True)
+        self.assertEqual(self.status(), SAI_STATUS_ITEM_NOT_FOUND)
+        self.assertEqual(rif_attr, None)
 
-            # Incorrect RIF attributes
-            invalid_port = sai_thrift_create_router_interface(
-                self.client,
-                type=SAI_ROUTER_INTERFACE_TYPE_PORT,
-                virtual_router_id=self.default_vrf,
-                port_id=-1)
-            self.assertTrue(invalid_port == 0)
+        # Incorrect RIF attributes
+        invalid_port = sai_thrift_create_router_interface(
+            self.client,
+            type=SAI_ROUTER_INTERFACE_TYPE_PORT,
+            virtual_router_id=self.default_vrf,
+            port_id=-1)
+        self.assertTrue(invalid_port == 0)
 
-            invalid_vrf = sai_thrift_create_router_interface(
-                self.client,
-                type=SAI_ROUTER_INTERFACE_TYPE_PORT,
-                virtual_router_id=-1,
-                port_id=self.port1)
-            self.assertTrue(invalid_vrf == 0)
-
-        finally:
-            pass
+        invalid_vrf = sai_thrift_create_router_interface(
+            self.client,
+            type=SAI_ROUTER_INTERFACE_TYPE_PORT,
+            virtual_router_id=-1,
+            port_id=self.port1)
+        self.assertTrue(invalid_vrf == 0)
 
     def duplicatePortRifCreationTest(self):
         """
@@ -2227,7 +2176,6 @@ class L3InterfaceTest(SaiHelper):
                     sai_thrift_remove_router_interface(self.client, rif)
 
 
-# pylint: disable=too-many-public-methods
 class L3SubPortTest(SaiHelper):
     """
     This class contains base router interface tests for L3 subport RIFs
@@ -2663,32 +2611,24 @@ class L3SubPortTest(SaiHelper):
             self.client, self.route_entry_ecmp, next_hop_id=self.nhop_group)
 
     def runTest(self):
-        try:
-            self.pvMissTest()
-            self.subPortToSubPortTest()
-            self.subPortToRifTest()
-            self.rifToSubPortTest()
-            self.noFloodTest()
-            self.vlanConflictTest()
-            self.subPortAdminV4StatusTest()
-            self.subPortAdminV6StatusTest()
-            self.subPortV4MtuTest()
-            self.subPortV6MtuTest()
-            self.subPortIngressAclTest()
-            # This is a profile dependent test and requires
-            # egress bd label support. Test is being
-            # disabled in scope of SWI-3692. Will be
-            # re-enabled separately with profile level knob
-            # self.ipv4EgressAclTest()
-            # self.subPortEgressAclTest()
-            self.subPortECMPTest()
-            self.subPortMyIPTest()
-            self.subPortStatsTest()
-            # Disabled temporarily because of P4C-4050
-            # self.subPortNoTest()
-            self.subPortQosGroupTest()
-        finally:
-            pass
+        self.pvMissTest()
+        self.subPortToSubPortTest()
+        self.subPortToRifTest()
+        self.rifToSubPortTest()
+        self.noFloodTest()
+        self.vlanConflictTest()
+        self.subPortAdminV4StatusTest()
+        self.subPortAdminV6StatusTest()
+        self.subPortV4MtuTest()
+        self.subPortV6MtuTest()
+        self.subPortIngressAclTest()
+        self.ipv4EgressAclTest()
+        self.subPortEgressAclTest()
+        self.subPortECMPTest()
+        self.subPortMyIPTest()
+        self.subPortStatsTest()
+        self.subPortNoTest()
+        self.subPortQosGroupTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry_ecmp)
@@ -2866,61 +2806,57 @@ class L3SubPortTest(SaiHelper):
                                     vlan_vid=100,
                                     pktlen=104)
 
-        try:
-            pkt_data = [
-                ['40.40.0.10', '00:33:33:33:01:00', 100, [10],
-                 self.subport10_100],
-                ['40.40.0.20', '00:33:33:33:02:00', 200, [10],
-                 self.subport10_200],
-                ['40.40.1.20', '00:33:33:33:12:00', 200, [11],
-                 self.subport11_200],
-                ['40.40.1.30', '00:33:33:33:13:00', 300, [11],
-                 self.subport11_300],
-                ['40.40.0.40', '00:33:33:33:04:00', 400, [14, 15, 16],
-                 self.sublag3_400],
-                ['40.40.0.50', '00:33:33:33:05:00', 500, [14, 15, 16],
-                 self.sublag3_500],
-                ['40.40.3.60', '00:33:33:33:36:00', 600, [24],
-                 self.subport24_600],
-                ['40.40.4.40', '00:33:33:33:44:00', 400, [25],
-                 self.subport25_400],
-                ['40.40.4.50', '00:33:33:33:45:00', 500, [25],
-                 self.subport25_500],
-            ]
-            for irif in pkt_data:
-                for erif in pkt_data:
-                    if irif[4] == erif[4]:
-                        continue
-                    pkt[IP].dst = erif[0]
-                    pkt[Dot1Q].vlan = irif[2]
-                    exp_pkt[IP].dst = erif[0]
-                    exp_pkt[Ether].dst = erif[1]
-                    exp_pkt[Dot1Q].vlan = erif[2]
-                    iport = getattr(self, 'dev_port%s' % irif[3][0])
-                    eport = [getattr(self, 'dev_port%s' % i) for i in erif[3]]
-                    send_packet(self, iport, pkt)
-                    verify_packet_any_port(self, exp_pkt, eport)
-            self.subport10_100_in += 8
-            self.subport10_200_in += 8
-            self.subport11_200_in += 8
-            self.subport11_300_in += 8
-            self.sublag3_400_in += 8
-            self.sublag3_500_in += 8
-            self.subport24_600_in += 8
-            self.subport25_400_in += 8
-            self.subport25_500_in += 8
-            self.subport10_100_out += 8
-            self.subport10_200_out += 8
-            self.subport11_200_out += 8
-            self.subport11_300_out += 8
-            self.sublag3_400_out += 8
-            self.sublag3_500_out += 8
-            self.subport24_600_out += 8
-            self.subport25_400_out += 8
-            self.subport25_500_out += 8
-
-        finally:
-            pass
+        pkt_data = [
+            ['40.40.0.10', '00:33:33:33:01:00', 100, [10],
+             self.subport10_100],
+            ['40.40.0.20', '00:33:33:33:02:00', 200, [10],
+             self.subport10_200],
+            ['40.40.1.20', '00:33:33:33:12:00', 200, [11],
+             self.subport11_200],
+            ['40.40.1.30', '00:33:33:33:13:00', 300, [11],
+             self.subport11_300],
+            ['40.40.0.40', '00:33:33:33:04:00', 400, [14, 15, 16],
+             self.sublag3_400],
+            ['40.40.0.50', '00:33:33:33:05:00', 500, [14, 15, 16],
+             self.sublag3_500],
+            ['40.40.3.60', '00:33:33:33:36:00', 600, [24],
+             self.subport24_600],
+            ['40.40.4.40', '00:33:33:33:44:00', 400, [25],
+             self.subport25_400],
+            ['40.40.4.50', '00:33:33:33:45:00', 500, [25],
+             self.subport25_500],
+        ]
+        for irif in pkt_data:
+            for erif in pkt_data:
+                if irif[4] == erif[4]:
+                    continue
+                pkt[IP].dst = erif[0]
+                pkt[Dot1Q].vlan = irif[2]
+                exp_pkt[IP].dst = erif[0]
+                exp_pkt[Ether].dst = erif[1]
+                exp_pkt[Dot1Q].vlan = erif[2]
+                iport = getattr(self, 'dev_port%s' % irif[3][0])
+                eport = [getattr(self, 'dev_port%s' % i) for i in erif[3]]
+                send_packet(self, iport, pkt)
+                verify_packet_any_port(self, exp_pkt, eport)
+        self.subport10_100_in += 8
+        self.subport10_200_in += 8
+        self.subport11_200_in += 8
+        self.subport11_300_in += 8
+        self.sublag3_400_in += 8
+        self.sublag3_500_in += 8
+        self.subport24_600_in += 8
+        self.subport25_400_in += 8
+        self.subport25_500_in += 8
+        self.subport10_100_out += 8
+        self.subport10_200_out += 8
+        self.subport11_200_out += 8
+        self.subport11_300_out += 8
+        self.sublag3_400_out += 8
+        self.sublag3_500_out += 8
+        self.subport24_600_out += 8
+        self.subport25_400_out += 8
+        self.subport25_500_out += 8
 
     def subPortToRifTest(self):
         """
@@ -2951,56 +2887,52 @@ class L3SubPortTest(SaiHelper):
                                            vlan_vid=700,
                                            pktlen=104)
 
-        try:
-            pkt_data = [
-                ['30.30.0.1', '00:11:22:33:44:55', 10],
-                ['30.30.1.1', '00:22:22:33:44:55', 11],
-                ['30.30.2.1', '00:33:22:33:44:55', 15],
-                ['30.30.3.1', '00:44:22:33:44:55', 24],
-            ]
-            ingress_rifs = [[10, 100], [10, 200], [11, 200], [11, 300],
-                            [14, 400], [14, 500],
-                            [24, 600], [25, 400], [25, 500]]
-            for item in ingress_rifs:
-                for content in pkt_data:
-                    pkt[IP].dst = content[0]
-                    pkt[Dot1Q].vlan = item[1]
-                    exp_pkt[IP].dst = content[0]
-                    exp_pkt[Ether].dst = content[1]
-                    iport = getattr(self, 'dev_port%s' % item[0])
-                    eport = getattr(self, 'dev_port%s' % content[2])
-                    send_packet(self, iport, pkt)
-                    verify_packet(self, exp_pkt, eport)
-            pkt_data = [
-                ['30.30.4.1', '00:55:22:33:44:55', 25],
-            ]
-            for item in ingress_rifs:
-                for content in pkt_data:
-                    pkt[IP].dst = content[0]
-                    pkt[Dot1Q].vlan = item[1]
-                    exp_tagged_pkt[IP].dst = content[0]
-                    exp_tagged_pkt[Ether].dst = content[1]
-                    iport = getattr(self, 'dev_port%s' % item[0])
-                    eport = getattr(self, 'dev_port%s' % content[2])
-                    send_packet(self, iport, pkt)
-                    verify_packet(self, exp_tagged_pkt, eport)
-            self.subport10_100_in += 5
-            self.subport10_200_in += 5
-            self.subport11_200_in += 5
-            self.subport11_300_in += 5
-            self.sublag3_400_in += 5
-            self.sublag3_500_in += 5
-            self.subport24_600_in += 5
-            self.subport25_400_in += 5
-            self.subport25_500_in += 5
-            self.port10_rif_out += 9
-            self.port11_rif_out += 9
-            self.lag3_rif_out += 9
-            self.vlan600_rif_out += 9
-            self.vlan700_rif_out += 9
-
-        finally:
-            pass
+        pkt_data = [
+            ['30.30.0.1', '00:11:22:33:44:55', 10],
+            ['30.30.1.1', '00:22:22:33:44:55', 11],
+            ['30.30.2.1', '00:33:22:33:44:55', 15],
+            ['30.30.3.1', '00:44:22:33:44:55', 24],
+        ]
+        ingress_rifs = [[10, 100], [10, 200], [11, 200], [11, 300],
+                        [14, 400], [14, 500],
+                        [24, 600], [25, 400], [25, 500]]
+        for item in ingress_rifs:
+            for content in pkt_data:
+                pkt[IP].dst = content[0]
+                pkt[Dot1Q].vlan = item[1]
+                exp_pkt[IP].dst = content[0]
+                exp_pkt[Ether].dst = content[1]
+                iport = getattr(self, 'dev_port%s' % item[0])
+                eport = getattr(self, 'dev_port%s' % content[2])
+                send_packet(self, iport, pkt)
+                verify_packet(self, exp_pkt, eport)
+        pkt_data = [
+            ['30.30.4.1', '00:55:22:33:44:55', 25],
+        ]
+        for item in ingress_rifs:
+            for content in pkt_data:
+                pkt[IP].dst = content[0]
+                pkt[Dot1Q].vlan = item[1]
+                exp_tagged_pkt[IP].dst = content[0]
+                exp_tagged_pkt[Ether].dst = content[1]
+                iport = getattr(self, 'dev_port%s' % item[0])
+                eport = getattr(self, 'dev_port%s' % content[2])
+                send_packet(self, iport, pkt)
+                verify_packet(self, exp_tagged_pkt, eport)
+        self.subport10_100_in += 5
+        self.subport10_200_in += 5
+        self.subport11_200_in += 5
+        self.subport11_300_in += 5
+        self.sublag3_400_in += 5
+        self.sublag3_500_in += 5
+        self.subport24_600_in += 5
+        self.subport25_400_in += 5
+        self.subport25_500_in += 5
+        self.port10_rif_out += 9
+        self.port11_rif_out += 9
+        self.lag3_rif_out += 9
+        self.vlan600_rif_out += 9
+        self.vlan700_rif_out += 9
 
     def rifToSubPortTest(self):
         """
@@ -3035,65 +2967,61 @@ class L3SubPortTest(SaiHelper):
                                     vlan_vid=100,
                                     pktlen=104)
 
-        try:
-            pkt_data = [
-                ['40.40.0.10', '00:33:33:33:01:00', 100, [10],
-                 'subport10_100'],
-                ['40.40.0.20', '00:33:33:33:02:00', 200, [10],
-                 'subport10_200'],
-                ['40.40.1.20', '00:33:33:33:12:00', 200, [11],
-                 'subport11_200'],
-                ['40.40.1.30', '00:33:33:33:13:00', 300, [11],
-                 'subport11_300'],
-                ['40.40.0.40', '00:33:33:33:04:00', 400, [14, 15, 16],
-                 'sublag3_400'],
-                ['40.40.0.50', '00:33:33:33:05:00', 500, [14, 15, 16],
-                 'sublag3_500'],
-                ['40.40.3.60', '00:33:33:33:36:00', 600, [24],
-                 'subport24_600'],
-                ['40.40.4.40', '00:33:33:33:44:00', 400, [25],
-                 'subport25_400'],
-                ['40.40.4.50', '00:33:33:33:45:00', 500, [25],
-                 'subport25_500'],
-            ]
-            ingress_rifs = [10, 11, 15, 24]
-            for port in ingress_rifs:
-                for content in pkt_data:
-                    pkt[IP].dst = content[0]
-                    exp_pkt[IP].dst = content[0]
-                    exp_pkt[Ether].dst = content[1]
-                    exp_pkt[Dot1Q].vlan = content[2]
-                    iport = getattr(self, 'dev_port%s' % port)
-                    eport = [getattr(self, 'dev_port%s' % i)
-                             for i in content[3]]
-                    send_packet(self, iport, pkt)
-                    verify_packet_any_port(self, exp_pkt, eport)
-
+        pkt_data = [
+            ['40.40.0.10', '00:33:33:33:01:00', 100, [10],
+             'subport10_100'],
+            ['40.40.0.20', '00:33:33:33:02:00', 200, [10],
+             'subport10_200'],
+            ['40.40.1.20', '00:33:33:33:12:00', 200, [11],
+             'subport11_200'],
+            ['40.40.1.30', '00:33:33:33:13:00', 300, [11],
+             'subport11_300'],
+            ['40.40.0.40', '00:33:33:33:04:00', 400, [14, 15, 16],
+             'sublag3_400'],
+            ['40.40.0.50', '00:33:33:33:05:00', 500, [14, 15, 16],
+             'sublag3_500'],
+            ['40.40.3.60', '00:33:33:33:36:00', 600, [24],
+             'subport24_600'],
+            ['40.40.4.40', '00:33:33:33:44:00', 400, [25],
+             'subport25_400'],
+            ['40.40.4.50', '00:33:33:33:45:00', 500, [25],
+             'subport25_500'],
+        ]
+        ingress_rifs = [10, 11, 15, 24]
+        for port in ingress_rifs:
             for content in pkt_data:
-                tagged_pkt[IP].dst = content[0]
+                pkt[IP].dst = content[0]
                 exp_pkt[IP].dst = content[0]
                 exp_pkt[Ether].dst = content[1]
                 exp_pkt[Dot1Q].vlan = content[2]
-                eport = [getattr(self, 'dev_port%s' % i) for i in content[3]]
-                send_packet(self, self.dev_port25, tagged_pkt)
+                iport = getattr(self, 'dev_port%s' % port)
+                eport = [getattr(self, 'dev_port%s' % i)
+                         for i in content[3]]
+                send_packet(self, iport, pkt)
                 verify_packet_any_port(self, exp_pkt, eport)
-            self.subport10_100_out += 5
-            self.subport10_200_out += 5
-            self.subport11_200_out += 5
-            self.subport11_300_out += 5
-            self.sublag3_400_out += 5
-            self.sublag3_500_out += 5
-            self.subport24_600_out += 5
-            self.subport25_400_out += 5
-            self.subport25_500_out += 5
-            self.port10_rif_in += 9
-            self.port11_rif_in += 9
-            self.lag3_rif_in += 9
-            self.vlan600_rif_in += 9
-            self.vlan700_rif_in += 9
 
-        finally:
-            pass
+        for content in pkt_data:
+            tagged_pkt[IP].dst = content[0]
+            exp_pkt[IP].dst = content[0]
+            exp_pkt[Ether].dst = content[1]
+            exp_pkt[Dot1Q].vlan = content[2]
+            eport = [getattr(self, 'dev_port%s' % i) for i in content[3]]
+            send_packet(self, self.dev_port25, tagged_pkt)
+            verify_packet_any_port(self, exp_pkt, eport)
+        self.subport10_100_out += 5
+        self.subport10_200_out += 5
+        self.subport11_200_out += 5
+        self.subport11_300_out += 5
+        self.sublag3_400_out += 5
+        self.sublag3_500_out += 5
+        self.subport24_600_out += 5
+        self.subport25_400_out += 5
+        self.subport25_500_out += 5
+        self.port10_rif_in += 9
+        self.port11_rif_in += 9
+        self.lag3_rif_in += 9
+        self.vlan600_rif_in += 9
+        self.vlan700_rif_in += 9
 
     def noFloodTest(self):
         """
@@ -3322,35 +3250,31 @@ class L3SubPortTest(SaiHelper):
                                     ip_ttl=63,
                                     pktlen=100)
 
-        try:
-            print("Sending packet on sub port %d vlan 200, forward"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.port10_rif_out += 1
+        print("Sending packet on sub port %d vlan 200, forward"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.port10_rif_out += 1
 
-            print("Disable IPv4 on subport")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.subport11_200, admin_v4_state=False)
-            print("Sending packet on sub port %d vlan 200, drop"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            self.subport11_200_in += 1
+        print("Disable IPv4 on subport")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.subport11_200, admin_v4_state=False)
+        print("Sending packet on sub port %d vlan 200, drop"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        self.subport11_200_in += 1
 
-            print("Enable IPv4 on subport")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.subport11_200, admin_v4_state=True)
-            print("Sending packet on sub port %d vlan 200, forward"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.port10_rif_out += 1
-
-        finally:
-            pass
+        print("Enable IPv4 on subport")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.subport11_200, admin_v4_state=True)
+        print("Sending packet on sub port %d vlan 200, forward"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.port10_rif_out += 1
 
     def subPortAdminV6StatusTest(self):
         """
@@ -3376,35 +3300,31 @@ class L3SubPortTest(SaiHelper):
             ipv6_hlim=63,
             pktlen=40 + 14)
 
-        try:
-            print("Sending packet on sub port %d vlan 200, forward"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.port10_rif_out += 1
+        print("Sending packet on sub port %d vlan 200, forward"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.port10_rif_out += 1
 
-            print("Disable IPv6 on subport")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.subport11_200, admin_v6_state=False)
-            print("Sending packet on sub port %d vlan 200, drop"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            self.subport11_200_in += 1
+        print("Disable IPv6 on subport")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.subport11_200, admin_v6_state=False)
+        print("Sending packet on sub port %d vlan 200, drop"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        self.subport11_200_in += 1
 
-            print("Enable IPv6 on subport")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.subport11_200, admin_v6_state=True)
-            print("Sending packet on sub port %d vlan 200, forward"
-                  % self.dev_port11)
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.port10_rif_out += 1
-
-        finally:
-            pass
+        print("Enable IPv6 on subport")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.subport11_200, admin_v6_state=True)
+        print("Sending packet on sub port %d vlan 200, forward"
+              % self.dev_port11)
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.port10_rif_out += 1
 
     def subPortV4MtuTest(self):
         """
@@ -3417,117 +3337,113 @@ class L3SubPortTest(SaiHelper):
         sai_thrift_set_router_interface_attribute(
             self.client, self.subport10_100, mtu=200)
 
-        try:
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst='40.40.0.10',
+                                ip_id=105,
+                                ip_ttl=64,
+                                dl_vlan_enable=True,
+                                vlan_vid=200,
+                                pktlen=199 + 18)
+        exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
+                                    eth_src=ROUTER_MAC,
                                     ip_dst='40.40.0.10',
                                     ip_id=105,
-                                    ip_ttl=64,
+                                    ip_ttl=63,
                                     dl_vlan_enable=True,
-                                    vlan_vid=200,
+                                    vlan_vid=100,
                                     pktlen=199 + 18)
-            exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst='40.40.0.10',
-                                        ip_id=105,
-                                        ip_ttl=63,
-                                        dl_vlan_enable=True,
-                                        vlan_vid=100,
-                                        pktlen=199 + 18)
-            print("Max MTU is 200, send pkt size 199, send to port")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 200, send pkt size 199, send to port")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst='40.40.0.10',
+                                ip_id=105,
+                                ip_ttl=64,
+                                dl_vlan_enable=True,
+                                vlan_vid=200,
+                                pktlen=200 + 18)
+        exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
+                                    eth_src=ROUTER_MAC,
                                     ip_dst='40.40.0.10',
                                     ip_id=105,
-                                    ip_ttl=64,
+                                    ip_ttl=63,
                                     dl_vlan_enable=True,
-                                    vlan_vid=200,
+                                    vlan_vid=100,
                                     pktlen=200 + 18)
-            exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst='40.40.0.10',
-                                        ip_id=105,
-                                        ip_ttl=63,
-                                        dl_vlan_enable=True,
-                                        vlan_vid=100,
-                                        pktlen=200 + 18)
-            print("Max MTU is 200, send pkt size 200, send to port")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 200, send pkt size 200, send to port")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst='40.40.0.10',
+                                ip_id=105,
+                                ip_ttl=64,
+                                dl_vlan_enable=True,
+                                vlan_vid=200,
+                                pktlen=201 + 18)
+        exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
+                                    eth_src=ROUTER_MAC,
                                     ip_dst='40.40.0.10',
                                     ip_id=105,
-                                    ip_ttl=64,
+                                    ip_ttl=63,
                                     dl_vlan_enable=True,
-                                    vlan_vid=200,
+                                    vlan_vid=100,
                                     pktlen=201 + 18)
-            exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst='40.40.0.10',
-                                        ip_id=105,
-                                        ip_ttl=63,
-                                        dl_vlan_enable=True,
-                                        vlan_vid=100,
-                                        pktlen=201 + 18)
-            print("Max MTU is 200, send pkt size 201, drop")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 200, send pkt size 201, drop")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            print("Setting MTU to 201")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.subport10_100, mtu=201)
+        print("Setting MTU to 201")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.subport10_100, mtu=201)
 
-            print("Max MTU is 201, send pkt size 201, send to port")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 201, send pkt size 201, send to port")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst='40.40.0.10',
+                                ip_id=105,
+                                ip_ttl=64,
+                                dl_vlan_enable=True,
+                                vlan_vid=200,
+                                pktlen=202 + 18)
+        exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
+                                    eth_src=ROUTER_MAC,
                                     ip_dst='40.40.0.10',
                                     ip_id=105,
-                                    ip_ttl=64,
+                                    ip_ttl=63,
                                     dl_vlan_enable=True,
-                                    vlan_vid=200,
+                                    vlan_vid=100,
                                     pktlen=202 + 18)
-            exp_pkt = simple_tcp_packet(eth_dst='00:33:33:33:01:00',
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst='40.40.0.10',
-                                        ip_id=105,
-                                        ip_ttl=63,
-                                        dl_vlan_enable=True,
-                                        vlan_vid=100,
-                                        pktlen=202 + 18)
-            print("Max MTU is 201, send pkt size 202, drop")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
-
-        finally:
-            pass
+        print("Max MTU is 201, send pkt size 202, drop")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
     def subPortV6MtuTest(self):
         """
@@ -3540,128 +3456,124 @@ class L3SubPortTest(SaiHelper):
         sai_thrift_set_router_interface_attribute(
             self.client, self.subport10_100, mtu=200)
 
-        try:
-            pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                eth_src='00:22:22:22:22:22',
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                dl_vlan_enable=True,
-                vlan_vid=200,
-                ipv6_hlim=64,
-                pktlen=199 + 40 + 18)
-            exp_pkt = simple_tcpv6_packet(
-                eth_dst='00:33:33:33:01:00',
-                eth_src=ROUTER_MAC,
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                ipv6_hlim=63,
-                dl_vlan_enable=True,
-                vlan_vid=100,
-                pktlen=199 + 40 + 18)
+        pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src='00:22:22:22:22:22',
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            dl_vlan_enable=True,
+            vlan_vid=200,
+            ipv6_hlim=64,
+            pktlen=199 + 40 + 18)
+        exp_pkt = simple_tcpv6_packet(
+            eth_dst='00:33:33:33:01:00',
+            eth_src=ROUTER_MAC,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            ipv6_hlim=63,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            pktlen=199 + 40 + 18)
 
-            print("Max MTU is 200, send pkt size 199, send to port")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 200, send pkt size 199, send to port")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                eth_src='00:22:22:22:22:22',
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                dl_vlan_enable=True,
-                vlan_vid=200,
-                ipv6_hlim=64,
-                pktlen=200 + 40 + 18)
-            exp_pkt = simple_tcpv6_packet(
-                eth_dst='00:33:33:33:01:00',
-                eth_src=ROUTER_MAC,
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                ipv6_hlim=63,
-                dl_vlan_enable=True,
-                vlan_vid=100,
-                pktlen=200 + 40 + 18)
+        pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src='00:22:22:22:22:22',
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            dl_vlan_enable=True,
+            vlan_vid=200,
+            ipv6_hlim=64,
+            pktlen=200 + 40 + 18)
+        exp_pkt = simple_tcpv6_packet(
+            eth_dst='00:33:33:33:01:00',
+            eth_src=ROUTER_MAC,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            ipv6_hlim=63,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            pktlen=200 + 40 + 18)
 
-            print("Max MTU is 200, send pkt size 200, send to port")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 200, send pkt size 200, send to port")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                eth_src='00:22:22:22:22:22',
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                dl_vlan_enable=True,
-                vlan_vid=200,
-                ipv6_hlim=64,
-                pktlen=201 + 40 + 18)
-            exp_pkt = simple_tcpv6_packet(
-                eth_dst='00:33:33:33:01:00',
-                eth_src=ROUTER_MAC,
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                ipv6_hlim=63,
-                dl_vlan_enable=True,
-                vlan_vid=100,
-                pktlen=201 + 40 + 18)
+        pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src='00:22:22:22:22:22',
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            dl_vlan_enable=True,
+            vlan_vid=200,
+            ipv6_hlim=64,
+            pktlen=201 + 40 + 18)
+        exp_pkt = simple_tcpv6_packet(
+            eth_dst='00:33:33:33:01:00',
+            eth_src=ROUTER_MAC,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            ipv6_hlim=63,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            pktlen=201 + 40 + 18)
 
-            print("Max MTU is 200, send pkt size 201, drop")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 200, send pkt size 201, drop")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            print("Setting MTU to 201")
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.subport10_100, mtu=201)
+        print("Setting MTU to 201")
+        sai_thrift_set_router_interface_attribute(
+            self.client, self.subport10_100, mtu=201)
 
-            print("Max MTU is 201, send pkt size 201, send to port")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_packet(self, exp_pkt, self.dev_port10)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
+        print("Max MTU is 201, send pkt size 201, send to port")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_packet(self, exp_pkt, self.dev_port10)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
-            pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                eth_src='00:22:22:22:22:22',
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                dl_vlan_enable=True,
-                vlan_vid=200,
-                ipv6_hlim=64,
-                pktlen=202 + 40 + 18)
-            exp_pkt = simple_tcpv6_packet(
-                eth_dst='00:33:33:33:01:00',
-                eth_src=ROUTER_MAC,
-                ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
-                ipv6_src='2000::1',
-                ipv6_hlim=63,
-                dl_vlan_enable=True,
-                vlan_vid=100,
-                pktlen=202 + 40 + 18)
-            print("Max MTU is 201, send pkt size 202, drop")
-            print("Sending packet port %d -> port %d"
-                  % (self.dev_port11, self.dev_port10))
-            send_packet(self, self.dev_port11, pkt)
-            verify_no_other_packets(self, timeout=1)
-            self.subport11_200_in += 1
-            self.subport10_100_out += 1
-
-        finally:
-            pass
+        pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src='00:22:22:22:22:22',
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            dl_vlan_enable=True,
+            vlan_vid=200,
+            ipv6_hlim=64,
+            pktlen=202 + 40 + 18)
+        exp_pkt = simple_tcpv6_packet(
+            eth_dst='00:33:33:33:01:00',
+            eth_src=ROUTER_MAC,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:8899',
+            ipv6_src='2000::1',
+            ipv6_hlim=63,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            pktlen=202 + 40 + 18)
+        print("Max MTU is 201, send pkt size 202, drop")
+        print("Sending packet port %d -> port %d"
+              % (self.dev_port11, self.dev_port10))
+        send_packet(self, self.dev_port11, pkt)
+        verify_no_other_packets(self, timeout=1)
+        self.subport11_200_in += 1
+        self.subport10_100_out += 1
 
     def subPortIngressAclTest(self):
         """
@@ -3885,95 +3797,91 @@ class L3SubPortTest(SaiHelper):
         """
         print("\nsubPortECMPTest()")
 
-        try:
-            count = [0, 0, 0, 0, 0, 0, 0]
-            dst_ip = int(binascii.hexlify(socket.inet_aton('60.60.60.1')), 16)
-            src_ip = int(binascii.hexlify(socket.inet_aton('192.168.8.1')), 16)
-            max_itrs = 200
-            for i in range(0, max_itrs):
-                dst_ip_addr = socket.inet_ntoa(
-                    binascii.unhexlify(format(dst_ip, 'x').zfill(8)))
-                src_ip_addr = socket.inet_ntoa(
-                    binascii.unhexlify(format(src_ip, 'x').zfill(8)))
+        count = [0, 0, 0, 0, 0, 0, 0]
+        dst_ip = int(binascii.hexlify(socket.inet_aton('60.60.60.1')), 16)
+        src_ip = int(binascii.hexlify(socket.inet_aton('192.168.8.1')), 16)
+        max_itrs = 200
+        for i in range(0, max_itrs):
+            dst_ip_addr = socket.inet_ntoa(
+                binascii.unhexlify(format(dst_ip, 'x').zfill(8)))
+            src_ip_addr = socket.inet_ntoa(
+                binascii.unhexlify(format(src_ip, 'x').zfill(8)))
 
-                pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                        eth_src='00:22:22:22:22:22',
-                                        ip_dst=dst_ip_addr,
-                                        ip_src=src_ip_addr,
-                                        ip_ttl=64,
-                                        pktlen=100)
+            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                    eth_src='00:22:22:22:22:22',
+                                    ip_dst=dst_ip_addr,
+                                    ip_src=src_ip_addr,
+                                    ip_ttl=64,
+                                    pktlen=100)
 
-                exp_pkt1 = simple_tcp_packet(eth_dst='00:33:33:33:02:00',
-                                             eth_src=ROUTER_MAC,
-                                             ip_dst=dst_ip_addr,
-                                             ip_src=src_ip_addr,
-                                             dl_vlan_enable=True,
-                                             vlan_vid=200,
-                                             ip_ttl=63,
-                                             pktlen=104)
+            exp_pkt1 = simple_tcp_packet(eth_dst='00:33:33:33:02:00',
+                                         eth_src=ROUTER_MAC,
+                                         ip_dst=dst_ip_addr,
+                                         ip_src=src_ip_addr,
+                                         dl_vlan_enable=True,
+                                         vlan_vid=200,
+                                         ip_ttl=63,
+                                         pktlen=104)
 
-                exp_pkt2 = simple_tcp_packet(eth_dst='00:33:33:33:12:00',
-                                             eth_src=ROUTER_MAC,
-                                             ip_dst=dst_ip_addr,
-                                             ip_src=src_ip_addr,
-                                             dl_vlan_enable=True,
-                                             vlan_vid=200,
-                                             ip_ttl=63,
-                                             pktlen=104)
+            exp_pkt2 = simple_tcp_packet(eth_dst='00:33:33:33:12:00',
+                                         eth_src=ROUTER_MAC,
+                                         ip_dst=dst_ip_addr,
+                                         ip_src=src_ip_addr,
+                                         dl_vlan_enable=True,
+                                         vlan_vid=200,
+                                         ip_ttl=63,
+                                         pktlen=104)
 
-                exp_pkt3 = simple_tcp_packet(eth_dst='00:33:33:33:04:00',
-                                             eth_src=ROUTER_MAC,
-                                             ip_dst=dst_ip_addr,
-                                             ip_src=src_ip_addr,
-                                             dl_vlan_enable=True,
-                                             vlan_vid=400,
-                                             ip_ttl=63,
-                                             pktlen=104)
+            exp_pkt3 = simple_tcp_packet(eth_dst='00:33:33:33:04:00',
+                                         eth_src=ROUTER_MAC,
+                                         ip_dst=dst_ip_addr,
+                                         ip_src=src_ip_addr,
+                                         dl_vlan_enable=True,
+                                         vlan_vid=400,
+                                         ip_ttl=63,
+                                         pktlen=104)
 
-                exp_pkt4 = simple_tcp_packet(eth_dst='00:33:33:33:36:00',
-                                             eth_src=ROUTER_MAC,
-                                             ip_dst=dst_ip_addr,
-                                             ip_src=src_ip_addr,
-                                             dl_vlan_enable=True,
-                                             vlan_vid=600,
-                                             ip_ttl=63,
-                                             pktlen=104)
+            exp_pkt4 = simple_tcp_packet(eth_dst='00:33:33:33:36:00',
+                                         eth_src=ROUTER_MAC,
+                                         ip_dst=dst_ip_addr,
+                                         ip_src=src_ip_addr,
+                                         dl_vlan_enable=True,
+                                         vlan_vid=600,
+                                         ip_ttl=63,
+                                         pktlen=104)
 
-                exp_pkt5 = simple_tcp_packet(eth_dst='00:33:33:33:45:00',
-                                             eth_src=ROUTER_MAC,
-                                             ip_dst=dst_ip_addr,
-                                             ip_src=src_ip_addr,
-                                             dl_vlan_enable=True,
-                                             vlan_vid=500,
-                                             ip_ttl=63,
-                                             pktlen=104)
+            exp_pkt5 = simple_tcp_packet(eth_dst='00:33:33:33:45:00',
+                                         eth_src=ROUTER_MAC,
+                                         ip_dst=dst_ip_addr,
+                                         ip_src=src_ip_addr,
+                                         dl_vlan_enable=True,
+                                         vlan_vid=500,
+                                         ip_ttl=63,
+                                         pktlen=104)
 
-                send_packet(self, self.dev_port10, pkt)
-                rcv_idx = verify_any_packet_any_port(
-                    self, [exp_pkt1, exp_pkt2, exp_pkt3, exp_pkt4, exp_pkt5],
-                    [self.dev_port10, self.dev_port11, self.dev_port24,
-                     self.dev_port25, self.dev_port14, self.dev_port15,
-                     self.dev_port16],
-                    timeout=2)
-                count[rcv_idx] += 1
-                dst_ip += 1
-                src_ip += 1
+            send_packet(self, self.dev_port10, pkt)
+            rcv_idx = verify_any_packet_any_port(
+                self, [exp_pkt1, exp_pkt2, exp_pkt3, exp_pkt4, exp_pkt5],
+                [self.dev_port10, self.dev_port11, self.dev_port24,
+                 self.dev_port25, self.dev_port14, self.dev_port15,
+                 self.dev_port16],
+                timeout=2)
+            count[rcv_idx] += 1
+            dst_ip += 1
+            src_ip += 1
 
-            print('count: ', count)
-            ecmp_count = [count[0], count[1], count[2], count[3],
-                          count[4] + count[5] + count[6]]
-            for i in range(0, 5):
-                self.assertTrue((ecmp_count[i] >= ((max_itrs / 5) * 0.6)),
-                                "ECMP paths are not equally balanced")
-            self.port10_rif_in += 200
-            self.subport10_200_out += ecmp_count[0]
-            self.subport11_200_out += ecmp_count[1]
-            self.subport24_600_out += ecmp_count[2]
-            self.subport25_500_out += ecmp_count[3]
-            self.sublag3_400_out += ecmp_count[4]
-
-        finally:
-            pass
+        print('count: ', count)
+        ecmp_count = [count[0], count[1], count[2], count[3],
+                      count[4] + count[5] + count[6]]
+        for i in range(0, 5):
+            self.assertTrue((ecmp_count[i] >= ((max_itrs / 5) * 0.6)),
+                            "ECMP paths are not equally balanced")
+        self.port10_rif_in += 200
+        self.subport10_200_out += ecmp_count[0]
+        self.subport11_200_out += ecmp_count[1]
+        self.subport24_600_out += ecmp_count[2]
+        self.subport25_500_out += ecmp_count[3]
+        self.sublag3_400_out += ecmp_count[4]
 
     def subPortMyIPTest(self):
         """
@@ -4351,13 +4259,8 @@ class TunnelL3SubPortTest(L3SubPortTest):
     """
 
     def runTest(self):
-        try:
-            self.subPortTunnelTest()
-        finally:
-            pass
+        self.subPortTunnelTest()
 
-    # profile-dependent (only for defined SWITCH_FEATURE_IPV4_TUNNEL
-    # and SWITCH_FEATURE_TUNNEL_ENCAP)
     def subPortTunnelTest(self):
         """
         Verifies tunnel encap-decap over sub-port
@@ -4596,7 +4499,6 @@ class TunnelL3SubPortTest(L3SubPortTest):
             sai_thrift_remove_virtual_router(self.client, uvrf)
 
 
-# pylint: disable=too-many-public-methods
 class L3SviTest(SaiHelper):
     """
     This class contains base router interface tests for SVI RIFs
@@ -4861,37 +4763,34 @@ class L3SviTest(SaiHelper):
             self.client, self.route_entry7_v6, next_hop_id=self.nhop7)
 
     def runTest(self):
-        try:
-            self.sviRifIPv4DisableTest()
-            self.sviRifIPv6DisableTest()
-            self.sviBridgingTest()
-            self.sviHostTest()
-            self.sviHostVlanTaggingTest()
-            self.sviToSviRoutingTest()
-            self.sviIPv4HostPostRoutedFloodTest()
-            self.sviIPv6HostPostRoutedFloodTest()
-            self.sviIPv4HostStaticMacMoveTest()
-            self.sviIPv6HostStaticMacMoveTest()
-            self.sviRouteDynamicMacTest()
-            self.sviRouteDynamicMacMoveTest()
-            self.sviIPv4ArpMoveTest()
-            self.sviIPv6IcmpMoveTest()
-            self.sviLagHostTest()
-            self.sviIPv4LagHostStaticMacMoveTest()
-            self.sviIPv6LagHostStaticMacMoveTest()
-            self.sviLagHostDynamicMacTest()
-            self.sviIPv4LagHostDynamicMacMoveTest()
-            self.sviIPv6LagHostDynamicMacMoveTest()
-            self.sviIPv4MtuTest()
-            self.sviIPv6MtuTest()
-            self.sviTaggingTest()
-            self.sviMyIPTest()
-            self.sviStatsTest()
-            self.incorrectVlanIdTest()
-            self.duplicateVlanRifCreationTest()
-            # self.sviArpReplyTest()  # to be run locally
-        finally:
-            pass
+        self.sviRifIPv4DisableTest()
+        self.sviRifIPv6DisableTest()
+        self.sviBridgingTest()
+        self.sviHostTest()
+        self.sviHostVlanTaggingTest()
+        self.sviToSviRoutingTest()
+        self.sviIPv4HostPostRoutedFloodTest()
+        self.sviIPv6HostPostRoutedFloodTest()
+        self.sviIPv4HostStaticMacMoveTest()
+        self.sviIPv6HostStaticMacMoveTest()
+        self.sviRouteDynamicMacTest()
+        self.sviRouteDynamicMacMoveTest()
+        self.sviIPv4ArpMoveTest()
+        self.sviIPv6IcmpMoveTest()
+        self.sviLagHostTest()
+        self.sviIPv4LagHostStaticMacMoveTest()
+        self.sviIPv6LagHostStaticMacMoveTest()
+        self.sviLagHostDynamicMacTest()
+        self.sviIPv4LagHostDynamicMacMoveTest()
+        self.sviIPv6LagHostDynamicMacMoveTest()
+        self.sviIPv4MtuTest()
+        self.sviIPv6MtuTest()
+        self.sviTaggingTest()
+        self.sviMyIPTest()
+        self.sviStatsTest()
+        self.incorrectVlanIdTest()
+        self.duplicateVlanRifCreationTest()
+        self.sviArpReplyTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry5)
@@ -5601,44 +5500,40 @@ class L3SviTest(SaiHelper):
                                     ip_id=105,
                                     ip_ttl=63)
 
-        try:
-            print("Sending packet from port %d, (192.168.0.1 -> 10.10.10.1)"
-                  % self.dev_port10)
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24, self.dev_port25,
-                                           self.dev_port26])
-            self.vlan100_rif_counter_out += 3
+        print("Sending packet from port %d, (192.168.0.1 -> 10.10.10.1)"
+              % self.dev_port10)
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port24, self.dev_port25,
+                                       self.dev_port26])
+        self.vlan100_rif_counter_out += 3
 
-            print("Install static mac on port %d, should not flood now"
-                  % self.dev_port24)
-            fdb_entry = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
-                                               mac_address='00:11:22:33:44:55',
-                                               bv_id=self.vlan100)
-            sai_thrift_create_fdb_entry(self.client,
-                                        fdb_entry,
-                                        type=SAI_FDB_ENTRY_TYPE_STATIC,
-                                        bridge_port_id=self.port24_bp,
-                                        packet_action=mac_action)
+        print("Install static mac on port %d, should not flood now"
+              % self.dev_port24)
+        fdb_entry = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
+                                           mac_address='00:11:22:33:44:55',
+                                           bv_id=self.vlan100)
+        sai_thrift_create_fdb_entry(self.client,
+                                    fdb_entry,
+                                    type=SAI_FDB_ENTRY_TYPE_STATIC,
+                                    bridge_port_id=self.port24_bp,
+                                    packet_action=mac_action)
 
-            print("Sending packet from port %d to port %d, (192.168.0.1 -> "
-                  "10.10.10.1)" % (self.dev_port10, self.dev_port24))
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24])
-            self.vlan100_rif_counter_out += 1
+        print("Sending packet from port %d to port %d, (192.168.0.1 -> "
+              "10.10.10.1)" % (self.dev_port10, self.dev_port24))
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port24])
+        self.vlan100_rif_counter_out += 1
 
-            print("Removed static mac and now packet "
-                  "will be flooded after routed")
-            sai_thrift_remove_fdb_entry(self.client, fdb_entry)
+        print("Removed static mac and now packet "
+              "will be flooded after routed")
+        sai_thrift_remove_fdb_entry(self.client, fdb_entry)
 
-            print("Sending packet from port %d, (192.168.0.1 -> 10.10.10.1)"
-                  % self.dev_port10)
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24, self.dev_port25,
-                                           self.dev_port26])
-            self.vlan100_rif_counter_out += 3
-
-        finally:
-            pass
+        print("Sending packet from port %d, (192.168.0.1 -> 10.10.10.1)"
+              % self.dev_port10)
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port24, self.dev_port25,
+                                       self.dev_port26])
+        self.vlan100_rif_counter_out += 3
 
     def sviIPv6HostPostRoutedFloodTest(self):
         """
@@ -5662,46 +5557,42 @@ class L3SviTest(SaiHelper):
             ipv6_src='2000::1',
             ipv6_hlim=63)
 
-        try:
-            print("Sending packet from port %d" % self.dev_port10)
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [
-                self.dev_port24,
-                self.dev_port25,
-                self.dev_port26])
-            self.vlan100_rif_counter_out += 3
+        print("Sending packet from port %d" % self.dev_port10)
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [
+            self.dev_port24,
+            self.dev_port25,
+            self.dev_port26])
+        self.vlan100_rif_counter_out += 3
 
-            print("Install static mac on port %d, "
-                  "should not flood now" % self.dev_port24)
-            fdb_entry = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
-                                               mac_address='00:11:22:33:44:55',
-                                               bv_id=self.vlan100)
-            sai_thrift_create_fdb_entry(self.client,
-                                        fdb_entry,
-                                        type=SAI_FDB_ENTRY_TYPE_STATIC,
-                                        bridge_port_id=self.port24_bp,
-                                        packet_action=mac_action)
+        print("Install static mac on port %d, "
+              "should not flood now" % self.dev_port24)
+        fdb_entry = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
+                                           mac_address='00:11:22:33:44:55',
+                                           bv_id=self.vlan100)
+        sai_thrift_create_fdb_entry(self.client,
+                                    fdb_entry,
+                                    type=SAI_FDB_ENTRY_TYPE_STATIC,
+                                    bridge_port_id=self.port24_bp,
+                                    packet_action=mac_action)
 
-            print("Sending packet from port %d to port %d"
-                  % (self.dev_port10, self.dev_port24))
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24])
-            self.vlan100_rif_counter_out += 1
+        print("Sending packet from port %d to port %d"
+              % (self.dev_port10, self.dev_port24))
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port24])
+        self.vlan100_rif_counter_out += 1
 
-            print("Removed static mac and now packet will be "
-                  "flooded after routed")
-            sai_thrift_remove_fdb_entry(self.client, fdb_entry)
+        print("Removed static mac and now packet will be "
+              "flooded after routed")
+        sai_thrift_remove_fdb_entry(self.client, fdb_entry)
 
-            print("Sending packet from port %d" % self.dev_port10)
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [
-                self.dev_port24,
-                self.dev_port25,
-                self.dev_port26])
-            self.vlan100_rif_counter_out += 3
-
-        finally:
-            pass
+        print("Sending packet from port %d" % self.dev_port10)
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [
+            self.dev_port24,
+            self.dev_port25,
+            self.dev_port26])
+        self.vlan100_rif_counter_out += 3
 
     def sviIPv4HostStaticMacMoveTest(self):
         """
@@ -7044,7 +6935,6 @@ class L3SviTest(SaiHelper):
             if dupl_vlan_rif:
                 sai_thrift_remove_router_interface(self.client, dupl_vlan_rif)
 
-    # diasabled - to be run locally
     def sviArpReplyTest(self):
         """
         Verifies ARP replies from linux interface on tagged and untagged RIF
@@ -7404,16 +7294,13 @@ class L3MtuTrapTest(SaiHelper):
             self.client, self.route_entry100_v6, next_hop_id=self.nhop100)
 
     def runTest(self):
-        try:
-            self.ipv4MtuTrapTest()
-            self.ipv6MtuTrapTest()
-            self.subPortIpv4MtuTrapTest()
-            self.subPortIpv6MtuTrapTest()
-            self.sviIpv4MtuTrapTest()
-            self.sviIpv6MtuTrapTest()
-            self.mtuPacketStatsTest()
-        finally:
-            pass
+        self.ipv4MtuTrapTest()
+        self.ipv6MtuTrapTest()
+        self.subPortIpv4MtuTrapTest()
+        self.subPortIpv6MtuTrapTest()
+        self.sviIpv4MtuTrapTest()
+        self.sviIpv6MtuTrapTest()
+        self.mtuPacketStatsTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry100)
