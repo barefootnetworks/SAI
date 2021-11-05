@@ -1,4 +1,4 @@
-# Copyright 2021-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 """
 Thrift SAI interface Neighbor tests
 """
-from __future__ import print_function
-
 from ptf.packet import *
 from ptf.testutils import *
 from ptf.thriftutils import *
@@ -59,14 +57,11 @@ class NeighborAttrTest(SaiHelper):
                                              ipv6_hlim=64)
 
     def runTest(self):
-        try:
-            self.noHostRouteIpv4NeighborTest()
-            self.noHostRouteIpv6NeighborTest()
-            self.noHostRouteIpv6LinkLocalNeighborTest()
-            self.addHostRouteIpv4NeighborTest()
-            self.addHostRouteIpv6NeighborTest()
-        finally:
-            pass
+        self.noHostRouteIpv4NeighborTest()
+        self.noHostRouteIpv6NeighborTest()
+        self.noHostRouteIpv6LinkLocalNeighborTest()
+        self.addHostRouteIpv4NeighborTest()
+        self.addHostRouteIpv6NeighborTest()
 
     def noHostRouteIpv4NeighborTest(self):
         '''
