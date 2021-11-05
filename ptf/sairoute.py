@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 """
 Thrift SAI interface RIF tests
 """
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
 from ptf.testutils import *
@@ -31,17 +29,14 @@ class L3RouteTest(SaiHelper):
     Route test class
     '''
     def runTest(self):
-        try:
-            self.multipleRoutesTest()
-            self.dropRouteTest()
-            self.routeUpdateTest()
-            self.routeIngressRifTest()
-            self.emptyECMPGroupTest()
-            self.sviNeighborTest()
-            self.cpuForwardTest()
-            self.routeNbrColisionTest()
-        finally:
-            pass
+        self.multipleRoutesTest()
+        self.dropRouteTest()
+        self.routeUpdateTest()
+        self.routeIngressRifTest()
+        self.emptyECMPGroupTest()
+        self.sviNeighborTest()
+        self.cpuForwardTest()
+        self.routeNbrColisionTest()
 
     def multipleRoutesTest(self):
         '''
@@ -806,159 +801,147 @@ class L3DirBcastRouteTest(SaiHelper):
         """
         Verifies the test packets are gleaned to CPU when neighbors don't exist
         """
-        try:
-            pkt_ip_src = '192.168.0.1'
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:21',
-                                    ip_dst=self.ip_addr1,
-                                    ip_src=pkt_ip_src,
-                                    ip_id=105,
-                                    ip_ttl=64)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            print("Sending packet on port %d, glean to cpu" % self.dev_port10)
-            send_packet(self, self.dev_port10, pkt)
-            verify_no_other_packets(self, timeout=1)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"],
-                pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
+        pkt_ip_src = '192.168.0.1'
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:21',
+                                ip_dst=self.ip_addr1,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        pre_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        print("Sending packet on port %d, glean to cpu" % self.dev_port10)
+        send_packet(self, self.dev_port10, pkt)
+        verify_no_other_packets(self, timeout=1)
+        time.sleep(4)
+        post_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        self.assertEqual(
+            post_stats["SAI_QUEUE_STAT_PACKETS"],
+            pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
 
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
-                                    ip_dst=self.ip_addr2,
-                                    ip_src=pkt_ip_src,
-                                    ip_id=105,
-                                    ip_ttl=64)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            print("Sending packet on port %d, glean to cpu" % self.dev_port24)
-            send_packet(self, self.dev_port24, pkt)
-            verify_no_other_packets(self, timeout=1)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"],
-                pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
-
-        finally:
-            pass
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst=self.ip_addr2,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        pre_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        print("Sending packet on port %d, glean to cpu" % self.dev_port24)
+        send_packet(self, self.dev_port24, pkt)
+        verify_no_other_packets(self, timeout=1)
+        time.sleep(4)
+        post_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        self.assertEqual(
+            post_stats["SAI_QUEUE_STAT_PACKETS"],
+            pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
 
     def trafficTrapTest2(self):
         """
         Verifies the test packets are gleaned to CPU when neighbors don't exist
         """
-        try:
-            pkt_ip_src = '192.168.0.1'
-            pkt_ip_dst = '10.10.10.2'
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:21',
-                                    ip_dst=pkt_ip_dst,
-                                    ip_src=pkt_ip_src,
-                                    ip_id=105,
-                                    ip_ttl=64)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            print("Sending packet on port %d, glean to cpu" % self.dev_port10)
-            send_packet(self, self.dev_port10, pkt)
-            verify_no_other_packets(self, timeout=1)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"],
-                pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
+        pkt_ip_src = '192.168.0.1'
+        pkt_ip_dst = '10.10.10.2'
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:21',
+                                ip_dst=pkt_ip_dst,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        pre_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        print("Sending packet on port %d, glean to cpu" % self.dev_port10)
+        send_packet(self, self.dev_port10, pkt)
+        verify_no_other_packets(self, timeout=1)
+        time.sleep(4)
+        post_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        self.assertEqual(
+            post_stats["SAI_QUEUE_STAT_PACKETS"],
+            pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
 
-            pkt_ip_dst = '20.20.20.2'
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
-                                    ip_dst=pkt_ip_dst,
-                                    ip_src=pkt_ip_src,
-                                    ip_id=105,
-                                    ip_ttl=64)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            print("Sending packet on port %d, glean to cpu" % self.dev_port24)
-            send_packet(self, self.dev_port24, pkt)
-            verify_no_other_packets(self, timeout=1)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"],
-                pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
-
-        finally:
-            pass
+        pkt_ip_dst = '20.20.20.2'
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst=pkt_ip_dst,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        pre_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        print("Sending packet on port %d, glean to cpu" % self.dev_port24)
+        send_packet(self, self.dev_port24, pkt)
+        verify_no_other_packets(self, timeout=1)
+        time.sleep(4)
+        post_stats = sai_thrift_get_queue_stats(
+            self.client, self.cpu_queue0)
+        self.assertEqual(
+            post_stats["SAI_QUEUE_STAT_PACKETS"],
+            pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
 
     def trafficTest(self):
         """
         Verfies if test packets are properly forwarded
         """
-        try:
-            pkt_ip_src = '192.168.0.1'
-            # send the test packet(s)
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:21',
+        pkt_ip_src = '192.168.0.1'
+        # send the test packet(s)
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:21',
+                                ip_dst=self.ip_addr1,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        exp_pkt = simple_tcp_packet(eth_dst=self.dmac1,
+                                    eth_src=ROUTER_MAC,
                                     ip_dst=self.ip_addr1,
                                     ip_src=pkt_ip_src,
                                     ip_id=105,
-                                    ip_ttl=64)
-            exp_pkt = simple_tcp_packet(eth_dst=self.dmac1,
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst=self.ip_addr1,
-                                        ip_src=pkt_ip_src,
-                                        ip_id=105,
-                                        ip_ttl=63)
-            print("Sending packet on port %d to port %d, forward from %s to %s"
-                  % (self.dev_port10, self.dev_port24, pkt_ip_src,
-                     self.ip_addr1))
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24])
+                                    ip_ttl=63)
+        print("Sending packet on port %d to port %d, forward from %s to %s"
+              % (self.dev_port10, self.dev_port24, pkt_ip_src,
+                 self.ip_addr1))
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port24])
 
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:22',
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:22',
+                                ip_dst=self.dir_bcast_ip_addr1,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        exp_pkt = simple_tcp_packet(eth_dst=self.dir_bcast_dmac1,
+                                    eth_src=ROUTER_MAC,
                                     ip_dst=self.dir_bcast_ip_addr1,
                                     ip_src=pkt_ip_src,
                                     ip_id=105,
-                                    ip_ttl=64)
-            exp_pkt = simple_tcp_packet(eth_dst=self.dir_bcast_dmac1,
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst=self.dir_bcast_ip_addr1,
-                                        ip_src=pkt_ip_src,
-                                        ip_id=105,
-                                        ip_ttl=63)
-            print("Sending packet on port %d to port %d and %d, forward from "
-                  "%s to %s" % (self.dev_port10, self.dev_port24,
-                                self.dev_port25, pkt_ip_src,
-                                self.dir_bcast_ip_addr1))
-            send_packet(self, self.dev_port10, pkt)
-            verify_packets(self, exp_pkt, ports=[self.dev_port24,
-                                                 self.dev_port25])
+                                    ip_ttl=63)
+        print("Sending packet on port %d to port %d and %d, forward from "
+              "%s to %s" % (self.dev_port10, self.dev_port24,
+                            self.dev_port25, pkt_ip_src,
+                            self.dir_bcast_ip_addr1))
+        send_packet(self, self.dev_port10, pkt)
+        verify_packets(self, exp_pkt, ports=[self.dev_port24,
+                                             self.dev_port25])
 
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src='00:22:22:22:22:23',
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src='00:22:22:22:22:23',
+                                ip_dst=self.ip_addr2,
+                                ip_src=pkt_ip_src,
+                                ip_id=105,
+                                ip_ttl=64)
+        exp_pkt = simple_tcp_packet(eth_dst=self.dmac2,
+                                    eth_src=ROUTER_MAC,
                                     ip_dst=self.ip_addr2,
                                     ip_src=pkt_ip_src,
                                     ip_id=105,
-                                    ip_ttl=64)
-            exp_pkt = simple_tcp_packet(eth_dst=self.dmac2,
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst=self.ip_addr2,
-                                        ip_src=pkt_ip_src,
-                                        ip_id=105,
-                                        ip_ttl=63)
-            print("Sending packet on port %d to port %d, forward from %s to %s"
-                  % (self.dev_port25, self.dev_port10, pkt_ip_src,
-                     self.ip_addr2))
-            send_packet(self, self.dev_port25, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port10])
-
-        finally:
-            pass
+                                    ip_ttl=63)
+        print("Sending packet on port %d to port %d, forward from %s to %s"
+              % (self.dev_port25, self.dev_port10, pkt_ip_src,
+                 self.ip_addr2))
+        send_packet(self, self.dev_port25, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port10])
 
     def gleanEndForwardTest(self):
         """
