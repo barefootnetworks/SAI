@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 """
 Thrift SAI interface RIF tests
 """
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
 import ptf.mask as mask
@@ -32,11 +30,8 @@ class L3NexthopTest(SaiHelper):
         Basic L3 nexthop tests.
     '''
     def runTest(self):
-        try:
-            self.removeNexthopTest()
-            self.cpuNexthopTest()
-        finally:
-            pass
+        self.removeNexthopTest()
+        self.cpuNexthopTest()
 
     def removeNexthopTest(self):
         '''
@@ -292,12 +287,9 @@ class NhopTunnelEncapDecapTest(SaiHelper):
                                       next_hop_id=self.tunnel_nexthop)
 
     def runTest(self):
-        try:
-            self.l3InterfaceTunnelTest()
-            self.subPortTunnelTest()
-            self.sviTunnelTest()
-        finally:
-            pass
+        self.l3InterfaceTunnelTest()
+        self.subPortTunnelTest()
+        self.sviTunnelTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.customer_route2)
@@ -680,10 +672,7 @@ class NhopTunnelVNITest(SaiHelper):
             underlay_interface=self.urif_lb)
 
     def runTest(self):
-        try:
-            self.tunnelVniTest()
-        finally:
-            pass
+        self.tunnelVniTest()
 
     def tearDown(self):
         sai_thrift_remove_tunnel(self.client, self.tunnel)
@@ -854,10 +843,6 @@ class NhopTunnelVNITest(SaiHelper):
             print(sai_thrift_get_next_hop_attribute(self.client,
                                                     tunnel_nexthop2,
                                                     tunnel_vni=True))
-#            sai_thrift_set_next_hop_attribute(self.client,
-#                self.tunnel_nexthop2, tunnel_mac='00:12:34:56:78:90')
-#            print(sai_thrift_get_next_hop_attribute(self.client,
-#                self.tunnel_nexthop2, tunnel_mac=True))
 
             vxlan_pkt.set_do_not_care_scapy(UDP, 'sport')
             send_packet(self, self.dev_port24, pkt)
