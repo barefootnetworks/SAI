@@ -127,7 +127,7 @@ class L3RouteTest(SaiHelper):
             vr_id=self.default_vrf, destination=sai_ipprefix('10.10.10.1/32'))
         sai_thrift_create_route_entry(
             self.client, route_entry, next_hop_id=nhop,
-            packet_action=SAI_PACKET_ACTION_TRAP)
+            packet_action=SAI_PACKET_ACTION_DROP)
 
         pkt = simple_tcp_packet(
             eth_dst=ROUTER_MAC,
@@ -137,16 +137,9 @@ class L3RouteTest(SaiHelper):
             ip_id=105,
             ip_ttl=64)
         try:
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
             print("Sending packet on port %d, forward" % self.dev_port11)
             send_packet(self, self.dev_port11, pkt)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue0)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"],
-                pre_stats["SAI_QUEUE_STAT_PACKETS"] + 1)
+            verify_no_other_packets(self, timeout=3)
 
         finally:
             sai_thrift_remove_route_entry(self.client, route_entry)
@@ -488,11 +481,11 @@ class L3RouteTest(SaiHelper):
 
             sai_thrift_remove_router_interface(self.client, vlan100_rif)
             sai_thrift_set_port_attribute(self.client, self.port24,
-                                          port_vlan_id=1)
+                                          port_vlan_id=0)
             sai_thrift_set_port_attribute(self.client, self.port25,
-                                          port_vlan_id=1)
+                                          port_vlan_id=0)
             sai_thrift_set_port_attribute(self.client, self.port26,
-                                          port_vlan_id=1)
+                                          port_vlan_id=0)
             sai_thrift_remove_vlan_member(self.client, vlan_member102)
             sai_thrift_remove_vlan_member(self.client, vlan_member101)
             sai_thrift_remove_vlan_member(self.client, vlan_member100)
@@ -778,9 +771,9 @@ class L3DirBcastRouteTest(SaiHelper):
 
         print("Sets port attributes")
         sai_thrift_set_port_attribute(self.client, self.port24,
-                                      port_vlan_id=1)
+                                      port_vlan_id=0)
         sai_thrift_set_port_attribute(self.client, self.port25,
-                                      port_vlan_id=1)
+                                      port_vlan_id=0)
 
         print("Removes vlan member 1 %d" % self.vlan100_member1)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member1)
