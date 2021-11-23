@@ -584,9 +584,9 @@ class NhopTunnelEncapDecapTest(SaiHelper):
             sai_thrift_remove_next_hop(self.client, onhop)
             sai_thrift_remove_router_interface(self.client, osvi)
             sai_thrift_set_port_attribute(self.client, self.port24,
-                                          port_vlan_id=1)
+                                          port_vlan_id=0)
             sai_thrift_set_port_attribute(self.client, self.port26,
-                                          port_vlan_id=1)
+                                          port_vlan_id=0)
             sai_thrift_remove_vlan_member(self.client, vlan_member100)
             sai_thrift_remove_vlan_member(self.client, vlan_member101)
             sai_thrift_remove_vlan(self.client, vlan100)
