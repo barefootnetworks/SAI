@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
 Thrift SAI interface VRF tests
 """
 
-from __future__ import print_function
-
 import binascii
 
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
 from ptf.packet import *
+from ptf.testutils import *
 from ptf.thriftutils import *
 
 from sai_base_test import *
@@ -36,6 +34,10 @@ class VrfForwardingTest(SaiHelper):
 
     def setUp(self):
         super(VrfForwardingTest, self).setUp()
+
+        self.route_list = []
+        self.nbor_list = []
+        self.nhop_list = []
 
         self.test_vrf = sai_thrift_create_virtual_router(self.client)
         self.assertTrue(self.test_vrf != 0)
@@ -59,33 +61,39 @@ class VrfForwardingTest(SaiHelper):
             ip=sai_ipaddress(iport_ipv4),
             router_interface_id=self.test_irif,
             type=SAI_NEXT_HOP_TYPE_IP)
+        self.nhop_list.append(self.iport_nhop)
         self.iport_nhop_v6 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress(iport_ipv6),
             router_interface_id=self.test_irif,
             type=SAI_NEXT_HOP_TYPE_IP)
+        self.nhop_list.append(self.iport_nhop_v6)
 
         self.iport_nbor = sai_thrift_neighbor_entry_t(
             rif_id=self.test_irif, ip_address=sai_ipaddress(iport_ipv4))
         sai_thrift_create_neighbor_entry(self.client,
                                          self.iport_nbor,
                                          dst_mac_address=self.iport_nbor_mac)
+        self.nbor_list.append(self.iport_nbor)
         self.iport_nbor_v6 = sai_thrift_neighbor_entry_t(
             rif_id=self.test_irif, ip_address=sai_ipaddress(iport_ipv6))
         sai_thrift_create_neighbor_entry(self.client,
                                          self.iport_nbor_v6,
                                          dst_mac_address=self.iport_nbor_mac)
+        self.nbor_list.append(self.iport_nbor_v6)
 
         self.iport_route = sai_thrift_route_entry_t(
             vr_id=self.test_vrf, destination=sai_ipprefix(iport_ipv4 + '/24'))
         sai_thrift_create_route_entry(self.client,
                                       self.iport_route,
                                       next_hop_id=self.iport_nhop)
+        self.route_list.append(self.iport_route)
         self.iport_route_v6 = sai_thrift_route_entry_t(
             vr_id=self.test_vrf, destination=sai_ipprefix(iport_ipv6 + '/112'))
         sai_thrift_create_route_entry(self.client,
                                       self.iport_route_v6,
                                       next_hop_id=self.iport_nhop_v6)
+        self.route_list.append(self.iport_route_v6)
 
         # create and configure egress RIF
         self.eport = self.port25
@@ -106,71 +114,65 @@ class VrfForwardingTest(SaiHelper):
             ip=sai_ipaddress(eport_ipv4),
             router_interface_id=self.test_erif,
             type=SAI_NEXT_HOP_TYPE_IP)
+        self.nhop_list.append(self.eport_nhop)
         self.eport_nhop_v6 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress(eport_ipv6),
             router_interface_id=self.test_erif,
             type=SAI_NEXT_HOP_TYPE_IP)
+        self.nhop_list.append(self.eport_nhop_v6)
 
         self.eport_nbor = sai_thrift_neighbor_entry_t(
             rif_id=self.test_erif, ip_address=sai_ipaddress(eport_ipv4))
         sai_thrift_create_neighbor_entry(self.client,
                                          self.eport_nbor,
                                          dst_mac_address=self.eport_nbor_mac)
+        self.nbor_list.append(self.eport_nbor)
         self.eport_nbor_v6 = sai_thrift_neighbor_entry_t(
             rif_id=self.test_erif, ip_address=sai_ipaddress(eport_ipv6))
         sai_thrift_create_neighbor_entry(self.client,
                                          self.eport_nbor_v6,
                                          dst_mac_address=self.eport_nbor_mac)
+        self.nbor_list.append(self.eport_nbor_v6)
 
         self.eport_route = sai_thrift_route_entry_t(
             vr_id=self.test_vrf, destination=sai_ipprefix(eport_ipv4 + '/24'))
         sai_thrift_create_route_entry(self.client,
                                       self.eport_route,
                                       next_hop_id=self.eport_nhop)
+        self.route_list.append(self.eport_route)
         self.eport_route_v6 = sai_thrift_route_entry_t(
             vr_id=self.test_vrf, destination=sai_ipprefix(eport_ipv6 + '/112'))
         sai_thrift_create_route_entry(self.client,
                                       self.eport_route_v6,
                                       next_hop_id=self.eport_nhop_v6)
+        self.route_list.append(self.eport_route_v6)
 
     def runTest(self):
-        try:
-            self.vrfStateTest()
-            self.interVrfFwdL3NhopTest()
-            self.interVrfFwdL3LagNhopTest()
-            self.interVrfFwdSviNhopTest()
-            self.interVrfFwdSubportNhopTest()
-            self.interVrfFwdEcmpNhopTest()
-        finally:
-            pass
+        self.vrfStateTest()
+        self.interVrfFwdL3NhopTest()
+        self.interVrfFwdL3LagNhopTest()
+        self.interVrfFwdSviNhopTest()
+        self.interVrfFwdSubportNhopTest()
+        self.interVrfFwdEcmpNhopTest()
 
     def tearDown(self):
-        sai_thrift_remove_route_entry(self.client, self.eport_route)
-        sai_thrift_remove_route_entry(self.client, self.eport_route_v6)
-        sai_thrift_remove_neighbor_entry(self.client, self.eport_nbor)
-        sai_thrift_remove_neighbor_entry(self.client, self.eport_nbor_v6)
-        sai_thrift_remove_next_hop(self.client, self.eport_nhop)
-        sai_thrift_remove_next_hop(self.client, self.eport_nhop_v6)
+        for route in self.route_list:
+            sai_thrift_remove_route_entry(self.client, route)
+        for nbor in self.nbor_list:
+            sai_thrift_remove_neighbor_entry(self.client, nbor)
+        for nhop in self.nhop_list:
+            sai_thrift_remove_next_hop(self.client, nhop)
 
         sai_thrift_remove_router_interface(self.client, self.test_erif)
-
-        sai_thrift_remove_route_entry(self.client, self.iport_route)
-        sai_thrift_remove_route_entry(self.client, self.iport_route_v6)
-        sai_thrift_remove_neighbor_entry(self.client, self.iport_nbor)
-        sai_thrift_remove_neighbor_entry(self.client, self.iport_nbor_v6)
-        sai_thrift_remove_next_hop(self.client, self.iport_nhop)
-        sai_thrift_remove_next_hop(self.client, self.iport_nhop_v6)
-
         sai_thrift_remove_router_interface(self.client, self.test_irif)
-
         sai_thrift_remove_virtual_router(self.client, self.test_vrf)
 
         super(VrfForwardingTest, self).tearDown()
 
     def vrfStateTest(self):
         '''
-        This verifies forwarding for different IPv4 and IPv6 states on VRF
+        Verify forwarding for different IPv4 and IPv6 states on VRF
         '''
         print("\nvrfStateTest()")
 
@@ -226,7 +228,7 @@ class VrfForwardingTest(SaiHelper):
 
             print("IPv4 enabled, IPv6 disabled")
             send_packet(self, self.iport_dev, pkt)
-            verify_packets(self, exp_pkt, [self.eport_dev])
+            verify_packet(self, exp_pkt, self.eport_dev)
             print("\tIPv4 forwarded")
             send_packet(self, self.iport_dev, ipv6_pkt)
             verify_no_other_packets(self)
@@ -245,7 +247,7 @@ class VrfForwardingTest(SaiHelper):
             verify_no_other_packets(self)
             print("\tIPv4 dropped")
             send_packet(self, self.iport_dev, ipv6_pkt)
-            verify_packets(self, exp_ipv6_pkt, [self.eport_dev])
+            verify_packet(self, exp_ipv6_pkt, self.eport_dev)
             print("\tIPv6 forwarded")
 
             # IPv4 enabled, IPv6 enabled
@@ -255,10 +257,10 @@ class VrfForwardingTest(SaiHelper):
 
             print("IPv4 enabled, IPv6 enabled")
             send_packet(self, self.iport_dev, pkt)
-            verify_packets(self, exp_pkt, [self.eport_dev])
+            verify_packet(self, exp_pkt, self.eport_dev)
             print("\tIPv4 forwarded")
             send_packet(self, self.iport_dev, ipv6_pkt)
-            verify_packets(self, exp_ipv6_pkt, [self.eport_dev])
+            verify_packet(self, exp_ipv6_pkt, self.eport_dev)
             print("\tIPv6 forwarded")
 
         finally:
@@ -274,7 +276,7 @@ class VrfForwardingTest(SaiHelper):
 
     def interVrfFwdL3NhopTest(self):
         '''
-        This verifies inter VRF forwarding with regular L3 nexthop
+        Verify inter VRF forwarding with regular L3 nexthop
         '''
         print("\ninterVrfFwdL3NhopTest()")
 
@@ -327,7 +329,7 @@ class VrfForwardingTest(SaiHelper):
 
             print("Sending inter-VRF packet to regular L3 nexthop")
             send_packet(self, self.iport_dev, pkt)
-            verify_packets(self, exp_pkt, [test_dev_port])
+            verify_packet(self, exp_pkt, test_dev_port)
             print("\tOK")
 
         finally:
@@ -336,20 +338,17 @@ class VrfForwardingTest(SaiHelper):
 
             sai_thrift_remove_route_entry(self.client, test_route)
             sai_thrift_remove_route_entry(self.client, test_route2)
-
             sai_thrift_remove_next_hop(self.client, test_nhop)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor)
 
     def interVrfFwdL3LagNhopTest(self):
         '''
-        This verifies inter VRF forwarding with regular L3 LAG nexthop
+        Verify inter VRF forwarding with regular L3 LAG nexthop
         '''
         print("\ninterVrfFwdL3LagNhopTest()")
 
-        test_lag_dev_ports = [
-            self.dev_port14, self.dev_port15, self.dev_port16
-        ]
+        test_lag_dev_ports = [self.dev_port14, self.dev_port15,
+                              self.dev_port16]
         test_lag_rif = self.lag3_rif
 
         test_mac = "00:33:33:33:33:33"
@@ -407,14 +406,12 @@ class VrfForwardingTest(SaiHelper):
 
             sai_thrift_remove_route_entry(self.client, test_route)
             sai_thrift_remove_route_entry(self.client, test_route2)
-
             sai_thrift_remove_next_hop(self.client, test_nhop)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor)
 
     def interVrfFwdSviNhopTest(self):
         '''
-        This verifies inter VRF forwarding with SVI nexthop
+        Verify inter VRF forwarding with SVI nexthop
         '''
         print("\ninterVrfFwdSviNhopTest()")
 
@@ -492,14 +489,12 @@ class VrfForwardingTest(SaiHelper):
 
             sai_thrift_remove_route_entry(self.client, test_route)
             sai_thrift_remove_route_entry(self.client, test_route2)
-
             sai_thrift_remove_next_hop(self.client, test_nhop)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor)
 
     def interVrfFwdSubportNhopTest(self):
         '''
-        This verifies inter VRF forwarding with subport nexthop
+        Verify inter VRF forwarding with subport nexthop
         '''
         print("\ninterVrfFwdSubportNhopTest()")
 
@@ -619,10 +614,10 @@ class VrfForwardingTest(SaiHelper):
 
             print("Sending inter-VRF packets to 2 subport nexthops")
             send_packet(self, self.iport_dev, pkt1)
-            verify_packets(self, exp_pkt1, [test_dev_port])
+            verify_packet(self, exp_pkt1, test_dev_port)
 
             send_packet(self, self.iport_dev, pkt2)
-            verify_packets(self, exp_pkt2, [test_dev_port])
+            verify_packet(self, exp_pkt2, test_dev_port)
             print("\tOK")
 
         finally:
@@ -633,19 +628,16 @@ class VrfForwardingTest(SaiHelper):
             sai_thrift_remove_route_entry(self.client, test_route12)
             sai_thrift_remove_route_entry(self.client, test_route21)
             sai_thrift_remove_route_entry(self.client, test_route22)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor1)
             sai_thrift_remove_neighbor_entry(self.client, test_nbor2)
-
             sai_thrift_remove_next_hop(self.client, test_nhop1)
             sai_thrift_remove_next_hop(self.client, test_nhop2)
-
             sai_thrift_remove_router_interface(self.client, subport1_rif)
             sai_thrift_remove_router_interface(self.client, subport2_rif)
 
     def interVrfFwdEcmpNhopTest(self):
         '''
-        This verifies inter VRF forwarding with ECMP nexthop
+        Verify inter VRF forwarding with ECMP nexthop
         '''
         print("\ninterVrfFwdEcmpNhopTest()")
 
@@ -774,20 +766,16 @@ class VrfForwardingTest(SaiHelper):
 
         finally:
             sai_thrift_remove_route_entry(self.client, test_ecmp_route)
-
-            sai_thrift_remove_next_hop_group_member(self.client,
-                                                    nhop_group_mmbr1)
-            sai_thrift_remove_next_hop_group_member(self.client,
-                                                    nhop_group_mmbr2)
-            sai_thrift_remove_next_hop_group_member(self.client,
-                                                    nhop_group_mmbr3)
-
+            sai_thrift_remove_next_hop_group_member(
+                self.client, nhop_group_mmbr1)
+            sai_thrift_remove_next_hop_group_member(
+                self.client, nhop_group_mmbr2)
+            sai_thrift_remove_next_hop_group_member(
+                self.client, nhop_group_mmbr3)
             sai_thrift_remove_next_hop_group(self.client, test_nhop_group)
-
             sai_thrift_remove_next_hop(self.client, test_nhop1)
             sai_thrift_remove_next_hop(self.client, test_nhop2)
             sai_thrift_remove_next_hop(self.client, test_nhop3)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor1)
             sai_thrift_remove_neighbor_entry(self.client, test_nbor2)
             sai_thrift_remove_neighbor_entry(self.client, test_nbor3)
@@ -795,12 +783,14 @@ class VrfForwardingTest(SaiHelper):
 
 class VrfIsolationTest(SaiHelper):
     '''
-    These verify forwarding with overlapping IP addresses - when the same
+    Verify forwarding with overlapping IP addresses - when the same
     addresses in different VRFs point to different nexthops
     '''
 
     def setUp(self):
         super(VrfIsolationTest, self).setUp()
+
+        self.rif_list = []
 
         self.test_vrf = sai_thrift_create_virtual_router(self.client)
         self.assertTrue(self.test_vrf != 0)
@@ -824,6 +814,7 @@ class VrfIsolationTest(SaiHelper):
             virtual_router_id=self.default_vrf,
             port_id=self.def_iport)
         self.assertTrue(self.def_irif != 0)
+        self.rif_list.append(self.def_irif)
 
         self.def_eport = self.port25
         self.def_eport_dev = self.dev_port25
@@ -833,6 +824,7 @@ class VrfIsolationTest(SaiHelper):
             virtual_router_id=self.default_vrf,
             port_id=self.def_eport)
         self.assertTrue(self.def_erif != 0)
+        self.rif_list.append(self.def_erif)
 
         # ports in test VRF (26 and 27)
         self.test_iport = self.port26
@@ -843,6 +835,7 @@ class VrfIsolationTest(SaiHelper):
             virtual_router_id=self.test_vrf,
             port_id=self.test_iport)
         self.assertTrue(self.test_irif != 0)
+        self.rif_list.append(self.test_irif)
 
         self.test_eport = self.port27
         self.test_eport_dev = self.dev_port27
@@ -852,21 +845,17 @@ class VrfIsolationTest(SaiHelper):
             virtual_router_id=self.test_vrf,
             port_id=self.test_eport)
         self.assertTrue(self.test_erif != 0)
+        self.rif_list.append(self.test_erif)
 
     def runTest(self):
-        try:
-            self.overlappingIPv4LpmTest()
-            self.overlappingIPv4HostTest()
-            self.overlappingIPv6LpmTest()
-            self.overlappingIPv6HostTest()
-        finally:
-            pass
+        self.overlappingIPv4LpmTest()
+        self.overlappingIPv4HostTest()
+        self.overlappingIPv6LpmTest()
+        self.overlappingIPv6HostTest()
 
     def tearDown(self):
-        sai_thrift_remove_router_interface(self.client, self.test_erif)
-        sai_thrift_remove_router_interface(self.client, self.test_irif)
-        sai_thrift_remove_router_interface(self.client, self.def_erif)
-        sai_thrift_remove_router_interface(self.client, self.def_irif)
+        for rif in self.rif_list:
+            sai_thrift_remove_router_interface(self.client, rif)
 
         sai_thrift_remove_virtual_router(self.client, self.test_vrf)
 
@@ -950,12 +939,12 @@ class VrfIsolationTest(SaiHelper):
 
             print("Verifying forwarding within default VRF")
             send_packet(self, self.def_iport_dev, def_v4_pkt)
-            verify_packets(self, def_v4_exp_pkt, [self.def_eport_dev])
+            verify_packet(self, def_v4_exp_pkt, self.def_eport_dev)
             print("\tOK")
 
             print("Verifying forwarding within test VRF")
             send_packet(self, self.test_iport_dev, test_v4_pkt)
-            verify_packets(self, test_v4_exp_pkt, [self.test_eport_dev])
+            verify_packet(self, test_v4_exp_pkt, self.test_eport_dev)
             print("\tOK")
 
         finally:
@@ -1014,12 +1003,12 @@ class VrfIsolationTest(SaiHelper):
 
             print("Verifying forwarding within default VRF")
             send_packet(self, self.def_iport_dev, def_v4_pkt)
-            verify_packets(self, def_v4_exp_pkt, [self.def_eport_dev])
+            verify_packet(self, def_v4_exp_pkt, self.def_eport_dev)
             print("\tOK")
 
             print("Verifying forwarding within test VRF")
             send_packet(self, self.test_iport_dev, test_v4_pkt)
-            verify_packets(self, test_v4_exp_pkt, [self.test_eport_dev])
+            verify_packet(self, test_v4_exp_pkt, self.test_eport_dev)
             print("\tOK")
 
         finally:
@@ -1104,12 +1093,12 @@ class VrfIsolationTest(SaiHelper):
 
             print("Verifying forwarding within default VRF")
             send_packet(self, self.def_iport_dev, def_v6_pkt)
-            verify_packets(self, def_v6_exp_pkt, [self.def_eport_dev])
+            verify_packet(self, def_v6_exp_pkt, self.def_eport_dev)
             print("\tOK")
 
             print("Verifying forwarding within test VRF")
             send_packet(self, self.test_iport_dev, test_v6_pkt)
-            verify_packets(self, test_v6_exp_pkt, [self.test_eport_dev])
+            verify_packet(self, test_v6_exp_pkt, self.test_eport_dev)
             print("\tOK")
 
         finally:
@@ -1170,12 +1159,12 @@ class VrfIsolationTest(SaiHelper):
 
             print("Verifying forwarding within default VRF")
             send_packet(self, self.def_iport_dev, def_v6_pkt)
-            verify_packets(self, def_v6_exp_pkt, [self.def_eport_dev])
+            verify_packet(self, def_v6_exp_pkt, self.def_eport_dev)
             print("\tOK")
 
             print("Verifying forwarding within test VRF")
             send_packet(self, self.test_iport_dev, test_v6_pkt)
-            verify_packets(self, test_v6_exp_pkt, [self.test_eport_dev])
+            verify_packet(self, test_v6_exp_pkt, self.test_eport_dev)
             print("\tOK")
 
         finally:
@@ -1185,13 +1174,18 @@ class VrfIsolationTest(SaiHelper):
 
 class VrfMultipleRifCreationTest(SaiHelper):
     '''
-    This verifies multiple RIF creation of type PORT (and LAG), VLAN
-    (with tagged and untagged members), SUB_PORT and LOOPBACK for three
-    different VRFs, with routes pointing to each RIF type
+    Verify multiple RIF creation of type PORT, LAG, VLAN (with tagged
+    and untagged members), SUB_PORT and LOOPBACK for three different VRFs,
+    with routes pointing to each RIF type
     '''
 
     def setUp(self):
         super(VrfMultipleRifCreationTest, self).setUp()
+
+        self.route_list = []
+        self.nhop_list = []
+        self.nbor_list = []
+        self.rif_list = []
 
         # VRF 1 configuration
         self.vrf1 = sai_thrift_create_virtual_router(self.client)
@@ -1203,6 +1197,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf1,
             port_id=self.port24)
         self.assertTrue(self.port_rif1 != 0)
+        self.rif_list.append(self.port_rif1)
 
         self.lag_rif1 = sai_thrift_create_router_interface(
             self.client,
@@ -1210,6 +1205,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf1,
             port_id=self.lag1)
         self.assertTrue(self.lag_rif1 != 0)
+        self.rif_list.append(self.lag_rif1)
 
         self.sub_port_rif1 = sai_thrift_create_router_interface(
             self.client,
@@ -1219,12 +1215,14 @@ class VrfMultipleRifCreationTest(SaiHelper):
             outer_vlan_id=100,
             admin_v4_state=True)
         self.assertTrue(self.sub_port_rif1 != 0)
+        self.rif_list.append(self.sub_port_rif1)
 
         self.lpb_rif1 = sai_thrift_create_router_interface(
             self.client,
             type=SAI_ROUTER_INTERFACE_TYPE_LOOPBACK,
             virtual_router_id=self.vrf1)
         self.assertTrue(self.lpb_rif1 != 0)
+        self.rif_list.append(self.lpb_rif1)
 
         self.svi_rif1 = sai_thrift_create_router_interface(
             self.client,
@@ -1232,6 +1230,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf1,
             vlan_id=self.vlan10)
         self.assertTrue(self.svi_rif1 != 0)
+        self.rif_list.append(self.svi_rif1)
 
         self.ip_addr11 = "10.10.1.1"
         self.mac11 = "00:11:11:11:11:11"
@@ -1240,18 +1239,23 @@ class VrfMultipleRifCreationTest(SaiHelper):
         sai_thrift_create_neighbor_entry(self.client,
                                          self.port_nbor1,
                                          dst_mac_address=self.mac11)
+        self.nbor_list.append(self.port_nbor1)
+
         self.port_nhop1 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress(self.ip_addr11),
             router_interface_id=self.port_rif1,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.port_nhop1 != 0)
+        self.nhop_list.append(self.port_nhop1)
+
         self.port_route1 = sai_thrift_route_entry_t(
             vr_id=self.vrf1, destination=sai_ipprefix(self.ip_addr11 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.port_route1,
                                                next_hop_id=self.port_nhop1)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.port_route1)
 
         self.ip_addr12 = "10.10.2.1"
         self.mac12 = "00:11:11:11:11:22"
@@ -1260,18 +1264,23 @@ class VrfMultipleRifCreationTest(SaiHelper):
         sai_thrift_create_neighbor_entry(self.client,
                                          self.lag_nbor1,
                                          dst_mac_address=self.mac12)
+        self.nbor_list.append(self.lag_nbor1)
+
         self.lag_nhop1 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress(self.ip_addr12),
             router_interface_id=self.lag_rif1,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.lag_nhop1 != 0)
+        self.nhop_list.append(self.lag_nhop1)
+
         self.lag_route1 = sai_thrift_route_entry_t(
             vr_id=self.vrf1, destination=sai_ipprefix(self.ip_addr12 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.lag_route1,
                                                next_hop_id=self.lag_nhop1)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.lag_route1)
 
         self.ip_addr13 = "10.10.3.1"
         self.mac13 = "00:11:11:11:11:33"
@@ -1281,18 +1290,23 @@ class VrfMultipleRifCreationTest(SaiHelper):
         sai_thrift_create_neighbor_entry(self.client,
                                          self.sub_port_nbor1,
                                          dst_mac_address=self.mac13)
+        self.nbor_list.append(self.sub_port_nbor1)
+
         self.sub_port_nhop1 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress(self.ip_addr13),
             router_interface_id=self.sub_port_rif1,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.sub_port_nhop1 != 0)
+        self.nhop_list.append(self.sub_port_nhop1)
+
         self.sub_port_route1 = sai_thrift_route_entry_t(
             vr_id=self.vrf1, destination=sai_ipprefix(self.ip_addr13 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.sub_port_route1,
                                                next_hop_id=self.sub_port_nhop1)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.sub_port_route1)
 
         self.ip_addr14 = "10.10.4.1"
         self.lpb_nhop1 = sai_thrift_create_next_hop(
@@ -1301,12 +1315,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.lpb_rif1,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.lpb_nhop1 != 0)
+        self.nhop_list.append(self.lpb_nhop1)
+
         self.lpb_route1 = sai_thrift_route_entry_t(
             vr_id=self.vrf1, destination=sai_ipprefix(self.ip_addr14 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.lpb_route1,
                                                next_hop_id=self.lpb_nhop1)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.lpb_route1)
 
         self.ip_addr15 = "10.10.5.1"
         self.mac15 = "00:11:11:11:11:55"
@@ -1315,18 +1332,23 @@ class VrfMultipleRifCreationTest(SaiHelper):
         sai_thrift_create_neighbor_entry(self.client,
                                          self.svi_nbor1,
                                          dst_mac_address=self.mac15)
+        self.nbor_list.append(self.svi_nbor1)
+
         self.svi_nhop1 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress(self.ip_addr15),
             router_interface_id=self.svi_rif1,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.svi_nhop1 != 0)
+        self.nhop_list.append(self.svi_nhop1)
+
         self.svi_route1 = sai_thrift_route_entry_t(
             vr_id=self.vrf1, destination=sai_ipprefix(self.ip_addr15 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.svi_route1,
                                                next_hop_id=self.svi_nhop1)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.svi_route1)
 
         # VRF 2 configuration
         self.vrf2 = sai_thrift_create_virtual_router(self.client)
@@ -1338,6 +1360,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf2,
             port_id=self.port25)
         self.assertTrue(self.port_rif2 != 0)
+        self.rif_list.append(self.port_rif2)
 
         self.lag_rif2 = sai_thrift_create_router_interface(
             self.client,
@@ -1345,6 +1368,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf2,
             port_id=self.lag2)
         self.assertTrue(self.lag_rif2 != 0)
+        self.rif_list.append(self.lag_rif2)
 
         self.sub_port_rif2 = sai_thrift_create_router_interface(
             self.client,
@@ -1354,12 +1378,14 @@ class VrfMultipleRifCreationTest(SaiHelper):
             outer_vlan_id=200,
             admin_v4_state=True)
         self.assertTrue(self.sub_port_rif2 != 0)
+        self.rif_list.append(self.sub_port_rif2)
 
         self.lpb_rif2 = sai_thrift_create_router_interface(
             self.client,
             type=SAI_ROUTER_INTERFACE_TYPE_LOOPBACK,
             virtual_router_id=self.vrf2)
         self.assertTrue(self.lpb_rif2 != 0)
+        self.rif_list.append(self.lpb_rif2)
 
         self.svi_rif2 = sai_thrift_create_router_interface(
             self.client,
@@ -1367,6 +1393,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf2,
             vlan_id=self.vlan20)
         self.assertTrue(self.svi_rif2 != 0)
+        self.rif_list.append(self.svi_rif2)
 
         ip_addr21 = "10.20.1.1"
         self.port_nhop2 = sai_thrift_create_next_hop(
@@ -1375,12 +1402,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.port_rif2,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.port_nhop2 != 0)
+        self.nhop_list.append(self.port_nhop2)
+
         self.port_route2 = sai_thrift_route_entry_t(
             vr_id=self.vrf2, destination=sai_ipprefix(ip_addr21 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.port_route2,
                                                next_hop_id=self.port_nhop2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.port_route2)
 
         ip_addr22 = "10.20.2.1"
         self.lag_nhop2 = sai_thrift_create_next_hop(
@@ -1389,12 +1419,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.lag_rif2,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.lag_nhop2 != 0)
+        self.nhop_list.append(self.lag_nhop2)
+
         self.lag_route2 = sai_thrift_route_entry_t(
             vr_id=self.vrf2, destination=sai_ipprefix(ip_addr22 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.lag_route2,
                                                next_hop_id=self.lag_nhop2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.lag_route2)
 
         ip_addr23 = "10.20.3.1"
         self.sub_port_nhop2 = sai_thrift_create_next_hop(
@@ -1403,12 +1436,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.sub_port_rif2,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.sub_port_nhop2 != 0)
+        self.nhop_list.append(self.sub_port_nhop2)
+
         self.sub_port_route2 = sai_thrift_route_entry_t(
             vr_id=self.vrf2, destination=sai_ipprefix(ip_addr23 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.sub_port_route2,
                                                next_hop_id=self.sub_port_nhop2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.sub_port_route2)
 
         ip_addr24 = "10.20.4.1"
         self.lpb_nhop2 = sai_thrift_create_next_hop(
@@ -1417,12 +1453,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.lpb_rif2,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.lpb_nhop2 != 0)
+        self.nhop_list.append(self.lpb_nhop2)
+
         self.lpb_route2 = sai_thrift_route_entry_t(
             vr_id=self.vrf2, destination=sai_ipprefix(ip_addr24 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.lpb_route2,
                                                next_hop_id=self.lpb_nhop2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.lpb_route2)
 
         ip_addr25 = "10.20.5.1"
         self.svi_nhop2 = sai_thrift_create_next_hop(
@@ -1431,12 +1470,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.svi_rif2,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.svi_nhop2 != 0)
+        self.nhop_list.append(self.svi_nhop2)
+
         self.svi_route2 = sai_thrift_route_entry_t(
             vr_id=self.vrf2, destination=sai_ipprefix(ip_addr25 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.svi_route2,
                                                next_hop_id=self.svi_nhop2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.svi_route2)
 
         # VRF 3 configuration
         self.vrf3 = sai_thrift_create_virtual_router(self.client)
@@ -1448,6 +1490,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf3,
             port_id=self.port26)
         self.assertTrue(self.port_rif3 != 0)
+        self.rif_list.append(self.port_rif3)
 
         # additional LAG
         self.lag10 = sai_thrift_create_lag(self.client)
@@ -1473,6 +1516,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf3,
             port_id=self.lag10)
         self.assertTrue(self.lag_rif3 != 0)
+        self.rif_list.append(self.lag_rif3)
 
         self.sub_port_rif3 = sai_thrift_create_router_interface(
             self.client,
@@ -1482,12 +1526,14 @@ class VrfMultipleRifCreationTest(SaiHelper):
             outer_vlan_id=300,
             admin_v4_state=True)
         self.assertTrue(self.sub_port_rif3 != 0)
+        self.rif_list.append(self.sub_port_rif3)
 
         self.lpb_rif3 = sai_thrift_create_router_interface(
             self.client,
             type=SAI_ROUTER_INTERFACE_TYPE_LOOPBACK,
             virtual_router_id=self.vrf3)
         self.assertTrue(self.lpb_rif3 != 0)
+        self.rif_list.append(self.lpb_rif3)
 
         # additional VLAN
         self.vlan100 = sai_thrift_create_vlan(self.client, vlan_id=100)
@@ -1526,6 +1572,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
             virtual_router_id=self.vrf3,
             vlan_id=self.vlan100)
         self.assertTrue(self.svi_rif3 != 0)
+        self.rif_list.append(self.svi_rif3)
 
         ip_addr31 = "10.30.1.1"
         self.port_nhop3 = sai_thrift_create_next_hop(
@@ -1534,12 +1581,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.port_rif3,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.port_nhop3 != 0)
+        self.nhop_list.append(self.port_nhop3)
+
         self.port_route3 = sai_thrift_route_entry_t(
             vr_id=self.vrf3, destination=sai_ipprefix(ip_addr31 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.port_route3,
                                                next_hop_id=self.port_nhop3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.port_route3)
 
         ip_addr32 = "10.30.2.1"
         self.lag_nhop3 = sai_thrift_create_next_hop(
@@ -1548,12 +1598,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.lag_rif3,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.lag_nhop3 != 0)
+        self.nhop_list.append(self.lag_nhop3)
+
         self.lag_route3 = sai_thrift_route_entry_t(
             vr_id=self.vrf3, destination=sai_ipprefix(ip_addr32 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.lag_route3,
                                                next_hop_id=self.lag_nhop3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.lag_route3)
 
         ip_addr33 = "10.30.3.1"
         self.sub_port_nhop3 = sai_thrift_create_next_hop(
@@ -1562,12 +1615,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.sub_port_rif3,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.sub_port_nhop3 != 0)
+        self.nhop_list.append(self.sub_port_nhop3)
+
         self.sub_port_route3 = sai_thrift_route_entry_t(
             vr_id=self.vrf3, destination=sai_ipprefix(ip_addr33 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.sub_port_route3,
                                                next_hop_id=self.sub_port_nhop3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.sub_port_route3)
 
         ip_addr34 = "10.30.4.1"
         self.lpb_nhop3 = sai_thrift_create_next_hop(
@@ -1576,12 +1632,15 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.lpb_rif3,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.lpb_nhop3 != 0)
+        self.nhop_list.append(self.lpb_nhop3)
+
         self.lpb_route3 = sai_thrift_route_entry_t(
             vr_id=self.vrf3, destination=sai_ipprefix(ip_addr34 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.lpb_route3,
                                                next_hop_id=self.lpb_nhop3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.lpb_route3)
 
         ip_addr35 = "10.30.5.1"
         self.svi_nhop3 = sai_thrift_create_next_hop(
@@ -1590,106 +1649,57 @@ class VrfMultipleRifCreationTest(SaiHelper):
             router_interface_id=self.svi_rif3,
             type=SAI_NEXT_HOP_TYPE_IP)
         self.assertTrue(self.svi_nhop3 != 0)
+        self.nhop_list.append(self.svi_nhop3)
+
         self.svi_route3 = sai_thrift_route_entry_t(
             vr_id=self.vrf3, destination=sai_ipprefix(ip_addr35 + '/24'))
         status = sai_thrift_create_route_entry(self.client,
                                                self.svi_route3,
                                                next_hop_id=self.svi_nhop3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
+        self.route_list.append(self.svi_route3)
 
     def runTest(self):
-        try:
-            self.vrfInterfacesTest()
-        finally:
-            pass
+        self.vrfInterfacesTest()
 
     def tearDown(self):
-        # VRF 3
-        sai_thrift_remove_route_entry(self.client, self.svi_route3)
-        sai_thrift_remove_next_hop(self.client, self.svi_nhop3)
-        sai_thrift_remove_route_entry(self.client, self.lpb_route3)
-        sai_thrift_remove_next_hop(self.client, self.lpb_nhop3)
-        sai_thrift_remove_route_entry(self.client, self.sub_port_route3)
-        sai_thrift_remove_next_hop(self.client, self.sub_port_nhop3)
-        sai_thrift_remove_route_entry(self.client, self.lag_route3)
-        sai_thrift_remove_next_hop(self.client, self.lag_nhop3)
-        sai_thrift_remove_route_entry(self.client, self.port_route3)
-        sai_thrift_remove_next_hop(self.client, self.port_nhop3)
+        for route in self.route_list:
+            sai_thrift_remove_route_entry(self.client, route)
+        for nhop in self.nhop_list:
+            sai_thrift_remove_next_hop(self.client, nhop)
+        for nbor in self.nbor_list:
+            sai_thrift_remove_neighbor_entry(self.client, nbor)
 
-        sai_thrift_remove_router_interface(self.client, self.svi_rif3)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member1)
         sai_thrift_remove_bridge_port(self.client, self.port30_bp)
         sai_thrift_set_port_attribute(self.client, self.port29, port_vlan_id=0)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member0)
         sai_thrift_remove_bridge_port(self.client, self.port29_bp)
         sai_thrift_remove_vlan(self.client, self.vlan100)
-        sai_thrift_remove_router_interface(self.client, self.lpb_rif3)
-        sai_thrift_remove_router_interface(self.client, self.sub_port_rif3)
-        sai_thrift_remove_router_interface(self.client, self.lag_rif3)
         sai_thrift_remove_bridge_port(self.client, self.lag10_bp)
         sai_thrift_remove_lag_member(self.client, self.lag10_member1)
         sai_thrift_remove_lag_member(self.client, self.lag10_member2)
         sai_thrift_remove_lag(self.client, self.lag10)
-        sai_thrift_remove_router_interface(self.client, self.port_rif3)
+
+        for rif in self.rif_list:
+            sai_thrift_remove_router_interface(self.client, rif)
 
         sai_thrift_remove_virtual_router(self.client, self.vrf3)
-
-        # VRF 2
-        sai_thrift_remove_route_entry(self.client, self.svi_route2)
-        sai_thrift_remove_next_hop(self.client, self.svi_nhop2)
-        sai_thrift_remove_route_entry(self.client, self.lpb_route2)
-        sai_thrift_remove_next_hop(self.client, self.lpb_nhop2)
-        sai_thrift_remove_route_entry(self.client, self.sub_port_route2)
-        sai_thrift_remove_next_hop(self.client, self.sub_port_nhop2)
-        sai_thrift_remove_route_entry(self.client, self.lag_route2)
-        sai_thrift_remove_next_hop(self.client, self.lag_nhop2)
-        sai_thrift_remove_route_entry(self.client, self.port_route2)
-        sai_thrift_remove_next_hop(self.client, self.port_nhop2)
-
-        sai_thrift_remove_router_interface(self.client, self.svi_rif2)
-        sai_thrift_remove_router_interface(self.client, self.lpb_rif2)
-        sai_thrift_remove_router_interface(self.client, self.sub_port_rif2)
-        sai_thrift_remove_router_interface(self.client, self.lag_rif2)
-        sai_thrift_remove_router_interface(self.client, self.port_rif2)
-
         sai_thrift_remove_virtual_router(self.client, self.vrf2)
-
-        # VRF 1
-        sai_thrift_remove_route_entry(self.client, self.svi_route1)
-        sai_thrift_remove_next_hop(self.client, self.svi_nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.svi_nbor1)
-        sai_thrift_remove_route_entry(self.client, self.lpb_route1)
-        sai_thrift_remove_next_hop(self.client, self.lpb_nhop1)
-        sai_thrift_remove_route_entry(self.client, self.sub_port_route1)
-        sai_thrift_remove_next_hop(self.client, self.sub_port_nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.sub_port_nbor1)
-        sai_thrift_remove_route_entry(self.client, self.lag_route1)
-        sai_thrift_remove_next_hop(self.client, self.lag_nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.lag_nbor1)
-        sai_thrift_remove_route_entry(self.client, self.port_route1)
-        sai_thrift_remove_next_hop(self.client, self.port_nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.port_nbor1)
-
-        sai_thrift_remove_router_interface(self.client, self.svi_rif1)
-        sai_thrift_remove_router_interface(self.client, self.lpb_rif1)
-        sai_thrift_remove_router_interface(self.client, self.sub_port_rif1)
-        sai_thrift_remove_router_interface(self.client, self.lag_rif1)
-        sai_thrift_remove_router_interface(self.client, self.port_rif1)
-
         sai_thrift_remove_virtual_router(self.client, self.vrf1)
 
         super(VrfMultipleRifCreationTest, self).tearDown()
 
     def vrfInterfacesTest(self):
         '''
-        This verifies VRF basic forwarding between different types of RIFs
+        Verify VRF basic forwarding between different types of RIFs
         within one of created VRF (VRF1)
         '''
         print("\nvrfInterfacesTest()")
 
         test_port = self.dev_port24
         test_lag_ports = [self.dev_port4, self.dev_port5, self.dev_port6]
-        test_subport = [self.dev_port10]
+        test_subport = self.dev_port10
         test_vlan_ports = [[self.dev_port0], [self.dev_port1], test_lag_ports]
 
         src_mac = "00:aa:aa:aa:aa:aa"
@@ -1734,7 +1744,7 @@ class VrfMultipleRifCreationTest(SaiHelper):
 
             print("Sending packet port->subport in the same VRF")
             send_packet(self, test_port, pkt)
-            verify_packets(self, exp_tag_pkt, test_subport)
+            verify_packet(self, exp_tag_pkt, test_subport)
             print("\tOK")
 
             # port -> SVI (10.10.5.0/24)
@@ -1758,11 +1768,9 @@ class VrfMultipleRifCreationTest(SaiHelper):
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
 
-@group('acl-redirect')
-# profile-dependent (only for defined ACL_REDIRECT_NEXTHOP_ENABLE)
 class VrfAclRedirectTest(SaiHelper):
     '''
-    These verify inter-VRF ACL redirection
+    Verify inter-VRF ACL redirection
     '''
 
     def setUp(self):
@@ -1797,28 +1805,23 @@ class VrfAclRedirectTest(SaiHelper):
             type=SAI_NEXT_HOP_TYPE_IP)
 
     def runTest(self):
-        try:
-            self.aclFwdL3NhopTest()
-            self.aclFwdL3LagNhopTest()
-            self.aclFwdSviNhopTest()
-            self.aclFwdSubportNhopTest()
-            # self.aclFwdEcmpNhopTest()
-        finally:
-            pass
+        self.aclFwdL3NhopTest()
+        self.aclFwdL3LagNhopTest()
+        self.aclFwdSviNhopTest()
+        self.aclFwdSubportNhopTest()
+        self.aclFwdEcmpNhopTest()
 
     def tearDown(self):
         sai_thrift_remove_next_hop(self.client, self.iport_nhop)
         sai_thrift_remove_next_hop(self.client, self.iport_nhop_v6)
-
         sai_thrift_remove_router_interface(self.client, self.test_irif)
-
         sai_thrift_remove_virtual_router(self.client, self.test_vrf)
 
         super(VrfAclRedirectTest, self).tearDown()
 
     def aclFwdL3NhopTest(self):
         '''
-        This verifies ACL redirect to regular L3 nexthop in different VRF
+        Verify ACL redirect to regular L3 nexthop in different VRF
         '''
         print("\naclFwdL3NhopTest()")
 
@@ -1887,25 +1890,21 @@ class VrfAclRedirectTest(SaiHelper):
             print("Sending packet with ACL action: "
                   "redirect to regular L3 nexthop")
             send_packet(self, self.iport_dev, pkt)
-            verify_packets(self, pkt, [test_dev_port])
+            verify_packet(self, pkt, test_dev_port)
             print("\tOK")
 
         finally:
             sai_thrift_set_router_interface_attribute(self.client,
                                                       self.test_irif,
                                                       ingress_acl=0)
-
             sai_thrift_remove_acl_entry(self.client, acl_entry)
-
             sai_thrift_remove_acl_table(self.client, acl_table)
-
             sai_thrift_remove_next_hop(self.client, test_nhop)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor)
 
     def aclFwdL3LagNhopTest(self):
         '''
-        This verifies ACL redirect to regular L3 nexthop in different VRF
+        Verify ACL redirect to regular L3 nexthop in different VRF
         '''
         print("\naclFwdL3LagNhopTest()")
 
@@ -1982,18 +1981,14 @@ class VrfAclRedirectTest(SaiHelper):
             sai_thrift_set_router_interface_attribute(self.client,
                                                       self.test_irif,
                                                       ingress_acl=0)
-
             sai_thrift_remove_acl_entry(self.client, acl_entry)
-
             sai_thrift_remove_acl_table(self.client, acl_table)
-
             sai_thrift_remove_next_hop(self.client, test_nhop)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor)
 
     def aclFwdSviNhopTest(self):
         '''
-        This verifies ACL redirect to SVI nexthop in different VRF
+        Verify ACL redirect to SVI nexthop in different VRF
         '''
         print("\naclFwdSviNhopTest()")
 
@@ -2061,30 +2056,23 @@ class VrfAclRedirectTest(SaiHelper):
                                     ip_src=src_ip,
                                     ip_ttl=64)
 
-            exp_pkt_list = [pkt, pkt, pkt]
-
             print("Sending packet with ACL action: redirect to SVI nexthop")
             send_packet(self, self.iport_dev, pkt)
-            verify_each_packet_on_multiple_port_lists(self, exp_pkt_list,
-                                                      test_vlan_dev_ports)
+            verify_packets(self, pkt, test_vlan_dev_ports)
             print("\tOK")
 
         finally:
             sai_thrift_set_router_interface_attribute(self.client,
                                                       self.test_irif,
                                                       ingress_acl=0)
-
             sai_thrift_remove_acl_entry(self.client, acl_entry)
-
             sai_thrift_remove_acl_table(self.client, acl_table)
-
             sai_thrift_remove_next_hop(self.client, test_nhop)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor)
 
     def aclFwdSubportNhopTest(self):
         '''
-        This verifies ACL redirect to SVI nexthop in different VRF
+        Verify ACL redirect to SVI nexthop in different VRF
         '''
         print("\naclFwdSubportNhopTest()")
 
@@ -2205,35 +2193,29 @@ class VrfAclRedirectTest(SaiHelper):
             print("Sending packest with ACL action: "
                   "redirect to 2 subport nexthops")
             send_packet(self, self.iport_dev, pkt1)
-            verify_packets(self, pkt1, [test_dev_port])
+            verify_packet(self, pkt1, test_dev_port)
 
             send_packet(self, self.iport_dev, pkt2)
-            verify_packets(self, pkt2, [test_dev_port])
+            verify_packet(self, pkt2, test_dev_port)
             print("\tOK")
 
         finally:
             sai_thrift_set_router_interface_attribute(self.client,
                                                       self.test_irif,
                                                       ingress_acl=0)
-
             sai_thrift_remove_acl_entry(self.client, acl_entry1)
             sai_thrift_remove_acl_entry(self.client, acl_entry2)
-
             sai_thrift_remove_acl_table(self.client, acl_table)
-
             sai_thrift_remove_next_hop(self.client, test_nhop1)
             sai_thrift_remove_next_hop(self.client, test_nhop2)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor1)
             sai_thrift_remove_neighbor_entry(self.client, test_nbor2)
-
             sai_thrift_remove_router_interface(self.client, subport1_rif)
             sai_thrift_remove_router_interface(self.client, subport2_rif)
 
-    # disabled - not yet implemented
     def aclFwdEcmpNhopTest(self):
         '''
-        This verifies ACL redirect to ECMP nexthop in different VRF
+        Verify ACL redirect to ECMP nexthop in different VRF
         '''
         print("\naclFwdEcmpNhopTest()")
 
@@ -2361,66 +2343,53 @@ class VrfAclRedirectTest(SaiHelper):
                 send_packet(self, self.iport_dev, pkt)
                 rcv_idx = verify_packet_any_port(self, pkt, test_dev_ports)
 
-                count[rcv_idx] += 1
+                count[rcv_idx[0]] += 1
                 src_ip_addr += 1
                 dst_ip_addr += 1
 
             print("\tOK")
 
-            for _ in range(len(count)):
-                self.assertTrue(count[1] >= ((max_iter / len(count)) * 0.7),
+            for value in count:
+                self.assertTrue(value >= ((max_iter / len(count)) * 0.7),
                                 "Ecmp paths are not equally balanced")
 
         finally:
             sai_thrift_set_router_interface_attribute(self.client,
                                                       self.test_irif,
                                                       ingress_acl=0)
-
             sai_thrift_remove_acl_entry(self.client, acl_entry)
-
             sai_thrift_remove_acl_table(self.client, acl_table)
-
             sai_thrift_remove_next_hop_group_member(self.client,
                                                     nhop_group_mmbr1)
             sai_thrift_remove_next_hop_group_member(self.client,
                                                     nhop_group_mmbr2)
             sai_thrift_remove_next_hop_group_member(self.client,
                                                     nhop_group_mmbr3)
-
             sai_thrift_remove_next_hop_group(self.client, test_nhop_group)
-
             sai_thrift_remove_next_hop(self.client, test_nhop1)
             sai_thrift_remove_next_hop(self.client, test_nhop2)
             sai_thrift_remove_next_hop(self.client, test_nhop3)
-
             sai_thrift_remove_neighbor_entry(self.client, test_nbor1)
             sai_thrift_remove_neighbor_entry(self.client, test_nbor2)
             sai_thrift_remove_neighbor_entry(self.client, test_nbor3)
 
 
-@disabled
 class VrfScaleTest(SaiHelper):
     '''
-    This verifies if it is possible to create the number of VRFs declared as
+    Verify if it is possible to create the number of VRFs declared as
     maximum allowed
     '''
 
     def runTest(self):
-        try:
-            self.maxVrfNoTest()
-        finally:
-            pass
-
-    def maxVrfNoTest(self):
         '''
-        This verifies if VRF Scale matches maximum number of VRF entries
+        Verify if VRF Scale matches maximum number of VRF entries
         available on switch and if it is possible to add routes to them
         '''
-        print("\nmaxVrfNoTest()")
+        print("\nVrfScaleTest")
 
         try:
-            sw_attr = sai_thrift_get_switch_attribute(self.client,
-                                                      max_virtual_routers=True)
+            sw_attr = sai_thrift_get_switch_attribute(
+                self.client, max_virtual_routers=True)
             max_vr_no = sw_attr['max_virtual_routers']
 
             ip_addr = "10.10.10.1"
@@ -2489,14 +2458,14 @@ class VrfScaleTest(SaiHelper):
 
         finally:
             for i, _ in enumerate(vrf_list):
-                sai_thrift_remove_route_entry(self.client,
-                                              host_route_v6_list[i])
-                sai_thrift_remove_route_entry(self.client,
-                                              lpm_route_v6_list[i])
-                sai_thrift_remove_route_entry(self.client,
-                                              host_route_v4_list[i])
-                sai_thrift_remove_route_entry(self.client,
-                                              lpm_route_v4_list[i])
+                sai_thrift_remove_route_entry(
+                    self.client, host_route_v6_list[i])
+                sai_thrift_remove_route_entry(
+                    self.client, lpm_route_v6_list[i])
+                sai_thrift_remove_route_entry(
+                    self.client, host_route_v4_list[i])
+                sai_thrift_remove_route_entry(
+                    self.client, lpm_route_v4_list[i])
                 sai_thrift_remove_virtual_router(self.client, vrf_list[i])
 
             sai_thrift_remove_next_hop(self.client, nexthop_v4)
@@ -2508,12 +2477,13 @@ class VrfSMACTest(SaiHelper):
     VRF SMAC test
     '''
 
-    VRF_MAC_CREATE = '00:44:55:66:77:00'
-    VRF_MAC_SET = '00:77:55:33:22:11'
+    def setUp(self):
+        super(VrfSMACTest, self).setUp()
 
-    def __init__(self):
-        super(VrfSMACTest, self).__init__()
-        # To make pylint happy
+        self.vrf_mac_create = '00:44:55:66:77:00'
+        self.vrf_mac_set = '00:77:55:33:22:11'
+
+        # to be set using tested VRF
         self.iport_dev = None
         self.iport_route = None
         self.iport = None
@@ -2532,15 +2502,8 @@ class VrfSMACTest(SaiHelper):
         self.eport = None
 
     def runTest(self):
-        try:
-            self.testSMACCreateSet()
-            self.testSMACSet()
-        except Exception as e:
-            sai_thrift_remove_virtual_router(self.client, self.test_vrf)
-            raise e
-        finally:
-
-            pass
+        self.testSMACCreateSet()
+        self.testSMACSet()
 
     def _configureRifs(self, vrf):
         # create and configure ingress RIF
@@ -2619,7 +2582,7 @@ class VrfSMACTest(SaiHelper):
                                     ip_ttl=63)
         try:
             send_packet(self, self.iport_dev, pkt)
-            verify_packets(self, exp_pkt, [self.eport_dev])
+            verify_packet(self, exp_pkt, self.eport_dev)
             print("\tIPv4 forwarded")
         except Exception as e:
             self._removeRifs()
@@ -2640,42 +2603,42 @@ class VrfSMACTest(SaiHelper):
 
     def testSMACCreateSet(self):
         '''
-        This verifies SMAC configuration on VRF create
+        Verify SMAC configuration on VRF create
         '''
         print("\ntestSMACCreateSet()")
 
         self.test_vrf = sai_thrift_create_virtual_router(
-            self.client, src_mac_address=self.VRF_MAC_CREATE)
+            self.client, src_mac_address=self.vrf_mac_create)
         attrs = sai_thrift_get_virtual_router_attribute(
             self.client, self.test_vrf, src_mac_address=True)
-        self.assertEqual(attrs["src_mac_address"], self.VRF_MAC_CREATE)
+        self.assertEqual(attrs["src_mac_address"], self.vrf_mac_create)
 
         self._configureRifs(self.test_vrf)
-        print("\tCreaete VRF test")
-        self._runTraffic(self.VRF_MAC_CREATE)
+        print("Create VRF test")
+        self._runTraffic(self.vrf_mac_create)
 
         status = sai_thrift_set_virtual_router_attribute(
-            self.client, self.test_vrf, src_mac_address=self.VRF_MAC_SET)
+            self.client, self.test_vrf, src_mac_address=self.vrf_mac_set)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
         attrs = sai_thrift_get_virtual_router_attribute(
             self.client, self.test_vrf, src_mac_address=True)
-        self.assertEqual(attrs["src_mac_address"], self.VRF_MAC_SET)
+        self.assertEqual(attrs["src_mac_address"], self.vrf_mac_set)
 
-        print("\tSet VRF src_mac test. src_mac of "
-              "exiting RIF's should not change")
-        self._runTraffic(self.VRF_MAC_CREATE)
+        print("Set VRF src_mac test. src_mac of existing RIF's "
+              "should not change")
+        self._runTraffic(self.vrf_mac_create)
 
         self._removeRifs()
-        print("\tSet VRF src_mac test. New RIF.")
+        print("Set VRF src_mac test. New RIF.")
         self._configureRifs(self.test_vrf)
-        self._runTraffic(self.VRF_MAC_SET)
+        self._runTraffic(self.vrf_mac_set)
         self._removeRifs()
 
         sai_thrift_remove_virtual_router(self.client, self.test_vrf)
 
     def testSMACSet(self):
         '''
-        This verifies SMAC configuration on VRF creted with default mac
+        Verify SMAC configuration on VRF creted with default mac
         '''
         print("\ntestSMACSet()")
 
@@ -2686,24 +2649,24 @@ class VrfSMACTest(SaiHelper):
         self.assertEqual(attrs["src_mac_address"], ROUTER_MAC)
 
         self._configureRifs(self.test_vrf)
-        print("\tCreaete VRF test")
+        print("Creaete VRF test")
         self._runTraffic(ROUTER_MAC)
 
         status = sai_thrift_set_virtual_router_attribute(
-            self.client, self.test_vrf, src_mac_address=self.VRF_MAC_SET)
+            self.client, self.test_vrf, src_mac_address=self.vrf_mac_set)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
         attrs = sai_thrift_get_virtual_router_attribute(
             self.client, self.test_vrf, src_mac_address=True)
-        self.assertEqual(attrs["src_mac_address"], self.VRF_MAC_SET)
+        self.assertEqual(attrs["src_mac_address"], self.vrf_mac_set)
 
-        print("\tSet VRF src_mac test. src_mac of "
-              "exiting RIF's should not change")
+        print("Set VRF src_mac test. src_mac of existing RIF's "
+              "should not change")
         self._runTraffic(ROUTER_MAC)
 
         self._removeRifs()
-        print("\tSet VRF src_mac test. New RIF.")
+        print("Set VRF src_mac test. New RIF.")
         self._configureRifs(self.test_vrf)
-        self._runTraffic(self.VRF_MAC_SET)
+        self._runTraffic(self.vrf_mac_set)
         self._removeRifs()
 
         sai_thrift_remove_virtual_router(self.client, self.test_vrf)
