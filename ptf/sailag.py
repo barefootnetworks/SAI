@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 Thrift SAI interface LAG tests
 '''
 
-from __future__ import print_function
-
 import binascii
 
 from sai_thrift.sai_headers import *
@@ -31,18 +29,15 @@ from sai_base_test import *
 
 class LAGCreateLagMember(SaiHelper):
     '''
-        Test LAG member creation
+    Test LAG member creation
     '''
 
     def runTest(self):
-        try:
-            self.createRemoveLagMemberTest()
-        finally:
-            pass
+        self.createRemoveLagMemberTest()
 
     def createRemoveLagMemberTest(self):
         '''
-            Create and remove LAG members test
+        Create and remove LAG members test
         '''
 
         print("createRemoveLagMemberTest()")
@@ -53,7 +48,8 @@ class LAGCreateLagMember(SaiHelper):
         # verify LAG and LAG members
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
-        # TODO: lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        print(lag_members)
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 0
 
@@ -62,7 +58,8 @@ class LAGCreateLagMember(SaiHelper):
         # verify LAG and LAG members
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
-        # TODO: lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        print(lag_members)
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 1
         attr_list = sai_thrift_get_lag_member_attribute(
@@ -77,7 +74,8 @@ class LAGCreateLagMember(SaiHelper):
         # verify LAG and LAG members
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
-        # TODO: lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        print(lag_members)
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 1
 
@@ -87,34 +85,25 @@ class LAGCreateLagMember(SaiHelper):
         # verify LAG and LAG members
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
-        # TODO: lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        print(lag_members)
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 0
 
-        # verify LAG and LAG members
-        attr_list = sai_thrift_get_lag_attribute(
-            self.client, lag3, port_list=portlist)
-        # TODO: lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-        assert count == 0
-
-        # should be OK
         status = sai_thrift_remove_lag(self.client, lag3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-        # TODO for further investigation
-        # should fail on removing the non existing lag
-        # status = sai_thrift_remove_lag(self.client, lag3) #<<<<<< we have
-        #                                                    a problem here
-        # self.assertTrue(status != SAI_STATUS_SUCCESS)
+        status = sai_thrift_remove_lag(self.client, lag3)
+        self.assertTrue(status != SAI_STATUS_SUCCESS)
 
 
 def print_ports_stats(client, ports):
-    ''' Print ports statistics
+    '''
+    Print ports statistics
 
-        Args:
-            client (obj): client object
-            ports (list): list of ports to print statistics
+    Args:
+        client (obj): client object
+        ports (list): list of ports to print statistics
     '''
 
     for port in ports:
@@ -135,13 +124,10 @@ def print_ports_stats(client, ports):
     print("SUM=%d (i=%d)" % (sum, i))
 
 
-@disabled
 class LAGDisableIngressLagMember(SaiHelper):
     '''
-        Test Disable Ingress LAG member feature
+    Test Disable Ingress LAG member feature
     '''
-
-    # Disable Ingress LAG Member feature is not supported
 
     def runTest(self):
         print("disableIngressLagMember")
@@ -158,74 +144,69 @@ class LAGDisableIngressLagMember(SaiHelper):
                                     vlan_vid=vlan_id,
                                     pktlen=104)
 
-        try:
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port0, src_mac, dst_mac))
-            send_packet(self, self.dev_port0, pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [tag_pkt, pkt],
-                [[self.dev_port1],
-                 [self.dev_port4, self.dev_port5, self.dev_port6]])
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port0, src_mac, dst_mac))
+        send_packet(self, self.dev_port0, pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [tag_pkt, pkt],
+            [[self.dev_port1],
+             [self.dev_port4, self.dev_port5, self.dev_port6]])
 
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port1, src_mac, dst_mac))
-            send_packet(self, self.dev_port1, tag_pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [pkt, pkt],
-                [[self.dev_port0],
-                 [self.dev_port4, self.dev_port5, self.dev_port6]])
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port1, src_mac, dst_mac))
+        send_packet(self, self.dev_port1, tag_pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [pkt, pkt],
+            [[self.dev_port0],
+             [self.dev_port4, self.dev_port5, self.dev_port6]])
 
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port4, src_mac, dst_mac))
-            send_packet(self, self.dev_port4, tag_pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [tag_pkt, pkt], [[self.dev_port1], [self.dev_port0]])
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port4, src_mac, dst_mac))
+        send_packet(self, self.dev_port4, tag_pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [tag_pkt, pkt], [[self.dev_port1], [self.dev_port0]])
 
-            # disable LAG Member
-            print("Set Disable_Ingress_LAG_member 4 to True")
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member4,
-                ingress_disable=True,
-                egress_disable=True)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
+        # disable LAG Member
+        print("Set Disable_Ingress_LAG_member 4 to True")
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member4,
+            ingress_disable=True,
+            egress_disable=True)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            print("Sending packet on port %d; %s -> %s - "
-                  "should drop on ingress"
-                  % (self.dev_port4, src_mac, dst_mac))
+        print("Sending packet on port %d; %s -> %s - "
+              "should drop on ingress" % (self.dev_port4, src_mac, dst_mac))
 
-            send_packet(self, self.dev_port4, pkt)
-            verify_no_other_packets(self)
-            print("\tPacket dropped")
+        send_packet(self, self.dev_port4, pkt)
+        verify_no_other_packets(self)
+        print("\tPacket dropped")
 
-            print("LAG ingress_disable=false of the LAG member")
+        print("LAG ingress_disable=false of the LAG member")
 
-            # Enable LAG Member again
-            print("Set Disable_Ingress_LAG_member 4 to False")
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member4,
-                ingress_disable=False,
-                egress_disable=False)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
+        # Enable LAG Member again
+        print("Set Disable_Ingress_LAG_member 4 to False")
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member4,
+            ingress_disable=False,
+            egress_disable=False)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port4, src_mac, dst_mac))
-            send_packet(self, self.dev_port4, pkt)
-            print_ports_stats(self.client,
-                              [self.port0,
-                               self.port1,
-                               self.port2,
-                               self.port3,
-                               self.port4,
-                               self.port5,
-                               self.port6])
-            verify_each_packet_on_multiple_port_lists(
-                self, [tag_pkt, tag_pkt, pkt],
-                [[self.dev_port0], [self.dev_port1]])
-
-        finally:
-            pass
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port4, src_mac, dst_mac))
+        send_packet(self, self.dev_port4, pkt)
+        print_ports_stats(self.client,
+                          [self.port0,
+                           self.port1,
+                           self.port2,
+                           self.port3,
+                           self.port4,
+                           self.port5,
+                           self.port6])
+        verify_each_packet_on_multiple_port_lists(
+            self, [tag_pkt, tag_pkt, pkt],
+            [[self.dev_port0], [self.dev_port1]])
 
     def tearDown(self):
         sai_thrift_set_lag_member_attribute(
@@ -239,22 +220,18 @@ class LAGDisableIngressLagMember(SaiHelper):
 
 class LAGDisableEgressLagMember(SaiHelper):
     '''
-        Test DisableEgress LAG member feature
+    Test DisableEgress LAG member feature
     '''
 
     def runTest(self):
-        try:
-            # Test does not pass in the second run
-            self.disableEgressLagMemberTest()
-            self.multipleVlanTest()
-            self.lagMemberActivateFloodTest()
-            self.lagMemberActivateBridgeTest()
-        finally:
-            pass
+        self.disableEgressLagMemberTest()
+        self.multipleVlanTest()
+        self.lagMemberActivateFloodTest()
+        self.lagMemberActivateBridgeTest()
 
     def lagMemberActivateBridgeTest(self):
         '''
-            The LAG mamber activate Bridge test
+        The LAG mamber activate Bridge test
         '''
 
         print("lagMemberActivateBridgeTest()")
@@ -282,11 +259,11 @@ class LAGDisableEgressLagMember(SaiHelper):
 
             def packet_test():
                 '''
-                    Packet test function that requests max_itrs packets
-                    and verifies the number of packets received per LAG member
+                Packet test function that requests max_itrs packets
+                and verifies the number of packets received per LAG member
 
-                    Returns:
-                        list: list of packets counts per LAG member
+                Returns:
+                    list: list of packets counts per LAG member
                 '''
                 pkt = simple_tcp_packet(
                     eth_src='00:11:11:11:11:11',
@@ -384,7 +361,7 @@ class LAGDisableEgressLagMember(SaiHelper):
 
     def lagMemberActivateFloodTest(self):
         '''
-            The LAG mamber activate Flood test
+        The LAG mamber activate Flood test
         '''
         print("lagMemberActivateFloodTest()")
 
@@ -394,11 +371,11 @@ class LAGDisableEgressLagMember(SaiHelper):
 
             def packet_test():
                 '''
-                    Packet test function that requests max_itrs packets
-                    and verifies the number of packets received per LAG member
+                Packet test function that requests max_itrs packets
+                and verifies the number of packets received per LAG member
 
-                    Returns:
-                        list: list of packets counts per LAG member
+                Returns:
+                    list: list of packets counts per LAG member
                 '''
                 pkt = simple_arp_packet(
                     arp_op=1,
@@ -479,7 +456,7 @@ class LAGDisableEgressLagMember(SaiHelper):
 
     def disableEgressLagMemberTest(self):
         '''
-            LAG disable egress LAG member test
+        LAG disable egress LAG member test
         '''
 
         print("disableEgressLagMemberTest")
@@ -495,102 +472,96 @@ class LAGDisableEgressLagMember(SaiHelper):
                                     vlan_vid=vlan_id,
                                     pktlen=104)
 
-        try:
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port0, src_mac, dst_mac))
-            send_packet(self, self.dev_port0, pkt)
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port0, src_mac, dst_mac))
+        send_packet(self, self.dev_port0, pkt)
 
-            verify_each_packet_on_multiple_port_lists(
-                self, [tag_pkt, pkt],
-                [[self.dev_port1],
-                 [self.dev_port4, self.dev_port5, self.dev_port6]])
+        verify_each_packet_on_multiple_port_lists(
+            self, [tag_pkt, pkt],
+            [[self.dev_port1],
+             [self.dev_port4, self.dev_port5, self.dev_port6]])
 
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port1, src_mac, dst_mac))
-            send_packet(self, self.dev_port1, tag_pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [pkt, pkt],
-                [[self.dev_port0],
-                 [self.dev_port4, self.dev_port5, self.dev_port6]])
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port1, src_mac, dst_mac))
+        send_packet(self, self.dev_port1, tag_pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [pkt, pkt],
+            [[self.dev_port0],
+             [self.dev_port4, self.dev_port5, self.dev_port6]])
 
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port4, src_mac, dst_mac))
-            send_packet(self, self.dev_port4, tag_pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [tag_pkt, pkt], [[self.dev_port1], [self.dev_port0]])
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port4, src_mac, dst_mac))
+        send_packet(self, self.dev_port4, tag_pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [tag_pkt, pkt], [[self.dev_port1], [self.dev_port0]])
 
-            # disable LAG Member
-            print("Set Disable_Egress_LAG_member 4 and 5 to True")
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member4,
-                ingress_disable=True,
-                egress_disable=True)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member5,
-                ingress_disable=True,
-                egress_disable=True)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
+        # disable LAG Member
+        print("Set Disable_Egress_LAG_member 4 and 5 to True")
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member4,
+            ingress_disable=True,
+            egress_disable=True)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member5,
+            ingress_disable=True,
+            egress_disable=True)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            print("Sending packet on port %d; %s -> %s - "
-                  "will flood to enabled ports"
-                  % (self.dev_port1, src_mac, dst_mac))
-            send_packet(self, self.dev_port1, tag_pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [pkt, pkt], [[self.dev_port0], [self.dev_port6]])
+        print("Sending packet on port %d; %s -> %s - will flood to enabled "
+              "ports" % (self.dev_port1, src_mac, dst_mac))
+        send_packet(self, self.dev_port1, tag_pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [pkt, pkt], [[self.dev_port0], [self.dev_port6]])
 
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member6,
-                ingress_disable=True,
-                egress_disable=True)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            print("Sending packet on port %d; %s -> %s - "
-                  "will flood to enabled ports"
-                  % (self.dev_port1, src_mac, dst_mac))
-            send_packet(self, self.dev_port1, tag_pkt)
-            verify_each_packet_on_multiple_port_lists(self, [pkt],
-                                                      [[self.dev_port0]])
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member6,
+            ingress_disable=True,
+            egress_disable=True)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        print("Sending packet on port %d; %s -> %s - will flood to enabled "
+              "ports" % (self.dev_port1, src_mac, dst_mac))
+        send_packet(self, self.dev_port1, tag_pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [pkt], [[self.dev_port0]])
 
-            print("LAG Egress_disable=false of the LAG member ")
+        print("LAG Egress_disable=false of the LAG member ")
 
-            # Enable LAG Member again
-            print("Set Disable_Ingress_LAG_member 4,5,6 to False")
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member4,
-                ingress_disable=False,
-                egress_disable=False)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member5,
-                ingress_disable=False,
-                egress_disable=False)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_set_lag_member_attribute(
-                self.client,
-                self.lag1_member6,
-                ingress_disable=False,
-                egress_disable=False)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
+        # Enable LAG Member again
+        print("Set Disable_Ingress_LAG_member 4,5,6 to False")
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member4,
+            ingress_disable=False,
+            egress_disable=False)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member5,
+            ingress_disable=False,
+            egress_disable=False)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        status = sai_thrift_set_lag_member_attribute(
+            self.client,
+            self.lag1_member6,
+            ingress_disable=False,
+            egress_disable=False)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            print("Sending packet on port %d; %s -> %s - will flood"
-                  % (self.dev_port0, src_mac, dst_mac))
-            send_packet(self, self.dev_port0, pkt)
-            verify_each_packet_on_multiple_port_lists(
-                self, [tag_pkt, pkt],
-                [[self.dev_port1],
-                 [self.dev_port4, self.dev_port5, self.dev_port6]])
-
-        finally:
-            pass
+        print("Sending packet on port %d; %s -> %s - will flood"
+              % (self.dev_port0, src_mac, dst_mac))
+        send_packet(self, self.dev_port0, pkt)
+        verify_each_packet_on_multiple_port_lists(
+            self, [tag_pkt, pkt],
+            [[self.dev_port1],
+             [self.dev_port4, self.dev_port5, self.dev_port6]])
 
     def multipleVlanTest(self):
         '''
-             Verify LAG members assigned to multiple vlans
+        Verify LAG members assigned to multiple vlans
         '''
 
         print("multipleVlanTest")
@@ -682,41 +653,36 @@ class LAGDisableEgressLagMember(SaiHelper):
 
 class LAGAttrPortList(SaiHelper):
     '''
-        Test LAG port list attribute
+    Test LAG port list attribute
     '''
 
     def runTest(self):
         print("LAGAttrPortList")
         portlist = sai_thrift_object_list_t(count=100)
-        try:
-            # LAG1
-            attr_list = sai_thrift_get_lag_attribute(
-                self.client, self.lag1, port_list=portlist)
-            lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-            count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-            assert count == 3
-            assert self.lag1_member4 == lag_members[0]
-            assert self.lag1_member5 == lag_members[1]
-            assert self.lag1_member6 == lag_members[2]
+        # LAG1
+        attr_list = sai_thrift_get_lag_attribute(
+            self.client, self.lag1, port_list=portlist)
+        lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
+        assert count == 3
+        assert self.lag1_member4 == lag_members[0]
+        assert self.lag1_member5 == lag_members[1]
+        assert self.lag1_member6 == lag_members[2]
 
-            # LAG2
-            attr_list = sai_thrift_get_lag_attribute(
-                self.client, self.lag2, port_list=portlist)
-            lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-            count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-            assert count == 3
-            assert self.lag2_member7 == lag_members[0]
-            assert self.lag2_member8 == lag_members[1]
-            assert self.lag2_member9 == lag_members[2]
-
-        finally:
-            pass
+        # LAG2
+        attr_list = sai_thrift_get_lag_attribute(
+            self.client, self.lag2, port_list=portlist)
+        lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
+        count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
+        assert count == 3
+        assert self.lag2_member7 == lag_members[0]
+        assert self.lag2_member8 == lag_members[1]
+        assert self.lag2_member9 == lag_members[2]
 
 
-@disabled
 class LAGL2LoadBalancing(SaiHelper):
     '''
-        Test LAG L2 load balancing
+    Test LAG L2 load balancing
     '''
 
     def setUp(self):
@@ -789,19 +755,6 @@ class LAGL2LoadBalancing(SaiHelper):
                 self.assertTrue((count[i] >= ((max_itrs / 3) * 0.8)),
                                 "Not all paths are equally balanced")
 
-            # TODO: pkt =
-            simple_tcp_packet(eth_src='00:11:11:11:11:11',
-                              eth_dst='00:22:22:22:22:22',
-                              ip_dst='10.0.0.1',
-                              ip_id=109,
-                              ip_ttl=64)
-            # TODO: exp_pkt =
-            simple_tcp_packet(eth_src='00:11:11:11:11:11',
-                              eth_dst='00:22:22:22:22:22',
-                              ip_dst='10.0.0.1',
-                              ip_id=109,
-                              ip_ttl=64)
-
         finally:
             self.port1_bp = sai_thrift_create_bridge_port(
                 self.client,
@@ -818,7 +771,7 @@ class LAGL2LoadBalancing(SaiHelper):
 
 class LAGL3LoadBalancing(SaiHelper):
     '''
-        Test LAG L3 load balancing
+    Test LAG L3 load balancing
     '''
 
     max_itrs = 100
@@ -830,25 +783,21 @@ class LAGL3LoadBalancing(SaiHelper):
         sai_thrift_remove_bridge_port(self.client, self.port1_bp)
 
     def runTest(self):
-        try:
-            self.l3LoadBalancingDisableMembersTest()
-            self.l3LoadBalancingRemovedMembersTest()
-        finally:
-            pass
+        self.l3LoadBalancingDisableMembersTest()
+        self.l3LoadBalancingRemovedMembersTest()
 
     # Try all LAG members
     def lagL3LoadBalancePacketTest(self, exp_ports, traffic=True):
         '''
+        LAG L3 IPv4 load balancing packet test function that
+        requests max_itrs packets and verifies the number of
+        packets received per LAG member
 
-            LAG L3 IPv4 load balancing packet test function that
-            requests max_itrs packets and verifies the number of
-            packets received per LAG member
-
-            Args:
-                exp_ports (list): list of expected egress ports
-                traffic (bool): an argument if egress traffic is expected
-            Returns:
-                list: list of packets counts per LAG member
+        Args:
+            exp_ports (list): list of expected egress ports
+            traffic (bool): an argument if egress traffic is expected
+        Returns:
+            list: list of packets counts per LAG member
         '''
 
         dst_ip = int(binascii.hexlify(socket.inet_aton('10.10.10.1')), 16)
@@ -882,7 +831,7 @@ class LAGL3LoadBalancing(SaiHelper):
 
     def l3LoadBalancingDisableMembersTest(self):
         '''
-            L3 Load balancing simple for disabled egress LAG members
+        L3 Load balancing simple for disabled egress LAG members
         '''
 
         print("l3LoadBalancingDisableMembersTest")
@@ -980,108 +929,102 @@ class LAGL3LoadBalancing(SaiHelper):
         '''
 
         print("l3LoadBalancingRemovedMembersTest")
-        try:
-            print("Verify L3 load balancing with all members")
-            count = self.lagL3LoadBalancePacketTest(
-                [self.dev_port4, self.dev_port5, self.dev_port6])
-            print(count)
-            for i in range(0, 3):
-                self.assertTrue((count[i] >= ((self.max_itrs / 3) * 0.8)),
-                                "Not all paths are equally balanced")
+        print("Verify L3 load balancing with all members")
+        count = self.lagL3LoadBalancePacketTest(
+            [self.dev_port4, self.dev_port5, self.dev_port6])
+        print(count)
+        for i in range(0, 3):
+            self.assertTrue((count[i] >= ((self.max_itrs / 3) * 0.8)),
+                            "Not all paths are equally balanced")
 
-            # Remove one member
-            print("Remove LAG member 6")
-            status = sai_thrift_remove_lag_member(self.client,
-                                                  self.lag1_member6)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            print("Verify L3 load balancing with 2 members")
-            count = self.lagL3LoadBalancePacketTest(
-                [self.dev_port4, self.dev_port5])
-            print(count)
-            for i in range(0, 2):
-                self.assertTrue((count[i] >= ((self.max_itrs / 2) * 0.8)),
-                                "Not all paths are equally balanced")
-            self.assertTrue(count[2] == 0,
-                            "Disabled LAG member should not allow traffic")
+        # Remove one member
+        print("Remove LAG member 6")
+        status = sai_thrift_remove_lag_member(self.client, self.lag1_member6)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        print("Verify L3 load balancing with 2 members")
+        count = self.lagL3LoadBalancePacketTest(
+            [self.dev_port4, self.dev_port5])
+        print(count)
+        for i in range(0, 2):
+            self.assertTrue((count[i] >= ((self.max_itrs / 2) * 0.8)),
+                            "Not all paths are equally balanced")
+        self.assertTrue(count[2] == 0,
+                        "Disabled LAG member should not allow traffic")
 
-            # Remove one member
-            print("Remove LAG member 4")
-            status = sai_thrift_remove_lag_member(self.client,
-                                                  self.lag1_member4)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            print("Verify L3 load balancing with 1 member")
-            count = self.lagL3LoadBalancePacketTest([self.dev_port5])
-            print(count)
-            self.assertTrue(count[0] == self.max_itrs,
-                            "Disabled LAG member should not allow traffic")
-            self.assertTrue(
-                count[1] == 0,
-                "Enabled LAG member should take 100% traffic allow traffic")
-            self.assertTrue(count[2] == 0,
-                            "Disabled LAG member should not allow traffic")
+        # Remove one member
+        print("Remove LAG member 4")
+        status = sai_thrift_remove_lag_member(self.client, self.lag1_member4)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        print("Verify L3 load balancing with 1 member")
+        count = self.lagL3LoadBalancePacketTest([self.dev_port5])
+        print(count)
+        self.assertTrue(count[0] == self.max_itrs,
+                        "Disabled LAG member should not allow traffic")
+        self.assertTrue(
+            count[1] == 0,
+            "Enabled LAG member should take 100% traffic allow traffic")
+        self.assertTrue(count[2] == 0,
+                        "Disabled LAG member should not allow traffic")
 
-            # Remove one member
-            print("Remove LAG member 5, No traffic expected")
-            status = sai_thrift_remove_lag_member(self.client,
-                                                  self.lag1_member5)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            print("Verify L3 load balancing with 0 member")
-            count = self.lagL3LoadBalancePacketTest([], traffic=False)
-            print(count)
-            self.assertTrue(count[0] == 0,
-                            "Disabled LAG member should not allow traffic")
-            self.assertTrue(count[1] == 0,
-                            "Disabled LAG member should not allow traffic")
-            self.assertTrue(count[2] == 0,
-                            "Disabled LAG member should not allow traffic")
+        # Remove one member
+        print("Remove LAG member 5, No traffic expected")
+        status = sai_thrift_remove_lag_member(self.client, self.lag1_member5)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        print("Verify L3 load balancing with 0 member")
+        count = self.lagL3LoadBalancePacketTest([], traffic=False)
+        print(count)
+        self.assertTrue(count[0] == 0,
+                        "Disabled LAG member should not allow traffic")
+        self.assertTrue(count[1] == 0,
+                        "Disabled LAG member should not allow traffic")
+        self.assertTrue(count[2] == 0,
+                        "Disabled LAG member should not allow traffic")
 
-            self.lag1_member4 = sai_thrift_create_lag_member(
-                self.client, lag_id=self.lag1, port_id=self.port4)
-            self.lag1_member6 = sai_thrift_create_lag_member(
-                self.client, lag_id=self.lag1, port_id=self.port6)
+        self.lag1_member4 = sai_thrift_create_lag_member(
+            self.client, lag_id=self.lag1, port_id=self.port4)
+        self.lag1_member6 = sai_thrift_create_lag_member(
+            self.client, lag_id=self.lag1, port_id=self.port6)
 
-            print("Verify L3 load balancing with 2 member")
-            count = self.lagL3LoadBalancePacketTest(
-                [self.dev_port4, self.dev_port6])
-            print(count)
-            for i in range(0, 2):
-                self.assertTrue((count[i] >= ((self.max_itrs / 2) * 0.8)),
-                                "Not all paths are equally balanced")
-            self.assertTrue(count[2] == 0,
-                            "Disabled LAG member should not allow traffic")
+        print("Verify L3 load balancing with 2 member")
+        count = self.lagL3LoadBalancePacketTest(
+            [self.dev_port4, self.dev_port6])
+        print(count)
+        for i in range(0, 2):
+            self.assertTrue((count[i] >= ((self.max_itrs / 2) * 0.8)),
+                            "Not all paths are equally balanced")
+        self.assertTrue(count[2] == 0,
+                        "Disabled LAG member should not allow traffic")
 
-            self.lag1_member5 = sai_thrift_create_lag_member(
-                self.client, lag_id=self.lag1, port_id=self.port5)
-            print("Verify L3 load balancing with all member")
-            count = self.lagL3LoadBalancePacketTest(
-                [self.dev_port4, self.dev_port5, self.dev_port6])
-            print(count)
-            for i in range(0, 3):
-                self.assertTrue((count[i] >= ((self.max_itrs / 3) * 0.8)),
-                                "Not all paths are equally balanced")
+        self.lag1_member5 = sai_thrift_create_lag_member(
+            self.client, lag_id=self.lag1, port_id=self.port5)
+        print("Verify L3 load balancing with all member")
+        count = self.lagL3LoadBalancePacketTest(
+            [self.dev_port4, self.dev_port5, self.dev_port6])
+        print(count)
+        for i in range(0, 3):
+            self.assertTrue((count[i] >= ((self.max_itrs / 3) * 0.8)),
+                            "Not all paths are equally balanced")
 
-            # Verify LAG member ingress traffic
-            pkt = simple_tcp_packet(eth_src='00:11:11:11:11:11',
+        # Verify LAG member ingress traffic
+        pkt = simple_tcp_packet(eth_src='00:11:11:11:11:11',
+                                eth_dst='00:22:22:22:22:22',
+                                ip_dst='10.0.0.1',
+                                ip_id=109,
+                                ip_ttl=64)
+        exp_pkt = simple_tcp_packet(eth_src='00:11:11:11:11:11',
                                     eth_dst='00:22:22:22:22:22',
                                     ip_dst='10.0.0.1',
                                     ip_id=109,
                                     ip_ttl=64)
-            exp_pkt = simple_tcp_packet(eth_src='00:11:11:11:11:11',
-                                        eth_dst='00:22:22:22:22:22',
-                                        ip_dst='10.0.0.1',
-                                        ip_id=109,
-                                        ip_ttl=64)
-            print("Sending packet port 4 (LAG member) -> port 0")
-            send_packet(self, self.dev_port4, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port0])
-            print("Sending packet port 5 (LAG member) -> port 0")
-            send_packet(self, self.dev_port5, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port0])
-            print("Sending packet port 6 (LAG member) -> port 0")
-            send_packet(self, self.dev_port6, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port0])
-        finally:
-            pass
+        print("Sending packet port 4 (LAG member) -> port 0")
+        send_packet(self, self.dev_port4, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port0])
+        print("Sending packet port 5 (LAG member) -> port 0")
+        send_packet(self, self.dev_port5, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port0])
+        print("Sending packet port 6 (LAG member) -> port 0")
+        send_packet(self, self.dev_port6, pkt)
+        verify_packets(self, exp_pkt, [self.dev_port0])
 
     def tearDown(self):
         self.port1_bp = sai_thrift_create_bridge_port(
@@ -1101,7 +1044,7 @@ class LAGL3LoadBalancing(SaiHelper):
 
 class LagL3Nhop(SaiHelper):
     '''
-        LAG L3 Next Hop Group test
+    LAG L3 Next Hop Group test
     '''
 
     def setUp(self):
@@ -1183,55 +1126,49 @@ class LagL3Nhop(SaiHelper):
             self.client, self.route_entry4, next_hop_id=self.nhop4)
 
     def runTest(self):
-        try:
-            self.runPreTest()
-            self.runPostTest()
-        finally:
-            pass
+        self.runPreTest()
+        self.runPostTest()
 
     def packetTest(self, port_list, dst_ip_prefix, dmac):
         '''
-            Packet test function that requests max_itrs packets
-            and verifies the number of packets received per LAG member
+        Packet test function that requests max_itrs packets
+        and verifies the number of packets received per LAG member
 
-            Args:
-                port_list (list): expected egress port list
-                dst_ip_prefix (address): dst ip address prefix
-                dmac (mac): test dmac
-            Returns:
-                list: list of packets counts per LAG member
+        Args:
+            port_list (list): expected egress port list
+            dst_ip_prefix (address): dst ip address prefix
+            dmac (mac): test dmac
+        Returns:
+            list: list of packets counts per LAG member
         '''
-        try:
-            count = [0] * len(port_list)
-            dst_ip = int(binascii.hexlify(socket.inet_aton(dst_ip_prefix)), 16)
-            for _ in range(0, self.max_itrs):
-                dst_ip_addr = socket.inet_ntoa(
-                    binascii.unhexlify(format(dst_ip, 'x').zfill(8)))
-                pkt = simple_tcp_packet(
-                    eth_dst=ROUTER_MAC,
-                    eth_src='00:11:11:11:11:11',
-                    ip_dst=dst_ip_addr,
-                    ip_src='11.11.11.1',
-                    ip_ttl=64)
-                exp_pkt = simple_tcp_packet(
-                    eth_dst=dmac,
-                    eth_src=ROUTER_MAC,
-                    ip_dst=dst_ip_addr,
-                    ip_src='11.11.11.1',
-                    ip_ttl=63)
-                exp_pkt_list = [exp_pkt] * len(port_list)
-                send_packet(self, self.dev_port10, pkt)
-                rcv_idx = verify_any_packet_any_port(
-                    self, exp_pkt_list, port_list)
-                count[rcv_idx] += 1
-                dst_ip += 1
-            return count
-        finally:
-            pass
+        count = [0] * len(port_list)
+        dst_ip = int(binascii.hexlify(socket.inet_aton(dst_ip_prefix)), 16)
+        for _ in range(0, self.max_itrs):
+            dst_ip_addr = socket.inet_ntoa(
+                binascii.unhexlify(format(dst_ip, 'x').zfill(8)))
+            pkt = simple_tcp_packet(
+                eth_dst=ROUTER_MAC,
+                eth_src='00:11:11:11:11:11',
+                ip_dst=dst_ip_addr,
+                ip_src='11.11.11.1',
+                ip_ttl=64)
+            exp_pkt = simple_tcp_packet(
+                eth_dst=dmac,
+                eth_src=ROUTER_MAC,
+                ip_dst=dst_ip_addr,
+                ip_src='11.11.11.1',
+                ip_ttl=63)
+            exp_pkt_list = [exp_pkt] * len(port_list)
+            send_packet(self, self.dev_port10, pkt)
+            rcv_idx = verify_any_packet_any_port(
+                self, exp_pkt_list, port_list)
+            count[rcv_idx] += 1
+            dst_ip += 1
+        return count
 
     def runPreTest(self):
         '''
-            Runs verification tests for number of different LAG ports
+        Runs verification tests for number of different LAG ports
         '''
         print('Pre warm reboot tests')
         plist = [self.dev_port4, self.dev_port5, self.dev_port6]
@@ -1253,8 +1190,8 @@ class LagL3Nhop(SaiHelper):
 
     def runPostTest(self):
         '''
-            Runs verification tests for number of different LAG ports
-            while removing and disabling the LAG members
+        Runs verification tests for number of different LAG ports
+        while removing and disabling the LAG members
         '''
         print('Post warm reboot tests')
         plist = [self.dev_port17, self.dev_port18, self.dev_port19]
