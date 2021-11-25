@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
 """
 Thrift SAI interface Mirror tests
 """
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
 from ptf.mask import Mask
-from ptf.testutils import *
 from ptf.packet import *
+from ptf.testutils import *
 from ptf.thriftutils import *
 
 from sai_base_test import *
@@ -32,7 +30,7 @@ class MirrorConfigData(SaiHelper):
     """
 
     def setUp(self):
-        SaiHelper.setUp(self)
+        super(MirrorConfigData, self).setUp()
         self.mac2 = "00:00:00:00:00:22"
         self.mac3 = "00:00:00:00:00:33"
         mac_action = SAI_PACKET_ACTION_FORWARD
@@ -65,112 +63,131 @@ class MirrorConfigData(SaiHelper):
 #        |  lag11_upd |            |           |vlan_mem052|
 #        +------------+------------+-----------+-----------+
 
-        # Port config
+        # Port configuration
+        self.bridge_ports = []
         self.port24_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port24,
             type=port_type)
         self.assertTrue(self.port24_bp != 0)
+        self.bridge_ports.append(self.port24_bp)
         self.port25_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port25,
             type=port_type)
         self.assertTrue(self.port25_bp != 0)
+        self.bridge_ports.append(self.port25_bp)
         self.port26_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port26,
             type=port_type)
         self.assertTrue(self.port26_bp != 0)
+        self.bridge_ports.append(self.port26_bp)
         self.port27_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port27,
             type=port_type)
         self.assertTrue(self.port27_bp != 0)
+        self.bridge_ports.append(self.port27_bp)
         self.port28_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port28,
             type=port_type)
         self.assertTrue(self.port28_bp != 0)
+        self.bridge_ports.append(self.port28_bp)
         self.port29_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port29,
             type=port_type)
         self.assertTrue(self.port29_bp != 0)
+        self.bridge_ports.append(self.port29_bp)
         self.port30_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port30,
             type=port_type)
         self.assertTrue(self.port30_bp != 0)
+        self.bridge_ports.append(self.port30_bp)
         self.port31_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port31,
             type=port_type)
         self.assertTrue(self.port31_bp != 0)
+        self.bridge_ports.append(self.port31_bp)
 
-        # VLAN config
+        # VLAN configuration
         self.vlan40 = sai_thrift_create_vlan(self.client, vlan_id=40)
         self.assertTrue(self.vlan40 != 0)
         self.vlan50 = sai_thrift_create_vlan(self.client, vlan_id=50)
         self.assertTrue(self.vlan50 != 0)
+        # VLAN members
+        self.vlan_members = []
         self.vlan_member41 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan40,
             bridge_port_id=self.port24_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member41 != 0)
+        self.vlan_members.append(self.vlan_member41)
         self.vlan_member42 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan40,
             bridge_port_id=self.port25_bp,
             vlan_tagging_mode=vlan_tag)
-
         self.assertTrue(self.vlan_member42 != 0)
+        self.vlan_members.append(self.vlan_member42)
         self.vlan_member43 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan40,
             bridge_port_id=self.port26_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member43 != 0)
+        self.vlan_members.append(self.vlan_member43)
         self.vlan_member44 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan40,
             bridge_port_id=self.port27_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member44 != 0)
+        self.vlan_members.append(self.vlan_member44)
         self.vlan_member51 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan50,
             bridge_port_id=self.port28_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member51 != 0)
+        self.vlan_members.append(self.vlan_member51)
         self.vlan_member52 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan50,
             bridge_port_id=self.port29_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member52 != 0)
+        self.vlan_members.append(self.vlan_member52)
         self.vlan_member53 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan50,
             bridge_port_id=self.port30_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member53 != 0)
+        self.vlan_members.append(self.vlan_member53)
         self.vlan_member54 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan50,
             bridge_port_id=self.port31_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member54 != 0)
+        self.vlan_members.append(self.vlan_member54)
 
-        # FDB config
+        # FDB configuration
+        self.fdb_entries = []
         self.fdb_entry1 = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
                                                  mac_address=self.mac2,
                                                  bv_id=self.vlan40)
@@ -180,6 +197,7 @@ class MirrorConfigData(SaiHelper):
                                              bridge_port_id=self.port25_bp,
                                              packet_action=mac_action)
         self.assertEqual(status, self.status_success)
+        self.fdb_entries.append(self.fdb_entry1)
         self.fdb_entry2 = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
                                                  mac_address=self.mac3,
                                                  bv_id=self.vlan40)
@@ -189,6 +207,7 @@ class MirrorConfigData(SaiHelper):
                                              bridge_port_id=self.port26_bp,
                                              packet_action=mac_action)
         self.assertEqual(status, self.status_success)
+        self.fdb_entries.append(self.fdb_entry2)
 
         self.fdb_entry3 = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
                                                  mac_address=self.mac2,
@@ -199,6 +218,7 @@ class MirrorConfigData(SaiHelper):
                                              bridge_port_id=self.port29_bp,
                                              packet_action=mac_action)
         self.assertEqual(status, self.status_success)
+        self.fdb_entries.append(self.fdb_entry3)
         self.fdb_entry4 = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
                                                  mac_address=self.mac3,
                                                  bv_id=self.vlan50)
@@ -208,42 +228,51 @@ class MirrorConfigData(SaiHelper):
                                              bridge_port_id=self.port30_bp,
                                              packet_action=mac_action)
         self.assertEqual(status, self.status_success)
+        self.fdb_entries.append(self.fdb_entry4)
 
         # Port attributes
+        self.ports = []
         sai_thrift_set_port_attribute(self.client,
                                       self.port24,
                                       port_vlan_id=40)
+        self.ports.append(self.port24)
         sai_thrift_set_port_attribute(self.client,
                                       self.port25,
                                       port_vlan_id=40)
+        self.ports.append(self.port25)
         sai_thrift_set_port_attribute(self.client,
                                       self.port26,
                                       port_vlan_id=40)
+        self.ports.append(self.port26)
         sai_thrift_set_port_attribute(self.client,
                                       self.port27,
                                       port_vlan_id=40)
+        self.ports.append(self.port27)
         sai_thrift_set_port_attribute(self.client,
                                       self.port28,
                                       port_vlan_id=50)
+        self.ports.append(self.port28)
         sai_thrift_set_port_attribute(self.client,
                                       self.port29,
                                       port_vlan_id=50)
+        self.ports.append(self.port29)
         sai_thrift_set_port_attribute(self.client,
                                       self.port30,
                                       port_vlan_id=50)
+        self.ports.append(self.port30)
         sai_thrift_set_port_attribute(self.client,
                                       self.port31,
                                       port_vlan_id=50)
+        self.ports.append(self.port31)
 
-        # L3 layer
+        # L3 layer configuration
         self.vr_id = sai_thrift_create_virtual_router(self.client,
                                                       admin_v4_state=True,
                                                       admin_v6_state=True)
 
-        # L3 configuration
-        # Neighbor egress
+        # Neighbor egress configuration
 
-        # egress RIF port11
+        # Egress RIF port11
         dst_ip = "172.16.1.1"
         dst_mask_ip = "172.16.1.1/24"
         self.neighbor_dmac = "00:11:22:33:44:55"
@@ -261,7 +290,7 @@ class MirrorConfigData(SaiHelper):
             router_interface_id=self.port11_rif,
             ip=sai_ipaddress(dst_ip))
 
-        # egress RIF port12
+        # Egress RIF port12
         dst_ip_egr = "192.168.0.1"
         dst_mask_ip_egr = "192.168.0.1/24"
         self.neighbor_dmac_egr = "00:55:44:33:22:11"
@@ -316,91 +345,116 @@ class MirrorConfigData(SaiHelper):
         self.dst_ip_addr_egr = sai_thrift_ip_address_t(addr_family=addr_fam,
                                                        addr=dst_ipv4_egr)
 
-        # LAG config
+        # LAG configuration
+        self.lags = []
         self.lag10 = sai_thrift_create_lag(self.client)
         self.assertTrue(self.lag10 != 0)
+        self.lags.append(self.lag10)
         self.lag10_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.lag10,
             type=SAI_BRIDGE_PORT_TYPE_PORT)
         self.assertTrue(self.lag10_bp != 0)
+        self.bridge_ports.append(self.lag10_bp)
         self.vlan_member041 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan40,
             bridge_port_id=self.lag10_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member041 != 0)
+        self.vlan_members.append(self.vlan_member041)
         self.lag10_upd = sai_thrift_create_lag(self.client)
         self.assertTrue(self.lag10_upd != 0)
+        self.lags.append(self.lag10_upd)
         self.lag10_bp_upd = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.lag10_upd,
             type=SAI_BRIDGE_PORT_TYPE_PORT)
         self.assertTrue(self.lag10_bp_upd != 0)
+        self.bridge_ports.append(self.lag10_bp_upd)
         self.vlan_member042 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan40,
             bridge_port_id=self.lag10_bp_upd,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member042 != 0)
+        self.vlan_members.append(self.vlan_member042)
 
         self.lag11 = sai_thrift_create_lag(self.client)
         self.assertTrue(self.lag11 != 0)
+        self.lags.append(self.lag11)
         self.lag11_bp = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.lag11,
             type=SAI_BRIDGE_PORT_TYPE_PORT)
         self.assertTrue(self.lag11_bp != 0)
+        self.bridge_ports.append(self.lag11_bp)
         self.vlan_member051 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan50,
             bridge_port_id=self.lag11_bp,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member051 != 0)
+        self.vlan_members.append(self.vlan_member051)
 
         self.lag11_upd = sai_thrift_create_lag(self.client)
         self.assertTrue(self.lag11_upd != 0)
+        self.lags.append(self.lag11_upd)
         self.lag11_bp_upd = sai_thrift_create_bridge_port(
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.lag11_upd,
             type=SAI_BRIDGE_PORT_TYPE_PORT)
         self.assertTrue(self.lag11_bp_upd != 0)
+        self.bridge_ports.append(self.lag11_bp_upd)
         self.vlan_member052 = sai_thrift_create_vlan_member(
             self.client,
             vlan_id=self.vlan50,
             bridge_port_id=self.lag11_bp_upd,
             vlan_tagging_mode=vlan_tag)
         self.assertTrue(self.vlan_member052 != 0)
+        self.vlan_members.append(self.vlan_member052)
+
+        # Policer configuration
+        self.pol_id = sai_thrift_create_policer(
+            self.client,
+            meter_type=SAI_METER_TYPE_PACKETS,
+            mode=SAI_POLICER_MODE_SR_TCM,
+            cir=1,
+            pir=1,
+            green_packet_action=SAI_PACKET_ACTION_FORWARD,
+            red_packet_action=SAI_PACKET_ACTION_FORWARD)
 
     def runTest(self):
-        try:
-            self._localIngressPortMirroringTest()
-            self._localEgressPortMirroringTest()
-            self._localIngressLagMirroringTest()
-            self._localEgressLagMirroringTest()
-            self._ingressEgressMirrorSessionTest()
-            self._aclIngressEgressMirrorSessionTest()
-            self._egressMirrorDropOnIngress()
-            self._mirrorDroppedPacketIngressTest()
-            self._mirrorDroppedPacketEgressTest()
-            self._mirrorSessionTrafficClassTest()
-            self._erspanMirrorSessionTrafficClassTest()
-            self._localAclIngressLagMirroringTest()
-            self._localAclEgressLagMirroringTest()
-            self._aclMirrorDroppedPacketIngressTest()
-            self._aclMirrorDroppedPacketEgressTest()
-            self._erspanAclEgressGreProto0x22ebTest()
-            self._erspanPortMirroringTest()
-            self._erspanLagMirroringTest()
-            self._erspanVlanPortMirroringTest()
-        finally:
-            pass
+        self.localIngressPortMirroringTest()
+        self.localEgressPortMirroringTest()
+        self.localIngressLagMirroringTest()
+        self.localEgressLagMirroringTest()
+        self.ingressEgressMirrorSessionTest()
+        self.aclIngressEgressMirrorSessionTest()
+        self.egressMirrorDropOnIngress()
+        self.mirrorDroppedPacketIngressTest()
+        self.mirrorDroppedPacketEgressTest()
+        self.mirrorSessionTrafficClassTest()
+        self.erspanMirrorSessionTrafficClassTest()
+        self.localAclIngressLagMirroringTest()
+        self.localAclEgressLagMirroringTest()
+        self.aclMirrorDroppedPacketIngressTest()
+        self.aclMirrorDroppedPacketEgressTest()
+        self.erspanAclEgressGreProto0x22ebTest()
+        self.erspanPortMirroringTest()
+        self.erspanLagMirroringTest()
+        self.erspanVlanPortMirroringTest()
+        self.ingressMirrorPolicingTest()
+        self.egressMirrorPolicingTest()
+        self.erspanIngressMirrorPolicingTest()
+        self.erspanEgressMirrorPolicingTest()
 
     def tearDown(self):
+        sai_thrift_remove_policer(self.client, self.pol_id)
         sai_thrift_remove_route_entry(self.client, self.route2)
         sai_thrift_remove_next_hop(self.client, self.nhop2)
         sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
@@ -408,51 +462,28 @@ class MirrorConfigData(SaiHelper):
         sai_thrift_remove_route_entry(self.client, self.route)
         sai_thrift_remove_next_hop(self.client, self.nhop)
         sai_thrift_remove_virtual_router(self.client, self.vr_id)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member052)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member051)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member042)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member041)
-        sai_thrift_remove_bridge_port(self.client, self.lag11_bp_upd)
-        sai_thrift_remove_bridge_port(self.client, self.lag10_bp_upd)
-        sai_thrift_remove_lag(self.client, self.lag11_upd)
-        sai_thrift_remove_lag(self.client, self.lag10_upd)
-        sai_thrift_remove_bridge_port(self.client, self.lag11_bp)
-        sai_thrift_remove_bridge_port(self.client, self.lag10_bp)
-        sai_thrift_remove_lag(self.client, self.lag11)
-        sai_thrift_remove_lag(self.client, self.lag10)
-        sai_thrift_set_port_attribute(self.client, self.port31, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port30, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port29, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port28, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port27, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port26, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port25, port_vlan_id=1)
-        sai_thrift_set_port_attribute(self.client, self.port24, port_vlan_id=1)
-        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry4)
-        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry3)
-        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry2)
-        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry1)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member54)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member53)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member52)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member51)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member44)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member43)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member42)
-        sai_thrift_remove_vlan_member(self.client, self.vlan_member41)
+
+        for vlan_member in self.vlan_members:
+            sai_thrift_remove_vlan_member(self.client, vlan_member)
+
+        for fdb_entry in self.fdb_entries:
+            sai_thrift_remove_fdb_entry(self.client, fdb_entry)
+
+        for port in self.ports:
+            sai_thrift_set_port_attribute(self.client, port, port_vlan_id=1)
+
         sai_thrift_remove_vlan(self.client, self.vlan50)
         sai_thrift_remove_vlan(self.client, self.vlan40)
-        sai_thrift_remove_bridge_port(self.client, self.port31_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port30_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port29_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port28_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port27_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port26_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port25_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port24_bp)
-        SaiHelper.tearDown(self)
 
-    def _localIngressPortMirroringTest(self):
+        for bridge_port in self.bridge_ports:
+            sai_thrift_remove_bridge_port(self.client, bridge_port)
+
+        for lag in self.lags:
+            sai_thrift_remove_lag(self.client, lag)
+
+        super(MirrorConfigData, self).tearDown()
+
+    def localIngressPortMirroringTest(self):
         """
         Checking local ingress port mirroring
         """
@@ -496,7 +527,7 @@ class MirrorConfigData(SaiHelper):
                                           ingress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id_ingress)
 
-    def _localEgressPortMirroringTest(self):
+    def localEgressPortMirroringTest(self):
         """
         Checking local egress port mirroring
         """
@@ -546,7 +577,7 @@ class MirrorConfigData(SaiHelper):
                                           egress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id_egress)
 
-    def _localIngressLagMirroringTest(self):
+    def localIngressLagMirroringTest(self):
         """
         Checking local ingress lag mirroring
         """
@@ -579,8 +610,8 @@ class MirrorConfigData(SaiHelper):
             print("\tTest variant 1 - monitor: empty LAG")
             print("\t\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port26])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port26)
             verify_no_other_packets(self, timeout=1)
             print("\t\tTest completed successfully - packet not mirrored")
 
@@ -619,8 +650,8 @@ class MirrorConfigData(SaiHelper):
 
             print("\t\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port26])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port26)
             verify_no_other_packets(self, timeout=1)
             print("\t\tTest completed successfully - packet not mirrored")
 
@@ -633,8 +664,8 @@ class MirrorConfigData(SaiHelper):
             print("\t\tTest variant 5a - monitor: empty LAG")
             print("\t\t\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port26])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port26)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -673,8 +704,8 @@ class MirrorConfigData(SaiHelper):
 
             print("\t\t\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port26])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port26)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -696,8 +727,8 @@ class MirrorConfigData(SaiHelper):
             print("\t\tTest variant 7a - monitor: empty LAG")
             print("\t\t\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port26])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port26)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -735,8 +766,8 @@ class MirrorConfigData(SaiHelper):
 
             print("\t\t\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port26])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port26)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -748,7 +779,7 @@ class MirrorConfigData(SaiHelper):
                                           ingress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id_ingress)
 
-    def _localEgressLagMirroringTest(self):
+    def localEgressLagMirroringTest(self):
         """
         Checking local egress lag mirroring
         """
@@ -785,8 +816,8 @@ class MirrorConfigData(SaiHelper):
             print("\tTest variant 1 - monitor: empty LAG")
             print("\t\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port25])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port25)
             verify_no_other_packets(self, timeout=1)
             print("\t\tTest completed successfully - packet not mirrored")
 
@@ -824,8 +855,8 @@ class MirrorConfigData(SaiHelper):
 
             print("\t\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port25])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port25)
             verify_no_other_packets(self, timeout=1)
             print("\t\tTest completed successfully - packet not mirrored")
 
@@ -837,8 +868,8 @@ class MirrorConfigData(SaiHelper):
             print("\t\tTest variant 5a - monitor: empty LAG")
             print("\t\t\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port25])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port25)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -877,7 +908,7 @@ class MirrorConfigData(SaiHelper):
             print("\t\t\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
 
-            verify_packets(self, exp_pkt, ports=[self.dev_port25])
+            verify_packet(self, exp_pkt, self.dev_port25)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -901,8 +932,8 @@ class MirrorConfigData(SaiHelper):
             print("\t\tTest variant 7a - monitor: empty LAG")
             print("\t\t\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
-            # packet will not be mirrored
-            verify_packets(self, exp_pkt, ports=[self.dev_port25])
+            # Packet will not be mirrored
+            verify_packet(self, exp_pkt, self.dev_port25)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -941,7 +972,7 @@ class MirrorConfigData(SaiHelper):
             print("\t\t\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
 
-            verify_packets(self, exp_pkt, ports=[self.dev_port25])
+            verify_packet(self, exp_pkt, self.dev_port25)
             verify_no_other_packets(self, timeout=1)
             print("\t\t\tTest completed successfully - packet not mirrored")
 
@@ -953,7 +984,7 @@ class MirrorConfigData(SaiHelper):
                                           egress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id_egress)
 
-    def _ingressEgressMirrorSessionTest(self):
+    def ingressEgressMirrorSessionTest(self):
         """
         Checking ingress and egress mirroring in single session
         """
@@ -1016,7 +1047,7 @@ class MirrorConfigData(SaiHelper):
                                           egress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id)
 
-    def _egressMirrorDropOnIngress(self):
+    def egressMirrorDropOnIngress(self):
         """
         Checking the lack of packet mirroring by egress mirror
         when packet is dropped on ingress
@@ -1053,7 +1084,7 @@ class MirrorConfigData(SaiHelper):
                                           egress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id)
 
-    def _mirrorDroppedPacketIngressTest(self):
+    def mirrorDroppedPacketIngressTest(self):
         """
         Checking packet mirroring if packet is dropped on ingress
         """
@@ -1087,7 +1118,7 @@ class MirrorConfigData(SaiHelper):
         try:
             print("\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24])
+            verify_packet(self, exp_pkt, self.dev_port24)
             verify_no_other_packets(self, timeout=1)
             print("\tTest completed successfully - packet dropped"
                   " and mirrored on ingress")
@@ -1099,7 +1130,7 @@ class MirrorConfigData(SaiHelper):
                                           ingress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id_ingress)
 
-    def _mirrorDroppedPacketEgressTest(self):
+    def mirrorDroppedPacketEgressTest(self):
         """
         Checking the lack of mirroring if the packet is dropped on egress
         """
@@ -1125,8 +1156,7 @@ class MirrorConfigData(SaiHelper):
         try:
             print("\tSending packet PORT26 -> PORT25")
             send_packet(self, self.dev_port26, pkt)
-            # Due to SWI-2750 packets should not be mirrored by egress mirror
-            # verify_packets(self, exp_pkt, [self.dev_port24])
+            # Egress mirror should not include dropped packets
             verify_no_other_packets(self, timeout=1)
             print("\tTest completed successfully - packet dropped"
                   " and not mirrored on egress")
@@ -1138,11 +1168,9 @@ class MirrorConfigData(SaiHelper):
                                           egress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id_egress)
 
-    def _mirrorSessionTrafficClassTest(self):
+    def mirrorSessionTrafficClassTest(self):
         """
         Checking egress mirroring with Traffic Class attribute enabled.
-        Some platforms do not support SAI_MIRROR_SESSION_ATTR_TC
-        and only support global mirror session traffic class.
         """
         print("\nMirror Session Traffic Class Test")
         traffic_class = 6
@@ -1211,13 +1239,12 @@ class MirrorConfigData(SaiHelper):
                                           egress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, span_id)
 
-    def _localAclIngressLagMirroringTest(self):
+    def localAclIngressLagMirroringTest(self):
         """
         Checking local ACL ingress lag mirroring
         """
         print("\nLocal ACL Ingress Mirroring Test - Monitor = LAG")
 
-        # Mirror session
         span_id = sai_thrift_create_mirror_session(
             self.client,
             monitor_port=self.lag10,
@@ -1299,13 +1326,12 @@ class MirrorConfigData(SaiHelper):
             sai_thrift_remove_lag_member(self.client, lag_member27)
             sai_thrift_remove_lag_member(self.client, lag_member24)
 
-    def _localAclEgressLagMirroringTest(self):
+    def localAclEgressLagMirroringTest(self):
         """
         Checking local ACL egress lag mirroring
         """
         print("\nLocal ACL Egress Mirroring Test - Monitor = LAG")
 
-        # Mirror session
         span_id = sai_thrift_create_mirror_session(
             self.client,
             monitor_port=self.lag10,
@@ -1386,7 +1412,7 @@ class MirrorConfigData(SaiHelper):
             sai_thrift_remove_lag_member(self.client, lag_member24)
             sai_thrift_remove_mirror_session(self.client, span_id)
 
-    def _aclIngressEgressMirrorSessionTest(self):
+    def aclIngressEgressMirrorSessionTest(self):
         """
         Checking ACL ingress and egress mirroring in a single session
         """
@@ -1501,7 +1527,7 @@ class MirrorConfigData(SaiHelper):
             sai_thrift_remove_acl_table(self.client, acl_table_id_egress)
             sai_thrift_remove_mirror_session(self.client, span_id)
 
-    def _aclMirrorDroppedPacketIngressTest(self):
+    def aclMirrorDroppedPacketIngressTest(self):
         """
         Checking ACL packet mirroring if packet is dropped on ingress
         """
@@ -1565,7 +1591,7 @@ class MirrorConfigData(SaiHelper):
         try:
             print("\tSending packet PORT25 -> PORT26")
             send_packet(self, self.dev_port25, pkt)
-            verify_packets(self, exp_pkt, [self.dev_port24])
+            verify_packet(self, exp_pkt, self.dev_port24)
             verify_no_other_packets(self, timeout=1)
             print("\tTest completed successfully - packet dropped"
                   " and mirrored on ingress")
@@ -1580,7 +1606,7 @@ class MirrorConfigData(SaiHelper):
             sai_thrift_remove_acl_table(self.client, acl_table_id_ingress)
             sai_thrift_remove_mirror_session(self.client, span_id_ingress)
 
-    def _aclMirrorDroppedPacketEgressTest(self):
+    def aclMirrorDroppedPacketEgressTest(self):
         """
         Checking the lack of ACL mirroring if the packet is dropped on egress
         """
@@ -1650,13 +1676,12 @@ class MirrorConfigData(SaiHelper):
             sai_thrift_remove_acl_table(self.client, acl_table_id_egress)
             sai_thrift_remove_mirror_session(self.client, span_id_egress)
 
-    def _erspanAclEgressGreProto0x22ebTest(self):
+    def erspanAclEgressGreProto0x22ebTest(self):
         """
         Checking ACL egress mirroring, encapsulated remote SPAN
         GRE protocol 0x22eb
         """
         print("\nERSPAN ACL Egress GRE Protocol 0x22eb Test")
-        # Mirror session
         encap_type = SAI_ERSPAN_ENCAPSULATION_TYPE_MIRROR_L3_GRE_TUNNEL
         erspan_id = sai_thrift_create_mirror_session(
             self.client,
@@ -1768,6 +1793,7 @@ class MirrorConfigData(SaiHelper):
             print("\tPacket received on port 12")
             verify_packet(self, exp_mask_mirrored_pkt, self.dev_port28)
             print("\tPacket mirrored on port 28")
+            verify_no_other_packets(self, timeout=1)
             print("\tTest completed successfully")
 
         finally:
@@ -1780,13 +1806,12 @@ class MirrorConfigData(SaiHelper):
             sai_thrift_remove_acl_table(self.client, acl_table_id_egress)
             sai_thrift_remove_mirror_session(self.client, erspan_id)
 
-    def _erspanPortMirroringTest(self):
+    def erspanPortMirroringTest(self):
         """
         Checking ERSPAN mirroring, monitor = PORT
         """
         print("\nERSPAN Port Mirroring Test")
 
-        # mirror session
         encap_type = SAI_ERSPAN_ENCAPSULATION_TYPE_MIRROR_L3_GRE_TUNNEL
         erspan_id = sai_thrift_create_mirror_session(
             self.client,
@@ -1876,6 +1901,7 @@ class MirrorConfigData(SaiHelper):
             print("\tPacket received on port 11")
             verify_packet(self, exp_mask_mirrored_pkt, self.dev_port24)
             print("\tPacket mirrored on port 24")
+            verify_no_other_packets(self, timeout=1)
             print("\tTest completed successfully")
 
         finally:
@@ -1886,7 +1912,7 @@ class MirrorConfigData(SaiHelper):
                                           ingress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, erspan_id)
 
-    def _erspanLagMirroringTest(self):
+    def erspanLagMirroringTest(self):
         """
         Checking ERSPAN mirroring, monitor = LAG
         """
@@ -1898,7 +1924,6 @@ class MirrorConfigData(SaiHelper):
                                                     lag_id=self.lag11,
                                                     port_id=self.port31)
 
-        # mirror session
         encap_type = SAI_ERSPAN_ENCAPSULATION_TYPE_MIRROR_L3_GRE_TUNNEL
         erspan_id = sai_thrift_create_mirror_session(
             self.client,
@@ -2012,7 +2037,7 @@ class MirrorConfigData(SaiHelper):
                                           ingress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, erspan_id)
 
-    def _erspanMirrorSessionTrafficClassTest(self):
+    def erspanMirrorSessionTrafficClassTest(self):
         """
         Checking ERSPAN egress mirroring with Traffic Class attribute enabled.
         Some platforms do not support SAI_MIRROR_SESSION_ATTR_TC
@@ -2021,6 +2046,7 @@ class MirrorConfigData(SaiHelper):
         print("\nERSPAN Mirror Session Traffic Class Test")
         encap_type = SAI_ERSPAN_ENCAPSULATION_TYPE_MIRROR_L3_GRE_TUNNEL
         traffic_class = 6
+
         erspan_id = sai_thrift_create_mirror_session(
             self.client,
             monitor_port=self.port28,
@@ -2125,6 +2151,7 @@ class MirrorConfigData(SaiHelper):
             print("\tPacket received on port 12")
             verify_packet(self, exp_mask_mirrored_pkt, self.dev_port28)
             print("\tPacket mirrored on port 28")
+            verify_no_other_packets(self, timeout=1)
             stats = sai_thrift_get_queue_stats(self.client, queue_id)
             pkt_cnt_after = stats["SAI_QUEUE_STAT_PACKETS"]
             assert(pkt_cnt_after == pkt_cnt_before + 1), ("Mirrored packet "
@@ -2140,13 +2167,12 @@ class MirrorConfigData(SaiHelper):
             queue_list = sai_thrift_object_list_t(count=0)
             sai_thrift_remove_mirror_session(self.client, erspan_id)
 
-    def _erspanVlanPortMirroringTest(self):
+    def erspanVlanPortMirroringTest(self):
         """
         Checking ERSPAN VLAN mirroring, monitor = PORT
         """
         print("\nERSPAN VLAN Port Mirroring Test")
 
-        # mirror session
         encap_type = SAI_ERSPAN_ENCAPSULATION_TYPE_MIRROR_L3_GRE_TUNNEL
         erspan_id = sai_thrift_create_mirror_session(
             self.client,
@@ -2261,39 +2287,6 @@ class MirrorConfigData(SaiHelper):
                                           ingress_mirror_session=obj_list)
             sai_thrift_remove_mirror_session(self.client, erspan_id)
 
-
-@group("mirror-meters")
-class MirrorPolicingTestGroup(MirrorConfigData):
-    """
-    The verification of mirror meters are working on X2 profile,
-    that is why following mirror policing test cases are grouped
-    in this separate class of tests.
-    """
-
-    def setUp(self):
-        MirrorConfigData.setUp(self)
-        self.pol_id = sai_thrift_create_policer(
-            self.client,
-            meter_type=SAI_METER_TYPE_PACKETS,
-            mode=SAI_POLICER_MODE_SR_TCM,
-            cir=1,
-            pir=1,
-            green_packet_action=SAI_PACKET_ACTION_FORWARD,
-            red_packet_action=SAI_PACKET_ACTION_FORWARD)
-
-    def runTest(self):
-        try:
-            self.ingressMirrorPolicingTest()
-            self.egressMirrorPolicingTest()
-            self.erspanIngressMirrorPolicingTest()
-            self.erspanEgressMirrorPolicingTest()
-        finally:
-            pass
-
-    def tearDown(self):
-        sai_thrift_remove_policer(self.client, self.pol_id)
-        MirrorConfigData.tearDown(self)
-
     def ingressMirrorPolicingTest(self):
         """
         Checking ingress mirroring with policers
@@ -2361,7 +2354,7 @@ class MirrorPolicingTestGroup(MirrorConfigData):
             # packets number should be equal to green packets number
             print("\tGREEN_PACKETS = {}".format(g_pkts1))
             self.assertTrue(g_pkts1 == g_pkts0 + mirrored_pkts)
-            # rcv_pkts - mirrored_pkts == red_pkts
+            # The number of red packets equals received without mirrored ones.
             print("\tRED_PACKETS = {}".format(r_pkts1))
             self.assertTrue(r_pkts1 == r_pkts0 + rcv_pkts - mirrored_pkts)
             assert(g_pkts1 + r_pkts1 == pkt_cnt), ("The policer packet stats"
@@ -2443,7 +2436,7 @@ class MirrorPolicingTestGroup(MirrorConfigData):
             # packets number should be equal to green packets number
             print("\tGREEN_PACKETS = {}".format(g_pkts1))
             self.assertTrue(g_pkts1 == g_pkts0 + mirrored_pkts)
-            # rcv_pkts - mirrored_pkts == red_pkts
+            # The number of red packets equals received without mirrored ones.
             print("\tRED_PACKETS = {}".format(r_pkts1))
             self.assertTrue(r_pkts1 == r_pkts0 + rcv_pkts - mirrored_pkts)
             assert(g_pkts1 + r_pkts1 == pkt_cnt), ("The policer packet stats"
@@ -2581,7 +2574,7 @@ class MirrorPolicingTestGroup(MirrorConfigData):
             # packets number should be equal to green packets number
             print("\tGREEN_PACKETS = {}".format(g_pkts1))
             self.assertTrue(g_pkts1 == g_pkts0 + mirrored_pkts)
-            # rcv_pkts - mirrored_pkts == red_pkts
+            # The number of red packets equals received without mirrored ones.
             print("\tRED_PACKETS = {}".format(r_pkts1))
             self.assertTrue(r_pkts1 == r_pkts0 + rcv_pkts - mirrored_pkts)
             assert(g_pkts1 + r_pkts1 == pkt_cnt), ("The policer packet stats"
@@ -2713,7 +2706,7 @@ class MirrorPolicingTestGroup(MirrorConfigData):
             # packets number should be equal to green packets number
             print("\tGREEN_PACKETS = {}".format(g_pkts1))
             self.assertTrue(g_pkts1 == g_pkts0 + mirrored_pkts)
-            # rcv_pkts - mirrored_pkts == red_pkts
+            # The number of red packets equals received without mirrored ones.
             print("\tRED_PACKETS = {}".format(r_pkts1))
             self.assertTrue(r_pkts1 == r_pkts0 + rcv_pkts - mirrored_pkts)
             assert(g_pkts1 + r_pkts1 == pkt_cnt), ("The policer packet stats"
