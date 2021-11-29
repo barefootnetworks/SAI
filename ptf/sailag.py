@@ -49,7 +49,7 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        print(lag_members)
+        assert len(lag_members) == 0
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 0
 
@@ -59,7 +59,8 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        print(lag_members)
+        # print(lag_members)
+        assert lag_members[0] == lag3_member24
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 1
         attr_list = sai_thrift_get_lag_member_attribute(
@@ -75,7 +76,7 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        print(lag_members)
+        assert lag_members[0] == lag3_member24
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 1
 
@@ -86,7 +87,7 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        print(lag_members)
+        assert len(lag_members) == 0
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 0
 
@@ -958,13 +959,15 @@ class LAGL3LoadBalancing(SaiHelper):
         print("Verify L3 load balancing with 1 member")
         count = self.lagL3LoadBalancePacketTest([self.dev_port5])
         print(count)
-        self.assertTrue(count[0] == self.max_itrs,
-                        "Disabled LAG member should not allow traffic")
+        self.assertTrue(
+            count[0] == self.max_itrs,
+            "Disabled LAG member should not allow traffic")
         self.assertTrue(
             count[1] == 0,
             "Enabled LAG member should take 100% traffic allow traffic")
-        self.assertTrue(count[2] == 0,
-                        "Disabled LAG member should not allow traffic")
+        self.assertTrue(
+            count[2] == 0,
+            "Disabled LAG member should not allow traffic")
 
         # Remove one member
         print("Remove LAG member 5, No traffic expected")
