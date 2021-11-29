@@ -1187,13 +1187,11 @@ class MirrorConfigData(SaiHelper):
                                              self.port24,
                                              qos_queue_list=queue_list)
 
-        for i in range(0, len(attr["qos_queue_list"].idlist)):
-            q_attr = sai_thrift_get_queue_attribute(
-                self.client,
-                attr["qos_queue_list"].idlist[i],
-                index=True)
+        for idx, value in enumerate(attr["qos_queue_list"].idlist):
+            q_attr = sai_thrift_get_queue_attribute(self.client, value,
+                                                    index=True)
             if q_attr["index"] == traffic_class:
-                queue_id = attr["qos_queue_list"].idlist[i]
+                queue_id = value
                 break
 
         sai_thrift_set_port_attribute(self.client,
@@ -2071,13 +2069,11 @@ class MirrorConfigData(SaiHelper):
                                              self.port28,
                                              qos_queue_list=queue_list)
 
-        for i in range(0, len(attr["qos_queue_list"].idlist)):
-            q_attr = sai_thrift_get_queue_attribute(
-                self.client,
-                attr["qos_queue_list"].idlist[i],
-                index=True)
+        for idx, value in enumerate(attr["qos_queue_list"].idlist):
+            q_attr = sai_thrift_get_queue_attribute(self.client, value,
+                                                    index=True)
             if q_attr["index"] == traffic_class:
-                queue_id = attr["qos_queue_list"].idlist[i]
+                queue_id = value
                 break
 
         sai_thrift_set_port_attribute(self.client,
