@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,10 @@
 """
 Thrift SAI interface queue tests
 """
-
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
 from ptf.packet import *
+from ptf.testutils import *
 from ptf.thriftutils import *
 
 from sai_base_test import *
@@ -33,21 +30,18 @@ class QueueConfigData(SaiHelper):
     """
 
     def setUp(self):
-        SaiHelper.setUp(self)
+        super(QueueConfigData, self).setUp()
         attr = sai_thrift_get_port_attribute(self.client,
                                              self.port25,
                                              qos_number_of_queues=True)
-        self.num_queues = attr["qos_number_of_queues"]
-        self.num_ports = len(self.port_list)
-        self.q_list = sai_thrift_object_list_t(count=self.num_queues)
 
-        # L3 layer
+        # L3 layer configuration
         self.vr_id = sai_thrift_create_virtual_router(self.client,
                                                       admin_v4_state=True,
                                                       admin_v6_state=True)
         self.assertTrue(self.vr_id != 0)
 
-        # RIF
+        # RIFs
         self.rif_id25 = sai_thrift_create_router_interface(
             self.client,
             virtual_router_id=self.vr_id,
@@ -95,15 +89,13 @@ class QueueConfigData(SaiHelper):
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
     def runTest(self):
-        try:
-            self.queueCreateTest()
-            self.portQueueQueryTest()
-            self.bufferQueueTest()
-            self.schedulerQueueTest()
-            self.pfcPriorityQueueTest()
-            self.cpuPortQueueObjectTest()
-        finally:
-            pass
+        self.queueCreateTest()
+        self.portQueueQueryTest()
+        self.bufferQueueTest()
+        self.schedulerQueueTest()
+        self.pfcPriorityQueueTest()
+        self.cpuPortQueueObjectTest()
+        self.wredQueueTest()
 
     def tearDown(self):
         sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
@@ -112,56 +104,53 @@ class QueueConfigData(SaiHelper):
         sai_thrift_remove_router_interface(self.client, self.rif_id26)
         sai_thrift_remove_router_interface(self.client, self.rif_id25)
         sai_thrift_remove_virtual_router(self.client, self.vr_id)
-        SaiHelper.tearDown(self)
+        super(QueueConfigData, self).tearDown()
 
     def queueCreateTest(self):
         """
-        This verifies queue creation
+        The test verifies a queue creation.
         """
         print("\nQueue Create Test")
 
         test_port = self.port1
 
-        try:
-            queue = sai_thrift_create_queue(
-                self.client, type=SAI_QUEUE_TYPE_UNICAST,
-                index=1)
-            # port is missing, creation should fail
-            self.assertTrue(queue == 0)
+        queue = sai_thrift_create_queue(
+            self.client, type=SAI_QUEUE_TYPE_UNICAST,
+            index=1)
+        # The port is missing, the creation should fail.
+        self.assertTrue(queue == 0)
 
-            queue = sai_thrift_create_queue(
-                self.client,
-                port=test_port, index=1)
-            # type is missing, creation should fail
-            self.assertTrue(queue == 0)
+        queue = sai_thrift_create_queue(
+            self.client,
+            port=test_port, index=1)
+        # The type is missing, the creation should fail.
+        self.assertTrue(queue == 0)
 
-            queue = sai_thrift_create_queue(
-                self.client, type=SAI_QUEUE_TYPE_ALL,
-                port=test_port, index=1)
-            # type is wrong, creation should fail
-            self.assertTrue(queue == 0)
+        queue = sai_thrift_create_queue(
+            self.client, type=SAI_QUEUE_TYPE_ALL,
+            port=test_port, index=1)
+        # The type is wrong, the creation should fail.
+        self.assertTrue(queue == 0)
 
-            queue = sai_thrift_create_queue(
-                self.client, type=SAI_QUEUE_TYPE_UNICAST,
-                port=test_port)
-            # index is missing, creation should fail
-            self.assertTrue(queue == 0)
+        queue = sai_thrift_create_queue(
+            self.client, type=SAI_QUEUE_TYPE_UNICAST,
+            port=test_port)
+        # The index is missing, the creation should fail.
+        self.assertTrue(queue == 0)
 
-            queue = sai_thrift_create_queue(
-                self.client, type=SAI_QUEUE_TYPE_UNICAST,
-                port=test_port, index=60)
-            # index is wrong, creation should fail
-            self.assertTrue(queue == 0)
+        queue = sai_thrift_create_queue(
+            self.client, type=SAI_QUEUE_TYPE_UNICAST,
+            port=test_port, index=60)
+        # The index is wrong, the creation should fail.
+        self.assertTrue(queue == 0)
 
-            queue = sai_thrift_create_queue(
-                self.client, type=SAI_QUEUE_TYPE_UNICAST,
-                port=test_port, index=1)
-            # queue with such index already exists
-            self.assertTrue(queue == 0)
+        queue = sai_thrift_create_queue(
+            self.client, type=SAI_QUEUE_TYPE_UNICAST,
+            port=test_port, index=1)
+        # The queue with such index already exists.
+        self.assertTrue(queue == 0)
 
-            print("\tTest completed successfully")
-        finally:
-            pass
+        print("\tTest completed successfully")
 
     def portQueueQueryTest(self):
         """
@@ -175,31 +164,26 @@ class QueueConfigData(SaiHelper):
                                              self.port1,
                                              qos_number_of_queues=True)
         num_queues = attr["qos_number_of_queues"]
-        num_ports = len(self.port_list)
         q_list = sai_thrift_object_list_t(count=num_queues)
-        try:
-            for port in range(0, num_ports):
-                attr = sai_thrift_get_port_attribute(self.client,
-                                                     self.port_list[port],
-                                                     qos_queue_list=q_list)
-                for queue in range(0, num_queues):
-                    queue_id = attr["qos_queue_list"].idlist[queue]
-                    q_attr = sai_thrift_get_queue_attribute(
-                        self.client,
-                        queue_id,
-                        port=True,
-                        index=True,
-                        parent_scheduler_node=True)
-                    self.assertTrue(queue == q_attr["index"])
-                    self.assertTrue(self.port_list[port] == q_attr["port"])
-                    # It should return port handle,
-                    # because SDK does not support hierarchical QoS
-                    self.assertTrue(self.port_list[port] ==
-                                    q_attr["parent_scheduler_node"])
+        for port in self.port_list:
+            attr = sai_thrift_get_port_attribute(self.client,
+                                                 port,
+                                                 qos_queue_list=q_list)
+            for queue in range(num_queues):
+                queue_id = attr["qos_queue_list"].idlist[queue]
+                q_attr = sai_thrift_get_queue_attribute(
+                    self.client,
+                    queue_id,
+                    port=True,
+                    index=True,
+                    parent_scheduler_node=True)
+                self.assertTrue(queue == q_attr["index"])
+                self.assertTrue(port == q_attr["port"])
+                # If SDK does not support hierarhical QoS,
+                # the port handle should be returned.
+                self.assertTrue(port == q_attr["parent_scheduler_node"])
 
-            print("\tTest completed successfully")
-        finally:
-            pass
+        print("\tTest completed successfully")
 
     def bufferQueueTest(self):
         """
@@ -227,89 +211,83 @@ class QueueConfigData(SaiHelper):
                                                      xon_th=10)
         self.assertTrue(buff_prof != 0)
 
-        try:
-            attr = sai_thrift_get_port_attribute(
-                self.client,
-                self.port26,
-                qos_queue_list=self.q_list)
+        attr = sai_thrift_get_port_attribute(self.client,
+                                             self.port26,
+                                             qos_queue_list=self.q_list)
 
-            queue_id = attr["qos_queue_list"].idlist
+        queue_id = attr["qos_queue_list"].idlist
 
-            attr = sai_thrift_get_queue_attribute(self.client,
-                                                  queue_id[0],
-                                                  buffer_profile_id=True)
-            default_buff_prof = attr["buffer_profile_id"]
+        attr = sai_thrift_get_queue_attribute(self.client,
+                                              queue_id[0],
+                                              buffer_profile_id=True)
+        default_buff_prof = attr["buffer_profile_id"]
 
-            status = sai_thrift_set_queue_attribute(
-                self.client,
-                queue_id[0],
-                buffer_profile_id=buff_prof)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
+        status = sai_thrift_set_queue_attribute(self.client,
+                                                queue_id[0],
+                                                buffer_profile_id=buff_prof)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            sai_thrift_clear_queue_stats(self.client, queue_id[0])
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src="00:00:00:00:00:22",
+        sai_thrift_clear_queue_stats(self.client, queue_id[0])
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src="00:00:00:00:00:22",
+                                ip_dst="172.16.1.1",
+                                ip_src="192.168.0.1",
+                                ip_id=105,
+                                ip_ttl=64)
+
+        exp_pkt = simple_tcp_packet(eth_dst="00:11:22:33:44:55",
+                                    eth_src=ROUTER_MAC,
                                     ip_dst="172.16.1.1",
                                     ip_src="192.168.0.1",
                                     ip_id=105,
-                                    ip_ttl=64)
+                                    ip_ttl=63)
 
-            exp_pkt = simple_tcp_packet(eth_dst="00:11:22:33:44:55",
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst="172.16.1.1",
-                                        ip_src="192.168.0.1",
-                                        ip_id=105,
-                                        ip_ttl=63)
+        send_packet(self, self.dev_port25, pkt)
+        verify_packet(self, exp_pkt, self.dev_port26)
+        print("\tPacket received on PORT26")
+        stats = sai_thrift_get_queue_stats(self.client, queue_id[0])
+        cnt = stats["SAI_QUEUE_STAT_PACKETS"]
+        self.assertEqual(cnt, 1)
 
-            send_packet(self, self.dev_port25, pkt)
-            verify_packet(self, exp_pkt, self.dev_port26)
-            print("\tPacket received on PORT26")
-            stats = sai_thrift_get_queue_stats(self.client, queue_id[0])
-            cnt = stats["SAI_QUEUE_STAT_PACKETS"]
-            self.assertEqual(cnt, 1)
+        # Now the buffer profile is being detached.
+        status = sai_thrift_set_queue_attribute(
+            self.client,
+            queue_id[0],
+            buffer_profile_id=int(SAI_NULL_OBJECT_ID))
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        status = sai_thrift_remove_buffer_profile(self.client, buff_prof)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
+        status = sai_thrift_remove_buffer_pool(self.client, buff_pool)
+        self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            # Now the buffer profile is being detached.
-            status = sai_thrift_set_queue_attribute(
-                self.client,
-                queue_id[0],
-                buffer_profile_id=int(SAI_NULL_OBJECT_ID))
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_remove_buffer_profile(self.client, buff_prof)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_remove_buffer_pool(self.client, buff_pool)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
+        # The queue should be assigned to the default buffer profile.
+        attr = sai_thrift_get_queue_attribute(self.client,
+                                              queue_id[0],
+                                              buffer_profile_id=True)
+        self.assertEqual(attr["buffer_profile_id"], default_buff_prof)
 
-            # The queue should be assigned to the default buffer profile.
-            attr = sai_thrift_get_queue_attribute(self.client,
-                                                  queue_id[0],
-                                                  buffer_profile_id=True)
-            self.assertEqual(attr["buffer_profile_id"], default_buff_prof)
+        sai_thrift_clear_queue_stats(self.client, queue_id[0])
+        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                eth_src="00:00:00:00:00:22",
+                                ip_dst="172.16.1.1",
+                                ip_src="192.168.0.1",
+                                ip_id=105,
+                                ip_ttl=64)
 
-            sai_thrift_clear_queue_stats(self.client, queue_id[0])
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src="00:00:00:00:00:22",
+        exp_pkt = simple_tcp_packet(eth_dst="00:11:22:33:44:55",
+                                    eth_src=ROUTER_MAC,
                                     ip_dst="172.16.1.1",
                                     ip_src="192.168.0.1",
                                     ip_id=105,
-                                    ip_ttl=64)
+                                    ip_ttl=63)
 
-            exp_pkt = simple_tcp_packet(eth_dst="00:11:22:33:44:55",
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst="172.16.1.1",
-                                        ip_src="192.168.0.1",
-                                        ip_id=105,
-                                        ip_ttl=63)
-
-            send_packet(self, self.dev_port25, pkt)
-            verify_packet(self, exp_pkt, self.dev_port26)
-            print("\tPacket received on PORT26")
-            stats = sai_thrift_get_queue_stats(self.client, queue_id[0])
-            cnt = stats["SAI_QUEUE_STAT_PACKETS"]
-            self.assertEqual(cnt, 1)
-            print("\tTest completed successfully")
-
-        finally:
-            pass
+        send_packet(self, self.dev_port25, pkt)
+        verify_packet(self, exp_pkt, self.dev_port26)
+        print("\tPacket received on PORT26")
+        stats = sai_thrift_get_queue_stats(self.client, queue_id[0])
+        cnt = stats["SAI_QUEUE_STAT_PACKETS"]
+        self.assertEqual(cnt, 1)
+        print("\tTest completed successfully")
 
     def schedulerQueueTest(self):
         """
@@ -515,7 +493,7 @@ class QueueConfigData(SaiHelper):
         q_idx = q_attr["index"]
 
         try:
-            # PFC Priority -> Queue map table configuration
+            # The PFC Priority -> Queue map table configuration.
             pfc_to_queue_map = sai_thrift_qos_map_t(
                 key=sai_thrift_qos_map_params_t(prio=4),
                 value=sai_thrift_qos_map_params_t(queue_index=q_idx))
@@ -528,7 +506,7 @@ class QueueConfigData(SaiHelper):
                 map_to_value_list=qos_map_list)
             self.assertTrue(qos_map != 0)
 
-            # Queue index modification in previously created QoS map
+            # The queue index modification in the previously created QoS map.
             p_attr = sai_thrift_get_port_attribute(self.client,
                                                    self.port26,
                                                    qos_queue_list=self.q_list)
@@ -552,7 +530,7 @@ class QueueConfigData(SaiHelper):
                 map_to_value_list=new_qos_map_list)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            # The verification if correct queue is applied to QoS map
+            # Verify if the correct queue is applied to the QoS map.
             map_lists = sai_thrift_qos_map_list_t(count=1)
             attr = sai_thrift_get_qos_map_attribute(
                 self.client,
@@ -570,7 +548,6 @@ class QueueConfigData(SaiHelper):
         The test uses CPU port instead of external port for
         all test cases above: portQueueQueryTest, bufferQueueTest
         and schedulerQueueTest, pfcPriorityQueueTest.
-        WRED is not supported on CPU queues.
         """
         print("CPU Port Queue Object Test")
         attr = sai_thrift_get_switch_attribute(self.client, cpu_port=True)
@@ -581,14 +558,13 @@ class QueueConfigData(SaiHelper):
                                              cpu_port_id,
                                              qos_number_of_queues=True)
         num_queues = attr["qos_number_of_queues"]
-        num_ports = len(self.port_list)
         q_list = sai_thrift_object_list_t(count=num_queues)
         try:
-            for port in range(0, num_ports):
+            for port in self.port_list:
                 attr = sai_thrift_get_port_attribute(self.client,
-                                                     self.port_list[port],
+                                                     port,
                                                      qos_queue_list=q_list)
-                for queue in range(0, num_queues):
+                for queue in range(num_queues):
                     queue_id = attr["qos_queue_list"].idlist[queue]
                     q_attr = sai_thrift_get_queue_attribute(
                         self.client,
@@ -597,15 +573,14 @@ class QueueConfigData(SaiHelper):
                         index=True,
                         parent_scheduler_node=True)
                     self.assertTrue(queue == q_attr["index"])
-                    self.assertTrue(self.port_list[port] == q_attr["port"])
-                    # It should return port handle,
-                    # because SDK does not support hierarchical QoS
-                    self.assertTrue(self.port_list[port] ==
-                                    q_attr["parent_scheduler_node"])
+                    self.assertTrue(port == q_attr["port"])
+                    # If SDK does not support hierarhical QoS,
+                    # the port handle should be returned.
+                    self.assertTrue(port == q_attr["parent_scheduler_node"])
             print("\t\tPART1 completed successfully")
 
             print("\tPART2: Buffer Queue Test")
-            # Getting queue for CPU port - for buffer queue test
+            # Get the queue for the CPU port - for the buffer queue test.
             attr = sai_thrift_get_port_attribute(
                 self.client,
                 cpu_port_id,
@@ -666,7 +641,7 @@ class QueueConfigData(SaiHelper):
             min_burst = 200
             max_burst = 800
 
-            # Getting queue for CPU port - for scheduler queue test
+            # Get the queue for the CPU port - for the scheduler queue test.
             attr = sai_thrift_get_port_attribute(
                 self.client,
                 cpu_port_id,
@@ -817,7 +792,7 @@ class QueueConfigData(SaiHelper):
             print("\t\tPART3 completed successfully")
 
             print("\tPART4: PFC Priority Queue Test")
-            # Getting queue for CPU port
+            # Get the queue for the CPU port.
             p_attr = sai_thrift_get_port_attribute(
                 self.client,
                 cpu_port_id,
@@ -830,7 +805,7 @@ class QueueConfigData(SaiHelper):
                 index=True)
             q_idx = q_attr["index"]
 
-            # PFC Priority -> Queue map table configuration
+            # The PFC Priority -> Queue map table configuration.
             pfc_to_queue_map = sai_thrift_qos_map_t(
                 key=sai_thrift_qos_map_params_t(prio=4),
                 value=sai_thrift_qos_map_params_t(queue_index=q_idx))
@@ -843,7 +818,7 @@ class QueueConfigData(SaiHelper):
                 map_to_value_list=qos_map_list)
             self.assertTrue(qos_map != 0)
 
-            # Queue index modification in previously created QoS map
+            # The queue index modification in the previously created QoS map.
             q_attr = sai_thrift_get_queue_attribute(
                 self.client,
                 queue_id[3],
@@ -862,7 +837,7 @@ class QueueConfigData(SaiHelper):
                 map_to_value_list=new_qos_map_list)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-            # The verification if correct queue is applied to QoS map
+            # Verify if the correct queue is applied to the QoS map.
             map_lists = sai_thrift_qos_map_list_t(count=1)
             attr = sai_thrift_get_qos_map_attribute(
                 self.client,
@@ -894,20 +869,6 @@ class QueueConfigData(SaiHelper):
             sai_thrift_remove_scheduler(self.client, sched3)
             sai_thrift_remove_scheduler(self.client, sched2)
             sai_thrift_remove_scheduler(self.client, sched1)
-
-
-@group("queue-wred")
-class QueueX2ProfileDependentTests(QueueConfigData):
-    """
-    The class is dedicated for functionalities which are working on X2 profile
-    only.
-    """
-
-    def runTest(self):
-        try:
-            self.wredQueueTest()
-        finally:
-            pass
 
     def wredQueueTest(self):
         """
@@ -960,436 +921,3 @@ class QueueX2ProfileDependentTests(QueueConfigData):
             self.assertEqual(status, SAI_STATUS_SUCCESS)
             status = sai_thrift_remove_wred(self.client, wred_id)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-
-@group("queue-hw")
-class QueueHardwareSpecificTests(QueueConfigData):
-    """
-    The class is dedicated for functionalities which are working on hardware
-    only.
-    """
-
-    def runTest(self):
-        try:
-            self.dwrrBandwidthDistributionTest()
-            self.strictPriorityQueueTest()
-        finally:
-            pass
-
-    def dwrrBandwidthDistributionTest(self):  # noqa pylint: disable=too-many-branches
-        """
-        The configuration of scheduler to a given queue is done.
-        Then DWRR bandwidth distribution according to DWRR weight
-        is being validated. The last step is to modify weights
-        in previously created scheduler profile and the analogous
-        validation is repeated.
-        """
-        print("DWRR Bandwidth Distribution Test")
-        # Create configuration
-        # 1. QoS map configuration for egress port to redirect traffic
-        # on queues.
-        # DSCP -> TC egress, PORT 25 (sender)
-        map_list = []
-        dscp_list = [0, 1, 2, 3, 4, 5, 6, 7]
-        tc_list = [0, 1, 2, 3, 4, 5, 6, 7]
-        for traffic_class, dscp in zip(tc_list, dscp_list):
-            dscp_to_tc = sai_thrift_qos_map_t(
-                key=sai_thrift_qos_map_params_t(dscp=dscp),
-                value=sai_thrift_qos_map_params_t(tc=traffic_class))
-            map_list.append(dscp_to_tc)
-        qos_map_list = sai_thrift_qos_map_list_t(
-            count=len(map_list),
-            maplist=map_list)
-        indirect_qos_map = sai_thrift_create_qos_map(
-            self.client,
-            type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
-            map_to_value_list=qos_map_list)
-        status = sai_thrift_set_port_attribute(
-            self.client,
-            self.port25,
-            qos_dscp_to_tc_map=indirect_qos_map)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        # TC -> Queue on egress, PORT 25 (sender)
-        map_list2 = []
-        egress_queue_indices = []
-
-        # Port 25 queue list (sender)
-        port25_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port25,
-            qos_number_of_queues=True,
-            qos_queue_list=self.q_list)
-        num_queues = port25_attr["qos_number_of_queues"]
-        queue_id_list_port25 = port25_attr["qos_queue_list"].idlist
-
-        # Port 26 queue list (receiver)
-        port26_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port26,
-            qos_queue_list=self.q_list)
-        queue_id_list_port26 = port26_attr["qos_queue_list"].idlist
-
-        for i in tc_list:
-            egress_queue_attr = sai_thrift_get_queue_attribute(
-                self.client,
-                port25_attr["qos_queue_list"].idlist[i],
-                index=True)
-            queue_index = egress_queue_attr["index"]
-            egress_queue_indices.append(queue_index)
-            tc_to_queue = sai_thrift_qos_map_t(
-                key=sai_thrift_qos_map_params_t(tc=i),
-                value=sai_thrift_qos_map_params_t(queue_index=queue_index))
-            map_list2.append(tc_to_queue)
-
-            # Clear statistics for each queue in PORT25
-            sai_thrift_clear_queue_stats(self.client, queue_id_list_port25[i])
-            # Clear statistics for each queue in PORT26
-            sai_thrift_clear_queue_stats(self.client, queue_id_list_port26[i])
-
-        qos_map_list2 = sai_thrift_qos_map_list_t(
-            count=len(map_list2),
-            maplist=map_list2)
-        target_qos_map = sai_thrift_create_qos_map(
-            self.client,
-            type=SAI_QOS_MAP_TYPE_TC_TO_QUEUE,
-            map_to_value_list=qos_map_list2)
-        status = sai_thrift_set_port_attribute(
-            self.client,
-            self.port25,
-            qos_tc_to_queue_map=target_qos_map)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        # 2. Create scheduler's structre
-        # Scheduler profiles for queues
-        schedulers = []
-        weight = 8
-        for queue in range(0, int(num_queues / 2)):
-            sched = sai_thrift_create_scheduler(
-                self.client,
-                meter_type=SAI_METER_TYPE_PACKETS,
-                scheduling_type=SAI_SCHEDULING_TYPE_DWRR,
-                scheduling_weight=weight)
-            self.assertTrue(sched != 0)
-            schedulers.append(sched)
-            weight //= 2
-
-        # Scheduler profile for port shape
-        shaper = sai_thrift_create_scheduler(
-            self.client,
-            meter_type=SAI_METER_TYPE_PACKETS,
-            scheduling_type=SAI_SCHEDULING_TYPE_DWRR,
-            max_bandwidth_rate=750)
-        self.assertTrue(shaper != 0)
-
-        status = sai_thrift_set_port_attribute(
-            self.client,
-            self.port26,
-            qos_scheduler_profile_id=shaper)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        # 3. Create queue's structure
-        for queue in range(0, num_queues):
-            # weights for: queue.0 = 8, queue.1 = 4, queue.2 = 2
-            if num_queues < 3:
-                status = sai_thrift_set_queue_attribute(
-                    self.client,
-                    queue_id_list_port26[queue],
-                    scheduler_profile_id=schedulers[queue % 3])
-            # weights for others: queue.x = 1
-            else:
-                status = sai_thrift_set_queue_attribute(
-                    self.client,
-                    queue_id_list_port26[queue],
-                    scheduler_profile_id=schedulers[3])
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        print("\tConfiguration completed")
-        # Build packets with different type of service
-        pkts = []
-        exp_pkts = []
-        for i in range(0, num_queues):
-            tos = i << 2
-            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                    eth_src="00:00:00:00:00:22",
-                                    ip_dst="172.16.1.1",
-                                    ip_src="192.168.0.1",
-                                    ip_id=105,
-                                    ip_tos=tos,
-                                    ip_ttl=64)
-            pkts.append(pkt)
-
-            exp_pkt = simple_tcp_packet(eth_dst="00:11:22:33:44:55",
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst="172.16.1.1",
-                                        ip_src="192.168.0.1",
-                                        ip_id=105,
-                                        ip_tos=tos,
-                                        ip_ttl=63)
-            exp_pkts.append(exp_pkt)
-
-        try:
-            print("\tSending 19 packets PORT25 -> PORT26")
-            rec_pkt = 0
-            congestion_rate = 2
-            pkt_cnt = congestion_rate * num_queues
-            for _ in range(0, congestion_rate):
-                for i in range(0, num_queues):
-                    send_packet(self, self.dev_port25, pkts[i])
-                    # To increase packet rate, disable verification
-                    # verify_packet(self, exp_pkts[i], self.dev_port26)
-                    rec_pkt += 1
-
-            send_packet(self, self.dev_port25, pkts[2])
-
-            print("\tChecking if received packet number equals sent one")
-            print("Expected: {}, Received: {}".format(pkt_cnt, rec_pkt))
-            self.assertTrue(rec_pkt == pkt_cnt)
-            print("\tPackets received on PORT26")
-
-            print("\tDelay for statistics read")
-            time.sleep(5)
-
-            print("\tChecking received packets on particular queues")
-            exp_pkt_num = 8
-            for queue in range(0, num_queues):
-                time.sleep(5)
-
-                q_stats = sai_thrift_get_queue_stats(
-                    self.client,
-                    queue_id_list_port26[queue])
-                rec_pkt_num = q_stats["SAI_QUEUE_STAT_PACKETS"]
-                print("Queue:", queue)
-                print("Received no. packets:", rec_pkt_num)
-                print("Expected no. packets:", exp_pkt_num)
-                # self.assertTrue(rec_pkt_num == exp_pkt_num)
-                if exp_pkt_num != 1:
-                    exp_pkt_num //= 2
-            print("\tThe packet distribution is correct.")
-            print("\tTest completed successfully")
-
-        finally:
-            status = sai_thrift_set_port_attribute(
-                self.client,
-                self.port26,
-                qos_scheduler_profile_id=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            sai_thrift_remove_scheduler(self.client, shaper)
-            status = sai_thrift_set_port_attribute(
-                self.client,
-                self.port25,
-                qos_tc_to_queue_map=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_set_port_attribute(
-                self.client,
-                self.port25,
-                qos_dscp_to_tc_map=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            sai_thrift_remove_qos_map(self.client, indirect_qos_map)
-            sai_thrift_remove_qos_map(self.client, target_qos_map)
-            for queue in range(0, num_queues):
-                status = sai_thrift_set_queue_attribute(
-                    self.client,
-                    queue_id_list_port26[queue],
-                    scheduler_profile_id=0)
-                self.assertEqual(status, SAI_STATUS_SUCCESS)
-            for i in range(0, int(num_queues / 2)):
-                sai_thrift_remove_scheduler(self.client, schedulers[i])
-
-    def strictPriorityQueueTest(self):
-        """
-        After the creation of strict priority type for scheduler profile,
-        it has been attached to a queue. Then, overwriting the port number
-        causes forwarding the traffic to other port.
-        """
-        print("Strict Priority Queue Test")
-        # 1. QoS map configuration for egress port to redirect traffic
-        # on queues.
-        # DSCP -> TC egress, PORT 25 (sender)
-        map_list = []
-        dscp_list = [0, 1, 2, 3, 4, 5, 6, 7]
-        tc_list = [0, 1, 2, 3, 4, 5, 6, 7]
-        for traffic_class, dscp in zip(tc_list, dscp_list):
-            dscp_to_tc = sai_thrift_qos_map_t(
-                key=sai_thrift_qos_map_params_t(dscp=dscp),
-                value=sai_thrift_qos_map_params_t(tc=traffic_class))
-            map_list.append(dscp_to_tc)
-        qos_map_list = sai_thrift_qos_map_list_t(
-            count=len(map_list),
-            maplist=map_list)
-        indirect_qos_map = sai_thrift_create_qos_map(
-            self.client,
-            type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
-            map_to_value_list=qos_map_list)
-        status = sai_thrift_set_port_attribute(
-            self.client,
-            self.port25,
-            qos_dscp_to_tc_map=indirect_qos_map)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        # TC -> Queue on egress, PORT 25 (sender)
-        map_list2 = []
-        egress_queue_indices = []
-
-        # Port 25 queue list (sender)
-        port25_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port25,
-            qos_number_of_queues=True,
-            qos_queue_list=self.q_list)
-        queue_id_list_port25 = port25_attr["qos_queue_list"].idlist
-
-        # Port 26 queue list (receiver)
-        port26_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port26,
-            qos_queue_list=self.q_list)
-        queue_id_list_port26 = port26_attr["qos_queue_list"].idlist
-
-        for i in tc_list:
-            egress_queue_attr = sai_thrift_get_queue_attribute(
-                self.client,
-                port25_attr["qos_queue_list"].idlist[i],
-                index=True)
-            queue_index = egress_queue_attr["index"]
-            egress_queue_indices.append(queue_index)
-            tc_to_queue = sai_thrift_qos_map_t(
-                key=sai_thrift_qos_map_params_t(tc=i),
-                value=sai_thrift_qos_map_params_t(queue_index=queue_index))
-            map_list2.append(tc_to_queue)
-
-            # Clear statistics for each queue in PORT25
-            sai_thrift_clear_queue_stats(self.client, queue_id_list_port25[i])
-            # Clear statistics for each queue in PORT26
-            sai_thrift_clear_queue_stats(self.client, queue_id_list_port26[i])
-
-        qos_map_list2 = sai_thrift_qos_map_list_t(
-            count=len(map_list2),
-            maplist=map_list2)
-        target_qos_map = sai_thrift_create_qos_map(
-            self.client,
-            type=SAI_QOS_MAP_TYPE_TC_TO_QUEUE,
-            map_to_value_list=qos_map_list2)
-        status = sai_thrift_set_port_attribute(
-            self.client,
-            self.port25,
-            qos_tc_to_queue_map=target_qos_map)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        # Port 27 queue list (oversubscribed port)
-        port27_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port27,
-            qos_queue_list=self.q_list)
-        queue_id_list_port27 = port27_attr["qos_queue_list"].idlist
-
-        # Attach the scheduler profile to queue[1] of port26
-        sched = sai_thrift_create_scheduler(
-            self.client,
-            meter_type=SAI_METER_TYPE_PACKETS,
-            scheduling_type=SAI_SCHEDULING_TYPE_STRICT)
-        self.assertTrue(sched != 0)
-        status = sai_thrift_set_queue_attribute(
-            self.client,
-            queue_id_list_port26[1],
-            scheduler_profile_id=sched)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        port27_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port27,
-            qos_number_of_scheduler_groups=True)
-        num_sched_grps = port27_attr["qos_number_of_scheduler_groups"]
-        sched_grp_list = sai_thrift_object_list_t(count=num_sched_grps)
-
-        port27_attr = sai_thrift_get_port_attribute(
-            self.client,
-            self.port27,
-            qos_scheduler_group_list=sched_grp_list)
-        sch_grps_port27 = port27_attr["qos_scheduler_group_list"].idlist
-
-        # Oversubscribe port - attach scheduler to PORT27
-        status = sai_thrift_set_scheduler_group_attribute(
-            self.client,
-            sch_grps_port27[0],
-            scheduler_profile_id=sched)
-        self.assertEqual(status, SAI_STATUS_SUCCESS)
-
-        print("\tConfiguration completed")
-        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                eth_src="00:00:00:00:00:22",
-                                ip_dst="172.16.1.1",
-                                ip_src="192.168.0.1",
-                                ip_id=105,
-                                ip_tos=4,
-                                ip_ttl=64)
-
-        exp_pkt = simple_tcp_packet(eth_dst="00:11:22:33:44:55",
-                                    eth_src=ROUTER_MAC,
-                                    ip_dst="172.16.1.1",
-                                    ip_src="192.168.0.1",
-                                    ip_id=105,
-                                    ip_tos=4,
-                                    ip_ttl=63)
-
-        try:
-            print("\tSending 19 packets PORT25 -> PORT26")
-            pkt_cnt = 19
-            for _ in range(0, pkt_cnt):
-                send_packet(self, self.dev_port25, pkt)
-                time.sleep(0.1)
-                verify_packet(self, exp_pkt, self.dev_port26)
-                verify_no_other_packets(self)
-            print("\tReceived all packets")
-
-            # Sleep added to enable statistics reading
-            time.sleep(4)
-
-            # Statistics read
-            q_stats_port26 = sai_thrift_get_queue_stats(
-                self.client,
-                queue_id_list_port26[1])
-            received_pkt_num = q_stats_port26["SAI_QUEUE_STAT_PACKETS"]
-            print("\tqueue[1] of PORT26, no. packets:", received_pkt_num)
-            # queue[0]
-            q_stats_port27 = sai_thrift_get_queue_stats(
-                self.client,
-                queue_id_list_port27[0])
-            forwarded_pkt_num = q_stats_port27["SAI_QUEUE_STAT_PACKETS"]
-            print("\tqueue[0] of PORT27, no. packets:", forwarded_pkt_num)
-            # queue[1]
-            q_stats_port27 = sai_thrift_get_queue_stats(
-                self.client,
-                queue_id_list_port27[1])
-            forwarded_pkt_num = q_stats_port27["SAI_QUEUE_STAT_PACKETS"]
-            print("\tqueue[1] of PORT27, no. packets:", forwarded_pkt_num)
-
-            print("\tChecking if received packet number equals sent one")
-            self.assertTrue(received_pkt_num == pkt_cnt)
-
-            print("\tTest completed successfully")
-
-        finally:
-            status = sai_thrift_set_scheduler_group_attribute(
-                self.client,
-                sch_grps_port27[0],
-                scheduler_profile_id=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_set_queue_attribute(
-                self.client,
-                queue_id_list_port26[1],
-                scheduler_profile_id=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            sai_thrift_remove_scheduler(self.client, sched)
-            status = sai_thrift_set_port_attribute(
-                self.client,
-                self.port25,
-                qos_tc_to_queue_map=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            status = sai_thrift_set_port_attribute(
-                self.client,
-                self.port25,
-                qos_dscp_to_tc_map=0)
-            self.assertEqual(status, SAI_STATUS_SUCCESS)
-            sai_thrift_remove_qos_map(self.client, indirect_qos_map)
-            sai_thrift_remove_qos_map(self.client, target_qos_map)
