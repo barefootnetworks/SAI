@@ -16,31 +16,28 @@
 Thrift SAI interface Scheduler group tests
 """
 
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
 from ptf.packet import *
+from ptf.testutils import *
 from ptf.thriftutils import *
 
 from sai_base_test import *
 
 
 class SchGroupParamsTest(SaiHelper):
-    """ Base scheduler group parameters tests """
+    '''
+    Base scheduler group parameters tests
+    '''
 
     def runTest(self):
-        try:
-            self.schGroupParamsTest()
-        finally:
-            pass
+        self.schGroupParamsTest()
 
     def schGroupParamsTest(self):
         '''
-        This verified querying the number of scheduler groups per port
+        Verify querying the number of scheduler groups per port
         '''
-        print("\nSchGroupParamsTest")
+        print("\nSchGroupParamsTest()")
 
         test_port = self.port1
 
@@ -57,9 +54,8 @@ class SchGroupParamsTest(SaiHelper):
 
         test_schgroup = schgroup_idlist[1]
 
-        schgroup_attr = sai_thrift_get_scheduler_group_attribute(self.client,
-                                                                 test_schgroup,
-                                                                 port_id=True)
+        schgroup_attr = sai_thrift_get_scheduler_group_attribute(
+            self.client, test_schgroup, port_id=True)
         self.assertEqual(schgroup_attr['port_id'], test_port)
 
         schgroup_attr = sai_thrift_get_scheduler_group_attribute(
@@ -97,19 +93,18 @@ class SchGroupParamsTest(SaiHelper):
 
 
 class SchGroupCrteateTest(SaiHelper):
-    """ Base scheduler group parameters tests """
+    '''
+    Base scheduler group create parameters tests
+    '''
 
     def runTest(self):
-        try:
-            self.schGroupCreateTest()
-        finally:
-            pass
+        self.schGroupCreateTest()
 
     def schGroupCreateTest(self):
         '''
-        This verified creating scheduler group per port
+        Verify scheduler group creation fails without mandatory parameters
         '''
-        print("\nSchGroupCreateTest")
+        print("\nSchGroupCreateTest()")
 
         test_port = self.port1
 
