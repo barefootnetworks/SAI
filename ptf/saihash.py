@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 """
 Thrift SAI interface HASH tests
 """
-
-from __future__ import print_function
 
 import binascii
 
@@ -264,7 +262,7 @@ class SAIHashTestBase(SaiHelper):
         self.lag_hash_ipv6 = 0
 
         # set default ECMP and LAG hash seeds
-        # this has an effect only if hash is not reconfigured later.
+        # this has an effect only if hash is not reconfigured later
         self.setupECMPSeed(seed=TEST_ECMP_SEED)
         self.setupLagSeed(seed=TEST_LAG_SEED)
 
@@ -456,7 +454,7 @@ class SAIHashTestBase(SaiHelper):
             hash_fields_list (list): hash fields list
             seed (int): hash seed value
         """
-        print("Setting the ECMP IPv6 hash fields..")
+        print("Setting the ECMP IPv6 hash fields")
         if hash_fields_list is None:
             hash_fields_list = [SAI_NATIVE_HASH_FIELD_SRC_IP,
                                 SAI_NATIVE_HASH_FIELD_DST_IP,
@@ -1016,7 +1014,6 @@ class SAIHashTest(SAIHashTestBase):
             if ('hash_dst_ip' in hash_dict) and (hash_dict['hash_dst_ip']):
                 dst_ip += i * 7
             if ('hash_src_ip' in hash_dict) and (hash_dict['hash_src_ip']):
-                # src_ip += 13
                 src_ip += i * 17
             if ('hash_src_mac' in hash_dict) and (hash_dict['hash_src_mac']):
                 src_mac = src_mac_start.format(
@@ -1568,17 +1565,14 @@ class SAIHashTest(SAIHashTestBase):
         hash_dict = {'hash_src_ip': True, 'hash_dst_ip': True,
                      'hash_src_mac': True}
 
-        try:
-            self.setupECMPIPv4Hash([SAI_NATIVE_HASH_FIELD_DST_MAC])
-            print("Verify no load balancing when packet fields changes"
-                  "do not match hash fields.")
-            # should NOT ballance
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 1)
-        finally:
-            pass
+        self.setupECMPIPv4Hash([SAI_NATIVE_HASH_FIELD_DST_MAC])
+        print("Verify no load balancing when packet fields changes"
+              "do not match hash fields.")
+        # should NOT ballance
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 1)
 
     def fgEcmpIPv4HashTest(self,
                            hash_src_ip=None,
@@ -1601,43 +1595,40 @@ class SAIHashTest(SAIHashTestBase):
         hash_dict = {'hash_src_ip': hash_src_ip, 'hash_dst_ip': hash_dst_ip,
                      'hash_udp_dport': hash_udp_dport,
                      'hash_udp_sport': hash_udp_sport}
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv4 ECMP load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
 
-            # setup IPv4 hash fields for all fields
-            self.setupFGECMPIPv4Hash(hash_fields)
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv4 ECMP load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
 
-            # should ballance equally
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
-            print("ECMP LB count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 4)
+        # setup IPv4 hash fields for all fields
+        self.setupFGECMPIPv4Hash(hash_fields)
 
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced")
+        # should ballance equally
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
+        print("ECMP LB count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 4)
 
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_negation(
-                hash_dict))
-            print("ECMP LB count (LB NOT expected):", ecmp_count)
-            no_lb = verify_no_lb(ecmp_count, max_iters=MAX_ITRS)
-            self.assertTrue(no_lb, "Not expected to balance")
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced")
 
-            # Few bits of IP is masked
-            self.setupFGECMPIPv4Hash(hash_fields, p_ipv4_mask='255.255.255.0')
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
-            print("ECMP LB count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 4)
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_negation(
+            hash_dict))
+        print("ECMP LB count (LB NOT expected):", ecmp_count)
+        no_lb = verify_no_lb(ecmp_count, max_iters=MAX_ITRS)
+        self.assertTrue(no_lb, "Not expected to balance")
 
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced")
+        # Few bits of IP is masked
+        self.setupFGECMPIPv4Hash(hash_fields, p_ipv4_mask='255.255.255.0')
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
+        print("ECMP LB count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 4)
 
-        finally:
-            pass
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced")
 
     def ecmpIPv4HashTest(self,
                          hash_src_ip=None,
@@ -1661,30 +1652,27 @@ class SAIHashTest(SAIHashTestBase):
                      'hash_udp_dport': hash_udp_dport,
                      'hash_udp_sport': hash_udp_sport}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv4 ECMP load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv4 ECMP load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
 
-            # setup IPv4 hash fields for all fields
-            self.setupECMPIPv4Hash(hash_fields)
+        # setup IPv4 hash fields for all fields
+        self.setupECMPIPv4Hash(hash_fields)
 
-            # should ballance equally
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
-            print("ECMP LB count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 4)
+        # should ballance equally
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
+        print("ECMP LB count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 4)
 
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced")
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_negation(
-                hash_dict))
-            print("ECMP LB count (LB NOT expected):", ecmp_count)
-            no_lb = verify_no_lb(ecmp_count, max_iters=MAX_ITRS)
-            self.assertTrue(no_lb, "Not expected to balance")
-        finally:
-            pass
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced")
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_negation(
+            hash_dict))
+        print("ECMP LB count (LB NOT expected):", ecmp_count)
+        no_lb = verify_no_lb(ecmp_count, max_iters=MAX_ITRS)
+        self.assertTrue(no_lb, "Not expected to balance")
 
     def ecmpIPv4vsIPv6HashTest(self):
         """
@@ -1695,31 +1683,27 @@ class SAIHashTest(SAIHashTestBase):
         hash_dict_src = {'hash_src_ip': True}
         hash_dict_dst = {'hash_dst_ip': True}
 
-        try:
-            self.setupECMPIPv4Hash([SAI_NATIVE_HASH_FIELD_SRC_IP])
-            # verify if IPv6 hash affects IPv4 hash
-            self.setupECMPIPv6Hash([SAI_NATIVE_HASH_FIELD_DST_IP])
-            print("Verify load balancing equaly for all next_hops when"
-                  "packet fields changes and do match hash fields.")
+        self.setupECMPIPv4Hash([SAI_NATIVE_HASH_FIELD_SRC_IP])
+        # verify if IPv6 hash affects IPv4 hash
+        self.setupECMPIPv6Hash([SAI_NATIVE_HASH_FIELD_DST_IP])
+        print("Verify load balancing equaly for all next_hops when"
+              "packet fields changes and do match hash fields.")
 
-            # IPV4 should ballance equally independently of IPv6 hash
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_src)
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 4)
+        # IPV4 should ballance equally independently of IPv6 hash
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_src)
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 4)
 
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced")
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced")
 
-            # IPv4 should not ballance
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_dst)
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 1, "LB not expected")
-
-        finally:
-            pass
+        # IPv4 should not ballance
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict_dst)
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 1, "LB not expected")
 
     def l3EcmpIPv4HashSeedTest(self):
         """
@@ -1730,41 +1714,37 @@ class SAIHashTest(SAIHashTestBase):
         hash_dict = {'hash_src_ip': True, 'hash_dst_ip': True,
                      'hash_udp_dport': True, 'hash_udp_sport': True}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            self.setupECMPIPv4Hash(hash_fields, seed=TEST_ECMP_SEED)
+        hash_fields = hash_to_hash_fields(hash_dict)
+        self.setupECMPIPv4Hash(hash_fields, seed=TEST_ECMP_SEED)
 
-            print("Verify load balancing equaly for all next_hops when"
-                  "all packets fields changes")
-            ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
-            print("ECMP count seed=%d:" % (TEST_ECMP_SEED), ecmp_count)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced with seed=17")
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 4)
+        print("Verify load balancing equaly for all next_hops when"
+              "all packets fields changes")
+        ecmp_count = self.l3IPv4EcmpPacketTest(hash_dict)
+        print("ECMP count seed=%d:" % (TEST_ECMP_SEED), ecmp_count)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced with seed=17")
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 4)
 
-            # set the ecmp hash seed
-            self.setupECMPSeed(seed=TEST_ECMP_SEED1)
-            ecmp_count_seed1 = self.l3IPv4EcmpPacketTest(hash_dict)
-            print("ECMP count seed=%d:" % (TEST_ECMP_SEED1), ecmp_count_seed1)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced with seed=%d"
-                            % (TEST_ECMP_SEED))
-            nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
-            self.assertTrue(nbr_active_ports == 4)
+        # set the ecmp hash seed
+        self.setupECMPSeed(seed=TEST_ECMP_SEED1)
+        ecmp_count_seed1 = self.l3IPv4EcmpPacketTest(hash_dict)
+        print("ECMP count seed=%d:" % (TEST_ECMP_SEED1), ecmp_count_seed1)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced with seed=%d"
+                        % (TEST_ECMP_SEED))
+        nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
+        self.assertTrue(nbr_active_ports == 4)
 
-            # todo vefiry if LB factor changed
-            similary_balanced = verify_similary_balanced(
-                ecmp_count, ecmp_count_seed1)
-            self.assertTrue(similary_balanced,
-                            "ECMP Seed change has no effect on LB")
-
-        finally:
-            pass
+        # vefiry if LB factor changed
+        similary_balanced = verify_similary_balanced(
+            ecmp_count, ecmp_count_seed1)
+        self.assertTrue(similary_balanced,
+                        "ECMP Seed change has no effect on LB")
 
     def ecmpHashAlgorithmTest(self):
         """
@@ -1781,7 +1761,6 @@ class SAIHashTest(SAIHashTestBase):
                   "for all fields hashing")
 
             self.setupECMPSeed(seed=0)
-            # Default algorithm is CRC-32
             self.setupECMPAlgorithm()
             hash_attr_get = sai_thrift_get_switch_attribute(
                 self.client, ecmp_default_hash_algorithm=True)
@@ -1910,26 +1889,23 @@ class SAIHashTest(SAIHashTestBase):
                      'hash_udp_dport': hash_udp_dport,
                      'hash_udp_sport': hash_udp_sport}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv4 LAG load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
-            self.setupLAGIPv4Hash(hash_fields)
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv4 LAG load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
+        self.setupLAGIPv4Hash(hash_fields)
 
-            lag_hashing_counts = self.l3IPv4LagPacketTest(hash_dict)
-            print("LAG hash LB count (LB expected):", lag_hashing_counts)
-            nbr_active_ports = verify_lb_active_ports(lag_hashing_counts)
-            self.assertTrue(nbr_active_ports == 3)
-            equaly_balanced = verify_equaly_balanced(lag_hashing_counts)
-            self.assertTrue(equaly_balanced,
-                            "LAG members are not equally balanced")
-            lag_hashing_counts = self.l3IPv4LagPacketTest(
-                hash_dict_negation(hash_dict))
-            print("LAG hash LB count (LB NOT expected):", lag_hashing_counts)
-            no_lb = verify_no_lb(lag_hashing_counts, max_iters=MAX_ITRS)
-            self.assertTrue(no_lb, "Not expected to balance")
-        finally:
-            pass
+        lag_hashing_counts = self.l3IPv4LagPacketTest(hash_dict)
+        print("LAG hash LB count (LB expected):", lag_hashing_counts)
+        nbr_active_ports = verify_lb_active_ports(lag_hashing_counts)
+        self.assertTrue(nbr_active_ports == 3)
+        equaly_balanced = verify_equaly_balanced(lag_hashing_counts)
+        self.assertTrue(equaly_balanced,
+                        "LAG members are not equally balanced")
+        lag_hashing_counts = self.l3IPv4LagPacketTest(
+            hash_dict_negation(hash_dict))
+        print("LAG hash LB count (LB NOT expected):", lag_hashing_counts)
+        no_lb = verify_no_lb(lag_hashing_counts, max_iters=MAX_ITRS)
+        self.assertTrue(no_lb, "Not expected to balance")
 
     def lagHashAlgorithmTest(self):
         """
@@ -2002,42 +1978,38 @@ class SAIHashTest(SAIHashTestBase):
         hash_dict = {'hash_dst_mac': True, 'hash_src_mac': True,
                      'hash_ether_type': True}
 
-        try:
-            print("Verify L2 load balancing for all LAG members "
-                  "for all fields hashing")
-            hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify L2 load balancing for all LAG members "
+              "for all fields hashing")
+        hash_fields = hash_to_hash_fields(hash_dict)
 
-            self.setupNonIPECMPHash(hash_fields)
+        self.setupNonIPECMPHash(hash_fields)
 
-            self.setupLagSeed(seed=TEST_LAG_SEED1)
-            lb_count = self.l2hashTraffic(
-                hash_dst_mac=True,
-                hash_src_mac=True,
-                hash_ether_type=True)
-            print("LAG count seed=%d:" % (TEST_LAG_SEED1), lb_count)
-            nbr_active_ports = verify_lb_active_ports(lb_count)
-            self.assertTrue(nbr_active_ports == 3)
+        self.setupLagSeed(seed=TEST_LAG_SEED1)
+        lb_count = self.l2hashTraffic(
+            hash_dst_mac=True,
+            hash_src_mac=True,
+            hash_ether_type=True)
+        print("LAG count seed=%d:" % (TEST_LAG_SEED1), lb_count)
+        nbr_active_ports = verify_lb_active_ports(lb_count)
+        self.assertTrue(nbr_active_ports == 3)
 
-            new_seed = TEST_LAG_SEED1 * 2
-            self.setupLagSeed(seed=new_seed)
-            lb_count_seed1 = self.l2hashTraffic(
-                hash_dst_mac=True,
-                hash_src_mac=True,
-                hash_ether_type=True)
+        new_seed = TEST_LAG_SEED1 * 2
+        self.setupLagSeed(seed=new_seed)
+        lb_count_seed1 = self.l2hashTraffic(
+            hash_dst_mac=True,
+            hash_src_mac=True,
+            hash_ether_type=True)
 
-            print("LAG count seed=%d:" % (new_seed), lb_count_seed1)
-            nbr_active_ports = verify_lb_active_ports(lb_count_seed1)
-            self.assertTrue(nbr_active_ports == 3)
+        print("LAG count seed=%d:" % (new_seed), lb_count_seed1)
+        nbr_active_ports = verify_lb_active_ports(lb_count_seed1)
+        self.assertTrue(nbr_active_ports == 3)
 
-            # verify that changing seed changes modifies the LB
-            # vefiry if LB factor changed
-            similary_balanced = verify_similary_balanced(
-                lb_count, lb_count_seed1)
-            self.assertTrue(similary_balanced,
-                            "LAG Seed change has no effect on LB")
-
-        finally:
-            pass
+        # verify that changing seed changes modifies the LB
+        # vefiry if LB factor changed
+        similary_balanced = verify_similary_balanced(
+            lb_count, lb_count_seed1)
+        self.assertTrue(similary_balanced,
+                        "LAG Seed change has no effect on LB")
 
     def l3LagIPv4HashSeedTest(self):
         """
@@ -2047,42 +2019,39 @@ class SAIHashTest(SAIHashTestBase):
         hash_dict = {'hash_src_ip': True, 'hash_dst_ip': True,
                      'hash_udp_dport': True, 'hash_udp_sport': True}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv4 LAG load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
-            self.setupLAGIPv4Hash(hash_fields)
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv4 LAG load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
+        self.setupLAGIPv4Hash(hash_fields)
 
-            self.setupLagSeed(seed=TEST_LAG_SEED)
+        self.setupLagSeed(seed=TEST_LAG_SEED)
 
-            ecmp_count = self.l3IPv4LagPacketTest(hash_dict)
+        ecmp_count = self.l3IPv4LagPacketTest(hash_dict)
 
-            print("ECMP count seed=%d:" % (TEST_LAG_SEED), ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 3)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "LAG paths are not equally balanced")
+        print("ECMP count seed=%d:" % (TEST_LAG_SEED), ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 3)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "LAG paths are not equally balanced")
 
-            self.setupLagSeed(seed=TEST_LAG_SEED1)
-            print("Verify load balancing for IPv4 hash seed = %d"
-                  % (TEST_LAG_SEED1))
-            ecmp_count_seed1 = self.l3IPv4LagPacketTest(hash_dict)
-            print("ECMP count seed=%d:" % (TEST_LAG_SEED1), ecmp_count_seed1)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
-            self.assertTrue(nbr_active_ports == 3)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "LAG paths are not equally balanced")
-            # verify if LB distribution has changed
-            similary_balanced = verify_similary_balanced(
-                ecmp_count, ecmp_count_seed1)
-            self.assertTrue(similary_balanced,
-                            "LAG Seed change has no effect on LB")
-        finally:
-            pass
+        self.setupLagSeed(seed=TEST_LAG_SEED1)
+        print("Verify load balancing for IPv4 hash seed = %d"
+              % (TEST_LAG_SEED1))
+        ecmp_count_seed1 = self.l3IPv4LagPacketTest(hash_dict)
+        print("ECMP count seed=%d:" % (TEST_LAG_SEED1), ecmp_count_seed1)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
+        self.assertTrue(nbr_active_ports == 3)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "LAG paths are not equally balanced")
+        # verify if LB distribution has changed
+        similary_balanced = verify_similary_balanced(
+            ecmp_count, ecmp_count_seed1)
+        self.assertTrue(similary_balanced,
+                        "LAG Seed change has no effect on LB")
 
 
 class SAIIPv6HashTest(SAIHashTestBase):
@@ -2437,34 +2406,31 @@ class SAIIPv6HashTest(SAIHashTestBase):
         Args:
             hash_dict (dict): dictionary with variables that defines the list
         """
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv6 LAG load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv6 LAG load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
 
-            self.setupLAGIPv6Hash(hash_fields)
+        self.setupLAGIPv6Hash(hash_fields)
 
-            ecmp_count = self.lagIPv6PacketTest(hash_dict)
+        ecmp_count = self.lagIPv6PacketTest(hash_dict)
 
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(
-                nbr_active_ports == 3,
-                "Expected to balance equally on all next hops.")
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced, "Ecmp paths are not equally"
-                            "balanced for Lag IPv6 hashed traffic")
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(
+            nbr_active_ports == 3,
+            "Expected to balance equally on all next hops.")
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced, "Ecmp paths are not equally"
+                        "balanced for Lag IPv6 hashed traffic")
 
-            print("Verify no load balancing for traffic "
-                  "with hash fields unchanged.")
-            ecmp_count = self.lagIPv6PacketTest(hash_dict_negation(hash_dict))
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(
-                nbr_active_ports == 1,
-                "Does not expect to balance on other hash fields.")
-        finally:
-            pass
+        print("Verify no load balancing for traffic "
+              "with hash fields unchanged.")
+        ecmp_count = self.lagIPv6PacketTest(hash_dict_negation(hash_dict))
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(
+            nbr_active_ports == 1,
+            "Does not expect to balance on other hash fields.")
 
     def lagIPv6HashSeedTest(self):
         """
@@ -2474,45 +2440,42 @@ class SAIIPv6HashTest(SAIHashTestBase):
         hash_dict = {'hash_src_ip': True, 'hash_dst_ip': True,
                      'hash_udp_dport': True, 'hash_udp_sport': True}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv6 LAG load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
-            self.setupLAGIPv6Hash(hash_fields)
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv6 LAG load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
+        self.setupLAGIPv6Hash(hash_fields)
 
-            self.setupLagSeed(seed=TEST_LAG_SEED)
+        self.setupLagSeed(seed=TEST_LAG_SEED)
 
-            ecmp_count = self.lagIPv6PacketTest(hash_dict)
+        ecmp_count = self.lagIPv6PacketTest(hash_dict)
 
-            print("ECMP count seed=%d:" % (TEST_LAG_SEED), ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(
-                nbr_active_ports == 3,
-                "Expected to balance equally on all next hops.")
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced, "Ecmp paths are not equally"
-                            "balanced for Lag IPv6 hashed traffic")
+        print("ECMP count seed=%d:" % (TEST_LAG_SEED), ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(
+            nbr_active_ports == 3,
+            "Expected to balance equally on all next hops.")
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced, "Ecmp paths are not equally"
+                        "balanced for Lag IPv6 hashed traffic")
 
-            self.setupLagSeed(seed=TEST_LAG_SEED1)
+        self.setupLagSeed(seed=TEST_LAG_SEED1)
 
-            print("Verify load balancing for IPv6 hash seed = %d"
-                  % (TEST_LAG_SEED1))
-            ecmp_count_seed1 = self.lagIPv6PacketTest(hash_dict)
-            print("ECMP count seed=%d:" % (TEST_LAG_SEED1), ecmp_count_seed1)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
-            self.assertTrue(nbr_active_ports == 3)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "LAG paths are not equally balanced")
-            # todo verify if LB distribution has changed
-            similary_balanced = verify_similary_balanced(
-                ecmp_count, ecmp_count_seed1)
-            self.assertTrue(similary_balanced,
-                            "LAG Seed change has no effect on LB")
-        finally:
-            pass
+        print("Verify load balancing for IPv6 hash seed = %d"
+              % (TEST_LAG_SEED1))
+        ecmp_count_seed1 = self.lagIPv6PacketTest(hash_dict)
+        print("ECMP count seed=%d:" % (TEST_LAG_SEED1), ecmp_count_seed1)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
+        self.assertTrue(nbr_active_ports == 3)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "LAG paths are not equally balanced")
+        # verify if LB distribution has changed
+        similary_balanced = verify_similary_balanced(
+            ecmp_count, ecmp_count_seed1)
+        self.assertTrue(similary_balanced,
+                        "LAG Seed change has no effect on LB")
 
     def ecmpIPv6HashTest(self,
                          hash_src_ip=None,
@@ -2536,37 +2499,33 @@ class SAIIPv6HashTest(SAIHashTestBase):
                      'hash_udp_dport': hash_udp_dport,
                      'hash_udp_sport': hash_udp_sport}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            print("Verify IPv6 ECMP load balancing for hash fields: %s"
-                  % (hash_fields_to_hash_names(hash_fields)))
+        hash_fields = hash_to_hash_fields(hash_dict)
+        print("Verify IPv6 ECMP load balancing for hash fields: %s"
+              % (hash_fields_to_hash_names(hash_fields)))
 
-            # setup IPv6 hash fields for all fields
-            self.setupECMPIPv6Hash(hash_fields)
+        # setup IPv6 hash fields for all fields
+        self.setupECMPIPv6Hash(hash_fields)
 
-            ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict)
+        ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict)
 
-            print("ECMP LB count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(
-                nbr_active_ports == 3,
-                "Expected to balance equally on all next hops.")
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced")
+        print("ECMP LB count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(
+            nbr_active_ports == 3,
+            "Expected to balance equally on all next hops.")
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced")
 
-            print("Verify no load balancing for non hashed traffic.")
-            ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict_negation(
-                hash_dict))
+        print("Verify no load balancing for non hashed traffic.")
+        ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict_negation(
+            hash_dict))
 
-            print("ECMP no LB count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(
-                nbr_active_ports == 1,
-                "Does not expect to balance on other hash fields.")
-
-        finally:
-            pass
+        print("ECMP no LB count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(
+            nbr_active_ports == 1,
+            "Does not expect to balance on other hash fields.")
 
     def l3EcmpIPv6HashSeedTest(self):
         """
@@ -2577,42 +2536,39 @@ class SAIIPv6HashTest(SAIHashTestBase):
         hash_dict = {'hash_src_ip': True, 'hash_dst_ip': True,
                      'hash_udp_dport': True, 'hash_udp_sport': True}
 
-        try:
-            hash_fields = hash_to_hash_fields(hash_dict)
-            self.setupECMPIPv6Hash(hash_fields)
+        hash_fields = hash_to_hash_fields(hash_dict)
+        self.setupECMPIPv6Hash(hash_fields)
 
-            self.setupECMPSeed(seed=TEST_ECMP_SEED)
+        self.setupECMPSeed(seed=TEST_ECMP_SEED)
 
-            print("Verify load balancing equaly for all next_hops when "
-                  "all packets fields changes")
-            ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict)
-            print("ECMP count seed=%d:" % (TEST_ECMP_SEED), ecmp_count)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced with seed=%d"
-                            % (TEST_ECMP_SEED1))
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 3)
+        print("Verify load balancing equaly for all next_hops when "
+              "all packets fields changes")
+        ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict)
+        print("ECMP count seed=%d:" % (TEST_ECMP_SEED), ecmp_count)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced with seed=%d"
+                        % (TEST_ECMP_SEED1))
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 3)
 
-            # set the ecmp hash seed
-            self.setupECMPSeed(seed=TEST_ECMP_SEED1)
-            ecmp_count_seed1 = self.l3IPv6EcmpPacketTest(hash_dict)
-            print("ECMP count seed=%d:" % (TEST_ECMP_SEED1), ecmp_count_seed1)
-            equaly_balanced = verify_equaly_balanced(
-                ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced with seed=1")
-            nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
-            self.assertTrue(nbr_active_ports == 3)
+        # set the ecmp hash seed
+        self.setupECMPSeed(seed=TEST_ECMP_SEED1)
+        ecmp_count_seed1 = self.l3IPv6EcmpPacketTest(hash_dict)
+        print("ECMP count seed=%d:" % (TEST_ECMP_SEED1), ecmp_count_seed1)
+        equaly_balanced = verify_equaly_balanced(
+            ecmp_count_seed1, expected_base=SEED_TEST_CHECK_BASE)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced with seed=1")
+        nbr_active_ports = verify_lb_active_ports(ecmp_count_seed1)
+        self.assertTrue(nbr_active_ports == 3)
 
-            # todo vefiry if LB factor changed
-            similary_balanced = verify_similary_balanced(
-                ecmp_count, ecmp_count_seed1)
-            self.assertTrue(similary_balanced,
-                            "ECMP Seed change has no effect on LB")
-        finally:
-            pass
+        # vefiry if LB factor changed
+        similary_balanced = verify_similary_balanced(
+            ecmp_count, ecmp_count_seed1)
+        self.assertTrue(similary_balanced,
+                        "ECMP Seed change has no effect on LB")
 
     def ecmpIPv6HashSaveRestoreTest(self):
         """
@@ -2709,30 +2665,27 @@ class SAIIPv6HashTest(SAIHashTestBase):
         hash_dict = {'hash_dst_ip': True, 'hash_udp_dport': True,
                      'hash_udp_sport': True}
 
-        try:
-            self.setupECMPIPv6Hash([SAI_NATIVE_HASH_FIELD_SRC_IP])
-            # verify if IPv4 hash update overwrites IPv6 hash
-            self.setupECMPIPv4Hash([SAI_NATIVE_HASH_FIELD_DST_IP])
-            print("Verify load balancing equaly for all next_hops when "
-                  "packet fields changes and do match hash fields.")
+        self.setupECMPIPv6Hash([SAI_NATIVE_HASH_FIELD_SRC_IP])
+        # verify if IPv4 hash update overwrites IPv6 hash
+        self.setupECMPIPv4Hash([SAI_NATIVE_HASH_FIELD_DST_IP])
+        print("Verify load balancing equaly for all next_hops when "
+              "packet fields changes and do match hash fields.")
 
-            # should ballance equally
-            ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict_src)
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertEqual(nbr_active_ports, 3)
+        # should ballance equally
+        ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict_src)
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertEqual(nbr_active_ports, 3)
 
-            equaly_balanced = verify_equaly_balanced(ecmp_count)
-            self.assertTrue(equaly_balanced,
-                            "Ecmp paths are not equally balanced")
+        equaly_balanced = verify_equaly_balanced(ecmp_count)
+        self.assertTrue(equaly_balanced,
+                        "Ecmp paths are not equally balanced")
 
-            # should not ballance
-            ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict)
-            print("ECMP count:", ecmp_count)
-            nbr_active_ports = verify_lb_active_ports(ecmp_count)
-            self.assertTrue(nbr_active_ports == 1, "LB not expected")
-        finally:
-            pass
+        # should not ballance
+        ecmp_count = self.l3IPv6EcmpPacketTest(hash_dict)
+        print("ECMP count:", ecmp_count)
+        nbr_active_ports = verify_lb_active_ports(ecmp_count)
+        self.assertTrue(nbr_active_ports == 1, "LB not expected")
 
 
 class NonIPSrcMacHashTest(SAIHashTest):
@@ -3120,10 +3073,7 @@ class EcmpIPv6HashSaveRestoreTest(SAIIPv6HashTest):
     """
 
     def runTest(self):
-        try:
-            self.ecmpIPv6HashSaveRestoreTest()
-        finally:
-            pass
+        self.ecmpIPv6HashSaveRestoreTest()
 
 
 class L3EcmpIPv6HashSeedTest(SAIIPv6HashTest):
@@ -3132,10 +3082,7 @@ class L3EcmpIPv6HashSeedTest(SAIIPv6HashTest):
     """
 
     def runTest(self):
-        try:
-            self.l3EcmpIPv6HashSeedTest()
-        finally:
-            pass
+        self.l3EcmpIPv6HashSeedTest()
 
 
 class EcmpIPv6HashTest(SAIIPv6HashTest):
