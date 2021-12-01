@@ -650,6 +650,8 @@ class LAGDisableEgressLagMember(SaiHelper):
 
         finally:
             sai_thrift_remove_vlan_member(self.client, vlan20_member3)
+            sai_thrift_set_lag_attribute(
+                self.client, self.lag1, port_vlan_id=0)
 
 
 class LAGAttrPortList(SaiHelper):
