@@ -45,23 +45,23 @@ class MirrorConfigData(SaiHelper):
         # MIN_SIGNED_INT_VAL = -32768
         self.gre_proto_type_0x88be = -30530
         self.vlan_tpid_0x8100 = -32512
-#        +------------+------------+-----------+-----------+
-#        |    LAG     |   VLAN ID  |   Port    |VLAN member|
-#        +------------+------------+-----------+-----------+
-#        |            |   vlan40   |   port24  |vlan_mem41 |
-#        |            |            |   port25  |vlan_mem42 |
-#        |            |            |   port26  |vlan_mem43 |
-#        |            |            |   port27  |vlan_mem44 |
-#        |   lag10    |            |           |vlan_mem041|
-#        |  lag10_upd |            |           |vlan_mem042|
-#        +------------+------------+-----------+-----------+
-#        |            |   vlan50   |   port28  |vlan_mem51 |
-#        |            |            |   port29  |vlan_mem52 |
-#        |            |            |   port30  |vlan_mem53 |
-#        |            |            |   port31  |vlan_mem54 |
-#        |   lag11    |            |           |vlan_mem051|
-#        |  lag11_upd |            |           |vlan_mem052|
-#        +------------+------------+-----------+-----------+
+#        +------------+------------+-----------+-------------+
+#        |    LAG     |   VLAN ID  |   Port    | VLAN member |
+#        +------------+------------+-----------+-------------+
+#        |            |   vlan40   |   port24  | vlan_mem41  |
+#        |            |            |   port25  | vlan_mem42  |
+#        |            |            |   port26  | vlan_mem43  |
+#        |            |            |   port27  | vlan_mem44  |
+#        |   lag10    |            |           | vlan_mem041 |
+#        |  lag10_upd |            |           | vlan_mem042 |
+#        +------------+------------+-----------+-------------+
+#        |            |   vlan50   |   port28  | vlan_mem51  |
+#        |            |            |   port29  | vlan_mem52  |
+#        |            |            |   port30  | vlan_mem53  |
+#        |            |            |   port31  | vlan_mem54  |
+#        |   lag11    |            |           | vlan_mem051 |
+#        |  lag11_upd |            |           | vlan_mem052 |
+#        +------------+------------+-----------+-------------+
 
         # Port configuration
         self.bridge_ports = []
