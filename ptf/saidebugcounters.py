@@ -1,4 +1,4 @@
-# Copyright 2021-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
+'''
 Thrift SAI interface DebugCounters tests
-"""
-
-from __future__ import print_function
+'''
 
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
 from ptf.packet import *
+from ptf.testutils import *
 from ptf.thriftutils import *
 
 from sai_base_test import *
-# pylint: disable=too-many-public-methods,too-many-arguments
 
 TEST_GET_STATS_DELAY = 3
 
@@ -91,6 +88,43 @@ def debug_counter_type_to_index_base(dc_type):
         index_base = SAI_SWITCH_STAT_OUT_DROP_REASON_RANGE_BASE
 
     return index_base
+
+
+def get_port_stats(port, counters):
+    ''' Returns the port stats counters.
+
+    Args:
+        port (sai_object_id_t): port object id
+        counters (list) : requested counters list
+
+    Returns:
+        list: counter stats for requested counters list.
+    '''
+
+    if not isinstance(counters, list):
+        counters = [counters]
+
+    time.sleep(TEST_GET_STATS_DELAY)
+    stats = sai_thrift_get_debug_counter_port_stats(port, counters)
+    return stats
+
+
+def get_switch_stats(counters):
+    ''' Returns the switch stats counters.
+
+    Args:
+        counters (list) : requested counters list
+
+    Returns:
+        list: stats counter stats for requested counters list.
+    '''
+    if not isinstance(counters, list):
+        counters = [counters]
+
+    time.sleep(TEST_GET_STATS_DELAY)
+    stats = sai_thrift_get_debug_counter_switch_stats(counters)
+
+    return stats
 
 
 class BaseDebugCounterClass(SaiHelperBase):
@@ -285,16 +319,12 @@ class BaseDebugCounterClass(SaiHelperBase):
         if not isinstance(in_drop_reasons, list):
             in_drop_reasons = [in_drop_reasons]
 
-        try:
-            in_drop_reason_list = sai_thrift_u32_list_t(
-                count=len(in_drop_reasons), uint32list=in_drop_reasons)
-            sai_thrift_set_debug_counter_attribute(
-                self.client,
-                dc_oid,
-                in_drop_reason_list=in_drop_reason_list)
-
-        finally:
-            pass
+        in_drop_reason_list = sai_thrift_u32_list_t(
+            count=len(in_drop_reasons), uint32list=in_drop_reasons)
+        sai_thrift_set_debug_counter_attribute(
+            self.client,
+            dc_oid,
+            in_drop_reason_list=in_drop_reason_list)
 
     def createDebugCounter(self, dc_type, drop_reasons):
         ''' Creates DebugCounter for a given dc_type with drop_reason list
@@ -465,9 +495,6 @@ class BaseDebugCounterClass(SaiHelperBase):
         for neighbor_data in self.neighbors:
             sai_thrift_remove_neighbor_entry(self.client, neighbor_data)
 
-        # for fdb in self.fdbs:
-        #     sai_thrift_delete_fdb(self.client, *fdb[:-1])
-
         for rif in self.rif_ids:
             sai_thrift_remove_router_interface(self.client, rif)
 
@@ -479,7 +506,6 @@ class BaseDebugCounterClass(SaiHelperBase):
         super(BaseDebugCounterClass, self).tearDown()
 
     def testPortDebugCounter(self,
-                             port,
                              dc_oid,
                              in_drop_reasons,
                              pkts,
@@ -487,7 +513,6 @@ class BaseDebugCounterClass(SaiHelperBase):
         ''' Executes port debug counter test.
 
         Args:
-            port (sai_object_id_t): port object id
             dc_oid (sai_object_id_t): debugc counter object id
             in_drop_reasons (list): in drop reasons list
             pkts (list): list of test  packets
@@ -500,44 +525,43 @@ class BaseDebugCounterClass(SaiHelperBase):
         if not isinstance(dc_oid, list):
             dc_oid = [dc_oid]
 
+        port = self.port0
+
         print("Test port debug counter for drop_reasons=%s"
               % (map_drop_reason_to_string(in_drop_reasons)))
         dc_counter_before = self.getDebugDounterPortStatsByOid(port, dc_oid)
-        stats = self.getPortStats(port, SAI_PORT_STAT_IF_IN_DISCARDS)
+        stats = get_port_stats(port, SAI_PORT_STAT_IF_IN_DISCARDS)
         port_drop_counter_before = stats[SAI_PORT_STAT_IF_IN_DISCARDS]
         packets_requested = len(pkts)
-        try:
-            expected_drops = 0
-            print("Request %d packet(s)" % (len(pkts)))
-            for pkt in pkts:
-                send_packet(self, self.ingress_port, pkt)
-                if drop_expected:
-                    verify_no_packet(self, pkt, self.egress_port)
-
+        expected_drops = 0
+        print("Request %d packet(s)" % (len(pkts)))
+        for pkt in pkts:
+            send_packet(self, self.ingress_port, pkt)
             if drop_expected:
-                expected_drops = packets_requested
+                verify_no_packet(self, pkt, self.egress_port)
 
-            dc_counter_after = self.getDebugDounterPortStatsByOid(port, dc_oid)
-            stats = self.getPortStats(port, SAI_PORT_STAT_IF_IN_DISCARDS)
-            port_drop_counter_after = stats[SAI_PORT_STAT_IF_IN_DISCARDS]
-            print("Debug Counter before test=", dc_counter_before,
-                  ", DC counter after test=", dc_counter_after,
-                  " packets requested=", packets_requested,
-                  ", expected_drops =", expected_drops)
-            print("Port drop counter before=", port_drop_counter_before,
-                  ", Port drop counter after=", port_drop_counter_after,
-                  ", packets requested=", packets_requested)
+        if drop_expected:
+            expected_drops = packets_requested
 
+        dc_counter_after = self.getDebugDounterPortStatsByOid(port, dc_oid)
+        stats = get_port_stats(port, SAI_PORT_STAT_IF_IN_DISCARDS)
+        port_drop_counter_after = stats[SAI_PORT_STAT_IF_IN_DISCARDS]
+        print("Debug Counter before test=%d, DC counter after test=%d "
+              "packets requested=%d expected_drops =%d"
+              % (dc_counter_before, dc_counter_after, packets_requested,
+                 expected_drops))
+        print("Port drop counter before=%d, Port drop counter after=%d, "
+              "packets requested=%d"
+              % (port_drop_counter_before, port_drop_counter_after,
+                 packets_requested))
+
+        self.assertTrue(
+            dc_counter_after == dc_counter_before + expected_drops)
+        if drop_expected:
             self.assertTrue(
-                dc_counter_after == dc_counter_before + expected_drops)
-            if drop_expected:
-                self.assertTrue(
-                    port_drop_counter_after == port_drop_counter_before +
-                    expected_drops)
-            print("\tok")
-
-        finally:
-            pass
+                port_drop_counter_after == port_drop_counter_before +
+                expected_drops)
+        print("\tok")
 
     def testSwitchDebugCounter(self,
                                dc_oid,
@@ -562,15 +586,14 @@ class BaseDebugCounterClass(SaiHelperBase):
         print("Test switch debug counter for drop_reasons=%s"
               % (map_drop_reason_to_string(in_drop_reasons)))
         dc_counter_before = self.getDebugCounterSwitchStatsByOid(dc_oid)
-        print("dc counter_before=", dc_counter_before)
+        print("dc counter_before=%d" % dc_counter_before)
 
-        stats = self.getSwitchStats(SAI_PORT_STAT_IF_IN_DISCARDS)
+        stats = get_switch_stats(SAI_PORT_STAT_IF_IN_DISCARDS)
         switch_counter_before = stats[SAI_PORT_STAT_IF_IN_DISCARDS]
 
         packets_requested = 0
         expected_drops = 0
         try:
-
             for test_port in self.test_dev_ports:
                 for pkt in pkts:
                     packets_requested += 1
@@ -581,15 +604,16 @@ class BaseDebugCounterClass(SaiHelperBase):
                 expected_drops = packets_requested
         finally:
             dc_counter_after = self.getDebugCounterSwitchStatsByOid(dc_oid)
-            stats = self.getSwitchStats(SAI_PORT_STAT_IF_IN_DISCARDS)
+            stats = get_switch_stats(SAI_PORT_STAT_IF_IN_DISCARDS)
             switch_counter_after = stats[SAI_PORT_STAT_IF_IN_DISCARDS]
-            print("Debug Counter before=", dc_counter_before,
-                  ", DC counter after=", dc_counter_after,
-                  ", packets requested=", packets_requested,
-                  ", drop_expected=", drop_expected)
-            print("Switch drop counter before=", switch_counter_before,
-                  ", Switch drop counter after=", switch_counter_after,
-                  ", packets requested=", packets_requested)
+            print("Debug Counter before test=%d, DC counter after test=%d "
+                  "packets requested=%d, drop_expected =%d"
+                  % (dc_counter_before, dc_counter_after, packets_requested,
+                     drop_expected))
+            print("Switch drop counter before=%d, "
+                  "Switch drop counter after=%d, packets requested=%d"
+                  % (switch_counter_before, switch_counter_after,
+                     packets_requested))
             self.assertTrue(
                 dc_counter_after == dc_counter_before + expected_drops)
             if drop_expected:
@@ -615,7 +639,6 @@ class BaseDebugCounterClass(SaiHelperBase):
         found_pkt = False
         print("Verify drop reasons = %s" %
               (map_drop_reason_to_string(drop_reason_list)))
-        # sai_thrift_clear_all_counters(self.client)
         counter = self.getDebugDounterPortStatsByOid(
             port, dc_oid)
         for dc_drop_reason in drop_reason_list:
@@ -638,8 +661,8 @@ class BaseDebugCounterClass(SaiHelperBase):
                 continue
         counter_after = self.getDebugDounterPortStatsByOid(
             port, dc_oid)
-        print("counter=", counter, "counter_after=", counter_after,
-              "dc_pkt_cnt=", dc_pkt_cnt)
+        print("counter=%d, counter_after=%d, dc_pkt_cnt=%d"
+              % counter, counter_after, dc_pkt_cnt)
         if (counter + dc_pkt_cnt) != counter_after:
             return False
 
@@ -661,13 +684,12 @@ class BaseDebugCounterClass(SaiHelperBase):
         found_pkt = False
         print("Verify drop reasons = %s" %
               (map_drop_reason_to_string(drop_reason_list)))
-        # sai_thrift_clear_all_counters(self.client)
         counter = self.getDebugCounterSwitchStatsByOid(dc_oid)
         for dc_drop_reason in drop_reason_list:
             pkts = []
             for map_drop_reason, list_of_packets in self.map_drop_reasons:
                 if map_drop_reason == dc_drop_reason:
-                    # found corresponding test packet(s)
+                    # Found corresponding test packet(s)
                     found_pkt = True
                     pkts = list_of_packets
                     break
@@ -680,12 +702,11 @@ class BaseDebugCounterClass(SaiHelperBase):
                         send_packet(self, port, pkt)
                         verify_no_packet(self, pkt, self.egress_port)
             else:
-                # skip check as there is no packet sent
+                # Skip check as there is no packet sent
                 continue
         counter_after = self.getDebugCounterSwitchStatsByOid(dc_oid)
-        print("Switch counter=", counter,
-              "Switch counter_after=", counter_after,
-              "dc_pkt_cnt=", dc_pkt_cnt)
+        print("counter=%d, counter_after=%d, dc_pkt_cnt=%d"
+              % counter, counter_after, dc_pkt_cnt)
         if (counter + dc_pkt_cnt) != counter_after:
             return False
 
@@ -709,11 +730,11 @@ class BaseDebugCounterClass(SaiHelperBase):
 
         if len(drop_reasons) != attr['in_drop_reason_list'].count:
             print(
-                "SAI_DEBUG_COUNTER_ATTR_IN_DROP_REASON_LIST incorrect count=",
-                attr['in_drop_reason_list'].count)
+                "SAI_DEBUG_COUNTER_ATTR_IN_DROP_REASON_LIST incorrect count=%d"
+                % attr['in_drop_reason_list'].count)
             return False
 
-        # verify if IN list is correct
+        # Verify if IN list is correct
         found = False
         for drop_reason in drop_reasons:
             found = False
@@ -724,7 +745,6 @@ class BaseDebugCounterClass(SaiHelperBase):
                 return False
         return True
 
-    # TODO
     def getDebugCounterSwitchStatsByOid(self, dc_oid):
         ''' Returns the switch stats for given DebugCounter.
 
@@ -744,8 +764,7 @@ class BaseDebugCounterClass(SaiHelperBase):
             dc_index = attr['index'] + \
                 debug_counter_type_to_index_base(attr['type'])
             counters.append(dc_index)
-        stats = sai_thrift_get_switch_stats_ext(
-            self.client, counters, SAI_STATS_MODE_READ_AND_CLEAR)
+        stats = sai_thrift_get_debug_counter_switch_stats(counters)
 
         return stats[dc_index]
 
@@ -770,50 +789,9 @@ class BaseDebugCounterClass(SaiHelperBase):
                 debug_counter_type_to_index_base(attr['type'])
             counters.append(dc_index)
 
-        stats = sai_thrift_get_port_stats_ext(
-            self.client, port, counters, SAI_STATS_MODE_READ_AND_CLEAR)
-        # returns the stats for the first DebugCounter in the list
+        stats = sai_thrift_get_debug_counter_port_stats(port, counters)
+        # Returns the stats for the first DebugCounter in the list
         return stats[dc_index]
-
-    def getPortStats(self, port, counters):
-        ''' Returns the port stats counters.
-
-        Args:
-            port (sai_object_id_t): port object id
-            counters (list) : requested counters list
-
-        Returns:
-            list: counter stats for requested counters list.
-        '''
-
-        if not isinstance(counters, list):
-            counters = [counters]
-
-        time.sleep(TEST_GET_STATS_DELAY)
-        stats = sai_thrift_get_port_stats_ext(
-            self.client,
-            port,
-            counters,
-            SAI_STATS_MODE_READ_AND_CLEAR)
-        return stats
-
-    def getSwitchStats(self, counters):
-        ''' Returns the switch stats counters.
-
-        Args:
-            counters (list) : requested counters list
-
-        Returns:
-            list: stats counter stats for requested counters list.
-        '''
-        if not isinstance(counters, list):
-            counters = [counters]
-
-        time.sleep(TEST_GET_STATS_DELAY)
-        stats = sai_thrift_get_switch_stats_ext(
-            self.client, counters, SAI_STATS_MODE_READ_AND_CLEAR)
-
-        return stats
 
 
 class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
@@ -860,7 +838,7 @@ class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
                     self.assertTrue(self.verifyPortDebugCounterDropPackets(
                         self.port0, port_dc_oid, drop_reason_list))
 
-                # remove drop reason
+                # Remove drop reason
                 drop_reason_list.pop(0)
                 print("Setting DebugCounter drop_reason_list to: %s" %
                       (map_drop_reason_to_string(drop_reason_list)))
@@ -873,7 +851,7 @@ class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
                 print("\tok")
 
                 print("Verify updated drop_reason_list with traffic")
-                # verify packets after removing the drop_reason
+                # Verify packets after removing the drop_reason
                 self.assertTrue(self.verifyPortDebugCounterDropPackets(
                     self.port0, port_dc_oid, drop_reason_list))
                 print("\tok")
@@ -926,11 +904,10 @@ class SwitchDebugCounterRemoveDropReason(BaseDebugCounterClass):
                     self.assertTrue(self.verifySwitchDebugCounterDropPackets(
                         dc_oid, drop_reason_list))
 
-                # remove drop reason
+                # Remove drop reason
                 drop_reason_list.pop(0)
                 print("Setting DebugCounter drop_reason_list to: %s" %
                       (map_drop_reason_to_string(drop_reason_list)))
-                # self.set_counter_reasons(self.dc_oid, drop_reason_list)
                 self.setDebugCounterDropReasons(dc_oid, drop_reason_list)
 
                 print("Verify updated drop_reason_list")
@@ -939,7 +916,7 @@ class SwitchDebugCounterRemoveDropReason(BaseDebugCounterClass):
                 print("\tok")
 
                 print("Verify updated drop_reason_list with traffic")
-                # verify packets after removing the drop_reason
+                # Verify packets after removing the drop_reason
                 self.assertTrue(self.verifySwitchDebugCounterDropPackets(
                     dc_oid, drop_reason_list))
                 print("\tok")
@@ -974,7 +951,7 @@ class PortDebugCounterAddDropReason(BaseDebugCounterClass):
 
             drop_reason_list = []
             for drop_reason in drop_reason_cap:
-                # drop_reason = drop_reason_cap[i]
+                # Drop_reason = drop_reason_cap[i]
                 drop_reason_list.append(drop_reason)
                 print("Setting DebugCounter drop_reason_list to: %s" %
                       (map_drop_reason_to_string(drop_reason_list)))
@@ -1024,7 +1001,7 @@ class SwitchDebugCounterAddDropReason(BaseDebugCounterClass):
 
             drop_reason_list = []
             for drop_reason in drop_reason_cap:
-                # drop_reason = drop_reason_cap[i]
+                # Drop_reason = drop_reason_cap[i]
                 drop_reason_list.append(drop_reason)
                 print("Setting DebugCounter drop_reason_list to: %s" %
                       (map_drop_reason_to_string(drop_reason_list)))
@@ -1058,7 +1035,6 @@ class PortDropMCSMAC(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0,
                 dc_oid,
                 [SAI_IN_DROP_REASON_SMAC_MULTICAST],
                 [self.mc_smac_pkt])
@@ -1107,7 +1083,7 @@ class PortDropL2Any(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 [SAI_IN_DROP_REASON_L2_ANY],
                 pkt_list)
 
@@ -1154,11 +1130,9 @@ class PortDropSMACequalsDMAC(BaseDebugCounterClass):
                 dc_oid = self.createDebugCounter(
                     SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS, drop_list)
                 self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
-                # self.assertTrue(self.verifyDebugCounterDropList(
-                #     dc_oid, drop_list))
 
                 self.testPortDebugCounter(
-                    self.port0, dc_oid,
+                    dc_oid,
                     [SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC],
                     [self.smac_equals_dmac_pkt])
 
@@ -1202,7 +1176,7 @@ class PortDropIngressVLANFilter(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 [SAI_IN_DROP_REASON_INGRESS_VLAN_FILTER],
                 [self.vlan_discard_pkt])
 
@@ -1244,7 +1218,7 @@ class PortDropSIPMCTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.src_ip_mc_pkt])
 
@@ -1286,7 +1260,7 @@ class PortDropReasonTTLTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.ttl_zero_pkt])
 
@@ -1338,7 +1312,7 @@ class PortDropSIPClassETest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.src_ip_class_e_pkt])
 
@@ -1397,13 +1371,13 @@ class PortDropUCDIPMCDMACTest(BaseDebugCounterClass):
 
             print("\nTest IPv4")
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.uc_dipv4_mc_dmac_pkt])
 
             print("Test IPv6")
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.uc_dipv6_mc_dmac_pkt])
 
@@ -1425,7 +1399,7 @@ class PortDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.ihl_pkt])
 
@@ -1494,15 +1468,15 @@ class PortMultiDebugCounters(BaseDebugCounterClass):
                     drop_list3))
 
                 self.testPortDebugCounter(
-                    self.port0, dc_oid3,
+                    dc_oid3,
                     drop_list3,
                     [self.smac_equals_dmac_pkt])
 
                 self.testPortDebugCounter(
-                    self.port0, dc_oid1, drop_list2, [self.zero_smac_pkt])
+                    dc_oid1, drop_list2, [self.zero_smac_pkt])
             else:
                 self.testPortDebugCounter(
-                    self.port0, dc_oid1, drop_list2,
+                    dc_oid1, drop_list2,
                     [self.vlan_discard_pkt, self.zero_smac_pkt])
         finally:
             if dc_oid1 != 0:
@@ -1593,7 +1567,7 @@ class PortDropDIPLinkLocalTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.dst_ip_link_local_pkt])
 
@@ -1619,7 +1593,7 @@ class PortDropSIPLinkLocalTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.src_ip_link_local_pkt])
 
@@ -1645,7 +1619,7 @@ class PortDropSIPUnspecifiedTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                self.port0, dc_oid,
+                dc_oid,
                 drop_list,
                 [self.src_ipv4_unspec_pkt])
 
@@ -1676,22 +1650,21 @@ class PortDropIPv4RIFDisabled(BaseDebugCounterClass):
                 eth_src=self.default_mac_1,
                 ip_dst=self.neighbor_ip)
 
-            # interface enabled
+            # Interface enabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=True)
-            self.testPortDebugCounter(self.port0,
-                                      dc_oid, drop_list,
+            self.testPortDebugCounter(dc_oid, drop_list,
                                       [pkt],
                                       drop_expected=False)
 
-            # interface disabled
+            # Interface disabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=False)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1722,23 +1695,22 @@ class PortDropIPv4L3AnyRIFDisabled(BaseDebugCounterClass):
                 eth_src=self.default_mac_1,
                 ip_dst=self.neighbor_ip)
 
-            # interface enabled
+            # Interface enabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=True)
-            self.testPortDebugCounter(self.port0,
-                                      dc_oid,
+            self.testPortDebugCounter(dc_oid,
                                       drop_list,
                                       [pkt],
                                       drop_expected=False)
 
-            # interface disabled
+            # Interface disabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=False)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1764,20 +1736,20 @@ class PortDropIPv6RIFDisabled(BaseDebugCounterClass):
             dc_oid = self.createDebugCounter(dc_type, drop_list)
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
-            # verify traffic for rif interface enabled
+            # Verify traffic for rif interface enabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=True)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt],
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt],
                                       drop_expected=False)
 
-            # verify traffic for rif interface disabled
+            # Verify traffic for rif interface disabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=False)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1807,20 +1779,20 @@ class PortDropIPv6L3AnyRIFDisabled(BaseDebugCounterClass):
             dc_oid = self.createDebugCounter(dc_type, drop_list)
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
-            # verify traffic for rif interface enabled
+            # Verify traffic for rif interface enabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=True)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt],
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt],
                                       drop_expected=False)
 
-            # verify traffic for rif interface disabled
+            # Verify traffic for rif interface disabled
             sai_thrift_set_router_interface_attribute(
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=False)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1855,7 +1827,7 @@ class SwitchDropDIPLoopback(BaseDebugCounterClass):
             dc_oid = self.createDebugCounter(dc_type, drop_list)
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
-            # verify traffic for rif interface enabled
+            # Verify traffic for rif interface enabled
             self.testSwitchDebugCounter(dc_oid, drop_list, pkt)
 
         finally:
@@ -1881,7 +1853,7 @@ class SwitchDropSIPLoopback(BaseDebugCounterClass):
             dc_oid = self.createDebugCounter(dc_type, drop_list)
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
-            # verify traffic for rif interface enabled
+            # Verify traffic for rif interface enabled
             self.testSwitchDebugCounter(dc_oid, drop_list, pkt)
 
         finally:
@@ -1889,7 +1861,6 @@ class SwitchDropSIPLoopback(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@disabled
 class PortDropIPv4Miss(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv4 route miss drop reasons test. '''
 
@@ -1917,14 +1888,13 @@ class PortDropIPv4Miss(BaseDebugCounterClass):
                 eth_src=self.default_mac_1,
                 ip_dst="192.168.13.45")
 
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@disabled
 class PortDropIPv6Miss(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv6 route miss drop reasons test. '''
 
@@ -1945,7 +1915,7 @@ class PortDropIPv6Miss(BaseDebugCounterClass):
                 eth_dst=ROUTER_MAC,
                 ipv6_dst='2222:5678:9abc:def0:4422:1133:5577:99aa',
                 ipv6_hlim=64)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1978,7 +1948,7 @@ class PortDropL3AnyTest(BaseDebugCounterClass):
                         self.dst_ipv4_unspec_pkt,
                         self.dst_ipv6_unspec_pkt]
 
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, pkt_list)
+            self.testPortDebugCounter(dc_oid, drop_list, pkt_list)
 
         finally:
             if dc_oid != 0:
@@ -2017,7 +1987,7 @@ class PortDropAclAnyTest(BaseDebugCounterClass):
                 eth_src=self.default_mac_1,
                 ip_dst=self.neighbor_ip)
 
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, pkt)
+            self.testPortDebugCounter(dc_oid, drop_list, pkt)
 
         finally:
             if dc_oid != 0:
@@ -2128,9 +2098,7 @@ class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
     ''' SAI query DebugCounter enum values capabilities. '''
 
     def runTest(self):
-        # switch_init(self.client)
-
-        # supported SAI IN drop reason list
+        # Supported SAI IN drop reason list
         in_caps_list = [
             SAI_IN_DROP_REASON_INGRESS_VLAN_FILTER,
             SAI_IN_DROP_REASON_L2_ANY,
@@ -2151,7 +2119,7 @@ class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
             SAI_IN_DROP_REASON_MPLS_MISS,
             SAI_IN_DROP_REASON_SRV6_LOCAL_SID_DROP]
 
-        # make sure SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC is supported
+        # Make sure SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC is supported
         # by current profile
         if self.isInDropReasonSupported([SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC]):
             in_caps_list.append(SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC)
@@ -2183,7 +2151,7 @@ class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
         print("Supported out drop_reasons: %s len=%d"
               % (map_drop_reason_to_string(out_dc_cap_list),
                  len(out_dc_cap_list)))
-        # currently out drop reasons not supported
+        # Currently out drop reasons not supported
         self.assertTrue(len(out_dc_cap_list) == 0)
         print("\tok")
 
@@ -2193,12 +2161,12 @@ class GetDebugCounterAvailability(BaseDebugCounterClass):
 
     def runTest(self):
 
-        # supported debug counter types
+        # Supported debug counter types
         dc_types = [SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS,
                     SAI_DEBUG_COUNTER_TYPE_SWITCH_IN_DROP_REASONS,
                     SAI_DEBUG_COUNTER_TYPE_PORT_OUT_DROP_REASONS,
                     SAI_DEBUG_COUNTER_TYPE_SWITCH_OUT_DROP_REASONS]
-        # verify supported debug counter types
+        # Verify supported debug counter types
         for dc_type in dc_types:
             dc_avail = sai_thrift_object_type_get_availability(
                 self.client,
@@ -2210,7 +2178,7 @@ class GetDebugCounterAvailability(BaseDebugCounterClass):
             self.assertTrue(dc_avail == 0x400)
             print("\tok")
 
-        # verify unknown(random) debug counter types, should return value of 0
+        # Verify unknown(random) debug counter types, should return value of 0
         for dc_type in [123, 777, 0x400]:
             dc_avail = sai_thrift_object_type_get_availability(
                 self.client,
