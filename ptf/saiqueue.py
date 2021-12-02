@@ -34,6 +34,8 @@ class QueueConfigData(SaiHelper):
         attr = sai_thrift_get_port_attribute(self.client,
                                              self.port25,
                                              qos_number_of_queues=True)
+        self.num_queues = attr["qos_number_of_queues"]
+        self.q_list = sai_thrift_object_list_t(count=self.num_queues)
 
         # L3 layer configuration
         self.vr_id = sai_thrift_create_virtual_router(self.client,
@@ -160,12 +162,12 @@ class QueueConfigData(SaiHelper):
         cpuPortQueueObjectTest too.
         """
         print("Port Queue Query Test")
-        attr = sai_thrift_get_port_attribute(self.client,
-                                             self.port1,
-                                             qos_number_of_queues=True)
-        num_queues = attr["qos_number_of_queues"]
-        q_list = sai_thrift_object_list_t(count=num_queues)
         for port in self.port_list:
+            attr = sai_thrift_get_port_attribute(self.client,
+                                                 port,
+                                                 qos_number_of_queues=True)
+            num_queues = attr["qos_number_of_queues"]
+            q_list = sai_thrift_object_list_t(count=num_queues)
             attr = sai_thrift_get_port_attribute(self.client,
                                                  port,
                                                  qos_queue_list=q_list)
