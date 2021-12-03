@@ -1,4 +1,4 @@
-# Copyright 2021-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 """
 Thrift SAI interface Switch tests
 """
-from __future__ import print_function
-
 from ipaddress import ip_address
 
 from sai_thrift.sai_headers import *
@@ -30,7 +28,7 @@ from sai_base_test import *
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(THIS_DIR, '..'))
-from common.lpm import *  # noqa pylint: disable=wrong-import-position
+from common.lpm import *
 
 
 def generate_ip_addr(no_of_addr, ipv6=False):
@@ -92,12 +90,6 @@ def generate_mac_list(no_of_addr):
 class SwitchAttrTest(SaiHelper):
     '''
     Switch attributes tests
-
-    The following tests generally add around 1hr to the run time
-    of the test suite. They will be disabled for now.
-
-    Enable the below once you are able to split the entire SAIV2
-    test cases into two parallel jobs for each profile.
     '''
 
     def setUp(self):
@@ -109,20 +101,17 @@ class SwitchAttrTest(SaiHelper):
         self.available_v6_host_routes = None
 
     def runTest(self):
-        try:
-            # self.availableIPv4RouteEntryTest()
-            # self.availableIPv6RouteEntryTest()
-            # self.availableIPv4NexthopEntryTest()
-            # self.availableIPv6NexthopEntryTest()
-            # self.availableIPv4NeighborEntryTest()
-            # self.availableIPv6NeighborEntryTest()
-            # self.availableNexthopGroupEntryTest()
-            # self.availableNexthopGroupMemberEntryTest()
-            # self.availableFdbEntryTest()
-            self.availableAclTableTest()
-            self.readOnlyAttributesTest()
-        finally:
-            pass
+        self.availableIPv4RouteEntryTest()
+        self.availableIPv6RouteEntryTest()
+        self.availableIPv4NexthopEntryTest()
+        self.availableIPv6NexthopEntryTest()
+        self.availableIPv4NeighborEntryTest()
+        self.availableIPv6NeighborEntryTest()
+        self.availableNexthopGroupEntryTest()
+        self.availableNexthopGroupMemberEntryTest()
+        self.availableFdbEntryTest()
+        self.availableAclTableTest()
+        self.readOnlyAttributesTest()
 
     def availableIPv4RouteEntryTest(self):
         '''
@@ -689,7 +678,6 @@ class SwitchAttrTest(SaiHelper):
                       % (stage, avail_num))
 
                 acl_table_list = []
-                # for table_number in range(1, avail_num + 1):
                 for _ in range(1, avail_num + 1):
                     acl_table = sai_thrift_create_acl_table(
                         self.client,
@@ -700,30 +688,29 @@ class SwitchAttrTest(SaiHelper):
                     acl_table_list.append(acl_table)
 
                     # check remained entries
-                    # number of available doesn't decrease
-                    # attr = sai_thrift_get_switch_attribute(
-                    #     self.client, available_acl_table=acl_resource)
+                    attr = sai_thrift_get_switch_attribute(
+                        self.client, available_acl_table=acl_resource)
 
-                    # for res in attr["available_acl_table"].resourcelist:
-                    #     print(res)
-                    #     if res.stage == stage and \
-                    #         res.bind_point == bind_point:
-                    #         self.assertEqual(res.avail_num, -
-                    #                          avail_num - table_number)
-                    #         break
+                    for res in attr["available_acl_table"].resourcelist:
+                        print(res)
+                        if res.stage == stage and \
+                            res.bind_point == bind_point:
+                            self.assertEqual(res.avail_num, -
+                                             avail_num - table_number)
+                            break
 
-                # try to create one more table - should not be possible
-                # try:
-                #     acl_table = sai_thrift_create_acl_table(
-                #         self.client,
-                #         acl_stage=stage,
-                #         acl_bind_point_type_list=sai_thrift_s32_list_t(
-                #             count=1, int32list=[bind_point]))
-                #     self.assertTrue(acl_table == SAI_NULL_OBJECT_ID)
-                # except AssertionError:
-                #     sai_thrift_remove_acl_table(self.client, acl_table)
-                #     self.fail("Number of available ACL table entries "
-                #               "may be exceeded")
+                try to create one more table - should not be possible
+                try:
+                    acl_table = sai_thrift_create_acl_table(
+                        self.client,
+                        acl_stage=stage,
+                        acl_bind_point_type_list=sai_thrift_s32_list_t(
+                            count=1, int32list=[bind_point]))
+                    self.assertTrue(acl_table == SAI_NULL_OBJECT_ID)
+                except AssertionError:
+                    sai_thrift_remove_acl_table(self.client, acl_table)
+                    self.fail("Number of available ACL table entries "
+                              "may be exceeded")
 
                 print("Required number of ACL tables created")
 
@@ -843,21 +830,19 @@ class SwitchAttrTest(SaiHelper):
         self.assertNotEqual(attr["number_of_cpu_queues"], 0)
         self.assertNotEqual(attr["SAI_SWITCH_ATTR_NUMBER_OF_CPU_QUEUES"], 0)
 
-        # not supported
-        # attr = sai_thrift_get_switch_attribute(self.client,
-        #                                        acl_table_minimum_priority=True)
-        # print(attr)
-        # self.assertEqual(attr["acl_table_minimum_priority"], 0)
-        # self.assertEqual(
-        #     attr["SAI_SWITCH_ATTR_ACL_TABLE_MINIMUM_PRIORITY"], 0)
+        attr = sai_thrift_get_switch_attribute(self.client,
+                                               acl_table_minimum_priority=True)
+        print(attr)
+        self.assertEqual(attr["acl_table_minimum_priority"], 0)
+        self.assertEqual(
+            attr["SAI_SWITCH_ATTR_ACL_TABLE_MINIMUM_PRIORITY"], 0)
 
-        # not supported
-        # attr = sai_thrift_get_switch_attribute(
-        #     self.client, acl_table_maximum_priority=True)
-        # print(attr)
-        # self.assertNotEqual(attr["acl_table_maximum_priority"], 0)
-        # self.assertNotEqual(
-        #     attr["SAI_SWITCH_ATTR_ACL_TABLE_MAXIMUM_PRIORITY"], 0)
+        attr = sai_thrift_get_switch_attribute(
+            self.client, acl_table_maximum_priority=True)
+        print(attr)
+        self.assertNotEqual(attr["acl_table_maximum_priority"], 0)
+        self.assertNotEqual(
+            attr["SAI_SWITCH_ATTR_ACL_TABLE_MAXIMUM_PRIORITY"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client,
                                                acl_entry_minimum_priority=True)
@@ -885,12 +870,11 @@ class SwitchAttrTest(SaiHelper):
         self.assertTrue(
             attr["SAI_SWITCH_ATTR_DEFAULT_STP_INST_ID"] == SAI_NULL_OBJECT_ID)
 
-        # not supported
-        # attr = sai_thrift_get_switch_attribute(self.client,
-        #                                        max_stp_instance=True)
-        # print(attr)
-        # self.assertNotEqual(attr["max_stp_instance"], 0)
-        # self.assertNotEqual(attr["SAI_SWITCH_ATTR_MAX_STP_INSTANCE"], 0)
+        attr = sai_thrift_get_switch_attribute(self.client,
+                                               max_stp_instance=True)
+        print(attr)
+        self.assertNotEqual(attr["max_stp_instance"], 0)
+        self.assertNotEqual(attr["SAI_SWITCH_ATTR_MAX_STP_INSTANCE"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client,
                                                default_virtual_router_id=True)
@@ -964,11 +948,11 @@ class SwitchAttrTest(SaiHelper):
         self.assertNotEqual(attr["egress_buffer_pool_num"], 0)
         self.assertNotEqual(attr["SAI_SWITCH_ATTR_EGRESS_BUFFER_POOL_NUM"], 0)
 
-        # not supported
-        # attr = sai_thrift_get_switch_attribute(self.client, ecmp_hash=True)
-        # print(attr)
-        # self.assertNotEqual(attr["ecmp_hash"], 0)
-        # self.assertNotEqual(attr["SAI_SWITCH_ATTR_ECMP_HASH"], 0)
+        not supported
+        attr = sai_thrift_get_switch_attribute(self.client, ecmp_hash=True)
+        print(attr)
+        self.assertNotEqual(attr["ecmp_hash"], 0)
+        self.assertNotEqual(attr["SAI_SWITCH_ATTR_ECMP_HASH"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client, lag_hash=True)
         print(attr)
@@ -991,14 +975,12 @@ class SwitchAttrTest(SaiHelper):
         s32 = sai_thrift_s32_list_t(int32list=[], count=max_acl_action_count)
         cap = sai_thrift_acl_capability_t(action_list=s32)
 
-        # not supported
-        # attr = sai_thrift_get_switch_attribute(self.client,
-        #                                        acl_capability=cap)
-        # print(attr)
-        # self.assertNotEqual(attr["acl_capability"], 0)
-        # self.assertNotEqual(attr["SAI_SWITCH_ATTR_ACL_CAPABILITY"], 0)
+        attr = sai_thrift_get_switch_attribute(self.client,
+                                               acl_capability=cap)
+        print(attr)
+        self.assertNotEqual(attr["acl_capability"], 0)
+        self.assertNotEqual(attr["SAI_SWITCH_ATTR_ACL_CAPABILITY"], 0)
 
-        # not supported
         attr = sai_thrift_get_switch_attribute(self.client,
                                                max_mirror_session=True)
         print(attr)
@@ -1031,11 +1013,7 @@ class SwitchHwAttrTest(SaiHelper):
     '''
 
     def runTest(self):
-        try:
-            self.refreshIntervalTest()
-
-        finally:
-            pass
+        self.refreshIntervalTest()
 
     def refreshIntervalTest(self):
         '''
@@ -1223,18 +1201,14 @@ class SwitchHwAttrTest(SaiHelper):
 
 
 @group('nat')
-@disabled  # SWI-3937
 class SwitchNatAttrTest(SaiHelper):
     '''
     Switch NAT-related attributes tests
     '''
 
     def runTest(self):
-        try:
-            self.availableSnatEntryTest()
-            self.availableDnatEntryTest()
-        finally:
-            pass
+        self.availableSnatEntryTest()
+        self.availableDnatEntryTest()
 
     def availableSnatEntryTest(self):
         '''
@@ -1482,11 +1456,8 @@ class SwitchVxlanTest(SaiHelper):
             self.client, vxlan_default_router_mac=self.inner_dmac)
 
     def runTest(self):
-        try:
-            self.defaultPortTest()
-            self.defaultRouterMacTest()
-        finally:
-            pass
+        self.defaultPortTest()
+        self.defaultRouterMacTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.customer_route)
