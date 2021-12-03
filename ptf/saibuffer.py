@@ -1,4 +1,4 @@
-# Copyright 2021-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,28 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-'''
+"""
 Thrift SAI interface Buffer tests
-'''
-
-from __future__ import print_function
-
+"""
 from multiprocessing import Process
 
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
 from ptf.packet import *
+from ptf.testutils import *
 from ptf.thriftutils import *
 
 from sai_base_test import *
 
 
-@group('hw')
 class BufferStatistics(MinimalPortVlanConfig):
-    '''
-    Tests buffer pool and ingress priority group statictics
-    '''
+    """
+    Test buffer pool and ingress priority group statictics.
+    To observe the proper counting of buffer statistics,
+    it is recommended to run the test on hardware.
+    """
 
     def __init__(self):
         super(BufferStatistics, self).__init__(port_num=3)
@@ -83,25 +81,25 @@ class BufferStatistics(MinimalPortVlanConfig):
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
     def sendTraffic(self):
-        '''
-        Sends traffic.
-        '''
+        """
+        Send traffic.
+        """
         print()
-        print('Send {} pkts, pkt size: {} B'.format(self.tx_cnt, self.pkt_len))
+        print("Send {} pkts, pkt size: {} B".format(self.tx_cnt, self.pkt_len))
         for _ in range(self.tx_cnt):
             send_packet(self, self.dev_port0, self.pkt)
         print()
 
     def sendVerify(self, expected_drops, verify_reserved_buffer_size):
-        '''
-        Sends traffic in parallel while polling for current occupancy stats.
+        """
+        Send traffic in parallel while polling for current occupancy stats.
         Once traffic is sent verifies other stats.
 
         Args:
             expected_drops (int): Number of expected dropped packets.
             verify_reserved_buffer_size (bool): Whether to verify
-                SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE
-        '''
+                SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE.
+        """
 
         bp_curr_occupancy_bytes = 0
         ipg_curr_occupancy_bytes = 0
@@ -115,25 +113,25 @@ class BufferStatistics(MinimalPortVlanConfig):
             stats = sai_thrift_get_buffer_pool_stats(
                 self.client, self.ingr_pool)
 
-            if (stats['SAI_BUFFER_POOL_STAT_CURR_OCCUPANCY_BYTES']
+            if (stats["SAI_BUFFER_POOL_STAT_CURR_OCCUPANCY_BYTES"]
                     > bp_curr_occupancy_bytes):
-                bp_curr_occupancy_bytes = stats['SAI_BUFFER_POOL_STAT_'
-                                                'CURR_OCCUPANCY_BYTES']
+                bp_curr_occupancy_bytes = stats["SAI_BUFFER_POOL_STAT_"
+                                                "CURR_OCCUPANCY_BYTES"]
 
             stats = sai_thrift_get_ingress_priority_group_stats(
                 self.client, self.ipg)
 
-            if (stats['SAI_INGRESS_PRIORITY_GROUP_STAT_CURR_OCCUPANCY_BYTES']
+            if (stats["SAI_INGRESS_PRIORITY_GROUP_STAT_CURR_OCCUPANCY_BYTES"]
                     > ipg_curr_occupancy_bytes):
-                ipg_curr_occupancy_bytes = stats['SAI_INGRESS_PRIORITY_GROUP_'
-                                                 'STAT_CURR_OCCUPANCY_BYTES']
+                ipg_curr_occupancy_bytes = stats["SAI_INGRESS_PRIORITY_GROUP_"
+                                                 "STAT_CURR_OCCUPANCY_BYTES"]
 
-            if (stats['SAI_INGRESS_PRIORITY_GROUP_STAT_'
-                      'SHARED_CURR_OCCUPANCY_BYTES']
+            if (stats["SAI_INGRESS_PRIORITY_GROUP_STAT_"
+                      "SHARED_CURR_OCCUPANCY_BYTES"]
                     > ipg_shared_curr_occupancy_bytes):
                 ipg_shared_curr_occupancy_bytes = \
-                    stats['SAI_INGRESS_PRIORITY_GROUP_STAT_'
-                          'SHARED_CURR_OCCUPANCY_BYTES']
+                    stats["SAI_INGRESS_PRIORITY_GROUP_STAT_"
+                          "SHARED_CURR_OCCUPANCY_BYTES"]
 
         traffic.join()
 
@@ -146,52 +144,52 @@ class BufferStatistics(MinimalPortVlanConfig):
         else:
             expected_watermark = self.pkt_len
 
-        print('SAI_BUFFER_POOL_STAT_CURR_OCCUPANCY_BYTES (max measured)',
+        print("SAI_BUFFER_POOL_STAT_CURR_OCCUPANCY_BYTES (max measured)",
               bp_curr_occupancy_bytes)
-        print('SAI_BUFFER_POOL_STAT_WATERMARK_BYTES',
-              stats['SAI_BUFFER_POOL_STAT_WATERMARK_BYTES'])
+        print("SAI_BUFFER_POOL_STAT_WATERMARK_BYTES",
+              stats["SAI_BUFFER_POOL_STAT_WATERMARK_BYTES"])
 
         self.assertGreater(bp_curr_occupancy_bytes, 0)
         self.assertGreaterEqual(
-            stats['SAI_BUFFER_POOL_STAT_WATERMARK_BYTES'], expected_watermark)
+            stats["SAI_BUFFER_POOL_STAT_WATERMARK_BYTES"], expected_watermark)
 
         stats = sai_thrift_get_ingress_priority_group_stats(
             self.client, self.ipg)
 
-        print('SAI_INGRESS_PRIORITY_GROUP_STAT_CURR_OCCUPANCY_BYTES '
-              '(max measured)', ipg_curr_occupancy_bytes)
-        print('SAI_INGRESS_PRIORITY_GROUP_STAT_SHARED_CURR_OCCUPANCY_BYTES '
-              '(max measured)', ipg_shared_curr_occupancy_bytes)
-        print('SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES',
-              stats['SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES'])
-        print('SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS',
-              stats['SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS'])
-        print('SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES',
-              stats['SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES'])
-        print('SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS',
-              stats['SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS'])
+        print("SAI_INGRESS_PRIORITY_GROUP_STAT_CURR_OCCUPANCY_BYTES "
+              "(max measured)", ipg_curr_occupancy_bytes)
+        print("SAI_INGRESS_PRIORITY_GROUP_STAT_SHARED_CURR_OCCUPANCY_BYTES "
+              "(max measured)", ipg_shared_curr_occupancy_bytes)
+        print("SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES",
+              stats["SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES"])
+        print("SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS",
+              stats["SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS"])
+        print("SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES",
+              stats["SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES"])
+        print("SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS",
+              stats["SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS"])
 
         self.assertGreater(ipg_curr_occupancy_bytes, 0)
         self.assertGreater(ipg_shared_curr_occupancy_bytes, 0)
         self.assertGreaterEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES'],
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES"],
             expected_watermark)
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS'], self.tx_cnt)
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS"], self.tx_cnt)
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES'],
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES"],
             self.tx_cnt * self.pkt_len)
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS'],
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS"],
             expected_drops)
 
     def clearVerify(self):
-        '''
-        Clears bufer pool and ingress priority group stats. Verifies they're
-        cleared.
-        '''
+        """
+        Clear bufer pool and ingress priority group stats.
+        Verify they are cleared.
+        """
         print()
-        print('Clear bufer pool and ingress priority group stats')
+        print("Clear bufer pool and ingress priority group stats")
 
         status = sai_thrift_clear_buffer_pool_stats(
             self.client, self.ingr_pool)
@@ -201,29 +199,29 @@ class BufferStatistics(MinimalPortVlanConfig):
             self.client, self.ipg)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-        print('Get stats and verify they\'re cleared')
+        print("Get stats and verify they are cleared")
 
         stats = sai_thrift_get_buffer_pool_stats(self.client, self.ingr_pool)
 
         self.assertEqual(
-            stats['SAI_BUFFER_POOL_STAT_WATERMARK_BYTES'], 0)
+            stats["SAI_BUFFER_POOL_STAT_WATERMARK_BYTES"], 0)
 
         stats = sai_thrift_get_ingress_priority_group_stats(
             self.client, self.ipg)
 
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS'], 0)
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS"], 0)
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES'], 0)
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES"], 0)
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES'], 0)
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES"], 0)
         self.assertEqual(
-            stats['SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS'], 0)
+            stats["SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS"], 0)
 
     def runTest(self):
         print()
 
-        # Make sure test starts with cleared counters
+        # Make sure test starts with cleared counters.
         status = sai_thrift_clear_buffer_pool_stats(
             self.client, self.ingr_pool)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
@@ -232,9 +230,9 @@ class BufferStatistics(MinimalPortVlanConfig):
             self.client, self.ipg)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-        print('Buffer pool size:', self.buf_size)
-        print('Buffer profile reserved_buffer_size:', self.reserved_buf_size)
-        print('Buffer profile shared_static_th:', self.reserved_buf_size)
+        print("Buffer pool size:", self.buf_size)
+        print("Buffer profile reserved_buffer_size:", self.reserved_buf_size)
+        print("Buffer profile shared_static_th:", self.reserved_buf_size)
 
         self.sendVerify(expected_drops=0, verify_reserved_buffer_size=False)
         self.clearVerify()
@@ -244,7 +242,7 @@ class BufferStatistics(MinimalPortVlanConfig):
             pktlen=self.pkt_len - 4)  # account for 4B FCS
 
         print()
-        print('Send pkts ({} B) larger than reserved buffer ({} B)'.format(
+        print("Send pkts ({} B) larger than reserved buffer ({} B)".format(
             self.pkt_len, self.reserved_buf_size))
         self.sendVerify(
             expected_drops=self.tx_cnt, verify_reserved_buffer_size=True)
@@ -261,12 +259,13 @@ class BufferStatistics(MinimalPortVlanConfig):
         super(BufferStatistics, self).tearDown()
 
 
-@group('hw')
 class Forwarding(MinimalPortVlanConfig):
-    '''
+    """
     Verify transitioning between different buffer profiles and modyfing buffer
-    profile doesn't break forwarding for ingress priority group
-    '''
+    profile does not break forwarding for ingress priority group.
+    To observe the proper counting of buffer statistics,
+    it is recommended to run the test on hardware.
+    """
 
     def __init__(self):
         super(Forwarding, self).__init__(port_num=3)
@@ -313,11 +312,11 @@ class Forwarding(MinimalPortVlanConfig):
         self.assertGreater(self.buffer_profile, 0)
 
     def clearSendVerify(self):
-        '''
-        Clears counters, sends traffic, verifies counters.
-        '''
+        """
+        Clear counters, send traffic, verify counters.
+        """
 
-        for i in range(0, 3):
+        for i in range(3):
             status = sai_thrift_clear_port_stats(
                 self.client, self.port_list[i])
             self.assertEqual(status, SAI_STATUS_SUCCESS)
@@ -326,11 +325,11 @@ class Forwarding(MinimalPortVlanConfig):
             self.client, self.ipg)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-        print('Send {} pkts, pkt size: {} B'.format(self.tx_cnt, self.pkt_len))
+        print("Send {} pkts, pkt size: {} B".format(self.tx_cnt, self.pkt_len))
         for _ in range(self.tx_cnt):
             send_packet(self, self.dev_port0, self.pkt)
 
-        print('Verify traffic\n')
+        print("Verify traffic\n")
         time.sleep(2)
 
         stats_ipg = sai_thrift_get_ingress_priority_group_stats(
@@ -339,23 +338,23 @@ class Forwarding(MinimalPortVlanConfig):
         stats_p2 = sai_thrift_get_port_stats(self.client, self.port2)
 
         self.assertEqual(
-            stats_ipg['SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS'], self.tx_cnt)
+            stats_ipg["SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS"], self.tx_cnt)
         self.assertEqual(
-            stats_p1['SAI_PORT_STAT_IF_OUT_UCAST_PKTS'], self.tx_cnt)
+            stats_p1["SAI_PORT_STAT_IF_OUT_UCAST_PKTS"], self.tx_cnt)
         self.assertEqual(
-            stats_p2['SAI_PORT_STAT_IF_OUT_UCAST_PKTS'], self.tx_cnt)
+            stats_p2["SAI_PORT_STAT_IF_OUT_UCAST_PKTS"], self.tx_cnt)
 
     def runTest(self):
-        print('\n')
-        print('Verify forwarding works with default buffer profile')
+        print("\n")
+        print("Verify forwarding works with default buffer profile")
 
         attr = sai_thrift_get_ingress_priority_group_attribute(
             self.client, self.ipg, buffer_profile=True)
-        self.assertEqual(attr['buffer_profile'], 0)
+        self.assertEqual(attr["buffer_profile"], 0)
 
         self.clearSendVerify()
 
-        print('Verify forwarding works with custom buffer profile')
+        print("Verify forwarding works with custom buffer profile")
 
         status = sai_thrift_set_ingress_priority_group_attribute(
             self.client, self.ipg, buffer_profile=self.buffer_profile)
@@ -363,11 +362,11 @@ class Forwarding(MinimalPortVlanConfig):
 
         attr = sai_thrift_get_ingress_priority_group_attribute(
             self.client, self.ipg, buffer_profile=True)
-        self.assertEqual(attr['buffer_profile'], self.buffer_profile)
+        self.assertEqual(attr["buffer_profile"], self.buffer_profile)
 
         self.clearSendVerify()
 
-        print('Verify forwarding works with updated custom buffer profile')
+        print("Verify forwarding works with updated custom buffer profile")
 
         status = sai_thrift_set_buffer_profile_attribute(
             self.client, self.buffer_profile, reserved_buffer_size=1600)
@@ -379,12 +378,12 @@ class Forwarding(MinimalPortVlanConfig):
         attr = sai_thrift_get_buffer_profile_attribute(
             self.client, self.buffer_profile, reserved_buffer_size=True,
             shared_dynamic_th=True)
-        self.assertEqual(attr['reserved_buffer_size'], 1600)
-        self.assertEqual(attr['shared_dynamic_th'], 7)
+        self.assertEqual(attr["reserved_buffer_size"], 1600)
+        self.assertEqual(attr["shared_dynamic_th"], 7)
 
         self.clearSendVerify()
 
-        print('Verify forwarding works with default buffer profile')
+        print("Verify forwarding works with default buffer profile")
 
         status = sai_thrift_set_ingress_priority_group_attribute(
             self.client, self.ipg, buffer_profile=0)
@@ -392,7 +391,7 @@ class Forwarding(MinimalPortVlanConfig):
 
         attr = sai_thrift_get_ingress_priority_group_attribute(
             self.client, self.ipg, buffer_profile=True)
-        self.assertEqual(attr['buffer_profile'], 0)
+        self.assertEqual(attr["buffer_profile"], 0)
 
         self.clearSendVerify()
 
@@ -407,60 +406,15 @@ class Forwarding(MinimalPortVlanConfig):
         super(Forwarding, self).tearDown()
 
 
-@group('internal')
-class IngressPriorityGroupScale(SaiHelperBase):
-    '''
-    Verify ingress_priority_group creation scale
-    '''
-
-    def setUp(self):
-        super(IngressPriorityGroupScale, self).setUp()
-
-        self.ipg_list = []
-
-    def runTest(self):
-        print()
-
-        ipg_num = 128
-        total_ipgs = 0
-
-        print('Create {} ingress priority groups'.format(ipg_num))
-        for i in range(0, ipg_num):
-            ipg = sai_thrift_create_ingress_priority_group(
-                self.client, index=i,
-                port=self.port_list[i % self.active_ports])
-
-            self.ipg_list.append(ipg)
-            self.assertGreater(ipg, 0)
-
-        created_ipgs = len(self.ipg_list)
-        print('Created {} ingress priority groups'.format(created_ipgs))
-
-        for p in self.port_list:
-            port_attr = sai_thrift_get_port_attribute(
-                self.client, p, number_of_ingress_priority_groups=True)
-
-            total_ipgs += port_attr['number_of_ingress_priority_groups']
-
-        self.assertEqual(total_ipgs, created_ipgs)
-
-    def tearDown(self):
-        for i in self.ipg_list:
-            sai_thrift_remove_ingress_priority_group(self.client, i)
-
-        super(IngressPriorityGroupScale, self).tearDown()
-
-
-@disabled  # enable once DRV-4847 is fixed
 class BufferPoolNumber(MinimalPortVlanConfig):
-    '''
-    Verify Buffer Pool Creation Count:
-     * Ingress = SAI_SWITCH_ATTR_INGRESS_BUFFER_POOL_NUM
-     * Egress = SAI_SWITCH_ATTR_EGRESS_BUFFER_POOL_NUM
+    """
+    Verify buffer pool creation count:
+     * Ingress = SAI_SWITCH_ATTR_INGRESS_BUFFER_POOL_NUM,
+     * Egress = SAI_SWITCH_ATTR_EGRESS_BUFFER_POOL_NUM.
 
-    Verify Pools creation with traffic and stats by binding pool to buffer
+    Verify pools creation with traffic and stats by binding pool to buffer
     profile then binding buffer profile to ingress priority group / queue.
-    '''
+    """
 
     def __init__(self):
         super(BufferPoolNumber, self).__init__(port_num=2)
@@ -490,39 +444,39 @@ class BufferPoolNumber(MinimalPortVlanConfig):
             self.client, ingress_buffer_pool_num=True,
             egress_buffer_pool_num=True,
             total_buffer_size=True)
-        ingr_pool_num = sw_attrs['ingress_buffer_pool_num']
-        egr_pool_num = sw_attrs['egress_buffer_pool_num']
+        ingr_pool_num = sw_attrs["ingress_buffer_pool_num"]
+        egr_pool_num = sw_attrs["egress_buffer_pool_num"]
 
-        print('total_buffer_size:', sw_attrs['total_buffer_size'])
-        print('ingress_buffer_pool_num:', ingr_pool_num)
-        print('egress_buffer_pool_num:', egr_pool_num)
+        print("total_buffer_size:", sw_attrs["total_buffer_size"])
+        print("ingress_buffer_pool_num:", ingr_pool_num)
+        print("egress_buffer_pool_num:", egr_pool_num)
 
-        print('Create {} ingress buffer pools'.format(ingr_pool_num))
-        for i in range(0, ingr_pool_num):
-            print('Create ingr_pool', i)
+        print("Create {} ingress buffer pools".format(ingr_pool_num))
+        for i in range(ingr_pool_num):
+            print("Create ingr_pool", i)
 
             ingr_pool = sai_thrift_create_buffer_pool(
                 self.client, type=SAI_BUFFER_POOL_TYPE_INGRESS,
                 size=self.buf_size + i)
             self.assertGreater(ingr_pool, 0)
             self.ingr_pools.append(ingr_pool)
-        print('OK')
+        print("OK")
 
-        print('Create {} egress buffer pools'.format(egr_pool_num))
-        for i in range(0, egr_pool_num):
-            print('Create egr_pool', i)
+        print("Create {} egress buffer pools".format(egr_pool_num))
+        for i in range(egr_pool_num):
+            print("Create egr_pool", i)
 
             egr_pool = sai_thrift_create_buffer_pool(
                 self.client, type=SAI_BUFFER_POOL_TYPE_EGRESS,
                 size=self.buf_size + i)
             self.assertGreater(egr_pool, 0)
             self.egr_pools.append(egr_pool)
-        print('OK')
+        print("OK")
 
-        print('Create {} ingress buffer profiles and {} IPGs'.format(
-            ingr_pool_num, ingr_pool_num))
+        print("Create {0} ingress buffer profiles and {0} IPGs".format(
+            ingr_pool_num))
 
-        for i in range(0, ingr_pool_num):
+        for i in range(ingr_pool_num):
             profile = sai_thrift_create_buffer_profile(
                 self.client, pool_id=self.ingr_pools[i],
                 reserved_buffer_size=self.profile_buf_size,
@@ -535,9 +489,9 @@ class BufferPoolNumber(MinimalPortVlanConfig):
                 self.client, port=self.port0, index=i, buffer_profile=profile)
             self.assertGreater(ipg, 0)
             self.ipgs.append(ipg)
-        print('OK')
+        print("OK")
 
-        print('Create {} egress buffer profiles and bind each to queue'.format(
+        print("Create {} egress buffer profiles and bind each to queue".format(
             egr_pool_num))
 
         attr = sai_thrift_get_port_attribute(
@@ -546,9 +500,9 @@ class BufferPoolNumber(MinimalPortVlanConfig):
         q_list = sai_thrift_object_list_t(count=attr["qos_number_of_queues"])
         attr = sai_thrift_get_port_attribute(
             self.client, self.port1, qos_queue_list=q_list)
-        self.queues = attr['qos_queue_list'].idlist
+        self.queues = attr["qos_queue_list"].idlist
 
-        for i in range(0, egr_pool_num):
+        for i in range(egr_pool_num):
             profile = sai_thrift_create_buffer_profile(
                 self.client, pool_id=self.egr_pools[i],
                 reserved_buffer_size=self.profile_buf_size,
@@ -560,21 +514,21 @@ class BufferPoolNumber(MinimalPortVlanConfig):
             status = sai_thrift_set_queue_attribute(
                 self.client, self.queues[i], buffer_profile_id=profile)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
-        print('OK')
+        print("OK")
 
-        # QoS maps
+        # Configure QoS maps.
         dscp_to_tc = []
         tc_to_ipg = []
         prio_to_ipg = []
         tc_to_q = []
 
-        for i in range(0, 8):
+        for i in range(8):
             dscp_to_tc.append(
                 sai_thrift_qos_map_t(
                     key=sai_thrift_qos_map_params_t(dscp=i),
                     value=sai_thrift_qos_map_params_t(tc=i)))
 
-        for i in range(0, ingr_pool_num):
+        for i in range(ingr_pool_num):
             tc_to_ipg.append(
                 sai_thrift_qos_map_t(
                     key=sai_thrift_qos_map_params_t(tc=i),
@@ -585,13 +539,13 @@ class BufferPoolNumber(MinimalPortVlanConfig):
                     key=sai_thrift_qos_map_params_t(prio=i),
                     value=sai_thrift_qos_map_params_t(pg=i)))
 
-        for i in range(0, egr_pool_num):
+        for i in range(egr_pool_num):
             tc_to_q.append(
                 sai_thrift_qos_map_t(
                     key=sai_thrift_qos_map_params_t(tc=i),
                     value=sai_thrift_qos_map_params_t(queue_index=i)))
 
-        print('Create DSCP to TC map')
+        print("Create DSCP to TC map")
         qos_map_list = sai_thrift_qos_map_list_t(
             maplist=dscp_to_tc, count=len(dscp_to_tc))
 
@@ -607,9 +561,9 @@ class BufferPoolNumber(MinimalPortVlanConfig):
         status = sai_thrift_set_port_attribute(
             self.client, self.port1, qos_dscp_to_tc_map=self.dscp_to_tc_map)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
-        print('OK')
+        print("OK")
 
-        print('Create TC to iCoS map')
+        print("Create TC to iCoS map")
         qos_map_list = sai_thrift_qos_map_list_t(
             maplist=tc_to_ipg, count=len(tc_to_ipg))
 
@@ -622,9 +576,9 @@ class BufferPoolNumber(MinimalPortVlanConfig):
             self.client, self.port0,
             qos_tc_to_priority_group_map=self.tc_to_ipg_map)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
-        print('OK')
+        print("OK")
 
-        print('Create iCoS to IPG map')
+        print("Create iCoS to IPG map")
         qos_map_list = sai_thrift_qos_map_list_t(
             maplist=prio_to_ipg, count=len(prio_to_ipg))
 
@@ -637,9 +591,9 @@ class BufferPoolNumber(MinimalPortVlanConfig):
             self.client, self.port0,
             qos_pfc_priority_to_priority_group_map=self.prio_to_ipg_map)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
-        print('OK')
+        print("OK")
 
-        print('Create TC to queue map')
+        print("Create TC to queue map")
         qos_map_list = sai_thrift_qos_map_list_t(
             maplist=tc_to_q, count=len(tc_to_q))
 
@@ -651,32 +605,32 @@ class BufferPoolNumber(MinimalPortVlanConfig):
         status = sai_thrift_set_port_attribute(
             self.client, self.port1, qos_tc_to_queue_map=self.tc_to_q_map)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
-        print('OK')
+        print("OK")
 
-        print('Send 1 packet to each IPG and queue')
-        for i in range(0, ingr_pool_num):
+        print("Send 1 packet to each IPG and queue")
+        for i in range(ingr_pool_num):
             pkt = simple_udpv6_packet(ipv6_dscp=i)
             send_packet(self, self.dev_port0, pkt)
 
-        for i in range(0, egr_pool_num):
+        for i in range(egr_pool_num):
             pkt = simple_udpv6_packet(ipv6_dscp=i)
             send_packet(self, self.dev_port1, pkt)
 
-        print('Verify traffic')
+        print("Verify traffic")
         time.sleep(2)
 
-        for i in range(0, ingr_pool_num):
+        for i in range(ingr_pool_num):
             stats = sai_thrift_get_ingress_priority_group_stats(
                 self.client, self.ipgs[i])
             self.assertEqual(
-                stats['SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS'], 1)
+                stats["SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS"], 1)
 
-        for i in range(0, egr_pool_num):
+        for i in range(egr_pool_num):
             stats = sai_thrift_get_queue_stats(self.client, self.queues[i])
-            self.assertEqual(stats['SAI_QUEUE_STAT_PACKETS'], 1)
+            self.assertEqual(stats["SAI_QUEUE_STAT_PACKETS"], 1)
 
     def tearDown(self):
-        # unset qos maps
+        # Unset QoS maps.
         sai_thrift_set_port_attribute(
             self.client, self.port1, qos_tc_to_queue_map=0)
         sai_thrift_set_port_attribute(
@@ -689,28 +643,28 @@ class BufferPoolNumber(MinimalPortVlanConfig):
         sai_thrift_set_port_attribute(
             self.client, self.port0, qos_dscp_to_tc_map=0)
 
-        # remove qos maps
+        # Remove QoS maps.
         sai_thrift_remove_qos_map(self.client, self.tc_to_q_map)
         sai_thrift_remove_qos_map(self.client, self.prio_to_ipg_map)
         sai_thrift_remove_qos_map(self.client, self.tc_to_ipg_map)
         sai_thrift_remove_qos_map(self.client, self.dscp_to_tc_map)
 
-        # unbind buffer profile from queues
+        # Unbind buffer profile from queues.
         for q in self.queues:
             sai_thrift_set_queue_attribute(self.client, q, buffer_profile_id=0)
 
-        # remove ipgs
+        # Remove IPGs.
         for ipg in self.ipgs:
             sai_thrift_remove_ingress_priority_group(self.client, ipg)
 
-        # remove buffer profiles
+        # Remove buffer profiles.
         for profile in self.egr_profiles:
             sai_thrift_remove_buffer_profile(self.client, profile)
 
         for profile in self.ingr_profiles:
             sai_thrift_remove_buffer_profile(self.client, profile)
 
-        # remove buffer pools
+        # Remove buffer pools.
         for pool in self.egr_pools:
             sai_thrift_remove_buffer_pool(self.client, pool)
 
