@@ -1,4 +1,4 @@
-# Copyright 2021-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
 """
 Thrift SAI interface MPLS tests
 """
-
-from __future__ import print_function
 
 import random
 
@@ -60,11 +58,8 @@ class MplsCpuTrapTest(SaiHelper):
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
     def runTest(self):
-        try:
-            self.mplsImplicitNullLabelTrapDropTest()
-            self.mplsLabelLookupMissTest()
-        finally:
-            pass
+        self.mplsImplicitNullLabelTrapDropTest()
+        self.mplsLabelLookupMissTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry)
@@ -187,15 +182,13 @@ class MplsCpuTrapTest(SaiHelper):
             inner_frame=send_pkt['IP'])
 
         try:
-            # SAI_IN_DROP_REASON_MPLS_MISS drop reason not yet supported in
-            # SAI v1.8 - uncomment after SAI upgrade
-            # drop_reason = sai_thrift_s32_list_t(
-            #     count=1, int32list=[SAI_IN_DROP_REASON_MPLS_MISS])
-            # debug_cnt = sai_thrift_create_debug_counter(
-            #     self.client,
-            #     type=SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS,
-            #     in_drop_reason_list = drop_reason)
-            # self.assertNotEqual(debug_cnt, 0)
+            drop_reason = sai_thrift_s32_list_t(
+                count=1, int32list=[SAI_IN_DROP_REASON_MPLS_MISS])
+            debug_cnt = sai_thrift_create_debug_counter(
+                self.client,
+                type=SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS,
+                in_drop_reason_list = drop_reason)
+            self.assertNotEqual(debug_cnt, 0)
 
             print("Sending packet with unknown label - should be dropped")
             send_packet(self, self.dev_port10, mpls_pkt)
@@ -228,21 +221,16 @@ class MplsCpuTrapTest(SaiHelper):
 
             self.assertTrue(self._verifyStats())
 
-            # SAI_IN_DROP_REASON_MPLS_MISS drop reason not yet supported in
-            # SAI v1.8 - uncomment after SAI upgrade
-            # dc_attr = sai_thrift_get_debug_counter_attribute(
-            #     self.client, debug_cnt, index=True)
-            # dc_index = dc_attr['index']
+            dc_attr = sai_thrift_get_debug_counter_attribute(
+                self.client, debug_cnt, index=True)
+            dc_index = dc_attr['index']
 
-            # dc_stats = sai_thrift_get_port_stats_ext(
-            #     self.client, self.port10, [dc_index],
-            #     SAI_STATS_MODE_READ_AND_CLEAR)
+            dc_stats = sai_thrift_get_debug_counter_port_stat(
+                self.client, self.port10, [dc_index])
 
         finally:
             sai_thrift_remove_inseg_entry(self.client, inseg_entry_4)
-            # SAI_IN_DROP_REASON_MPLS_MISS drop reason not yet supported in
-            # SAI v1.8 - uncomment after SAI upgrade
-            # sai_thrift_remove_debug_counter(self.client, debug_cnt)
+            sai_thrift_remove_debug_counter(self.client, debug_cnt)
 
 
 class MplsIpv6Test(SaiHelper):
@@ -672,17 +660,14 @@ class MplsIpv6Test(SaiHelper):
         self.mpls_rif_out_stats = 0
 
     def runTest(self):
-        try:
-            self.mplsIngressLERTest()
-            self.mplsEgressLERTermTest()
-            self.mplsEgressLERNullTermTest()
-            self.mplsEgressPhpTest()
-            self.mplsEgressPhpSwapNullTest()
-            self.mplsTransitSwapTest()
-            self.mplsTransitSwapEcmpHashTest()
-            self.mplsTransitPushTest()
-        finally:
-            pass
+        self.mplsIngressLERTest()
+        self.mplsEgressLERTermTest()
+        self.mplsEgressLERNullTermTest()
+        self.mplsEgressPhpTest()
+        self.mplsEgressPhpSwapNullTest()
+        self.mplsTransitSwapTest()
+        self.mplsTransitSwapEcmpHashTest()
+        self.mplsTransitPushTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry_8000)
@@ -857,30 +842,26 @@ class MplsIpv6Test(SaiHelper):
             mpls_tags=mpls_tag_list,
             inner_frame=exp_pkt_3['IPv6'])
 
-        try:
-            print("Send ip packet to add one MPLS label 1000")
-            send_packet(self, self.dev_port10, send_pkt_1)
-            verify_packet(self, mpls_pkt_label_1, self.dev_port11)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_1_out_stats += 1
+        print("Send ip packet to add one MPLS label 1000")
+        send_packet(self, self.dev_port10, send_pkt_1)
+        verify_packet(self, mpls_pkt_label_1, self.dev_port11)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_1_out_stats += 1
 
-            print("Send ip packet to add two MPLS label stack - 1000, 2000")
-            send_packet(self, self.dev_port10, send_pkt_2)
-            verify_packet(self, mpls_pkt_label_2, self.dev_port11)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_1_out_stats += 1
+        print("Send ip packet to add two MPLS label stack - 1000, 2000")
+        send_packet(self, self.dev_port10, send_pkt_2)
+        verify_packet(self, mpls_pkt_label_2, self.dev_port11)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_1_out_stats += 1
 
-            print("Send ip packet to add three MPLS label stack - "
-                  "1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_3, self.dev_port11)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_1_out_stats += 1
+        print("Send ip packet to add three MPLS label stack - "
+              "1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_3, self.dev_port11)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_1_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsEgressLERTermTest(self):
         '''
@@ -905,17 +886,13 @@ class MplsIpv6Test(SaiHelper):
             ipv6_dst='200::1',
             ipv6_hlim=63)
 
-        try:
-            print("Send MPLS tag packet with label 1000 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-            self.mpls_rif_in_stats += 1
-            self.egress_rif_2_out_stats += 1
+        print("Send MPLS tag packet with label 1000 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
+        self.mpls_rif_in_stats += 1
+        self.egress_rif_2_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsEgressLERNullTermTest(self):
         '''
@@ -940,17 +917,13 @@ class MplsIpv6Test(SaiHelper):
             ipv6_dst='200::1',
             ipv6_hlim=63)
 
-        try:
-            print("Send MPLS tag packet with label 0 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-            self.mpls_rif_in_stats += 1
-            self.egress_rif_2_out_stats += 1
+        print("Send MPLS tag packet with label 0 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
+        self.mpls_rif_in_stats += 1
+        self.egress_rif_2_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsEgressPhpTest(self):
         '''
@@ -1060,18 +1033,14 @@ class MplsIpv6Test(SaiHelper):
             mpls_tags=null_mpls_tag_list,
             inner_frame=send_pkt['IPv6'])
 
-        try:
-            print("Send MPLS tag pakcet with label 3000 - "
-                  "PHP and forward packet with explicit NULL label")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port25)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_4_out_stats += 1
+        print("Send MPLS tag pakcet with label 3000 - "
+              "PHP and forward packet with explicit NULL label")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port25)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_4_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsTransitSwapTest(self):
         '''
@@ -1261,55 +1230,51 @@ class MplsIpv6Test(SaiHelper):
         rif8_stats_start = sai_thrift_get_router_interface_stats(
             self.client, self.egress_rif_8)
 
-        try:
-            print("ECMP - Send MPLS tag packet 7000")
+        print("ECMP - Send MPLS tag packet 7000")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        self.ingress_rif_in_stats += 1
+        verify_any_packet_any_port(
+            self, [recv_mpls_7070, recv_mpls_7171, recv_mpls_7272],
+            [self.dev_port27, self.dev_port28, self.dev_port29])
+        rif6_stats_end = sai_thrift_get_router_interface_stats(
+            self.client, self.egress_rif_6)
+        rif7_stats_end = sai_thrift_get_router_interface_stats(
+            self.client, self.egress_rif_7)
+        rif8_stats_end = sai_thrift_get_router_interface_stats(
+            self.client, self.egress_rif_8)
+
+        if (rif6_stats_end[rif_cntr_id] -
+                rif6_stats_start[rif_cntr_id] == 1):
+            final_egress_rif = self.egress_rif_6
+        if (rif7_stats_end[rif_cntr_id] -
+                rif7_stats_start[rif_cntr_id] == 1):
+            final_egress_rif = self.egress_rif_7
+        if (rif8_stats_end[rif_cntr_id] -
+                rif8_stats_start[rif_cntr_id] == 1):
+            final_egress_rif = self.egress_rif_8
+        else:
+            final_egress_rif = 0
+
+        iter_count = 10
+        rif_lb_start_count = sai_thrift_get_router_interface_stats(
+            self.client, final_egress_rif)
+
+        for _ in range(0, iter_count):
+            l4_sport = random.randint(5000, 65535)
+            l4_dport = random.randint(5000, 65535)
+            mpls_pkt['TCP'].sport = l4_sport
+            mpls_pkt['TCP'].dport = l4_dport
             send_packet(self, self.dev_port10, mpls_pkt)
             self.ingress_rif_in_stats += 1
-            verify_any_packet_any_port(
-                self, [recv_mpls_7070, recv_mpls_7171, recv_mpls_7272],
-                [self.dev_port27, self.dev_port28, self.dev_port29])
-            rif6_stats_end = sai_thrift_get_router_interface_stats(
-                self.client, self.egress_rif_6)
-            rif7_stats_end = sai_thrift_get_router_interface_stats(
-                self.client, self.egress_rif_7)
-            rif8_stats_end = sai_thrift_get_router_interface_stats(
-                self.client, self.egress_rif_8)
 
-            if (rif6_stats_end[rif_cntr_id] -
-                    rif6_stats_start[rif_cntr_id] == 1):
-                final_egress_rif = self.egress_rif_6
-            if (rif7_stats_end[rif_cntr_id] -
-                    rif7_stats_start[rif_cntr_id] == 1):
-                final_egress_rif = self.egress_rif_7
-            if (rif8_stats_end[rif_cntr_id] -
-                    rif8_stats_start[rif_cntr_id] == 1):
-                final_egress_rif = self.egress_rif_8
-            else:
-                final_egress_rif = 0
+        time.sleep(2)
+        rif_lb_end_count = sai_thrift_get_router_interface_stats(
+            self.client, final_egress_rif)
+        diff = (rif_lb_end_count[rif_cntr_id] -
+                rif_lb_start_count[rif_cntr_id])
+        self.assertEqual(diff, iter_count)
 
-            iter_count = 10
-            rif_lb_start_count = sai_thrift_get_router_interface_stats(
-                self.client, final_egress_rif)
-
-            for _ in range(0, iter_count):
-                l4_sport = random.randint(5000, 65535)
-                l4_dport = random.randint(5000, 65535)
-                mpls_pkt['TCP'].sport = l4_sport
-                mpls_pkt['TCP'].dport = l4_dport
-                send_packet(self, self.dev_port10, mpls_pkt)
-                self.ingress_rif_in_stats += 1
-
-            time.sleep(2)
-            rif_lb_end_count = sai_thrift_get_router_interface_stats(
-                self.client, final_egress_rif)
-            diff = (rif_lb_end_count[rif_cntr_id] -
-                    rif_lb_start_count[rif_cntr_id])
-            self.assertEqual(diff, iter_count)
-
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsTransitPushTest(self):
         '''
@@ -1317,36 +1282,32 @@ class MplsIpv6Test(SaiHelper):
         '''
         print("\nmplsTransitPushTest()")
 
-        try:
-            send_pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                ipv6_dst='660::1',
-                ipv6_hlim=64)
+        send_pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            ipv6_dst='660::1',
+            ipv6_hlim=64)
 
-            mpls_tag = {'label': 8000, 'ttl': 64, 'tc':  3, 's':  1}
-            mpls_tag_list = [mpls_tag]
-            mpls_pkt = simple_mpls_packet(
-                eth_dst=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IPv6'])
+        mpls_tag = {'label': 8000, 'ttl': 64, 'tc':  3, 's':  1}
+        mpls_tag_list = [mpls_tag]
+        mpls_pkt = simple_mpls_packet(
+            eth_dst=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IPv6'])
 
-            mpls_push_tag = {'label': 9000, 'ttl': 63, 'tc':  5, 's':  0}
-            mpls_tag_list = [mpls_push_tag, mpls_tag]
-            recv_mpls_pkt = simple_mpls_packet(
-                eth_dst="00:11:22:33:44:55",
-                eth_src=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IPv6'])
+        mpls_push_tag = {'label': 9000, 'ttl': 63, 'tc':  5, 's':  0}
+        mpls_tag_list = [mpls_push_tag, mpls_tag]
+        recv_mpls_pkt = simple_mpls_packet(
+            eth_dst="00:11:22:33:44:55",
+            eth_src=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IPv6'])
 
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port30)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_9_out_stats += 1
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port30)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_9_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
 
 class MplsIpv4Test(SaiHelper):
@@ -1800,18 +1761,15 @@ class MplsIpv4Test(SaiHelper):
         self.mpls_rif_out_stats = 0
 
     def runTest(self):
-        try:
-            self.mplsIngressLERTest()
-            self.mplsEgressLERTermTest()
-            self.mplsEgressLERTermUpdateMplsRifVrfTest()
-            self.mplsEgressLERNullTermTest()
-            self.mplsEgressPhpTest()
-            self.mplsEgressPhpSwapNullTest()
-            self.mplsTransitSwapTest()
-            self.mplsTransitSwapEcmpHashTest()
-            self.mplsTransitPushTest()
-        finally:
-            pass
+        self.mplsIngressLERTest()
+        self.mplsEgressLERTermTest()
+        self.mplsEgressLERTermUpdateMplsRifVrfTest()
+        self.mplsEgressLERNullTermTest()
+        self.mplsEgressPhpTest()
+        self.mplsEgressPhpSwapNullTest()
+        self.mplsTransitSwapTest()
+        self.mplsTransitSwapEcmpHashTest()
+        self.mplsTransitPushTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry_8000)
@@ -1995,30 +1953,26 @@ class MplsIpv4Test(SaiHelper):
             mpls_tags=mpls_tag_list,
             inner_frame=exp_pkt_3['IP'])
 
-        try:
-            print("Send ip packet to add one MPLS label 1000")
-            send_packet(self, self.dev_port10, send_pkt_1)
-            verify_packet(self, mpls_pkt_label_1, self.dev_port11)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_1_out_stats += 1
+        print("Send ip packet to add one MPLS label 1000")
+        send_packet(self, self.dev_port10, send_pkt_1)
+        verify_packet(self, mpls_pkt_label_1, self.dev_port11)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_1_out_stats += 1
 
-            print("Send ip packet to add two MPLS label stack - 1000, 2000")
-            send_packet(self, self.dev_port10, send_pkt_2)
-            verify_packet(self, mpls_pkt_label_2, self.dev_port11)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_1_out_stats += 1
+        print("Send ip packet to add two MPLS label stack - 1000, 2000")
+        send_packet(self, self.dev_port10, send_pkt_2)
+        verify_packet(self, mpls_pkt_label_2, self.dev_port11)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_1_out_stats += 1
 
-            print("Send ip packet to add three MPLS label stack - "
-                  "1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_3, self.dev_port11)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_1_out_stats += 1
+        print("Send ip packet to add three MPLS label stack - "
+              "1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_3, self.dev_port11)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_1_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsEgressLERTermTest(self):
         '''
@@ -2043,17 +1997,13 @@ class MplsIpv4Test(SaiHelper):
             ip_dst='20.20.20.1',
             ip_ttl=63)
 
-        try:
-            print("Send MPLS tag packet with label 1000 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-            self.mpls_rif_in_stats += 1
-            self.egress_rif_2_out_stats += 1
+        print("Send MPLS tag packet with label 1000 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
+        self.mpls_rif_in_stats += 1
+        self.egress_rif_2_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsEgressLERTermUpdateMplsRifVrfTest(self):
         '''
@@ -2164,17 +2114,13 @@ class MplsIpv4Test(SaiHelper):
             ip_dst='20.20.20.1',
             ip_ttl=63)
 
-        try:
-            print("Send MPLS tag packet with label 0 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-            self.mpls_rif_in_stats = 1
-            self.egress_rif_2_out_stats += 1
+        print("Send MPLS tag packet with label 0 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
+        self.mpls_rif_in_stats = 1
+        self.egress_rif_2_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsEgressPhpTest(self):
         '''
@@ -2284,18 +2230,14 @@ class MplsIpv4Test(SaiHelper):
             mpls_tags=null_mpls_tag_list,
             inner_frame=send_pkt['IP'])
 
-        try:
-            print("Send MPLS tag pakcet with label 3000 - "
-                  "PHP and forward packet with explicit NULL label")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port25)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_4_out_stats += 1
+        print("Send MPLS tag pakcet with label 3000 - "
+              "PHP and forward packet with explicit NULL label")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port25)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_4_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
     def mplsTransitSwapTest(self):
         '''
@@ -2485,55 +2427,51 @@ class MplsIpv4Test(SaiHelper):
         rif8_stats_start = sai_thrift_get_router_interface_stats(
             self.client, self.egress_rif_8)
 
-        try:
-            print("ECMP - Send MPLS tag packet 7000")
+        print("ECMP - Send MPLS tag packet 7000")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        self.ingress_rif_in_stats += 1
+        verify_any_packet_any_port(
+            self, [recv_mpls_7070, recv_mpls_7171, recv_mpls_7272],
+            [self.dev_port27, self.dev_port28, self.dev_port29])
+        rif6_stats_end = sai_thrift_get_router_interface_stats(
+            self.client, self.egress_rif_6)
+        rif7_stats_end = sai_thrift_get_router_interface_stats(
+            self.client, self.egress_rif_7)
+        rif8_stats_end = sai_thrift_get_router_interface_stats(
+            self.client, self.egress_rif_8)
+
+        if (rif6_stats_end[rif_cntr_id] -
+                rif6_stats_start[rif_cntr_id] == 1):
+            final_egress_rif = self.egress_rif_6
+        if (rif7_stats_end[rif_cntr_id] -
+                rif7_stats_start[rif_cntr_id] == 1):
+            final_egress_rif = self.egress_rif_7
+        if (rif8_stats_end[rif_cntr_id] -
+                rif8_stats_start[rif_cntr_id] == 1):
+            final_egress_rif = self.egress_rif_8
+        else:
+            final_egress_rif = 0
+
+        iter_count = 10
+        rif_lb_start_count = sai_thrift_get_router_interface_stats(
+            self.client, final_egress_rif)
+
+        for _ in range(0, iter_count):
+            l4_sport = random.randint(5000, 65535)
+            l4_dport = random.randint(5000, 65535)
+            mpls_pkt['TCP'].sport = l4_sport
+            mpls_pkt['TCP'].dport = l4_dport
             send_packet(self, self.dev_port10, mpls_pkt)
             self.ingress_rif_in_stats += 1
-            verify_any_packet_any_port(
-                self, [recv_mpls_7070, recv_mpls_7171, recv_mpls_7272],
-                [self.dev_port27, self.dev_port28, self.dev_port29])
-            rif6_stats_end = sai_thrift_get_router_interface_stats(
-                self.client, self.egress_rif_6)
-            rif7_stats_end = sai_thrift_get_router_interface_stats(
-                self.client, self.egress_rif_7)
-            rif8_stats_end = sai_thrift_get_router_interface_stats(
-                self.client, self.egress_rif_8)
 
-            if (rif6_stats_end[rif_cntr_id] -
-                    rif6_stats_start[rif_cntr_id] == 1):
-                final_egress_rif = self.egress_rif_6
-            if (rif7_stats_end[rif_cntr_id] -
-                    rif7_stats_start[rif_cntr_id] == 1):
-                final_egress_rif = self.egress_rif_7
-            if (rif8_stats_end[rif_cntr_id] -
-                    rif8_stats_start[rif_cntr_id] == 1):
-                final_egress_rif = self.egress_rif_8
-            else:
-                final_egress_rif = 0
+        time.sleep(2)
+        rif_lb_end_count = sai_thrift_get_router_interface_stats(
+            self.client, final_egress_rif)
+        diff = (rif_lb_end_count[rif_cntr_id] -
+                rif_lb_start_count[rif_cntr_id])
+        self.assertEqual(diff, iter_count)
 
-            iter_count = 10
-            rif_lb_start_count = sai_thrift_get_router_interface_stats(
-                self.client, final_egress_rif)
-
-            for _ in range(0, iter_count):
-                l4_sport = random.randint(5000, 65535)
-                l4_dport = random.randint(5000, 65535)
-                mpls_pkt['TCP'].sport = l4_sport
-                mpls_pkt['TCP'].dport = l4_dport
-                send_packet(self, self.dev_port10, mpls_pkt)
-                self.ingress_rif_in_stats += 1
-
-            time.sleep(2)
-            rif_lb_end_count = sai_thrift_get_router_interface_stats(
-                self.client, final_egress_rif)
-            diff = (rif_lb_end_count[rif_cntr_id] -
-                    rif_lb_start_count[rif_cntr_id])
-            self.assertEqual(diff, iter_count)
-
-            self._verifyStats()
-
-        finally:
-            pass
+        self._verifyStats()
 
     def mplsTransitPushTest(self):
         '''
@@ -2541,47 +2479,40 @@ class MplsIpv4Test(SaiHelper):
         '''
         print("\nmplsTransitPushTest()")
 
-        try:
-            send_pkt = simple_tcp_packet(
-                eth_dst=ROUTER_MAC,
-                ip_dst='60.60.60.10',
-                ip_ttl=64)
+        send_pkt = simple_tcp_packet(
+            eth_dst=ROUTER_MAC,
+            ip_dst='60.60.60.10',
+            ip_ttl=64)
 
-            mpls_tag = {'label': 8000, 'ttl': 64, 'tc':  3, 's':  1}
-            mpls_tag_list = [mpls_tag]
-            mpls_pkt = simple_mpls_packet(
-                eth_dst=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IP'])
+        mpls_tag = {'label': 8000, 'ttl': 64, 'tc':  3, 's':  1}
+        mpls_tag_list = [mpls_tag]
+        mpls_pkt = simple_mpls_packet(
+            eth_dst=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IP'])
 
-            mpls_push_tag = {'label': 9000, 'ttl': 63, 'tc':  5, 's':  0}
-            mpls_tag_list = [mpls_push_tag, mpls_tag]
-            recv_mpls_pkt = simple_mpls_packet(
-                eth_dst="00:11:22:33:44:55",
-                eth_src=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IP'])
+        mpls_push_tag = {'label': 9000, 'ttl': 63, 'tc':  5, 's':  0}
+        mpls_tag_list = [mpls_push_tag, mpls_tag]
+        recv_mpls_pkt = simple_mpls_packet(
+            eth_dst="00:11:22:33:44:55",
+            eth_src=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IP'])
 
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port30)
-            self.ingress_rif_in_stats += 1
-            self.egress_rif_9_out_stats += 1
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port30)
+        self.ingress_rif_in_stats += 1
+        self.egress_rif_9_out_stats += 1
 
-            self.assertTrue(self._verifyStats())
-
-        finally:
-            pass
+        self.assertTrue(self._verifyStats())
 
 
 class MplsCreationTest(SaiHelper):
     ''' Basic MPLS creation test class '''
     def runTest(self):
-        try:
-            self.mplsCreateAndRemoveTest()
-            self.mplsAttributesTest()
-            self.mplsCreateTheSameEntryTest()
-        finally:
-            pass
+        self.mplsCreateAndRemoveTest()
+        self.mplsAttributesTest()
+        self.mplsCreateTheSameEntryTest()
 
     def mplsCreateAndRemoveTest(self):
         ''' Test creates and removes several MPLS entries in loop. '''
@@ -3003,14 +2934,11 @@ class MplsIpv6TtlModeTest(SaiHelper):
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
     def runTest(self):
-        try:
-            self.mplsIngressLERTtlModeTest()
-            self.mplsEgressLERTermTtlModeTest()
-            self.mplsEgressLERNullTermTtlModeTest()
-            self.mplsEgressPhpTtlModeTest()
-            self.mplsTransitPushTtlTest()
-        finally:
-            pass
+        self.mplsIngressLERTtlModeTest()
+        self.mplsEgressLERTermTtlModeTest()
+        self.mplsEgressLERNullTermTtlModeTest()
+        self.mplsEgressPhpTtlModeTest()
+        self.mplsTransitPushTtlTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry_8000)
@@ -3161,49 +3089,45 @@ class MplsIpv6TtlModeTest(SaiHelper):
             mpls_tags=mpls_tag_list,
             inner_frame=exp_pkt_3['IPv6'])
 
-        try:
-            print("Send ip packet to add one MPLS label 1000")
-            send_packet(self, self.dev_port10, send_pkt_1)
-            verify_packet(self, mpls_pkt_label_1, self.dev_port11)
+        print("Send ip packet to add one MPLS label 1000")
+        send_packet(self, self.dev_port10, send_pkt_1)
+        verify_packet(self, mpls_pkt_label_1, self.dev_port11)
 
-            print("Send ip packet to add two MPLS label stack - 1000, 2000")
-            send_packet(self, self.dev_port10, send_pkt_2)
-            verify_packet(self, mpls_pkt_label_2, self.dev_port11)
+        print("Send ip packet to add two MPLS label stack - 1000, 2000")
+        send_packet(self, self.dev_port10, send_pkt_2)
+        verify_packet(self, mpls_pkt_label_2, self.dev_port11)
 
-            print("Send ip packet to add three MPLS label stack - "
-                  "1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_3, self.dev_port11)
+        print("Send ip packet to add three MPLS label stack - "
+              "1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_3, self.dev_port11)
 
-            sai_thrift_set_next_hop_attribute(
-                self.client, self.nhop_label_3,
-                outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_PIPE)
+        sai_thrift_set_next_hop_attribute(
+            self.client, self.nhop_label_3,
+            outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_PIPE)
 
-            print("Change nexthop to pipe mode and send 3 label ip packet - "
-                  "1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_4, self.dev_port11)
+        print("Change nexthop to pipe mode and send 3 label ip packet - "
+              "1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_4, self.dev_port11)
 
-            sai_thrift_set_next_hop_attribute(
-                self.client, self.nhop_label_3,
-                outseg_ttl_value=32)
+        sai_thrift_set_next_hop_attribute(
+            self.client, self.nhop_label_3,
+            outseg_ttl_value=32)
 
-            print("Change nexthop ttl value to 32 and send 3 label ip packet "
-                  "- 1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_5, self.dev_port11)
+        print("Change nexthop ttl value to 32 and send 3 label ip packet "
+              "- 1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_5, self.dev_port11)
 
-            sai_thrift_set_next_hop_attribute(
-                self.client, self.nhop_label_3,
-                outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_UNIFORM)
+        sai_thrift_set_next_hop_attribute(
+            self.client, self.nhop_label_3,
+            outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_UNIFORM)
 
-            print("Change nexthop to uniform mode and send 3 label ip packet "
-                  "- 1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_3, self.dev_port11)
-
-        finally:
-            pass
+        print("Change nexthop to uniform mode and send 3 label ip packet "
+              "- 1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_3, self.dev_port11)
 
     def mplsEgressLERTermTtlModeTest(self):
         '''
@@ -3228,31 +3152,27 @@ class MplsIpv6TtlModeTest(SaiHelper):
             ipv6_dst='200::1',
             ipv6_hlim=54)
 
-        try:
-            print("Send MPLS tag packet with label 1000 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
+        print("Send MPLS tag packet with label 1000 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
 
-            sai_thrift_set_inseg_entry_attribute(
-                self.client, self.inseg_entry_1000,
-                pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE)
+        sai_thrift_set_inseg_entry_attribute(
+            self.client, self.inseg_entry_1000,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE)
 
-            recv_pkt['IPv6'].hlim = 63
-            print("Send MPLS tag packet after changing ttl mode to pipe")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
+        recv_pkt['IPv6'].hlim = 63
+        print("Send MPLS tag packet after changing ttl mode to pipe")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
 
-            sai_thrift_set_inseg_entry_attribute(
-                self.client, self.inseg_entry_1000,
-                pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM)
+        sai_thrift_set_inseg_entry_attribute(
+            self.client, self.inseg_entry_1000,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM)
 
-            recv_pkt['IPv6'].hlim = 54
-            print("Send MPLS tag packet after changing ttl mode to uniform")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-
-        finally:
-            pass
+        recv_pkt['IPv6'].hlim = 54
+        print("Send MPLS tag packet after changing ttl mode to uniform")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
 
     def mplsEgressLERNullTermTtlModeTest(self):
         '''
@@ -3278,13 +3198,9 @@ class MplsIpv6TtlModeTest(SaiHelper):
             ipv6_dst='200::1',
             ipv6_hlim=59)
 
-        try:
-            print("Send MPLS tag packet with label 0 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-
-        finally:
-            pass
+        print("Send MPLS tag packet with label 0 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
 
     def mplsEgressPhpTtlModeTest(self):
         '''
@@ -3402,61 +3318,57 @@ class MplsIpv6TtlModeTest(SaiHelper):
         '''
         print("\nmplsTransitPushTtlTest()")
 
-        try:
-            send_pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                ipv6_dst='660::1',
-                ipv6_hlim=64)
+        send_pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            ipv6_dst='660::1',
+            ipv6_hlim=64)
 
-            # ttl != nhop_ttl_val
-            mpls_tag = {'label': 8000, 'ttl': 60, 'tc':  3, 's':  1}
-            mpls_tag_list = [mpls_tag]
-            mpls_pkt = simple_mpls_packet(
-                eth_dst=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IPv6'])
+        # ttl != nhop_ttl_val
+        mpls_tag = {'label': 8000, 'ttl': 60, 'tc':  3, 's':  1}
+        mpls_tag_list = [mpls_tag]
+        mpls_pkt = simple_mpls_packet(
+            eth_dst=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IPv6'])
 
-            # ttl from mpls_tag, not from nhop_ttl_val
-            mpls_push_tag = {'label': 9000, 'ttl': 60, 'tc':  5, 's':  0}
-            mpls_tag_list = [mpls_push_tag, mpls_tag]
-            recv_mpls_pkt = simple_mpls_packet(
-                eth_dst="00:11:22:33:44:55",
-                eth_src=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IPv6'])
+        # ttl from mpls_tag, not from nhop_ttl_val
+        mpls_push_tag = {'label': 9000, 'ttl': 60, 'tc':  5, 's':  0}
+        mpls_tag_list = [mpls_push_tag, mpls_tag]
+        recv_mpls_pkt = simple_mpls_packet(
+            eth_dst="00:11:22:33:44:55",
+            eth_src=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IPv6'])
 
-            # ttl from nhop_ttl_val in pipe mode
-            mpls_push_tag['ttl'] = 63
-            mpls_tag_list = [mpls_push_tag, mpls_tag]
-            recv_mpls_pkt_2 = simple_mpls_packet(
-                eth_dst="00:11:22:33:44:55",
-                eth_src=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IPv6'])
+        # ttl from nhop_ttl_val in pipe mode
+        mpls_push_tag['ttl'] = 63
+        mpls_tag_list = [mpls_push_tag, mpls_tag]
+        recv_mpls_pkt_2 = simple_mpls_packet(
+            eth_dst="00:11:22:33:44:55",
+            eth_src=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IPv6'])
 
-            print("Send ip packet to add MPLS label 9000 on top of "
-                  "received label 8000")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port30)
+        print("Send ip packet to add MPLS label 9000 on top of "
+              "received label 8000")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port30)
 
-            sai_thrift_set_next_hop_attribute(
-                self.client, self.nhop_label_9,
-                outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_PIPE)
+        sai_thrift_set_next_hop_attribute(
+            self.client, self.nhop_label_9,
+            outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_PIPE)
 
-            print("Change nexthop to pipe mode")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt_2, self.dev_port30)
+        print("Change nexthop to pipe mode")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt_2, self.dev_port30)
 
-            sai_thrift_set_next_hop_attribute(
-                self.client, self.nhop_label_9,
-                outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_UNIFORM)
+        sai_thrift_set_next_hop_attribute(
+            self.client, self.nhop_label_9,
+            outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_UNIFORM)
 
-            print("Change nexthop back to uniform mode")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port30)
-
-        finally:
-            pass
+        print("Change nexthop back to uniform mode")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port30)
 
 
 class MplsIpv4TtlModeTest(SaiHelper):
@@ -3731,14 +3643,11 @@ class MplsIpv4TtlModeTest(SaiHelper):
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
     def runTest(self):
-        try:
-            self.mplsIngressLERTtlModeTest()
-            self.mplsEgressLERTermTtlModeTest()
-            self.mplsEgressLERNullTermTtlModeTest()
-            self.mplsEgressPhpTtlModeTest()
-            self.mplsTransitPushTtlModeTest()
-        finally:
-            pass
+        self.mplsIngressLERTtlModeTest()
+        self.mplsEgressLERTermTtlModeTest()
+        self.mplsEgressLERNullTermTtlModeTest()
+        self.mplsEgressPhpTtlModeTest()
+        self.mplsTransitPushTtlModeTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry_8000)
@@ -3863,22 +3772,18 @@ class MplsIpv4TtlModeTest(SaiHelper):
             mpls_tags=mpls_tag_list,
             inner_frame=exp_pkt_3['IP'])
 
-        try:
-            print("Send ip packet to add one MPLS label 1000")
-            send_packet(self, self.dev_port10, send_pkt_1)
-            verify_packet(self, mpls_pkt_label_1, self.dev_port11)
+        print("Send ip packet to add one MPLS label 1000")
+        send_packet(self, self.dev_port10, send_pkt_1)
+        verify_packet(self, mpls_pkt_label_1, self.dev_port11)
 
-            print("Send ip packet to add two MPLS label stack - 1000, 2000")
-            send_packet(self, self.dev_port10, send_pkt_2)
-            verify_packet(self, mpls_pkt_label_2, self.dev_port11)
+        print("Send ip packet to add two MPLS label stack - 1000, 2000")
+        send_packet(self, self.dev_port10, send_pkt_2)
+        verify_packet(self, mpls_pkt_label_2, self.dev_port11)
 
-            print("Send ip packet to add three MPLS label stack - "
-                  "1000, 2000, 3000")
-            send_packet(self, self.dev_port10, send_pkt_3)
-            verify_packet(self, mpls_pkt_label_3, self.dev_port11)
-
-        finally:
-            pass
+        print("Send ip packet to add three MPLS label stack - "
+              "1000, 2000, 3000")
+        send_packet(self, self.dev_port10, send_pkt_3)
+        verify_packet(self, mpls_pkt_label_3, self.dev_port11)
 
     def mplsEgressLERTermTtlModeTest(self):
         '''
@@ -3903,13 +3808,9 @@ class MplsIpv4TtlModeTest(SaiHelper):
             ip_dst='20.20.20.1',
             ip_ttl=54)
 
-        try:
-            print("Send MPLS tag packet with label 1000 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-
-        finally:
-            pass
+        print("Send MPLS tag packet with label 1000 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
 
     def mplsEgressLERNullTermTtlModeTest(self):
         '''
@@ -3935,13 +3836,9 @@ class MplsIpv4TtlModeTest(SaiHelper):
             ip_dst='20.20.20.1',
             ip_ttl=59)
 
-        try:
-            print("Send MPLS tag packet with label 0 - term and IP lookup")
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_pkt, self.dev_port12)
-
-        finally:
-            pass
+        print("Send MPLS tag packet with label 0 - term and IP lookup")
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_pkt, self.dev_port12)
 
     def mplsEgressPhpTtlModeTest(self):
         '''
@@ -4031,32 +3928,28 @@ class MplsIpv4TtlModeTest(SaiHelper):
         '''
         print("\nmplsTransitPushTtlModeTest()")
 
-        try:
-            send_pkt = simple_tcp_packet(
-                eth_dst=ROUTER_MAC,
-                ip_dst='60.60.60.10',
-                ip_ttl=64)
+        send_pkt = simple_tcp_packet(
+            eth_dst=ROUTER_MAC,
+            ip_dst='60.60.60.10',
+            ip_ttl=64)
 
-            mpls_tag = {'label': 8000, 'ttl': 60, 'tc':  3, 's':  1}
-            mpls_tag_list = [mpls_tag]
-            mpls_pkt = simple_mpls_packet(
-                eth_dst=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IP'])
+        mpls_tag = {'label': 8000, 'ttl': 60, 'tc':  3, 's':  1}
+        mpls_tag_list = [mpls_tag]
+        mpls_pkt = simple_mpls_packet(
+            eth_dst=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IP'])
 
-            mpls_push_tag = {'label': 9000, 'ttl': 60, 'tc':  5, 's':  0}
-            mpls_tag_list = [mpls_push_tag, mpls_tag]
-            recv_mpls_pkt = simple_mpls_packet(
-                eth_dst="00:11:22:33:44:55",
-                eth_src=ROUTER_MAC,
-                mpls_tags=mpls_tag_list,
-                inner_frame=send_pkt['IP'])
+        mpls_push_tag = {'label': 9000, 'ttl': 60, 'tc':  5, 's':  0}
+        mpls_tag_list = [mpls_push_tag, mpls_tag]
+        recv_mpls_pkt = simple_mpls_packet(
+            eth_dst="00:11:22:33:44:55",
+            eth_src=ROUTER_MAC,
+            mpls_tags=mpls_tag_list,
+            inner_frame=send_pkt['IP'])
 
-            print("Send ip packet to add MPLS label 9000 on top of "
-                  "received label 8000")
+        print("Send ip packet to add MPLS label 9000 on top of "
+              "received label 8000")
 
-            send_packet(self, self.dev_port10, mpls_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port30)
-
-        finally:
-            pass
+        send_packet(self, self.dev_port10, mpls_pkt)
+        verify_packet(self, recv_mpls_pkt, self.dev_port30)
