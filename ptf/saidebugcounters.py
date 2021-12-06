@@ -506,6 +506,7 @@ class BaseDebugCounterClass(SaiHelperBase):
         super(BaseDebugCounterClass, self).tearDown()
 
     def testPortDebugCounter(self,
+                             port,
                              dc_oid,
                              in_drop_reasons,
                              pkts,
@@ -513,6 +514,7 @@ class BaseDebugCounterClass(SaiHelperBase):
         ''' Executes port debug counter test.
 
         Args:
+            port (sai_object_id_t): port object id
             dc_oid (sai_object_id_t): debugc counter object id
             in_drop_reasons (list): in drop reasons list
             pkts (list): list of test  packets
@@ -524,8 +526,6 @@ class BaseDebugCounterClass(SaiHelperBase):
             pkts = [pkts]
         if not isinstance(dc_oid, list):
             dc_oid = [dc_oid]
-
-        port = self.port0
 
         print("Test port debug counter for drop_reasons=%s"
               % (map_drop_reason_to_string(in_drop_reasons)))
@@ -1035,6 +1035,7 @@ class PortDropMCSMAC(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
+                self.port0,
                 dc_oid,
                 [SAI_IN_DROP_REASON_SMAC_MULTICAST],
                 [self.mc_smac_pkt])
@@ -1083,7 +1084,7 @@ class PortDropL2Any(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 [SAI_IN_DROP_REASON_L2_ANY],
                 pkt_list)
 
@@ -1132,7 +1133,7 @@ class PortDropSMACequalsDMAC(BaseDebugCounterClass):
                 self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
                 self.testPortDebugCounter(
-                    dc_oid,
+                    self.port0, dc_oid,
                     [SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC],
                     [self.smac_equals_dmac_pkt])
 
@@ -1176,7 +1177,7 @@ class PortDropIngressVLANFilter(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 [SAI_IN_DROP_REASON_INGRESS_VLAN_FILTER],
                 [self.vlan_discard_pkt])
 
@@ -1218,7 +1219,7 @@ class PortDropSIPMCTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.src_ip_mc_pkt])
 
@@ -1260,7 +1261,7 @@ class PortDropReasonTTLTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.ttl_zero_pkt])
 
@@ -1312,7 +1313,7 @@ class PortDropSIPClassETest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.src_ip_class_e_pkt])
 
@@ -1371,13 +1372,13 @@ class PortDropUCDIPMCDMACTest(BaseDebugCounterClass):
 
             print("\nTest IPv4")
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.uc_dipv4_mc_dmac_pkt])
 
             print("Test IPv6")
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.uc_dipv6_mc_dmac_pkt])
 
@@ -1399,7 +1400,7 @@ class PortDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.ihl_pkt])
 
@@ -1468,15 +1469,15 @@ class PortMultiDebugCounters(BaseDebugCounterClass):
                     drop_list3))
 
                 self.testPortDebugCounter(
-                    dc_oid3,
+                    self.port0, dc_oid3,
                     drop_list3,
                     [self.smac_equals_dmac_pkt])
 
                 self.testPortDebugCounter(
-                    dc_oid1, drop_list2, [self.zero_smac_pkt])
+                    self.port0, dc_oid1, drop_list2, [self.zero_smac_pkt])
             else:
                 self.testPortDebugCounter(
-                    dc_oid1, drop_list2,
+                    self.port0, dc_oid1, drop_list2,
                     [self.vlan_discard_pkt, self.zero_smac_pkt])
         finally:
             if dc_oid1 != 0:
@@ -1567,7 +1568,7 @@ class PortDropDIPLinkLocalTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.dst_ip_link_local_pkt])
 
@@ -1593,7 +1594,7 @@ class PortDropSIPLinkLocalTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.src_ip_link_local_pkt])
 
@@ -1619,7 +1620,7 @@ class PortDropSIPUnspecifiedTest(BaseDebugCounterClass):
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
 
             self.testPortDebugCounter(
-                dc_oid,
+                self.port0, dc_oid,
                 drop_list,
                 [self.src_ipv4_unspec_pkt])
 
@@ -1655,7 +1656,8 @@ class PortDropIPv4RIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=True)
-            self.testPortDebugCounter(dc_oid, drop_list,
+            self.testPortDebugCounter(self.port0,
+                                      dc_oid, drop_list,
                                       [pkt],
                                       drop_expected=False)
 
@@ -1664,7 +1666,7 @@ class PortDropIPv4RIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=False)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1700,7 +1702,8 @@ class PortDropIPv4L3AnyRIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=True)
-            self.testPortDebugCounter(dc_oid,
+            self.testPortDebugCounter(self.port0,
+                                      dc_oid,
                                       drop_list,
                                       [pkt],
                                       drop_expected=False)
@@ -1710,7 +1713,7 @@ class PortDropIPv4L3AnyRIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v4_state=False)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1741,7 +1744,7 @@ class PortDropIPv6RIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=True)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt],
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt],
                                       drop_expected=False)
 
             # Verify traffic for rif interface disabled
@@ -1749,7 +1752,7 @@ class PortDropIPv6RIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=False)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1784,7 +1787,7 @@ class PortDropIPv6L3AnyRIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=True)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt],
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt],
                                       drop_expected=False)
 
             # Verify traffic for rif interface disabled
@@ -1792,7 +1795,7 @@ class PortDropIPv6L3AnyRIFDisabled(BaseDebugCounterClass):
                 self.client,
                 self.rif_ids[0],
                 admin_v6_state=False)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1888,7 +1891,7 @@ class PortDropIPv4Miss(BaseDebugCounterClass):
                 eth_src=self.default_mac_1,
                 ip_dst="192.168.13.45")
 
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1915,7 +1918,7 @@ class PortDropIPv6Miss(BaseDebugCounterClass):
                 eth_dst=ROUTER_MAC,
                 ipv6_dst='2222:5678:9abc:def0:4422:1133:5577:99aa',
                 ipv6_hlim=64)
-            self.testPortDebugCounter(dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
 
         finally:
             if dc_oid != 0:
@@ -1948,7 +1951,7 @@ class PortDropL3AnyTest(BaseDebugCounterClass):
                         self.dst_ipv4_unspec_pkt,
                         self.dst_ipv6_unspec_pkt]
 
-            self.testPortDebugCounter(dc_oid, drop_list, pkt_list)
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, pkt_list)
 
         finally:
             if dc_oid != 0:
@@ -1987,7 +1990,7 @@ class PortDropAclAnyTest(BaseDebugCounterClass):
                 eth_src=self.default_mac_1,
                 ip_dst=self.neighbor_ip)
 
-            self.testPortDebugCounter(dc_oid, drop_list, pkt)
+            self.testPortDebugCounter(self.port0, dc_oid, drop_list, pkt)
 
         finally:
             if dc_oid != 0:
