@@ -16,13 +16,7 @@
 Thrift SAI interface Buffer tests
 """
 from multiprocessing import Process
-
 from sai_thrift.sai_headers import *
-
-from ptf.packet import *
-from ptf.testutils import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 
