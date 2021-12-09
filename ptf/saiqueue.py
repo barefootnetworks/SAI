@@ -16,11 +16,6 @@
 Thrift SAI interface queue tests
 """
 from sai_thrift.sai_headers import *
-
-from ptf.packet import *
-from ptf.testutils import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 
@@ -41,7 +36,7 @@ class QueueConfigData(SaiHelper):
         self.vr_id = sai_thrift_create_virtual_router(self.client,
                                                       admin_v4_state=True,
                                                       admin_v6_state=True)
-        self.assertTrue(self.vr_id != 0)
+        self.assertNotEqual(self.vr_id, 0)
 
         # RIFs
         self.rif_id25 = sai_thrift_create_router_interface(
@@ -51,7 +46,7 @@ class QueueConfigData(SaiHelper):
             port_id=self.port25,
             admin_v4_state=True,
             admin_v6_state=True)
-        self.assertTrue(self.rif_id25 != 0)
+        self.assertNotEqual(self.rif_id25, 0)
         self.rif_id26 = sai_thrift_create_router_interface(
             self.client,
             virtual_router_id=self.vr_id,
@@ -59,7 +54,7 @@ class QueueConfigData(SaiHelper):
             port_id=self.port26,
             admin_v4_state=True,
             admin_v6_state=True)
-        self.assertTrue(self.rif_id26 != 0)
+        self.assertNotEqual(self.rif_id26, 0)
 
         # Neighbor
         dst_ip = "172.16.1.1"
@@ -120,37 +115,37 @@ class QueueConfigData(SaiHelper):
             self.client, type=SAI_QUEUE_TYPE_UNICAST,
             index=1)
         # The port is missing, the creation should fail.
-        self.assertTrue(queue == 0)
+        self.assertEqual(queue, 0)
 
         queue = sai_thrift_create_queue(
             self.client,
             port=test_port, index=1)
         # The type is missing, the creation should fail.
-        self.assertTrue(queue == 0)
+        self.assertEqual(queue, 0)
 
         queue = sai_thrift_create_queue(
             self.client, type=SAI_QUEUE_TYPE_ALL,
             port=test_port, index=1)
         # The type is wrong, the creation should fail.
-        self.assertTrue(queue == 0)
+        self.assertEqual(queue, 0)
 
         queue = sai_thrift_create_queue(
             self.client, type=SAI_QUEUE_TYPE_UNICAST,
             port=test_port)
         # The index is missing, the creation should fail.
-        self.assertTrue(queue == 0)
+        self.assertEqual(queue, 0)
 
         queue = sai_thrift_create_queue(
             self.client, type=SAI_QUEUE_TYPE_UNICAST,
             port=test_port, index=60)
         # The index is wrong, the creation should fail.
-        self.assertTrue(queue == 0)
+        self.assertEqual(queue, 0)
 
         queue = sai_thrift_create_queue(
             self.client, type=SAI_QUEUE_TYPE_UNICAST,
             port=test_port, index=1)
         # The queue with such index already exists.
-        self.assertTrue(queue == 0)
+        self.assertEqual(queue, 0)
 
         print("\tTest completed successfully")
 
@@ -179,11 +174,11 @@ class QueueConfigData(SaiHelper):
                     port=True,
                     index=True,
                     parent_scheduler_node=True)
-                self.assertTrue(queue == q_attr["index"])
-                self.assertTrue(port == q_attr["port"])
+                self.assertEqual(queue, q_attr["index"])
+                self.assertEqual(port, q_attr["port"])
                 # If SDK does not support hierarhical QoS,
                 # the port handle should be returned.
-                self.assertTrue(port == q_attr["parent_scheduler_node"])
+                self.assertEqual(port, q_attr["parent_scheduler_node"])
 
         print("\tTest completed successfully")
 
@@ -203,7 +198,7 @@ class QueueConfigData(SaiHelper):
             type=SAI_BUFFER_POOL_TYPE_EGRESS,
             size=1024,
             threshold_mode=mode)
-        self.assertTrue(buff_pool != 0)
+        self.assertNotEqual(buff_pool, 0)
         buff_prof = sai_thrift_create_buffer_profile(self.client,
                                                      pool_id=buff_pool,
                                                      reserved_buffer_size=1024,
@@ -211,7 +206,7 @@ class QueueConfigData(SaiHelper):
                                                      shared_dynamic_th=1,
                                                      xoff_th=100,
                                                      xon_th=10)
-        self.assertTrue(buff_prof != 0)
+        self.assertNotEqual(buff_prof, 0)
 
         attr = sai_thrift_get_port_attribute(self.client,
                                              self.port26,
@@ -310,21 +305,21 @@ class QueueConfigData(SaiHelper):
             meter_type=SAI_METER_TYPE_PACKETS,
             scheduling_type=SAI_SCHEDULING_TYPE_DWRR,
             scheduling_weight=weight)
-        self.assertTrue(sched1 != 0)
+        self.assertNotEqual(sched1, 0)
         sched2 = sai_thrift_create_scheduler(
             self.client,
             meter_type=SAI_METER_TYPE_PACKETS,
             scheduling_type=SAI_SCHEDULING_TYPE_STRICT,
             min_bandwidth_rate=min_rate,
             max_bandwidth_rate=max_rate)
-        self.assertTrue(sched2 != 0)
+        self.assertNotEqual(sched2, 0)
         sched3 = sai_thrift_create_scheduler(
             self.client,
             meter_type=SAI_METER_TYPE_PACKETS,
             scheduling_type=SAI_SCHEDULING_TYPE_STRICT,
             min_bandwidth_burst_rate=min_burst,
             max_bandwidth_burst_rate=max_burst)
-        self.assertTrue(sched3 != 0)
+        self.assertNotEqual(sched3, 0)
         print("\tScheduler profiles created successfully")
         try:
             attr = sai_thrift_get_port_attribute(
@@ -506,7 +501,7 @@ class QueueConfigData(SaiHelper):
                 self.client,
                 type=SAI_QOS_MAP_TYPE_PFC_PRIORITY_TO_QUEUE,
                 map_to_value_list=qos_map_list)
-            self.assertTrue(qos_map != 0)
+            self.assertNotEqual(qos_map, 0)
 
             # The queue index modification in the previously created QoS map.
             p_attr = sai_thrift_get_port_attribute(self.client,
@@ -574,11 +569,11 @@ class QueueConfigData(SaiHelper):
                         port=True,
                         index=True,
                         parent_scheduler_node=True)
-                    self.assertTrue(queue == q_attr["index"])
-                    self.assertTrue(port == q_attr["port"])
+                    self.assertEqual(queue, q_attr["index"])
+                    self.assertEqual(port, q_attr["port"])
                     # If SDK does not support hierarhical QoS,
                     # the port handle should be returned.
-                    self.assertTrue(port == q_attr["parent_scheduler_node"])
+                    self.assertEqual(port, q_attr["parent_scheduler_node"])
             print("\t\tPART1 completed successfully")
 
             print("\tPART2: Buffer Queue Test")
@@ -596,7 +591,7 @@ class QueueConfigData(SaiHelper):
                 type=SAI_BUFFER_POOL_TYPE_EGRESS,
                 size=1024,
                 threshold_mode=mode)
-            self.assertTrue(buff_pool != 0)
+            self.assertNotEqual(buff_pool, 0)
             buff_prof = sai_thrift_create_buffer_profile(
                 self.client,
                 pool_id=buff_pool,
@@ -605,7 +600,7 @@ class QueueConfigData(SaiHelper):
                 shared_dynamic_th=1,
                 xoff_th=100,
                 xon_th=10)
-            self.assertTrue(buff_prof != 0)
+            self.assertNotEqual(buff_prof, 0)
 
             attr = sai_thrift_get_queue_attribute(self.client,
                                                   queue_id[0],
@@ -655,21 +650,21 @@ class QueueConfigData(SaiHelper):
                 meter_type=SAI_METER_TYPE_PACKETS,
                 scheduling_type=SAI_SCHEDULING_TYPE_DWRR,
                 scheduling_weight=weight)
-            self.assertTrue(sched1 != 0)
+            self.assertNotEqual(sched1, 0)
             sched2 = sai_thrift_create_scheduler(
                 self.client,
                 meter_type=SAI_METER_TYPE_PACKETS,
                 scheduling_type=SAI_SCHEDULING_TYPE_STRICT,
                 min_bandwidth_rate=min_rate,
                 max_bandwidth_rate=max_rate)
-            self.assertTrue(sched2 != 0)
+            self.assertNotEqual(sched2, 0)
             sched3 = sai_thrift_create_scheduler(
                 self.client,
                 meter_type=SAI_METER_TYPE_PACKETS,
                 scheduling_type=SAI_SCHEDULING_TYPE_STRICT,
                 min_bandwidth_burst_rate=min_burst,
                 max_bandwidth_burst_rate=max_burst)
-            self.assertTrue(sched3 != 0)
+            self.assertNotEqual(sched3, 0)
             print("\t\tScheduler profiles created successfully")
 
             status = sai_thrift_set_queue_attribute(
@@ -818,7 +813,7 @@ class QueueConfigData(SaiHelper):
                 self.client,
                 type=SAI_QOS_MAP_TYPE_PFC_PRIORITY_TO_QUEUE,
                 map_to_value_list=qos_map_list)
-            self.assertTrue(qos_map != 0)
+            self.assertNotEqual(qos_map, 0)
 
             # The queue index modification in the previously created QoS map.
             q_attr = sai_thrift_get_queue_attribute(
@@ -882,7 +877,7 @@ class QueueConfigData(SaiHelper):
                                          green_min_threshold=0,
                                          green_max_threshold=4000,
                                          green_drop_probability=100)
-        self.assertTrue(wred_id != 0)
+        self.assertNotEqual(wred_id, 0)
         attr = sai_thrift_get_port_attribute(
             self.client,
             self.port25,
