@@ -20,15 +20,11 @@ from ipaddress import ip_address
 from sai_thrift.sai_headers import *
 
 from ptf.mask import Mask
-from ptf.packet import *
-from ptf.testutils import *
-from ptf.thriftutils import *
 
 from sai_base_test import *
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(THIS_DIR, '..'))
-from common.lpm import *
 
 
 def generate_ip_addr(no_of_addr, ipv6=False):
@@ -112,20 +108,13 @@ class SwitchAttrTest(SaiHelper):
         self.availableFdbEntryTest()
         self.availableAclTableTest()
         self.readOnlyAttributesTest()
+        self.refreshIntervalTest()
+        self.availableSnatEntryTest()
+        self.availableDnatEntryTest()
 
     def availableIPv4RouteEntryTest(self):
         '''
         Verifies creation of maximum number of IPv4 route entries.
-
-        Logic to check if one extra entry can be programmed is not
-        correct. The available LPM value returned by SAI API will return
-        85% of total LPM table size. Its a recomm value i.e. not to go
-        above 85% of total LPM routes as there can be Hash collisions at
-        some point. But that doesn't mean the return max value is the
-        fixed value, you can always go above this number if the IP prefix
-        combination is not resulting in hash collision. Similarly there
-        can be scenarios where hash collision can happen even before
-        reaching max LPM routes [i.e. 85% of LPM table size].
         '''
         print("\navailableIPv4RouteEntryTest()")
 
@@ -194,16 +183,6 @@ class SwitchAttrTest(SaiHelper):
     def availableIPv6RouteEntryTest(self):
         '''
         Verifies creation of maximum number of IPv6 route entries.
-
-        Logic to check if one extra entry can be programmed is not
-        correct. The available LPM value returned by SAI API will return
-        85% of total LPM table size. Its a recomm value i.e. not to go
-        above 85% of total LPM routes as there can be Hash collisions at
-        some point. But that doesn't mean the return max value is the
-        fixed value, you can always go above this number if the IP prefix
-        combination is not resulting in hash collision. Similarly there
-        can be scenarios where hash collision can happen even before
-        reaching max LPM routes [i.e. 85% of LPM table size].
         '''
         print("\navailableIPv6RouteEntryTest()")
 
@@ -277,12 +256,6 @@ class SwitchAttrTest(SaiHelper):
     def availableIPv4NexthopEntryTest(self):
         '''
         Verifies creation of maximum number of IPv4 nexthop entries.
-
-        commenting out the logic to program one extra nexthop
-        cant try to program last nexthop as it will error out because
-        programming the last nexthop i.e. table-max id [i.e. 65536 or
-        32768] as key is not possible. nexthop-id key starts from 1 &
-        not zero, so total available will be table max-entries - 1.
         '''
         print("\navailableIPv4NexthopEntryTest()")
 
@@ -324,12 +297,6 @@ class SwitchAttrTest(SaiHelper):
     def availableIPv6NexthopEntryTest(self):
         '''
         Verifies creation of maximum number of IPv6 nexthop entries.
-
-        commenting out the logic to program one extra nexthop
-        cant try to program last nexthop as it will error out because
-        programming the last nexthop i.e. table-max id [i.e. 65536 or
-        32768] as key is not possible. nexthop-id key starts from 1 &
-        not zero, so total available will be table max-entries - 1.
         '''
         print("\navailableIPv6NexthopEntryTest()")
 
@@ -371,13 +338,6 @@ class SwitchAttrTest(SaiHelper):
     def availableIPv4NeighborEntryTest(self):
         '''
         Verifies creation of maximum number of IPv4 neighbor entries.
-
-        commenting out the logic to program one extra neighbor
-        cant try to program last neighbor as it will error out because
-        it will internally try to prog last nexthop i.e. table-max id
-        [i.e. 65536 or 32768] as key which is not possible. nexthop-id
-        key starts from 1 & not zero, so total available will be table
-        max-entries - 1
         '''
         print("\navailableIPv4NeighborEntryTest()")
 
@@ -433,13 +393,6 @@ class SwitchAttrTest(SaiHelper):
     def availableIPv6NeighborEntryTest(self):
         '''
         Verifies creation of maximum number of IPv6 neighbor entries.
-
-        commenting out the logic to program one extra neighbor
-        cant try to program last neighbor as it will error out because
-        it will internally try to prog last nexthop i.e. table-max id
-        [i.e. 65536 or 32768] as key which is not possible. nexthop-id
-        key starts from 1 & not zero, so total available will be table
-        max-entries - 1
         '''
         print("\navailableIPv6NeighborEntryTest()")
 
@@ -598,11 +551,6 @@ class SwitchAttrTest(SaiHelper):
                         attr["available_next_hop_group_member_entry"],
                         max_member_entry - member_number)
 
-            # Max number of ecmp groups is max-entries - 1, entry 0 is reserved
-            # Since we have one less ecmp entry, we cant use all available ecmp
-            # members as we can have only 64 members per group in current
-            # profiles. We will always see 64-1 [default] ecmp members left out
-            # so just check if we were able to program max ecmp group
             attr = sai_thrift_get_switch_attribute(
                 self.client, available_next_hop_group_entry=True)
             self.assertEqual(attr["available_next_hop_group_entry"], 0)
@@ -694,7 +642,7 @@ class SwitchAttrTest(SaiHelper):
                     for res in attr["available_acl_table"].resourcelist:
                         print(res)
                         if res.stage == stage and \
-                            res.bind_point == bind_point:
+                           res.bind_point == bind_point:
                             self.assertEqual(res.avail_num, -
                                              avail_num - table_number)
                             break
@@ -1005,16 +953,6 @@ class SwitchAttrTest(SaiHelper):
         self.assertNotEqual(attr["acl_stage_egress"], 0)
         self.assertNotEqual(attr["SAI_SWITCH_ATTR_ACL_STAGE_EGRESS"], 0)
 
-
-@group('hw')
-class SwitchHwAttrTest(SaiHelper):
-    '''
-    Switch hardware-related attributes tests
-    '''
-
-    def runTest(self):
-        self.refreshIntervalTest()
-
     def refreshIntervalTest(self):
         '''
         Verifies SAI_SWITCH_ATTR_COUNTER_REFRESH_INTERVAL switch attribute
@@ -1199,17 +1137,6 @@ class SwitchHwAttrTest(SaiHelper):
             sai_thrift_set_switch_attribute(
                 self.client, counter_refresh_interval=init_interval)
 
-
-@group('nat')
-class SwitchNatAttrTest(SaiHelper):
-    '''
-    Switch NAT-related attributes tests
-    '''
-
-    def runTest(self):
-        self.availableSnatEntryTest()
-        self.availableDnatEntryTest()
-
     def availableSnatEntryTest(self):
         '''
         Verifies creation of maximum number of snat entries.
@@ -1339,9 +1266,8 @@ class SwitchNatAttrTest(SaiHelper):
         finally:
             for dnat in dnat_list:
                 sai_thrift_remove_nat_entry(self.client, dnat)
+ 
 
-
-@group('tunnel')
 class SwitchVxlanTest(SaiHelper):
     '''
     Switch VXLAN attributes tests
