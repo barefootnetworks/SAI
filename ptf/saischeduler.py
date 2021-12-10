@@ -15,8 +15,6 @@
 Thrift SAI interface Scheduler tests
 """
 
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
 from sai_base_test import *
@@ -37,19 +35,16 @@ class SchedulerParamsTest(SaiHelper):
         self.test_queue = port_attr['qos_queue_list'].idlist[0]
 
     def runTest(self):
-        try:
-            self.schedulerWeightTest()
-            self.schedulerStictPriorityTest()
-            self.schedulerMinBwidthRateTest()
-            self.schedulerMaxBwidthRateTest()
-            self.schedulerMinBwidthBurstRateTest()
-            self.schedulerMaxBwidthBurstRateTest()
-        finally:
-            pass
+        self.schedulerWeightTest()
+        self.schedulerStictPriorityTest()
+        self.schedulerMinBwidthRateTest()
+        self.schedulerMaxBwidthRateTest()
+        self.schedulerMinBwidthBurstRateTest()
+        self.schedulerMaxBwidthBurstRateTest()
 
     def schedulerWeightTest(self):
         '''
-        This verifies creation of scheduler with scheduling type DWRR
+        Verify creation of scheduler with scheduling type DWRR
         '''
         print("\nschedulerWeightTest()")
 
@@ -72,18 +67,16 @@ class SchedulerParamsTest(SaiHelper):
                              SAI_SCHEDULING_TYPE_DWRR)
             self.assertEqual(sched_attr['scheduling_weight'], 2)
 
-            status = sai_thrift_set_queue_attribute(self.client,
-                                                    self.test_queue,
-                                                    scheduler_profile_id=sched)
+            status = sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=sched)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             queue_attr = sai_thrift_get_queue_attribute(
                 self.client, self.test_queue, scheduler_profile_id=True)
             self.assertEqual(queue_attr['scheduler_profile_id'], sched)
 
-            status = sai_thrift_set_scheduler_attribute(self.client,
-                                                        sched,
-                                                        scheduling_weight=4)
+            status = sai_thrift_set_scheduler_attribute(
+                self.client, sched, scheduling_weight=4)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             sched_attr = sai_thrift_get_scheduler_attribute(
@@ -91,15 +84,14 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_weight'], 4)
 
         finally:
-            sai_thrift_set_queue_attribute(self.client,
-                                           self.test_queue,
-                                           scheduler_profile_id=0)
+            sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerStictPriorityTest(self):
         '''
-        This verifies creation of scheduler with priority set
+        Verify creation of scheduler with priority set
         '''
         print("\nschedulerStrictPriorityTest()")
 
@@ -116,9 +108,8 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_type'],
                              SAI_SCHEDULING_TYPE_STRICT)
 
-            status = sai_thrift_set_queue_attribute(self.client,
-                                                    self.test_queue,
-                                                    scheduler_profile_id=sched)
+            status = sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=sched)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             queue_attr = sai_thrift_get_queue_attribute(
@@ -126,15 +117,14 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(queue_attr['scheduler_profile_id'], sched)
 
         finally:
-            sai_thrift_set_queue_attribute(self.client,
-                                           self.test_queue,
-                                           scheduler_profile_id=0)
+            sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMinBwidthRateTest(self):
         '''
-        This verifies creation of scheduler with min bandwidth rate set
+        Verify creation of scheduler with min bandwidth rate set
         '''
         print("\nschedulerMinBwidthRateTest()")
 
@@ -157,18 +147,16 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_type'],
                              SAI_SCHEDULING_TYPE_STRICT)
 
-            status = sai_thrift_set_queue_attribute(self.client,
-                                                    self.test_queue,
-                                                    scheduler_profile_id=sched)
+            status = sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=sched)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             queue_attr = sai_thrift_get_queue_attribute(
                 self.client, self.test_queue, scheduler_profile_id=True)
             self.assertEqual(queue_attr['scheduler_profile_id'], sched)
 
-            status = sai_thrift_set_scheduler_attribute(self.client,
-                                                        sched,
-                                                        min_bandwidth_rate=200)
+            status = sai_thrift_set_scheduler_attribute(
+                self.client, sched, min_bandwidth_rate=200)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             sched_attr = sai_thrift_get_scheduler_attribute(
@@ -176,15 +164,14 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['min_bandwidth_rate'], 200)
 
         finally:
-            sai_thrift_set_queue_attribute(self.client,
-                                           self.test_queue,
-                                           scheduler_profile_id=0)
+            sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMaxBwidthRateTest(self):
         '''
-        This verifies creation of scheduler with max bandwidth rate set
+        Verify creation of scheduler with max bandwidth rate set
         '''
         print("\nschedulerMaxBwidthRateTest()")
 
@@ -207,9 +194,8 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_type'],
                              SAI_SCHEDULING_TYPE_STRICT)
 
-            status = sai_thrift_set_queue_attribute(self.client,
-                                                    self.test_queue,
-                                                    scheduler_profile_id=sched)
+            status = sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=sched)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             queue_attr = sai_thrift_get_queue_attribute(
@@ -225,15 +211,14 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['max_bandwidth_rate'], 2000)
 
         finally:
-            sai_thrift_set_queue_attribute(self.client,
-                                           self.test_queue,
-                                           scheduler_profile_id=0)
+            sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMinBwidthBurstRateTest(self):
         '''
-        This verifies creation of scheduler with min bandwidth burst rate set
+        Verify creation of scheduler with min bandwidth burst rate set
         '''
         print("\nschedulerMinBwidthBurstRateTest()")
 
@@ -256,9 +241,8 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_type'],
                              SAI_SCHEDULING_TYPE_STRICT)
 
-            status = sai_thrift_set_queue_attribute(self.client,
-                                                    self.test_queue,
-                                                    scheduler_profile_id=sched)
+            status = sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=sched)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             queue_attr = sai_thrift_get_queue_attribute(
@@ -274,15 +258,14 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['min_bandwidth_burst_rate'], 200)
 
         finally:
-            sai_thrift_set_queue_attribute(self.client,
-                                           self.test_queue,
-                                           scheduler_profile_id=0)
+            sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMaxBwidthBurstRateTest(self):
         '''
-        This verifies creation of scheduler with max bandwidth burst rate set
+        Verify creation of scheduler with max bandwidth burst rate set
         '''
         print("\nschedulerMaxBwidthBurstRateTest()")
 
@@ -323,16 +306,15 @@ class SchedulerParamsTest(SaiHelper):
             self.assertEqual(sched_attr['max_bandwidth_burst_rate'], 2000)
 
         finally:
-            sai_thrift_set_queue_attribute(self.client,
-                                           self.test_queue,
-                                           scheduler_profile_id=0)
+            sai_thrift_set_queue_attribute(
+                self.client, self.test_queue, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
 
 class SchedulerGroupAttachTest(SaiHelper):
     '''
-    These verify possibilities of attaching scheduler with different params set
+    Verify possibilities of attaching scheduler with different params set
     to a scheduler group
     '''
 
@@ -348,15 +330,12 @@ class SchedulerGroupAttachTest(SaiHelper):
             print("Failed to create scheduler group")
 
     def runTest(self):
-        try:
-            self.schedulerWeightGroupAttachTest()
-            self.schedulerStrictPriorityGroupAttachTest()
-            self.schedulerMinBwidthRateGroupAttachTest()
-            self.schedulerMaxBwidthRateGroupAttachTest()
-            self.schedulerMinBwidthBurstRateGroupAttachTest()
-            self.schedulerMaxBwidthBurstRateGroupAttachTest()
-        finally:
-            pass
+        self.schedulerWeightGroupAttachTest()
+        self.schedulerStrictPriorityGroupAttachTest()
+        self.schedulerMinBwidthRateGroupAttachTest()
+        self.schedulerMaxBwidthRateGroupAttachTest()
+        self.schedulerMinBwidthBurstRateGroupAttachTest()
+        self.schedulerMaxBwidthBurstRateGroupAttachTest()
 
     def tearDown(self):
         sai_thrift_remove_scheduler_group(self.client, self.schgroup)
@@ -365,8 +344,8 @@ class SchedulerGroupAttachTest(SaiHelper):
 
     def schedulerWeightGroupAttachTest(self):
         '''
-        This verifies creation of scheduler with scheduling type DWRR
-        and attaching it to a scheduler group
+        Verify creation of scheduler with scheduling type DWRR and attaching
+        it to a scheduler group
         '''
         print("\nschedulerWeightGroupAttachTest()")
 
@@ -397,9 +376,8 @@ class SchedulerGroupAttachTest(SaiHelper):
                 self.client, self.schgroup, scheduler_profile_id=True)
             self.assertEqual(schgroup_attr['scheduler_profile_id'], sched)
 
-            status = sai_thrift_set_scheduler_attribute(self.client,
-                                                        sched,
-                                                        scheduling_weight=4)
+            status = sai_thrift_set_scheduler_attribute(
+                self.client, sched, scheduling_weight=4)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             sched_attr = sai_thrift_get_scheduler_attribute(
@@ -407,16 +385,15 @@ class SchedulerGroupAttachTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_weight'], 4)
 
         finally:
-            sai_thrift_set_scheduler_group_attribute(self.client,
-                                                     self.schgroup,
-                                                     scheduler_profile_id=0)
+            sai_thrift_set_scheduler_group_attribute(
+                self.client, self.schgroup, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerStrictPriorityGroupAttachTest(self):
         '''
-        This verifies creation of scheduler with priority set
-        and attaching it to a scheduler group
+        Verify creation of scheduler with priority set and attaching it
+        to a scheduler group
         '''
         print("\nschedulerStrictPriorityGroupAttachTest()")
 
@@ -441,9 +418,8 @@ class SchedulerGroupAttachTest(SaiHelper):
                 self.client, self.schgroup, scheduler_profile_id=True)
             self.assertEqual(schgroup_attr['scheduler_profile_id'], sched)
 
-            status = sai_thrift_set_scheduler_attribute(self.client,
-                                                        sched,
-                                                        scheduling_weight=4)
+            status = sai_thrift_set_scheduler_attribute(
+                self.client, sched, scheduling_weight=4)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             sched_attr = sai_thrift_get_scheduler_attribute(
@@ -451,16 +427,15 @@ class SchedulerGroupAttachTest(SaiHelper):
             self.assertEqual(sched_attr['scheduling_weight'], 4)
 
         finally:
-            sai_thrift_set_scheduler_group_attribute(self.client,
-                                                     self.schgroup,
-                                                     scheduler_profile_id=0)
+            sai_thrift_set_scheduler_group_attribute(
+                self.client, self.schgroup, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMinBwidthRateGroupAttachTest(self):
         '''
-        This verifies creation of scheduler with min bandwidth rate set
-        and attaching it to a scheduler group
+        Verify creation of scheduler with min bandwidth rate set and attaching
+        it to a scheduler group
         '''
         print("\nschedulerMinBwidthRateGroupAttachTest()")
 
@@ -491,9 +466,8 @@ class SchedulerGroupAttachTest(SaiHelper):
                 self.client, self.schgroup, scheduler_profile_id=True)
             self.assertEqual(schgroup_attr['scheduler_profile_id'], sched)
 
-            status = sai_thrift_set_scheduler_attribute(self.client,
-                                                        sched,
-                                                        min_bandwidth_rate=200)
+            status = sai_thrift_set_scheduler_attribute(
+                self.client, sched, min_bandwidth_rate=200)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
             sched_attr = sai_thrift_get_scheduler_attribute(
@@ -501,16 +475,15 @@ class SchedulerGroupAttachTest(SaiHelper):
             self.assertEqual(sched_attr['min_bandwidth_rate'], 200)
 
         finally:
-            sai_thrift_set_scheduler_group_attribute(self.client,
-                                                     self.schgroup,
-                                                     scheduler_profile_id=0)
+            sai_thrift_set_scheduler_group_attribute(
+                self.client, self.schgroup, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMaxBwidthRateGroupAttachTest(self):
         '''
-        This verifies creation of scheduler with max bandwidth rate set
-        and attaching it to a scheduler group
+        Verify creation of scheduler with max bandwidth rate set and attaching
+        it to a scheduler group
         '''
         print("\nschedulerMaxBwidthRateGroupAttachTest()")
 
@@ -550,15 +523,14 @@ class SchedulerGroupAttachTest(SaiHelper):
             self.assertEqual(sched_attr['max_bandwidth_rate'], 2000)
 
         finally:
-            sai_thrift_set_scheduler_group_attribute(self.client,
-                                                     self.schgroup,
-                                                     scheduler_profile_id=0)
+            sai_thrift_set_scheduler_group_attribute(
+                self.client, self.schgroup, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMinBwidthBurstRateGroupAttachTest(self):
         '''
-        This verifies creation of scheduler with min bandwidth burst rate set
+        Verify creation of scheduler with min bandwidth burst rate set
         and attaching it to a scheduler group
         '''
         print("\nschedulerMinBwidthBurstRateGroupAttachTest()")
@@ -599,15 +571,14 @@ class SchedulerGroupAttachTest(SaiHelper):
             self.assertEqual(sched_attr['min_bandwidth_burst_rate'], 200)
 
         finally:
-            sai_thrift_set_scheduler_group_attribute(self.client,
-                                                     self.schgroup,
-                                                     scheduler_profile_id=0)
+            sai_thrift_set_scheduler_group_attribute(
+                self.client, self.schgroup, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMaxBwidthBurstRateGroupAttachTest(self):
         '''
-        This verifies creation of scheduler with max bandwidth burst rate set
+        Verify creation of scheduler with max bandwidth burst rate set
         and attaching it to a scheduler group
         '''
         print("\nschedulerMaxBwidthBurstRateGroupAttachTest()")
@@ -648,30 +619,26 @@ class SchedulerGroupAttachTest(SaiHelper):
             self.assertEqual(sched_attr['max_bandwidth_burst_rate'], 2000)
 
         finally:
-            sai_thrift_set_scheduler_group_attribute(self.client,
-                                                     self.schgroup,
-                                                     scheduler_profile_id=0)
+            sai_thrift_set_scheduler_group_attribute(
+                self.client, self.schgroup, scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
 
 class SchedulerPortAttachTest(SaiHelper):
     '''
-    These verify possibilities of attaching scheduler with different params set
+    Verify possibilities of attaching scheduler with different params set
     to a port
     '''
 
     def runTest(self):
-        try:
-            self.schedulerMaxBwidthRatePortAttachTest()
-            self.schedulerMaxBwidthBurstRatePortAttachTest()
-        finally:
-            pass
+        self.schedulerMaxBwidthRatePortAttachTest()
+        self.schedulerMaxBwidthBurstRatePortAttachTest()
 
     def schedulerMaxBwidthRatePortAttachTest(self):
         '''
-        This verifies creation of scheduler with max bandwidth rate set
-        and attaching it to a scheduler group
+        Verify creation of scheduler with max bandwidth rate set and attaching
+        it to a scheduler group
         '''
         print("\nschedulerMaxBwidthRatePortAttachTest()")
 
@@ -703,15 +670,14 @@ class SchedulerPortAttachTest(SaiHelper):
             self.assertEqual(port_attr['qos_scheduler_profile_id'], sched)
 
         finally:
-            sai_thrift_set_port_attribute(self.client,
-                                          self.port1,
-                                          qos_scheduler_profile_id=0)
+            sai_thrift_set_port_attribute(
+                self.client, self.port1, qos_scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
 
     def schedulerMaxBwidthBurstRatePortAttachTest(self):
         '''
-        This verifies creation of scheduler with max bandwidth burst rate set
+        Verify creation of scheduler with max bandwidth burst rate set
         and attaching it to a scheduler group
         '''
         print("\nschedulerMaxBwidthBurstRatePortAttachTest()")
@@ -744,8 +710,7 @@ class SchedulerPortAttachTest(SaiHelper):
             self.assertEqual(port_attr['qos_scheduler_profile_id'], sched)
 
         finally:
-            sai_thrift_set_port_attribute(self.client,
-                                          self.port1,
-                                          qos_scheduler_profile_id=0)
+            sai_thrift_set_port_attribute(
+                self.client, self.port1, qos_scheduler_profile_id=0)
 
             sai_thrift_remove_scheduler(self.client, sched)
