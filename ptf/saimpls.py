@@ -3240,11 +3240,8 @@ class MplsIpv6TtlModeTest(SaiHelper):
             eth_src=ROUTER_MAC,
             ipv6_dst='300::1',
             ipv6_hlim=63)
-        # Note: mpls_tag ttl is copied from top label, but it is not
-        #       being decremented even though it should in uniform mode.
-        # Would we really pop labels but not swap what is left?
-        # Maybe this should change to swap with explicit null label?
-        mpls_tag['ttl'] = 56
+        
+        mpls_tag['ttl'] = 55
         recv_mpls_tag_list = [mpls_tag]
         recv_mpls_pkt = simple_mpls_packet(
             eth_dst='00:11:22:33:44:55',
@@ -3283,8 +3280,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
                 self.client, self.inseg_entry_2222,
                 pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE)
 
-            # Note: TTL is decremented even though it should not for PHP pipe
-            recv_pkt['IPv6'].hlim = 63
+            recv_pkt['IPv6'].hlim = 62
             print("Send 3 label MPLS packet after changing ttl_mode to pipe - "
                   "PHP and forward IP packet")
             send_packet(self, self.dev_port10, mpls_tag_3_pkt)
@@ -3878,11 +3874,8 @@ class MplsIpv4TtlModeTest(SaiHelper):
             eth_src=ROUTER_MAC,
             ip_dst='30.30.30.1',
             ip_ttl=63)
-        # Note: mpls_tag ttl is copied from top label, but it is not being
-        #       decremented even though it should be in uniform mode.
-        # Would we really pop labels but not swap what is left?
-        # Maybe this should change to swap with explicit null label?
-        mpls_tag['ttl'] = 56
+        
+        mpls_tag['ttl'] = 55
         recv_mpls_tag_list = [mpls_tag]
         recv_mpls_pkt = simple_mpls_packet(
             eth_dst='00:11:22:33:44:55',
