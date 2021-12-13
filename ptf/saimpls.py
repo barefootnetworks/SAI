@@ -19,10 +19,6 @@ import random
 
 from sai_thrift.sai_headers import *
 
-from ptf.packet import *
-from ptf.testutils import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 
@@ -3280,7 +3276,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
                 self.client, self.inseg_entry_2222,
                 pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE)
 
-            recv_pkt['IPv6'].hlim = 62
+            recv_pkt['IPv6'].hlim = 64
             print("Send 3 label MPLS packet after changing ttl_mode to pipe - "
                   "PHP and forward IP packet")
             send_packet(self, self.dev_port10, mpls_tag_3_pkt)
