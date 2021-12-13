@@ -1071,6 +1071,14 @@ class NatTranslationTest(SaiHelper):
 class NatTest(SaiHelper):
     '''
     Basic NAT configuration test
+    Test topology:
+                         +--------------DUT--------------+
+                         |   zone 0              zone 1  |
+           Nbr2          | server_port          wan_port |          Nbr1
+      (192.168.0.1)   ---|  (port24)            (port25) |---   (20.20.20.1)
+    00:33:44:55:66:77    |                               |    00:11:22:33:44:55
+                         | 192.168.0.1 <-> 200.200.200.1 |
+                         +-------------------------------+
     '''
 
     def setUp(self):
@@ -1175,41 +1183,47 @@ class NatTest(SaiHelper):
         # WAN IP - 10.10.10.1
         # self.server_ip = '192.168.0.1'
 
-        l4_src_port = 100
-        l4_dst_port = 1234
+        self.l4_src_port = 100
+        self.l4_dst_port = 1234
         proto = 6
 
-        translate_sport = 500
-        translate_dport = 2000
+        self.translate_sport = 500
+        self.translate_dport = 2000
 
         nat_type = SAI_NAT_TYPE_DESTINATION_NAT
+        # set NAT output dst_port
         nat_data = sai_thrift_nat_entry_data_t(
             key=sai_thrift_nat_entry_key_t(
                 dst_ip=self.translate_server_ip,
                 proto=proto,
-                l4_dst_port=l4_dst_port))
+                l4_dst_port=self.l4_dst_port))
         dnat1 = sai_thrift_nat_entry_t(vr_id=self.default_vrf,
                                        data=nat_data,
                                        nat_type=nat_type)
+        # set SAI_NAT_ENTRY_ATTR_DST_IP and SAI_NAT_ENTRY_ATTR_L4_DST_PORT
+        # (match values)
         sai_thrift_create_nat_entry(self.client,
                                     nat_entry=dnat1,
                                     nat_type=nat_type,
                                     dst_ip=self.server_ip,
-                                    l4_dst_port=translate_dport)
+                                    l4_dst_port=self.translate_dport)
         self.nat_list.append(dnat1)
 
+        # set NAT output dst_ip
         nat_data = sai_thrift_nat_entry_data_t(
             key=sai_thrift_nat_entry_key_t(
                 dst_ip=self.translate_server_ip))
         dnat2 = sai_thrift_nat_entry_t(vr_id=self.default_vrf,
                                        data=nat_data,
                                        nat_type=nat_type)
+        # set SAI_NAT_ENTRY_ATTR_DST_IP (match value)
         sai_thrift_create_nat_entry(self.client,
                                     nat_entry=dnat2,
                                     nat_type=nat_type,
                                     dst_ip=self.server_ip)
         self.nat_list.append(dnat2)
 
+        # set NAT output dst_ip
         nat_type = SAI_NAT_TYPE_DESTINATION_NAT_POOL
         nat_data = sai_thrift_nat_entry_data_t(
             key=sai_thrift_nat_entry_key_t(
@@ -1217,6 +1231,7 @@ class NatTest(SaiHelper):
         dnat3 = sai_thrift_nat_entry_t(vr_id=self.default_vrf,
                                        data=nat_data,
                                        nat_type=nat_type)
+        # set SAI_NAT_ENTRY_ATTR_DST_IP (match value)
         sai_thrift_create_nat_entry(self.client,
                                     nat_entry=dnat3,
                                     nat_type=nat_type,
@@ -1224,27 +1239,32 @@ class NatTest(SaiHelper):
         self.nat_list.append(dnat3)
 
         nat_type = SAI_NAT_TYPE_SOURCE_NAT
+        # set NAT output l4_src_port
         nat_data = sai_thrift_nat_entry_data_t(
             key=sai_thrift_nat_entry_key_t(
                 src_ip=self.server_ip,
                 proto=proto,
-                l4_src_port=l4_src_port))
+                l4_src_port=self.l4_src_port))
         snat4 = sai_thrift_nat_entry_t(vr_id=self.default_vrf,
                                        data=nat_data,
                                        nat_type=nat_type)
+        # set SAI_NAT_ENTRY_ATTR_SRC_IP and SAI_NAT_ENTRY_ATTR_L4_SRC_PORT
+        # (match values)
         sai_thrift_create_nat_entry(self.client,
                                     nat_entry=snat4,
                                     nat_type=nat_type,
                                     src_ip=self.translate_server_ip,
-                                    l4_src_port=translate_sport)
+                                    l4_src_port=self.translate_sport)
         self.nat_list.append(snat4)
 
+        # set NAT output src_ip
         nat_data = sai_thrift_nat_entry_data_t(
             key=sai_thrift_nat_entry_key_t(
                 src_ip=self.server_ip))
         snat5 = sai_thrift_nat_entry_t(vr_id=self.default_vrf,
                                        data=nat_data,
                                        nat_type=nat_type)
+        # set SAI_NAT_ENTRY_ATTR_SRC_IP and (match value)
         sai_thrift_create_nat_entry(self.client,
                                     nat_entry=snat5,
                                     nat_type=nat_type,
@@ -1402,14 +1422,14 @@ class NatTest(SaiHelper):
                                 ip_src=self.server_ip,
                                 ip_id=105,
                                 ip_ttl=64,
-                                tcp_sport=100)
+                                tcp_sport=self.l4_src_port)
         exp_pkt = simple_tcp_packet(eth_dst=self.nbor_mac,
                                     eth_src=ROUTER_MAC,
                                     ip_dst=self.dst_ip,
                                     ip_src=self.translate_server_ip,
                                     ip_id=105,
                                     ip_ttl=63,
-                                    tcp_sport=500)
+                                    tcp_sport=self.translate_sport)
         send_packet(self, self.dev_port24, pkt)
         verify_packets(self, exp_pkt, [self.dev_port25])
 
@@ -1474,14 +1494,14 @@ class NatTest(SaiHelper):
                                 ip_src=self.dst_ip,
                                 ip_id=105,
                                 ip_ttl=64,
-                                tcp_dport=1234)
+                                tcp_dport=self.l4_dst_port)
         exp_pkt = simple_tcp_packet(eth_dst=self.server_dmac,
                                     eth_src=ROUTER_MAC,
                                     ip_dst=self.server_ip,
                                     ip_src=self.dst_ip,
                                     ip_id=105,
                                     ip_ttl=63,
-                                    tcp_dport=2000)
+                                    tcp_dport=self.translate_dport)
         send_packet(self, self.dev_port25, pkt)
         verify_packets(self, exp_pkt, [self.dev_port24])
 
