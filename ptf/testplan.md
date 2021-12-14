@@ -1,5 +1,7 @@
 # SAI PTF TESTPLAN
 
+SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by functionality.
+
 ## ACL
 
 ## Bridge
