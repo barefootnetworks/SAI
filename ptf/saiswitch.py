@@ -1566,3 +1566,211 @@ class SwitchVxlanTest(SaiHelper):
         finally:
             sai_thrift_set_switch_attribute(
                 self.client, vxlan_default_router_mac=init_mac)
+
+
+class SwitchDefaultVlanTest(SaiHelper):
+    """
+    The class runs VLAN test cases for default vlan returned by SAI
+    """
+
+    def setUp(self):
+        super(SwitchDefaultVlanTest, self).setUp()
+
+        self.pkt = 0
+        self.tagged_pkt = 0
+        self.arp_resp = 0
+        self.tagged_arp_resp = 0
+        self.i_pkt_count = 0
+        self.e_pkt_count = 0
+        self.mac0 = '00:11:11:11:11:11:11'
+        self.mac1 = '00:22:22:22:22:22:22'
+        self.mac2 = '00:33:33:33:33:33:33'
+        mac_action = SAI_PACKET_ACTION_FORWARD
+
+        # delete any pre-existing vlan members on vlan 1
+        vlan_member_list = sai_thrift_object_list_t(count=100)
+        mbr_list = sai_thrift_get_vlan_attribute(
+            self.client, self.default_vlan_id, member_list=vlan_member_list)
+        vlan_members = mbr_list['SAI_VLAN_ATTR_MEMBER_LIST'].idlist
+        for mbr in vlan_members:
+            sai_thrift_remove_vlan_member(self.client, mbr)
+
+        self.port24_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port24,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+        self.port25_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port25,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+        self.port26_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port26,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+        # for negative learning test
+        self.port27_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port27,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+
+        self.default_vlan_member1 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.default_vlan_id,
+            bridge_port_id=self.port24_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
+        sai_thrift_set_port_attribute(self.client, self.port24, port_vlan_id=1)
+        self.default_vlan_member2 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.default_vlan_id,
+            bridge_port_id=self.port25_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
+        self.default_vlan_member3 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.default_vlan_id,
+            bridge_port_id=self.port26_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
+        sai_thrift_set_port_attribute(self.client, self.port26, port_vlan_id=1)
+
+        self.fdb_entry0 = sai_thrift_fdb_entry_t(
+            switch_id=self.switch_id,
+            mac_address=self.mac0,
+            bv_id=self.default_vlan_id)
+        sai_thrift_create_fdb_entry(
+            self.client,
+            self.fdb_entry0,
+            type=SAI_FDB_ENTRY_TYPE_STATIC,
+            bridge_port_id=self.port24_bp,
+            packet_action=mac_action)
+        self.fdb_entry1 = sai_thrift_fdb_entry_t(
+            switch_id=self.switch_id,
+            mac_address=self.mac1,
+            bv_id=self.default_vlan_id)
+        sai_thrift_create_fdb_entry(
+            self.client,
+            self.fdb_entry1,
+            type=SAI_FDB_ENTRY_TYPE_STATIC,
+            bridge_port_id=self.port25_bp,
+            packet_action=mac_action)
+        self.fdb_entry2 = sai_thrift_fdb_entry_t(
+            switch_id=self.switch_id,
+            mac_address=self.mac2,
+            bv_id=self.default_vlan_id)
+        sai_thrift_create_fdb_entry(
+            self.client,
+            self.fdb_entry2,
+            type=SAI_FDB_ENTRY_TYPE_STATIC,
+            bridge_port_id=self.port26_bp,
+            packet_action=mac_action)
+
+    def runTest(self):
+        try:
+            self.forwardingTest()
+            self.vlanLearnTest()
+        finally:
+            pass
+
+    def tearDown(self):
+        sai_thrift_set_port_attribute(self.client, self.port24, port_vlan_id=0)
+        sai_thrift_set_port_attribute(self.client, self.port26, port_vlan_id=0)
+
+        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry2)
+        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry1)
+        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry0)
+
+        sai_thrift_remove_vlan_member(self.client, self.default_vlan_member3)
+        sai_thrift_remove_vlan_member(self.client, self.default_vlan_member2)
+        sai_thrift_remove_vlan_member(self.client, self.default_vlan_member1)
+
+        sai_thrift_remove_bridge_port(self.client, self.port27_bp)
+        sai_thrift_remove_bridge_port(self.client, self.port26_bp)
+        sai_thrift_remove_bridge_port(self.client, self.port25_bp)
+        sai_thrift_remove_bridge_port(self.client, self.port24_bp)
+        super(SwitchDefaultVlanTest, self).tearDown()
+
+    def forwardingTest(self):
+        """
+        Forwarding between ports with different tagging mode
+        """
+        print("\nforwardingTest()")
+        try:
+            print("\tAccessToAccessTest")
+            print("Sending L2 packet port 24 -> port 26 [access vlan=1])")
+            pkt = simple_tcp_packet(eth_dst='00:33:33:33:33:33',
+                                    eth_src='00:11:11:11:11:11',
+                                    ip_dst='172.16.0.1',
+                                    ip_id=101,
+                                    ip_ttl=64)
+
+            send_packet(self, self.dev_port24, pkt)
+            verify_packet(self, pkt, self.dev_port26)
+
+            print("\tAccessToTrunkTest")
+            print("Sending L2 packet port 24 -> port 25 [trunk vlan=1])")
+            pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
+                                    eth_src='00:11:11:11:11:11',
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
+                                        eth_src='00:11:11:11:11:11',
+                                        ip_dst='172.16.0.1',
+                                        dl_vlan_enable=True,
+                                        vlan_vid=1,
+                                        ip_id=102,
+                                        ip_ttl=64,
+                                        pktlen=104)
+
+            send_packet(self, self.dev_port24, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+        finally:
+            pass
+
+    def vlanLearnTest(self):
+        """
+        Verifies learning on default vlan
+        """
+        print("\nvlanLearnTest()")
+        try:
+            pkt = simple_arp_packet(
+                eth_src='00:22:22:33:44:55',
+                arp_op=1,  # ARP request
+                hw_snd='00:22:22:33:44:55',
+                pktlen=100)
+            tagged_pkt = simple_arp_packet(
+                eth_src='00:22:22:33:44:55',
+                arp_op=1,  # ARP request
+                hw_snd='00:22:22:33:44:55',
+                vlan_vid=1,
+                pktlen=104)
+            uc_pkt = simple_tcp_packet(
+                eth_dst='00:22:22:33:44:55',
+                eth_src='00:33:33:33:33:33')
+
+            print("Sending ARP packet port 27 -> drop")
+            send_packet(self, self.dev_port27, pkt)
+            verify_no_other_packets(self, timeout=2)
+
+            print("Sending ARP packet port 24 -> flood to port 25, 26")
+            send_packet(self, self.dev_port24, pkt)
+            verify_each_packet_on_each_port(
+                self, [tagged_pkt, pkt], [self.dev_port25, self.dev_port26])
+
+            time.sleep(4)
+
+            print("Sending uc packet port 26 -> to learnt port 24")
+            send_packet(self, self.dev_port26, uc_pkt)
+            verify_packets(self, uc_pkt, [self.dev_port24])
+        finally:
+            time.sleep(2)
+            sai_thrift_flush_fdb_entries(
+                self.client,
+                bv_id=self.default_vlan_id,
+                entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
