@@ -189,10 +189,38 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | switch.66 | Verify traffic with SAI_SWITCH_ATTR_COUNTER_REFRESH_INTERVAL         | saiswitch.SwitchAttrTest.refreshIntervalTest |
 | switch.67 | Verify traffic with SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC         | saiswitch.SwitchVxlanTest |
 | switch.68 | Verify traffic with SAI_SWITCH_ATTR_VXLAN_DEAFAULT_PORT              | saiswitch.SwitchVxlanTest |
+| switch.69 | Verfiy packet forwarding with dest_mac = SAI_SWITCH_ATTR_SRC_MAC_ADDRESS | sairif.L3InterfaceTest.macUpdateTest |
 
 ## Tunnel
 
 ## VRF
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| vrf.1 | Verify IPv4 packets are not forwarded with admin_v4_state = false | saivrf.VrfFrowardingTest.vrfStateTest |
+| vrf.2 | Verify IPv6 packets are not forwarded with admin_v4_state = false | saivrf.VrfFrowardingTest.vrfStateTest |
+| vrf.3 | Verify IPv4 packets are forwarded with admin_v4_state = true | saivrf.VrfFrowardingTest.vrfStateTest |
+| vrf.4 | Verify IPv6 packets are forwarded with admin_v4_state = true | saivrf.VrfFrowardingTest.vrfStateTest |
+| vrf.5 | Verify multipfe RIF creation of type PORT, LAG, VLAN (with tagged and untagged members), SUB_PORT and LOOPBACK for more than two differen VRFs, with routes pointing to each RIF type | saivrf.VrfMultipleRifCreationTest.vrfInterfacesTest |
+| vrf.6 | Verify inter-VRF forwarding with RIF pointing to regular L3 nexthop | saivrf.VrfForwardingTest.interVrfFwdL3NhopTest |
+| vrf.7 | Verify inter-VRF forwarding with RIF pointing to L3 LAG nexthop | saivrf.VrfForwardingTest.interVrfFwdL3LagNhopTest |
+| vrf.8 | Verify inter-VRF forwarding with RIF pointing to regular SVI nexthop | saivrf.VrfForwardingTest.interVrfFwdSviNhopTest |
+| vrf.9 | Verify inter-VRF forwarding with RIF pointing to regular subport nexthop | saivrf.VrfForwardingTest.interVrfFwdSubportNhopTest |
+| vrf.10 | Verify inter-VRF forwarding with RIF pointing to ECMP nexthop | saivrf.VrfForwardingTest.interVrfFwdEcmpNhopTest |
+| vrf.11 | Verify inter-VRF isolation with overlapping IPv4 LPM routes | saivrf.VrfIsolationTest.overlappingIPv4LpmTest |
+| vrf.12 | Verify inter-VRF isolation with overlapping IPv6 LPM routes | saivrf.VrfIsolationTest.overlappingIPv6LpmTest |
+| vrf.13 | Verify inter VRF isolation with overlapping IPv4 host routes | saivrf.VrfIsolationTest.overlappingIPv4HostTest |
+| vrf.14 | Verify inter VRF isolation with overlapping IPv6 host routes | saivrf.VrfIsolationTest.overlappingIPv6HostTest |
+| vrf.15 | Verfiy ACL redirect to regular L3 nexthop in different VRF | saivrf.VrfAclRedirectTest.aclFwdL3NhopTest |
+| vrf.16 | Verfiy ACL redirect to L3 LAG nexthop in different VRF | VrfAclRedirsaivrf.VrfAclRedirectTest.aclFwdL3LagNhopTest |
+| vrf.17 | Verfiy ACL redirect to SVI nexthop in different VRF | saivrf.VrfAclRedirectTest.aclFwdSviNhopTest |
+| vrf.18 | Verfiy ACL redirect to subport nexthop in different VRF | saivrf.VrfAclRedirectTest.aclFwdSubportNhopTest |
+| vrf.19 | Verfiy ACL redirect to ECMP nexthop in different VRF | saivrf.VrfAclRedirectTest.aclFwdEcmpNhopTest |
+| vrf.20 | Verify the pissibility to create the numbers of VRFs equal to SAI_SWITCH_ATTR_MAX_VIRTUAL_ROUTERS | saivrf.VrfScaleTest |
+| vrf.21 | Verufy maximum number of VRFs with at least one route of each type (IPv4 host, IPv4 LPM, IPv6 host, IPv6 LPM) in each VRF | saivrf.VrfScaleTest |
+| vrf.22 | Verify multiple RIF creation of type PORT, LAG, VLAN (with tagged and untagged members), SUB_PORT and LOOPBACK for three different VRFs, with routes pointing to each RIF type | saivrf.VrfMultipleRifCreationTest.vrfInterfacesTest |
+| vrf.23 | Verify SMAC configuration on VRF create | saivrf.VrfSMACTest.testSMACCreateSet |
+| vrf.24 | Verify SMAC configuration on VRF creted with default mac | saivrf.VrfSMACTest.testSMACSet |
 
 ## VLAN
 
