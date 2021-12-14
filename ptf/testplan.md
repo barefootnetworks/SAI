@@ -140,6 +140,24 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Scheduler
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| scheduler.1 | Create scheduler with SAI_SCHEDULING_TYPE_DWRR and attach to queue. Set and verify SAI_SCHEDULER_ATTR_SCHEDULING_WEIGHT. Attach scheduler to a Queue by SAI queue attribute SAI_QUEUE_ATTR_SCHEDULER_PROFILE_ID | saischeduler.SchedulerParamsTest.schedulerWeightTest |
+| scheduler.2 | Create scheduler with SAI_SCHEDULING_TYPE_STRICT and attach to queue | saischeduler.SchedulerParamsTest.schedulerStrictPriorityTest |
+| scheduler.3 | Create scheduler with SAI_SCHEDULER_ATTR_MIN_BANDWIDTH_RATE and attach to queue | saischeduler.SchedulerParamsTest.schedulerMinBwidthRateTest |
+| scheduler.4 | Create scheduler with SAI_SCHEDULER_ATTR_MAX_BANDWIDTH_RATE and attach to queue | saischeduler.SchedulerParamsTest.schedulerMaxBwidthRateTest |
+| scheduler.5 | Create scheduler with SAI_SCHEDULER_ATTR_MIN_BANDWIDTH_BURST_RATE and attach to queue | saischeduler.SchedulerParamsTest.schedulerMinBwidthBurstRateTest |
+| scheduler.6 | Create scheduler with SAI_SCHEDULER_ATTR_MAX_BANDWIDTH_BURST_RATE and attach to queue  | saischeduler.SchedulerParamsTest.schedulerMaxBwidthBurstRateTest |
+| scheduler.7 | Modify different scheduler parameters and validate. | saischeduler.SchedulerParamsTest |
+| scheduler.8 | Verify attaching scheduler with SAI_SCHEDULING_TYPE_DWRR to a scheduler group | saischeduler.SchedulerGroupAttachTest.schedulerWeightGroupAttachTest |
+| scheduler.9 | Verify attaching scheduler with SAI_SCHEDULING_TYPE_STRICT to a scheduler group | saischeduler.SchedulerGroupAttachTest.schedulerStrictPriorityGroupAttachTest |
+| scheduler.10 | Verify attaching scheduler with SAI_SCHEDULER_ATTR_MIN_BANDWIDTH_RATE to a scheduler group | saischeduler.SchedulerGroupAttachTest.schedulerMinBwidthRateGroupAttachTest |
+| scheduler.11 | Verify attaching scheduler with SAI_SCHEDULER_ATTR_MAX_BANDWIDTH_RATE to a scheduler group | saischeduler.SchedulerGroupAttachTest.schedulerMaxBwidthRateGroupAttachTest |
+| scheduler.12 | Verify attaching scheduler with SAI_SCHEDULER_ATTR_MIN_BANDWIDTH_BURST_RATE to a scheduler group | saischeduler.SchedulerGroupAttachTest.schedulerMinBwidthBurstRateGroupAttachTest |
+| scheduler.13 | Verify attaching scheduler with SAI_SCHEDULER_ATTR_MAX_BANDWIDTH_BURST_RATE to a scheduler group | saischeduler.SchedulerGroupAttachTest.schedulerMaxBwidthBurstRateGroupAttachTest |
+| scheduler.14 | Attach scheduler with SAI_SCHEDULER_ATTR_MAX_BANDWIDTH_RATE to a port using SAI port attribute - SAI_PORT_ATTR_QOS_SCHEDULER_PROFILE_ID | saischeduler.SchedulerPortAttachTest.schedulerMaxBwidthRatePortAttachTest |
+| scheduler.15 | Attach scheduler with SAI_SCHEDULER_ATTR_MAX_BANDWIDTH_BURST_RATE to a port using SAI port attribute - SAI_PORT_ATTR_QOS_SCHEDULER_PROFILE_ID | saischeduler.SchedulerPortAttachTest.schedulerMaxBwidthBurstRatePortAttachTest |
+
 ## Scheduler Group
 
 | Test case id | Description | Test name |
