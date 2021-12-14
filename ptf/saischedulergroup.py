@@ -27,12 +27,6 @@ class SchGroupParamsTest(SaiHelper):
     '''
 
     def runTest(self):
-        self.schGroupParamsTest()
-
-    def schGroupParamsTest(self):
-        '''
-        Verify querying the number of scheduler groups per port
-        '''
         print("\nSchGroupParamsTest()")
 
         test_port = self.port1
@@ -65,9 +59,6 @@ class SchGroupParamsTest(SaiHelper):
         child_idlist = schgroup_attr['child_list'].idlist
         self.assertEqual(len(child_idlist), child_no)
 
-        schgroup_attr = sai_thrift_get_scheduler_group_attribute(
-            self.client, test_schgroup, scheduler_profile_id=True)
-
         try:
             sched = sai_thrift_create_scheduler(
                 self.client, meter_type=SAI_METER_TYPE_PACKETS,
@@ -88,20 +79,12 @@ class SchGroupParamsTest(SaiHelper):
             sai_thrift_remove_scheduler(self.client, sched)
 
 
-class SchGroupCrteateTest(SaiHelper):
+class SchGroupCrteateFailTest(SaiHelper):
     '''
-    Base scheduler group create parameters tests
+    Verify if scheduler group creation fails without mandatory parameters
     '''
 
     def runTest(self):
-        self.schGroupCreateTest()
-
-    def schGroupCreateTest(self):
-        '''
-        Verify scheduler group creation fails without mandatory parameters
-        '''
-        print("\nSchGroupCreateTest()")
-
         test_port = self.port1
 
         sched = sai_thrift_create_scheduler(
