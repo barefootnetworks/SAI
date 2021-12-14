@@ -60,6 +60,19 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## NAT
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| nat.1 | Verify that source NAT translation doesn't happen if ACL is configures to disable translation | sainat.NatTranslationTest.srcNatAclTranslationDisableTest |
+| nat.2 | Verify that destination NAT translation doesn't happen if ACL is configures to disable translation | sainat.NatTranslationTest.dstNatAclTranslationDisableTest |
+| nat.3 | Configure basic source NAT entry and check translation | sainat.NatTest.srcNatTest |
+| nat.4 | Configure basic destination NAT entry and check translation | sainat.NatTest.dstNatTest |
+| nat.5 | Configure NAT Zones on RIF and verify if SNAT happens for packets from Zone 0 and DNAT happens for packets from Zone 1 | sainat.NatTest |
+| nat.6 | Verify SNAT miss packet is forwarded to CPU. | sainat.NatTest.natTrapTest |
+| nat.7 | Query and validate Hit Bit of a NAT entry | sainat.NatTest |
+| nat.8 | Clear and verify Hit Bit of a NAT entry | sainat.NatTest |
+| nat.9 | Query and verify NAT entry statistic | sainat.NatTest |
+| nat.10 | Clear and verify NAT entry statistics | sainat.NatTest |
+
 ## Neighbor
 
 | Test case id | Description | Test name |
