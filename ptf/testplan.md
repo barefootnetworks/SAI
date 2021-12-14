@@ -4,7 +4,19 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## ACL
 
-## Bridge
+## Bridge Port
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| bridgeport.1 | Verify sample bridge port attributes getting and setting | saibridgeport.BridgePortAttributeTest |
+| bridgeport.2 | Verify creation of bridge port of type Port | saibridgeport.BridgePortCreationTest.bpTypePortCreationTest |
+| bridgeport.3 | Verify packet is dropped on port when no bridge_port is created on that port | saibridgeport.BridgePortCreationTest.noBpDropTest |
+| bridgeport.4 | Verify FDB is being flushed on port if bridge port admin_state is being set to DOWN | saibridgeport.BridgePortStateTest.bpStateDownFlushTest |
+| bridgeport.5 | Verify MAC address in not being learnt when bridge port admin_state is DOWN | saibridgeport.BridgePortStateTest.bpStateDownNoLearnTest |
+| bridgeport.6 | Verify MAC address in not being learnt on port bridge port when FDB_LEARNING_MODE is disabled | saifdb.FdbNoLearnTest.bpPortNoLearnTest |
+| bridgeport.7 | Verify MAC address in not being learnt on LAG bridge port when FDB_LEARNING_MODE is disabled | saifdb.FdbNoLearnTest.bpLagNoLearnTest |
+| bridgeport.8 | Verify MAC address in not being learnt on a VLAN member if bridge port is not created on that port | saifdb.FdbNoLearnTest.noBpNoLearnTest |
+| bridgeport.9 | Verify MAC address in not being learnt on a VLAN member after bridge port is removed on that port | saifdb.FdbNoLearnTest.removedBpNoLearnTest |
 
 ## Buffer
 
