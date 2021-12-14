@@ -1457,7 +1457,7 @@ class NatTest(SaiHelper):
         ret_attr = sai_thrift_set_nat_entry_attribute(
             client=self.client,
             nat_entry=self.nat_list[3],
-            packet_count=True)
+            packet_count=0)
         ret_attr = sai_thrift_get_nat_entry_attribute(
             client=self.client,
             nat_entry=self.nat_list[3],
