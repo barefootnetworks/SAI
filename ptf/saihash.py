@@ -90,6 +90,9 @@ def hash_to_hash_fields(hash_dict):
     if ('hash_ether_type' in hash_dict) and \
             (hash_dict['hash_ether_type'] is not None):
         hash_fields.append(SAI_NATIVE_HASH_FIELD_ETHERTYPE)
+    if ('hash_flow_label' in hash_dict) and \
+            (hash_dict['hash_flow_label'] is not None):
+        hash_fields.append(SAI_NATIVE_HASH_FIELD_IPV6_FLOW_LABEL)
 
     return hash_fields
 
@@ -456,7 +459,8 @@ class SAIHashTestBase(SaiHelper):
                                 SAI_NATIVE_HASH_FIELD_DST_IP,
                                 SAI_NATIVE_HASH_FIELD_IP_PROTOCOL,
                                 SAI_NATIVE_HASH_FIELD_L4_DST_PORT,
-                                SAI_NATIVE_HASH_FIELD_L4_SRC_PORT]
+                                SAI_NATIVE_HASH_FIELD_L4_SRC_PORT,
+                                SAI_NATIVE_HASH_FIELD_IPV6_FLOW_LABEL]
         attr_list = sai_thrift_get_switch_attribute(
             self.client,
             ecmp_hash_ipv6=True,
@@ -511,7 +515,8 @@ class SAIHashTestBase(SaiHelper):
                                 SAI_NATIVE_HASH_FIELD_DST_IP,
                                 SAI_NATIVE_HASH_FIELD_IP_PROTOCOL,
                                 SAI_NATIVE_HASH_FIELD_L4_DST_PORT,
-                                SAI_NATIVE_HASH_FIELD_L4_SRC_PORT]
+                                SAI_NATIVE_HASH_FIELD_L4_SRC_PORT,
+                                SAI_NATIVE_HASH_FIELD_IPV6_FLOW_LABEL]
 
         attr_list = sai_thrift_get_switch_attribute(
             self.client, lag_hash_ipv6=True)
@@ -2342,6 +2347,11 @@ class SAIIPv6HashTest(SAIHashTestBase):
         dst_ip_arr = list(dst_ip)
         src_ip = socket.inet_pton(socket.AF_INET6, '6000:1:1:0:0:0:0:100')
         src_ip_arr = list(src_ip)
+        ipv6_flow_label = 0
+
+        if ('hash_flow_label' in hash_dict) and (hash_dict['hash_flow_label']):
+            ipv6_flow_label = 10
+
         for i in range(0, MAX_ITRS):
             if ('hash_src_mac' in hash_dict) and (hash_dict['hash_src_mac']):
                 src_mac = src_mac_start.format(
@@ -2370,7 +2380,8 @@ class SAIIPv6HashTest(SAIHashTestBase):
                                       ipv6_src=src_ip_addr,
                                       udp_sport=udp_sport,
                                       udp_dport=udp_dport,
-                                      ipv6_hlim=64)
+                                      ipv6_hlim=64,
+                                      ipv6_fl=ipv6_flow_label)
 
             exp_pkt = simple_udpv6_packet(eth_dst='00:88:88:88:88:88',
                                           eth_src=ROUTER_MAC,
@@ -2378,7 +2389,8 @@ class SAIIPv6HashTest(SAIHashTestBase):
                                           ipv6_src=src_ip_addr,
                                           udp_sport=udp_sport,
                                           udp_dport=udp_dport,
-                                          ipv6_hlim=63)
+                                          ipv6_hlim=63,
+                                          ipv6_fl=ipv6_flow_label)
 
             send_packet(self, self.dev_port4, pkt)
             ports_to_verify = [
@@ -2390,7 +2402,8 @@ class SAIIPv6HashTest(SAIHashTestBase):
                 self, [exp_pkt], ports_to_verify)
             if DEBUG:
                 print("idx:", rcv_idx, "dst_ip:", dst_ip_addr, " src_ip:",
-                      src_ip_addr, " smac:", src_mac, " dmac: ", dst_mac)
+                      src_ip_addr, " smac:", src_mac, " dmac: ", dst_mac,
+                      "ipv6_flow_label: ", ipv6_flow_label)
             ecmp_count[rcv_idx] += 1
 
         return ecmp_count
@@ -2427,6 +2440,30 @@ class SAIIPv6HashTest(SAIHashTestBase):
         self.assertTrue(
             nbr_active_ports == 1,
             "Does not expect to balance on other hash fields.")
+
+    def lagIPv6FlowLabelHashTest(self, hash_dict):
+        """
+        Verifies IPv6 LAG load balancing for hash fields
+
+        Args:
+            hash_dict (dict): dictionary with variables that defines the list
+        """
+        try:
+            hash_fields = hash_to_hash_fields(hash_dict)
+            print("Verify IPv6 Flow Label LAG load balancing "
+                  "for hash fields: %s"
+                  % (hash_fields_to_hash_names(hash_fields)))
+
+            self.setupLAGIPv6Hash(hash_fields)
+
+            packet_count = self.lagIPv6PacketTest(hash_dict)
+            print("Packet count:", packet_count)
+
+            no_lb = verify_no_lb(packet_count, max_iters=MAX_ITRS)
+            self.assertTrue(no_lb, "Not expected to balance")
+
+        finally:
+            pass
 
     def lagIPv6HashSeedTest(self):
         """
@@ -2882,7 +2919,6 @@ class EcmpHashAlgorithmTest(SAIHashTest):
         self.ecmpHashAlgorithmTest()
 
 
-# Lag tests
 class L3LagIPv4HashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using all the fields selected
@@ -2989,7 +3025,6 @@ class LagIPv6HashSaveRestoreTest(SAIHashTest):
         self.lagIPv6HashSaveRestoreTest()
 
 
-# Lag tests
 class L3LagIPv6HashSeedTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 Lag basic case with varing seed values
@@ -3012,6 +3047,18 @@ class L3LagIPv6HashTest(SAIIPv6HashTest):
                      'hash_udp_sport': True}
         test_header("L3LagIPv6HashTest")
         self.lagIPv6HashTest(hash_dict)
+
+
+class L3LagIPv6FlowLabelHashTest(SAIIPv6HashTest):
+    """
+    Verfies L3 IPv6 traffic distribution using all ipv6 flow label
+    fields selected for LAG Hash
+    """
+
+    def runTest(self):
+        hash_dict = {'hash_flow_label': True}
+        test_header("L3LagIPv6FlowLabelHashTest")
+        self.lagIPv6FlowLabelHashTest(hash_dict)
 
 
 class L3LagIPv6SrcIPHashTest(SAIIPv6HashTest):
