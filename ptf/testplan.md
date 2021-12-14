@@ -24,31 +24,50 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
-| mpls.1  | Verify hostif trap type MPLS_TTL_ERROR | saihostif.HostifTrapTypesTest.mplsTtlErrorTest |
+| mpls.1  | Verify hostif trap type MPLS_TTL_ERROR                          | saihostif.HostifTrapTypesTest.mplsTtlErrorTest |
 | mpls.2  | Verify mpls packet is trapped to CPU when packet_action is set to SAI_PACKET_ACTION_TRAP with SWITCH_HOSTIF_TRAP_ATTR_TYPE_MPLS_TRAP reason code | saimpls.MplsDropTrapTest.mplsImplicitNullLabelTrapDrop |
-| mpls.3  | Verify hostif trap type MPLS_ROUTER_ALERT | saihostif.HostifTrapTypesTest.mplsRouterAlertTest |
+| mpls.3  | Verify hostif trap type MPLS_ROUTER_ALERT                       | saihostif.HostifTrapTypesTest.mplsRouterAlertTest |
 | mpls.4  | Verify if packet with unknown label is dropped and assosiated debug counter is hit | saimpls.MplsDropTrapTest.mplsLabelLookupMissTest |
-| mpls.5  | Verify mpls labels are added to packet in ingress LER for IPv4 | saimpls.MplsIpv4Test.mplsIngressLERTest |
+| mpls.5  | Verify mpls labels are added to packet in ingress LER for IPv4  | saimpls.MplsIpv4Test.mplsIngressLERTest |
 | mpls.6  | Verify mpls label is popped in Egress LER and packet is forwarded based in IP lookup for IPv4 | saimpls.MplsIpv4Test.mplsEgressLERTermTest |
 | mpls.7  | Verify mpls label is popped in Egress LER and packet is forwarded based on IP lookup after changing VRF on mpls rif for IPv4 | saimpls.MplsIpv4Test.mplsEgressLERTermUpdateMplsRifVrfTest |
 | mpls.8  | Verify mpls null label is popped in Egress LER and packet is forwarded based on IP lookup for IPv4 | saimpls.MplsIpv4Test.mplsEgressLERNullTermTest |
 | mpls.9  | Verify PHP pops label and forwards packet based on IP lookup for IPv4 | saimpls.MplsIpv4Test.mplsEgressPhpTest |
 | mpls.10 | Verify PHP swaps label with explicit null and forwards packet based on IP lookup for IPv4 | saimpls.MplsIpv4Test.mplsEgressPhpSwapNullTest |
 | mpls.11 | Verify mpls label is swapped with another label, explicit null, swap only top label in transit switch for IPv4 | saimpls.MplsIpv4Test.mplsTransitSwapTest |
-| mpls.12 | Verify ECMP group with mpls transit nhops for IPv4 | saimpls.MplsIpv4Test.mplsTransitSwapEcmpHashTest |
-| mpls.13 | Verify MPLS label is pushed on stach in transit LSR for IPv4 | saimpls.MplsIpv4Test.mplsTransitPushTest |
-| mpls.14 | Verify mpls labels are added to packet in ingress LER for IPv6 | saimpls.MplsIpv6Test.mplsIngressLERTest |
+| mpls.12 | Verify ECMP group with mpls transit nhops for IPv4              | saimpls.MplsIpv4Test.mplsTransitSwapEcmpHashTest |
+| mpls.13 | Verify MPLS label is pushed on stach in transit LSR for IPv4    | saimpls.MplsIpv4Test.mplsTransitPushTest |
+| mpls.14 | Verify mpls labels are added to packet in ingress LER for IPv6  | saimpls.MplsIpv6Test.mplsIngressLERTest |
 | mpls.15 | Verify mpls label is popped in Egress LER and packet is forwarded based in IP lookup for IPv6 | saimpls.MplsIpv6Test.mplsEgressLERTermTest |
 | mpls.16 | Verify mpls null label is popped in Egress LER and packet is forwarded based on IP lookup for IPv6 | saimpls.MplsIpv6Test.mplsEgressLERNullTermTest |
 | mpls.17 | Verify PHP pops label and forwards packet based on IP lookup for IPv6 | saimpls.MplsIpv6Test.mplsEgressPhpTest |
 | mpls.18 | Verify PHP swaps label with explicit null and forwards packet based on IP lookup for IPv6 | saimpls.MplsIpv6Test.mplsEgressPhpSwapNullTest |
 | mpls.19 | Verify mpls label is swapped with another label, explicit null, swap only top label in transit switch for IPv6 | saimpls.MplsIpv6Test.mplsTransitSwapTest |
-| mpls.20 | Verify ECMP group with mpls transit nhops for IPv6 | saimpls.MplsIpv6Test.mplsTransitSwapEcmpHashTest |
-| mpls.21 | Verify MPLS label is pushed on stach in transit LSR for IPv6 | saimpls.MplsIpv6Test.mplsTransitPushTest |
+| mpls.20 | Verify ECMP group with mpls transit nhops for IPv6              | saimpls.MplsIpv6Test.mplsTransitSwapEcmpHashTest |
+| mpls.21 | Verify MPLS label is pushed on stach in transit LSR for IPv6    | saimpls.MplsIpv6Test.mplsTransitPushTest |
 
 ## NAT
 
 ## Neighbor
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| neighbor.1  | Verify packet DMAC updated with neighbor dst MAC for dst IP after routing for L3 RIF | sairif.L3InterfaceTest |
+| neighbor.2  | Verify packet DMAC updated with neighbor dst MAC for dst IP after routing for SVI | sairif.L3SVITest |
+| neighbor.3  | Verify packet DMAC is correct if neihgbor created after nexthop for L3 RIF | sairif.L3InterfaceTest |
+| neighbor.4  | Verify packet DMAC is correct if neihgbor created before nexthop for L3 RIF | sairif.L3InterfaceTest |
+| neighbor.5  | Verify packet DMAC is correct if neighbor created after nexthop SVI, MAC already learnt | sairif.L3SVITest |
+| neighbor.6  | Verify packet DMAC is correct if neighbor created before nexthop SVI, MAC already learnt | sairif.L3SVITest |
+| neighbor.7  | Verify egress port for MAC learnt after neighbor created for SVI | sairif.L3SVITest.sviRouteDynamicMacTest |
+| neighbor.8  | Verify egress port for MAC learnt before neighbor created for SVI | sairif.L3SVITest.sviRouteDynamicMacTest |
+| neighbor.9  | Verify correct DMAC is set in packet after neighbor dst MAC is updated | sairif.L3SVITest.sviIpv4ArpMoveTest |
+| neighbor.10 | Verify egress port after MAC move                           | sairif.L3SVITest.sviRouteDynamicMacMoveTest |
+| neighbor.11 | Verify packet flooded on egress VLAN when neighbor present but no MAC learnt | sairif.L3SVITest.sviIPv4HostPortRoutedFloodTest |
+| neighbor.12 | Verify host route is not created when no_host_route=True for IPv4 neighbor | saineighbor.noHostRouteIpv4NeighborTest |
+| neighbor.13 | Verify host route is created when no_host_route=False for IPv4 neighbor | saineighbor.addHostRouteIpv4NeighborTest |
+| neighbor.14 | Verify host route is not created when no_host_route=True for IPv6 neighbor | saineighbor.NeighborAttrTest.noHostRouteIpv6NeighborTest |
+| neighbor.15 | Verify host route is created when no_host_route=False for IPv6 neighbor | saineighbor.NeighborAttrTest.addHostRouteIpv6NeighborTest |
+| neighbor.16 | Verify host route is not created for IPv6 link local address irrespectively of no_host_route value | saineighbor.NeighborAttrTest.noHostRouteIpv6LinkLocalNeighborTest |
 
 ## Nexthop
 
@@ -63,6 +82,34 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 ## Queue
 
 ## Route
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| route.1  | Verify IPv4 host route                                         | sairif.L3Interface.ipv4FibTest |
+| route.2  | Verify IPv4 LPM route                                          | sairif.L3Interface.ipv4FibLPMTest |
+| route.3  | Verify IPv6 host route                                         | sairif.L3Interface.ipv6FibTest |
+| route.4  | Verify IPv6 LPM route                                          | sairif.L3Interface.ipv6FibLPMTest |
+| route.5  | Verify multiple routes to the same nexthop                     | sairoute.L3RouteTest.multipleRoutesTest |
+| route.6  | Verify CPU route for IP2ME addresses                           | saihostif.HostifTrapTypesTest |
+| route.7  | Verify drop route                                              | sairoute.L3RouteTest.dropRouteTest |
+| route.8  | Verify route nexthop update to different nexthop               | sairoute.L3RouteTest.routeUpdateTest |
+| route.9  | Verify route update from CPU to regular nexthop                | sairoute.L3RouteTest.routeUpdateTest |
+| route.10 | Verify route update from regular nexthop to CPU                | sairoute.L3RouteTest.routeUpdateTest |
+| route.11 | Verify route update from drop to regular nexthop               | sairoute.L3RouteTest.routeUpdateTest |
+| route.12 | Verify route update from regular to nexthop drop               | sairoute.L3RouteTest.routeUpdateTest |
+| route.13 | Verify route from ingress L3 intf VRF to RIF on different VRF  | saivrf.VrfForwarding.innerVrfFwdL3NhopTest |
+| route.14 | Verify route from ingress SVI intf VRF to RIF on different VRF | saivrf.VrfForwarding.innerVrfFwdSviNhopTest |
+| route.15 | Verify route to ECMP                                           | sairif.L3SubPortTest.subPortECMPTest |
+| route.16 | Verify packet dropped when route to ingress RIF                | sairoute.L3RouteTest.routeIngressRifTest |
+| route.17 | Verify drop when route to empty ECMP group                     | sairoute.L3RouteTest.emptyECMPGroupTest |
+| route.18 | Verify if packet is gleaned to CPU when nexthop id is RIF for case without a neighbor | sairoute.L3RouteTest.routeNbrColision |
+| route.19 | Verify packet forwarded to RIF when nexthop id is RIF and RIF has a neighbor  | sairoute.L3RouteTest.routeNbrColision |
+| route.20 | Verify packet forwarded to CPU when nexthop id is CPU port ID  | sairoute.L3RouteTest.cpuForwardTest |
+| route.21 | Verify packet is routed to SVI, flooded if no neighbor found   | sairoute.L3RouteTest.sviNeighborTest |
+| route.22 | Verify paclet is routed to SVI, forwarded to correct neighbor  | sairoute.L3RouteTest.sviNeighborTest |
+| route.23 | Verify routing between VRFs                                    | saivrf.VrfForwardingTest.interVrfFwdL3NhopTest  |
+| route.24 | Verify routing between VRFs with SVI                           | saivrf.VrfForwardingTest.interVrfFwdSviNhopTest |
+| route.25 | Verify direct broadcast routing                                | sairif.L3DirBcastRouteTest |
 
 ## RIF
 
