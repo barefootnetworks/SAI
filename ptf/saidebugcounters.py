@@ -18,10 +18,6 @@ Thrift SAI interface DebugCounters tests
 
 from sai_thrift.sai_headers import *
 
-from ptf.packet import *
-from ptf.testutils import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 TEST_GET_STATS_DELAY = 3
@@ -39,7 +35,7 @@ def map_drop_reason_to_string(drop_reason_list):
     if not isinstance(drop_reason_list, list):
         drop_reason_list = [drop_reason_list]
     names = []
-    drop_reason_map = dict()
+    drop_reason_map = {}
     drop_reason_map[SAI_IN_DROP_REASON_INGRESS_VLAN_FILTER] = "VLAN_FILTER"
     drop_reason_map[SAI_IN_DROP_REASON_L2_ANY] = "L2_ANY"
     drop_reason_map[SAI_IN_DROP_REASON_SMAC_MULTICAST] = "SMAC_MC"
@@ -60,6 +56,9 @@ def map_drop_reason_to_string(drop_reason_list):
     drop_reason_map[SAI_IN_DROP_REASON_MPLS_MISS] = "MPLS_MISS"
     drop_reason_map[SAI_IN_DROP_REASON_SRV6_LOCAL_SID_DROP] = \
         "SRV6_LOCAL_SID_DROP"
+    drop_reason_map[SAI_IN_DROP_REASON_LPM4_MISS] = "LPM4_MISS"
+    drop_reason_map[SAI_IN_DROP_REASON_LPM6_MISS] = "LPM6_MISS"
+    drop_reason_map[SAI_IN_DROP_REASON_BLACKHOLE_ROUTE] = "BLACKHOLE_ROUTE"
 
     for drop_reason in drop_reason_list:
         names.append(drop_reason_map[drop_reason])
@@ -142,6 +141,8 @@ class BaseDebugCounterClass(SaiHelperBase):
     neighbor_ip_prefix = '10.10.10.0/24'
     neighbor_ip_2 = '10.10.10.2'
     loopback_ip = '127.0.0.1'
+    unknown_neighbor_ipv4 = '12.12.12.1'
+    blackhole_ip = '13.13.13.1/32'
     mc_ip = '224.0.0.1'
     class_e_ip = '240.0.0.1'
     unspec_ipv4 = '0.0.0.0'
@@ -152,6 +153,7 @@ class BaseDebugCounterClass(SaiHelperBase):
 
     neighbor_ipv6 = '1234:5678:9abc:def0:4422:1133:5577:99aa'
     neighbor_ipv6_prefix = '1234:5678:9abc:def0:4422:1133:5577:99aa/64'
+    unknown_neighbor_ipv6 = '4444:5678:9abc:def0:4422:1133:5577:3333'
     mc_scope_0_ipv6 = 'FF00:0:0:0:0:0:0:1'
     mc_scope_1_ipv6 = 'FF01:0:0:0:0:0:0:1'
 
@@ -269,6 +271,18 @@ class BaseDebugCounterClass(SaiHelperBase):
         self.uc_dipv6_mc_dmac_pkt = simple_tcpv6_packet(
             eth_dst=self.mc_mac_2,
             eth_src=self.default_mac_1)
+        self.lpm4_miss_pkt = simple_tcp_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src=self.default_mac_1,
+            ip_dst=self.unknown_neighbor_ipv4)
+        self.lpm6_miss_pkt = simple_tcpv6_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src=self.default_mac_1,
+            ipv6_dst=self.unknown_neighbor_ipv6)
+        self.blackhole_route_pkt = simple_tcp_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src=self.default_mac_1,
+            ip_dst=self.blackhole_ip)
 
         self.map_drop_reasons = []
         self.map_drop_reasons.append(
@@ -282,12 +296,21 @@ class BaseDebugCounterClass(SaiHelperBase):
         self.map_drop_reasons.append(
             [SAI_IN_DROP_REASON_TTL, [self.ttl_zero_pkt]])
         self.map_drop_reasons.append(
+            [SAI_IN_DROP_REASON_LPM4_MISS, [self.lpm4_miss_pkt]])
+        self.map_drop_reasons.append(
+            [SAI_IN_DROP_REASON_LPM6_MISS, [self.lpm6_miss_pkt]])
+        self.map_drop_reasons.append(
+            [SAI_IN_DROP_REASON_BLACKHOLE_ROUTE, [self.blackhole_route_pkt]])
+        self.map_drop_reasons.append(
             [SAI_IN_DROP_REASON_L3_ANY, [self.ttl_zero_pkt,
                                          self.ihl_pkt,
                                          self.src_ip_mc_pkt,
                                          self.ip_dst_loopback_pkt,
                                          self.ip_src_loopback_pkt,
                                          self.src_ip_class_e_pkt,
+                                         self.lpm4_miss_pkt,
+                                         self.lpm6_miss_pkt,
+                                         self.blackhole_route_pkt,
                                          self.dst_ipv4_unspec_pkt,
                                          self.dst_ipv6_unspec_pkt]])
         self.map_drop_reasons.append(
@@ -512,14 +535,12 @@ class BaseDebugCounterClass(SaiHelperBase):
                              pkts,
                              drop_expected=True):
         ''' Executes port debug counter test.
-
         Args:
             port (sai_object_id_t): port object id
             dc_oid (sai_object_id_t): debugc counter object id
             in_drop_reasons (list): in drop reasons list
             pkts (list): list of test  packets
             drop_expected (bool): if test drops expected
-
         '''
 
         if not isinstance(pkts, list):
@@ -569,13 +590,11 @@ class BaseDebugCounterClass(SaiHelperBase):
                                pkts,
                                drop_expected=True):
         ''' Executes switch debug counter test.
-
         Args:
             dc_oid (sai_object_id_t): debugc counter object id
             in_drop_reasons (list): in drop reasons list
             pkts (list): list of test  packets
             drop_expected (bool): if test drops expected
-
         '''
 
         if not isinstance(pkts, list):
@@ -795,7 +814,7 @@ class BaseDebugCounterClass(SaiHelperBase):
 
 
 class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
-    ''' Port Debug Counter Remove drop reasons test. '''
+    ''' Port debug counter - remove drop reasons test. '''
 
     def runTest(self):
 
@@ -1212,6 +1231,7 @@ class PortDropSIPMCTest(BaseDebugCounterClass):
 
     def runTest(self):
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_SIP_MC]
             dc_oid = self.createDebugCounter(
@@ -1233,6 +1253,7 @@ class SwitchDropSIPMCTest(BaseDebugCounterClass):
 
     def runTest(self):
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_SIP_MC]
             dc_oid = self.createDebugCounter(
@@ -1254,6 +1275,7 @@ class PortDropReasonTTLTest(BaseDebugCounterClass):
 
     def runTest(self):
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_TTL]
             dc_oid = self.createDebugCounter(
@@ -1275,6 +1297,7 @@ class SwitchDropReasonTTLTest(BaseDebugCounterClass):
 
     def runTest(self):
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_TTL]
             dc_oid = self.createDebugCounter(
@@ -1392,7 +1415,9 @@ class PortDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
     ''' Port Debug Counter for IP header error drop reason test. '''
 
     def runTest(self):
+
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_IP_HEADER_ERROR]
             dc_oid = self.createDebugCounter(
@@ -1415,6 +1440,7 @@ class SwitchDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
     def runTest(self):
 
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_IP_HEADER_ERROR]
             dc_oid = self.createDebugCounter(
@@ -1721,7 +1747,7 @@ class PortDropIPv4L3AnyRIFDisabled(BaseDebugCounterClass):
 
 
 class PortDropIPv6RIFDisabled(BaseDebugCounterClass):
-    ''' Port Debug Counter for IPv6 disabled rif drop reason test. '''
+    ''' Port Debug Counter for IPv6 disabled RIF drop reason test. '''
 
     def runTest(self):
 
@@ -1845,6 +1871,7 @@ class SwitchDropSIPLoopback(BaseDebugCounterClass):
     def runTest(self):
 
         dc_oid = 0
+        self.createRouter()
         try:
             drop_list = [SAI_IN_DROP_REASON_SIP_LOOPBACK]
             dc_type = SAI_DEBUG_COUNTER_TYPE_SWITCH_IN_DROP_REASONS
@@ -1864,67 +1891,78 @@ class SwitchDropSIPLoopback(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group('debug_counters')
 class PortDropIPv4Miss(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv4 route miss drop reasons test. '''
 
     def runTest(self):
 
         dc_oid = 0
+        self.createRouter()
         try:
-            self.createRouter()
-            self.createNeighbor()
-            self.createRoute()
-
-            sai_thrift_set_router_interface_attribute(
-                self.client,
-                self.rif_ids[0],
-                admin_v4_state=True,
-                admin_v6_state=True)
-
             drop_list = [SAI_IN_DROP_REASON_LPM4_MISS]
             dc_type = SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS
 
             dc_oid = self.createDebugCounter(dc_type, drop_list)
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
-            pkt = simple_tcp_packet(
-                eth_dst=ROUTER_MAC,
-                eth_src=self.default_mac_1,
-                ip_dst="192.168.13.45")
 
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(
+                self.port0, dc_oid, drop_list, [self.lpm4_miss_pkt])
 
         finally:
             if dc_oid != 0:
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group('debug_counters')
 class PortDropIPv6Miss(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv6 route miss drop reasons test. '''
 
     def runTest(self):
 
         dc_oid = 0
+        self.createRouter()
         try:
-            self.createRouter()
-            self.createNeighborV6()
-            self.createRouteV6()
-
             drop_list = [SAI_IN_DROP_REASON_LPM6_MISS]
             dc_type = SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS
 
             dc_oid = self.createDebugCounter(dc_type, drop_list)
             self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
-            pkt = simple_tcpv6_packet(
-                eth_dst=ROUTER_MAC,
-                ipv6_dst='2222:5678:9abc:def0:4422:1133:5577:99aa',
-                ipv6_hlim=64)
-            self.testPortDebugCounter(self.port0, dc_oid, drop_list, [pkt])
+            self.testPortDebugCounter(
+                self.port0, dc_oid, drop_list, [self.lpm6_miss_pkt])
 
         finally:
             if dc_oid != 0:
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group('debug_counters')
+class PortDropBlackHoleRoute(BaseDebugCounterClass):
+    ''' Port Debug Counter for blackhole route drop reasons test. '''
+
+    def runTest(self):
+
+        dc_oid = 0
+        try:
+            self.createRouter()
+            self.createRoute(
+                packet_action=SAI_PACKET_ACTION_DROP,
+                nbr_ip_pfx=self.blackhole_ip)
+
+            drop_list = [SAI_IN_DROP_REASON_BLACKHOLE_ROUTE]
+            dc_type = SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS
+
+            dc_oid = self.createDebugCounter(dc_type, drop_list)
+            self.assertTrue(dc_oid != 0, "Failed to Create DebugCounter")
+            self.testPortDebugCounter(
+                self.port0, dc_oid, drop_list, [self.blackhole_route_pkt])
+
+        finally:
+            if dc_oid != 0:
+                sai_thrift_remove_debug_counter(self.client, dc_oid)
+
+
+@group('debug_counters')
 class PortDropL3AnyTest(BaseDebugCounterClass):
     ''' Port Debug Counter for L3 any drop reasons test. '''
 
@@ -1935,6 +1973,9 @@ class PortDropL3AnyTest(BaseDebugCounterClass):
             self.createRouter()
             self.createNeighborV6()
             self.createRouteV6()
+            self.createRoute(
+                packet_action=SAI_PACKET_ACTION_DROP,
+                nbr_ip_pfx=self.blackhole_ip)
 
             drop_list = [SAI_IN_DROP_REASON_L3_ANY]
             dc_type = SAI_DEBUG_COUNTER_TYPE_PORT_IN_DROP_REASONS
@@ -1948,6 +1989,9 @@ class PortDropL3AnyTest(BaseDebugCounterClass):
                         self.ip_dst_loopback_pkt,
                         self.ip_src_loopback_pkt,
                         self.src_ip_class_e_pkt,
+                        self.lpm4_miss_pkt,
+                        self.lpm6_miss_pkt,
+                        self.blackhole_route_pkt,
                         self.dst_ipv4_unspec_pkt,
                         self.dst_ipv6_unspec_pkt]
 
@@ -1958,6 +2002,7 @@ class PortDropL3AnyTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group('debug_counters')
 class PortDropAclAnyTest(BaseDebugCounterClass):
     ''' Port Debug Counter for ACL any drop reason test. '''
 
@@ -2103,59 +2148,90 @@ class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
     def runTest(self):
         # Supported SAI IN drop reason list
         in_caps_list = [
-            SAI_IN_DROP_REASON_INGRESS_VLAN_FILTER,
             SAI_IN_DROP_REASON_L2_ANY,
-            SAI_IN_DROP_REASON_L3_ANY,
             SAI_IN_DROP_REASON_SMAC_MULTICAST,
+            SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC,
+            SAI_IN_DROP_REASON_DMAC_RESERVED,
+            SAI_IN_DROP_REASON_VLAN_TAG_NOT_ALLOWED,
+            SAI_IN_DROP_REASON_INGRESS_VLAN_FILTER,
+            SAI_IN_DROP_REASON_INGRESS_STP_FILTER,
+            SAI_IN_DROP_REASON_FDB_UC_DISCARD,
+            SAI_IN_DROP_REASON_FDB_MC_DISCARD,
+            SAI_IN_DROP_REASON_L2_LOOPBACK_FILTER,
+            SAI_IN_DROP_REASON_EXCEEDS_L2_MTU,
+            SAI_IN_DROP_REASON_L3_ANY,
+            SAI_IN_DROP_REASON_EXCEEDS_L3_MTU,
             SAI_IN_DROP_REASON_TTL,
+            SAI_IN_DROP_REASON_L3_LOOPBACK_FILTER,
+            SAI_IN_DROP_REASON_NON_ROUTABLE,
+            SAI_IN_DROP_REASON_NO_L3_HEADER,
             SAI_IN_DROP_REASON_IP_HEADER_ERROR,
-            SAI_IN_DROP_REASON_SIP_MC,
-            SAI_IN_DROP_REASON_IRIF_DISABLED,
-            SAI_IN_DROP_REASON_ACL_ANY,
+            SAI_IN_DROP_REASON_UC_DIP_MC_DMAC,
             SAI_IN_DROP_REASON_DIP_LOOPBACK,
             SAI_IN_DROP_REASON_SIP_LOOPBACK,
+            SAI_IN_DROP_REASON_SIP_MC,
             SAI_IN_DROP_REASON_SIP_CLASS_E,
+            SAI_IN_DROP_REASON_SIP_UNSPECIFIED,
+            SAI_IN_DROP_REASON_MC_DMAC_MISMATCH,
+            SAI_IN_DROP_REASON_SIP_EQUALS_DIP,
+            SAI_IN_DROP_REASON_SIP_BC,
+            SAI_IN_DROP_REASON_DIP_LOCAL,
             SAI_IN_DROP_REASON_DIP_LINK_LOCAL,
             SAI_IN_DROP_REASON_SIP_LINK_LOCAL,
-            SAI_IN_DROP_REASON_SIP_UNSPECIFIED,
-            SAI_IN_DROP_REASON_UC_DIP_MC_DMAC,
+            SAI_IN_DROP_REASON_IPV6_MC_SCOPE0,
+            SAI_IN_DROP_REASON_IPV6_MC_SCOPE1,
+            SAI_IN_DROP_REASON_IRIF_DISABLED,
+            SAI_IN_DROP_REASON_ERIF_DISABLED,
+            SAI_IN_DROP_REASON_LPM4_MISS,
+            SAI_IN_DROP_REASON_LPM6_MISS,
+            SAI_IN_DROP_REASON_BLACKHOLE_ROUTE,
+            SAI_IN_DROP_REASON_BLACKHOLE_ARP,
+            SAI_IN_DROP_REASON_UNRESOLVED_NEXT_HOP,
+            SAI_IN_DROP_REASON_L3_EGRESS_LINK_DOWN,
+            SAI_IN_DROP_REASON_DECAP_ERROR,
+            SAI_IN_DROP_REASON_ACL_ANY,
+            SAI_IN_DROP_REASON_ACL_INGRESS_PORT,
+            SAI_IN_DROP_REASON_ACL_INGRESS_LAG,
+            SAI_IN_DROP_REASON_ACL_INGRESS_VLAN,
+            SAI_IN_DROP_REASON_ACL_INGRESS_RIF,
+            SAI_IN_DROP_REASON_ACL_INGRESS_SWITCH,
+            SAI_IN_DROP_REASON_ACL_EGRESS_PORT,
+            SAI_IN_DROP_REASON_ACL_EGRESS_LAG,
+            SAI_IN_DROP_REASON_ACL_EGRESS_VLAN,
+            SAI_IN_DROP_REASON_ACL_EGRESS_RIF,
+            SAI_IN_DROP_REASON_ACL_EGRESS_SWITCH,
+            SAI_IN_DROP_REASON_FDB_AND_BLACKHOLE_DISCARDS,
             SAI_IN_DROP_REASON_MPLS_MISS,
             SAI_IN_DROP_REASON_SRV6_LOCAL_SID_DROP]
 
-        # Make sure SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC is supported
-        # by current profile
-        if self.isInDropReasonSupported([SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC]):
-            in_caps_list.append(SAI_IN_DROP_REASON_SMAC_EQUALS_DMAC)
-
-        in_dc_caps_list = sai_thrift_query_attribute_enum_values_capability(
-            self.client,
+        supp = self.client.sai_thrift_query_attribute_enum_values_capability(
             SAI_OBJECT_TYPE_DEBUG_COUNTER,
-            SAI_DEBUG_COUNTER_ATTR_IN_DROP_REASON_LIST)
-        print("Supported in drop_reasons: %s len=%d"
-              % (map_drop_reason_to_string(in_dc_caps_list),
-                 len(in_dc_caps_list)))
+            SAI_DEBUG_COUNTER_ATTR_IN_DROP_REASON_LIST,
+            len(in_caps_list))
+        print("\nSupported IN drop reasons")
         for drop_reason in in_caps_list:
-            found = False
-            for in_drop_reason in in_dc_caps_list:
+            for in_drop_reason in supp:
                 if drop_reason == in_drop_reason:
-                    found = True
-            if found is False:
-                print("Unable to find drop reason: %s (%d)"
-                      % (map_drop_reason_to_string([drop_reason]),
-                         drop_reason))
-            self.assertTrue(found is True)
-        self.assertTrue(len(in_dc_caps_list) == len(in_caps_list))
+                    print(map_drop_reason_to_string([drop_reason]))
         print("\tok")
 
-        out_dc_cap_list = sai_thrift_query_attribute_enum_values_capability(
-            self.client,
+        # supported SAI OUT drop reason list
+        out_caps_list = [
+            SAI_OUT_DROP_REASON_L2_ANY,
+            SAI_OUT_DROP_REASON_EGRESS_VLAN_FILTER,
+            SAI_OUT_DROP_REASON_L3_ANY,
+            SAI_OUT_DROP_REASON_L3_EGRESS_LINK_DOWN,
+            SAI_OUT_DROP_REASON_TUNNEL_LOOPBACK_PACKET_DROP]
+
+        supp = self.client.sai_thrift_query_attribute_enum_values_capability(
             SAI_OBJECT_TYPE_DEBUG_COUNTER,
-            SAI_DEBUG_COUNTER_ATTR_OUT_DROP_REASON_LIST)
-        print("Supported out drop_reasons: %s len=%d"
-              % (map_drop_reason_to_string(out_dc_cap_list),
-                 len(out_dc_cap_list)))
-        # Currently out drop reasons not supported
-        self.assertTrue(len(out_dc_cap_list) == 0)
+            SAI_DEBUG_COUNTER_ATTR_OUT_DROP_REASON_LIST,
+            len(out_caps_list))
+        print("\nSupported OUT drop reasons")
+        for drop_reason in out_caps_list:
+            for out_drop_reason in supp:
+                if drop_reason == out_drop_reason:
+                    print(map_drop_reason_to_string([drop_reason]))
         print("\tok")
 
 
