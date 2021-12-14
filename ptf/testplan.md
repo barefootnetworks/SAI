@@ -142,6 +142,17 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Scheduler Group
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| schedulergroup.1 | Query and verify the number of scheduler groups per port using PORT attribute - SAI_PORT_ATTR_QOS_NUMBER_OF_SCHEDULER_GROUPS | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.2 | Query and verify the list of scheduler groups per port using PORT Attribute - SAI_PORT_ATTR_QOS_SCHEDULER_GROUP_LIST | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.3 | Query and verify the SAI_SCHEDULER_GROUP_ATTR_PORT_ID of scheduler group and match with the port object. | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.4 | Query and verify the scheduler profile attached to this scheduler group using attribute - SAI_SCHEDULER_GROUP_ATTR_CHILD_LIST | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.5 | Query and verify the queue count associated with this scheduler group - SAI_SCHEDULER_GROUP_ATTR_CHILD_COUNT | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.6 | Attach the scheduler profile to scheduler group using - SAI_SCHEDULER_GROUP_ATTR_SCHEDULER_PROFILE_ID | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.7 | Modify the parameters of the scheduler profile and verify if those attributes are updated per port or queue associated to the scheduler group. | saischedulergroup.SchGroupParamsTest |
+| schedulergroup.8 | Verify if scheduler group creation fails without mandatory parameters | saischedulergroup.SchGroupCreateFailTest |
+
 ## Switch
 
 | Test case id | Description | Test name |
