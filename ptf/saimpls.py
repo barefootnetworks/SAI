@@ -2934,7 +2934,6 @@ class MplsIpv6TtlModeTest(SaiHelper):
         self.mplsEgressLERTermTtlModeTest()
         self.mplsEgressLERNullTermTtlModeTest()
         self.mplsEgressPhpTtlModeTest()
-        self.mplsTransitPushTtlTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry_8000)
@@ -3237,14 +3236,6 @@ class MplsIpv6TtlModeTest(SaiHelper):
             ipv6_dst='300::1',
             ipv6_hlim=63)
         
-        mpls_tag['ttl'] = 55
-        recv_mpls_tag_list = [mpls_tag]
-        recv_mpls_pkt = simple_mpls_packet(
-            eth_dst='00:11:22:33:44:55',
-            eth_src=ROUTER_MAC,
-            mpls_tags=recv_mpls_tag_list,
-            inner_frame=send_pkt['IPv6'])
-
         mpls_tag['ttl'] = 60
         recv_mpls_tag_list = [mpls_tag]
         recv_mpls_pkt_2 = simple_mpls_packet(
@@ -3276,12 +3267,6 @@ class MplsIpv6TtlModeTest(SaiHelper):
                 self.client, self.inseg_entry_2222,
                 pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE)
 
-            recv_pkt['IPv6'].hlim = 64
-            print("Send 3 label MPLS packet after changing ttl_mode to pipe - "
-                  "PHP and forward IP packet")
-            send_packet(self, self.dev_port10, mpls_tag_3_pkt)
-            verify_packet(self, recv_pkt, self.dev_port13)
-
             print("Set MPLS object label 2222 to pop only 2 labels")
             sai_thrift_set_inseg_entry_attribute(
                 self.client, self.inseg_entry_2222, num_of_pop=2)
@@ -3290,77 +3275,9 @@ class MplsIpv6TtlModeTest(SaiHelper):
             send_packet(self, self.dev_port10, mpls_tag_3_pkt)
             verify_packet(self, recv_mpls_pkt_2, self.dev_port13)
 
-            sai_thrift_set_inseg_entry_attribute(
-                self.client, self.inseg_entry_2222,
-                pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM)
-
-            print("Send 3 label MPLS packet after changing ttl_mode to "
-                  "uniform - Pop 2 labels and forward MPLS with 2000")
-            send_packet(self, self.dev_port10, mpls_tag_3_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port13)
-
         finally:
             sai_thrift_set_inseg_entry_attribute(
                 self.client, self.inseg_entry_2222, num_of_pop=3)
-
-    def mplsTransitPushTtlTest(self):
-        '''
-        Verifies MPLS label is pushed on stack in transit LSR
-        with TTL value from existing MPLS label.
-        '''
-        print("\nmplsTransitPushTtlTest()")
-
-        send_pkt = simple_tcpv6_packet(
-            eth_dst=ROUTER_MAC,
-            ipv6_dst='660::1',
-            ipv6_hlim=64)
-
-        # ttl != nhop_ttl_val
-        mpls_tag = {'label': 8000, 'ttl': 60, 'tc':  3, 's':  1}
-        mpls_tag_list = [mpls_tag]
-        mpls_pkt = simple_mpls_packet(
-            eth_dst=ROUTER_MAC,
-            mpls_tags=mpls_tag_list,
-            inner_frame=send_pkt['IPv6'])
-
-        # ttl from mpls_tag, not from nhop_ttl_val
-        mpls_push_tag = {'label': 9000, 'ttl': 60, 'tc':  5, 's':  0}
-        mpls_tag_list = [mpls_push_tag, mpls_tag]
-        recv_mpls_pkt = simple_mpls_packet(
-            eth_dst="00:11:22:33:44:55",
-            eth_src=ROUTER_MAC,
-            mpls_tags=mpls_tag_list,
-            inner_frame=send_pkt['IPv6'])
-
-        # ttl from nhop_ttl_val in pipe mode
-        mpls_push_tag['ttl'] = 63
-        mpls_tag_list = [mpls_push_tag, mpls_tag]
-        recv_mpls_pkt_2 = simple_mpls_packet(
-            eth_dst="00:11:22:33:44:55",
-            eth_src=ROUTER_MAC,
-            mpls_tags=mpls_tag_list,
-            inner_frame=send_pkt['IPv6'])
-
-        print("Send ip packet to add MPLS label 9000 on top of "
-              "received label 8000")
-        send_packet(self, self.dev_port10, mpls_pkt)
-        verify_packet(self, recv_mpls_pkt, self.dev_port30)
-
-        sai_thrift_set_next_hop_attribute(
-            self.client, self.nhop_label_9,
-            outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_PIPE)
-
-        print("Change nexthop to pipe mode")
-        send_packet(self, self.dev_port10, mpls_pkt)
-        verify_packet(self, recv_mpls_pkt_2, self.dev_port30)
-
-        sai_thrift_set_next_hop_attribute(
-            self.client, self.nhop_label_9,
-            outseg_ttl_mode=SAI_OUTSEG_TTL_MODE_UNIFORM)
-
-        print("Change nexthop back to uniform mode")
-        send_packet(self, self.dev_port10, mpls_pkt)
-        verify_packet(self, recv_mpls_pkt, self.dev_port30)
 
 
 class MplsIpv4TtlModeTest(SaiHelper):
@@ -3639,7 +3556,6 @@ class MplsIpv4TtlModeTest(SaiHelper):
         self.mplsEgressLERTermTtlModeTest()
         self.mplsEgressLERNullTermTtlModeTest()
         self.mplsEgressPhpTtlModeTest()
-        self.mplsTransitPushTtlModeTest()
 
     def tearDown(self):
         sai_thrift_remove_inseg_entry(self.client, self.inseg_entry_8000)
@@ -3871,14 +3787,6 @@ class MplsIpv4TtlModeTest(SaiHelper):
             ip_dst='30.30.30.1',
             ip_ttl=63)
         
-        mpls_tag['ttl'] = 55
-        recv_mpls_tag_list = [mpls_tag]
-        recv_mpls_pkt = simple_mpls_packet(
-            eth_dst='00:11:22:33:44:55',
-            eth_src=ROUTER_MAC,
-            mpls_tags=recv_mpls_tag_list,
-            inner_frame=send_pkt['IP'])
-
         try:
             print("Send MPLS tag pakcet with label 2000 - "
                   "PHP and forward IP packet")
@@ -3898,47 +3806,6 @@ class MplsIpv4TtlModeTest(SaiHelper):
             send_packet(self, self.dev_port10, mpls_tag_3_pkt)
             verify_packet(self, recv_pkt, self.dev_port13)
 
-            print("Set MPLS object label 2222 to pop only 2 labels")
-            sai_thrift_set_inseg_entry_attribute(
-                self.client, self.inseg_entry_2222, num_of_pop=2)
-            print("Send MPLS tag pakcet with labels - 2222, 2111, 2000 - "
-                  "Pop 2 labels and forward MPLS with 2000")
-            send_packet(self, self.dev_port10, mpls_tag_3_pkt)
-            verify_packet(self, recv_mpls_pkt, self.dev_port13)
-
         finally:
             sai_thrift_set_inseg_entry_attribute(
                 self.client, self.inseg_entry_2222, num_of_pop=3)
-
-    def mplsTransitPushTtlModeTest(self):
-        '''
-        Verifies MPLS label is pushed on stack in transit LSR
-        with TTL value from existing MPLS label.
-        '''
-        print("\nmplsTransitPushTtlModeTest()")
-
-        send_pkt = simple_tcp_packet(
-            eth_dst=ROUTER_MAC,
-            ip_dst='60.60.60.10',
-            ip_ttl=64)
-
-        mpls_tag = {'label': 8000, 'ttl': 60, 'tc':  3, 's':  1}
-        mpls_tag_list = [mpls_tag]
-        mpls_pkt = simple_mpls_packet(
-            eth_dst=ROUTER_MAC,
-            mpls_tags=mpls_tag_list,
-            inner_frame=send_pkt['IP'])
-
-        mpls_push_tag = {'label': 9000, 'ttl': 60, 'tc':  5, 's':  0}
-        mpls_tag_list = [mpls_push_tag, mpls_tag]
-        recv_mpls_pkt = simple_mpls_packet(
-            eth_dst="00:11:22:33:44:55",
-            eth_src=ROUTER_MAC,
-            mpls_tags=mpls_tag_list,
-            inner_frame=send_pkt['IP'])
-
-        print("Send ip packet to add MPLS label 9000 on top of "
-              "received label 8000")
-
-        send_packet(self, self.dev_port10, mpls_pkt)
-        verify_packet(self, recv_mpls_pkt, self.dev_port30)
