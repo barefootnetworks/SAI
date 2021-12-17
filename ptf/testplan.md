@@ -20,6 +20,34 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Buffer
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| buffer.1 | Verify Buffer Pool Statistics GET SAI_BUFFER_POOL_STAT_CURR_OCCUPANCY_BYTES. | saibuffer.BufferStatistics |
+| buffer.2 | Verify Buffer Pool Statistics GET SAI_BUFFER_POOL_STAT_WATERMARK_BYTES. | saibuffer.BufferStatistics |
+| buffer.3 | Verify Buffer Pool Statistics CLEAR SAI_BUFFER_POOL_STAT_WATERMARK_BYTES. | saibuffer.BufferStatistics |
+| buffer.4 | Verify Ingresss Buffer Pool Creation Count = SAI_SWITCH_ATTR_INGRESS_BUFFER_POOL_NUM. Verify Pools creation with traffic and stats. | saibuffer.BufferPoolNumber |
+| buffer.5 | Verify Egress Buffer Pool Creation Count = SAI_SWITCH_ATTR_EGRESS_BUFFER_POOL_NUM. Verify Pools creation with traffic and stats. | saibuffer.BufferPoolNumber |
+| buffer.6 | Verify ingress_priority_group creation and corresponding gets for SAI_PORT_ATTR_NUMBER_OF_INGRESS_PRIORITY_GROUPS. | saiqosmap.QosTcToPriorityGroupTest |
+| buffer.7 | Verify ingress_priority_group creation and corresponding gets for SAI_PORT_ATTR_INGRESS_PRIORITY_GROUP_LIST. | saiqosmap.QosTcToPriorityGroupTest |
+| buffer.8 | Verify Traffic forwarding for created ingress_priority_groups with no buffer profile. | saibuffer.Forwarding |
+| buffer.9 | Verify Traffic forwarding for created ingress_priority_groups with Buffer Profile 1. | saibuffer.Forwarding |
+| buffer.10 | Verify Traffic forwarding for created ingress_priority_groups with Buffer Profile 2 (Buffer profile update case). | saibuffer.Forwarding |
+| buffer.11 | Verify Traffic forwarding for created ingress_priority_groups again with no Buffer Profile. | saibuffer.Forwarding |
+| buffer.12 | Verify ingress_priority_group stats GET SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS. | saibuffer.BufferStatistics |
+| buffer.13 | Verify ingress_priority_group stats GET SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES. | saibuffer.BufferStatistics |
+| buffer.14 | Verify ingress_priority_group stats GET SAI_INGRESS_PRIORITY_GROUP_STAT_CURR_OCCUPANCY_BYTES. | saibuffer.BufferStatistics |
+| buffer.15 | Verify ingress_priority_group stats GET SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES. | saibuffer.BufferStatistics |
+| buffer.16 | Verify ingress_priority_group stats GET SAI_INGRESS_PRIORITY_GROUP_STAT_SHARED_CURR_OCCUPANCY_BYTES. | saibuffer.BufferStatistics |
+| buffer.17 | Verify ingress_priority_group stats GET SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS. | saibuffer.BufferStatistics |
+| buffer.18 | Verify ingress_priority_group stats CLEAR SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS. | saibuffer.BufferStatistics |
+| buffer.19 | Verify ingress_priority_group stats CLEAR SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES. | saibuffer.BufferStatistics |
+| buffer.20 | Verify ingress_priority_group stats CLEAR SAI_INGRESS_PRIORITY_GROUP_STAT_WATERMARK_BYTES. | saibuffer.BufferStatistics |
+| buffer.21 | Verify ingress_priority_group stats CLEAR SAI_INGRESS_PRIORITY_GROUP_STAT_DROPPED_PACKETS. | saibuffer.BufferStatistics |
+| buffer.22 | For ingress ppg verify SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE with traffic. | saibuffer.BufferStatistics |
+| buffer.23 | For ingress queue verify SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE with traffic. | saibuffer.BufferStatistics |
+| buffer.24 | For egress ppg verify SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE with traffic. | saibuffer.BufferStatistics |
+| buffer.25 | For egress queue verify SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE with traffic. | saibuffer.BufferStatistics |
+
 ## Debug Counter
 
 ## FDB
