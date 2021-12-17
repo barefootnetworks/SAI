@@ -96,6 +96,31 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Nexthop
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| nexthop.1  | Verify traffic with route pointing to nexthop with RIF as SAI_ROUTER_INTERFACE_TYPE_PORT and nexthop type as SAI_NEXT_HOP_TYPE_IP | sairif.L3InterfaceTest |
+| nexthop.2  | Verify traffic with route pointing to nexthop with RIF as SAI_ROUTER_INTERFACE_TYPE_VLAN and nexthop type as SAI_NEXT_HOP_TYPE_IP | sairif.L3SVITest |
+| nexthop.3  | Verify traffic with route pointing to nexthop with RIF as SAI_ROUTER_INTERFACE_TYPE_SUB_PORT and nexthop type as SAI_NEXT_HOP_TYPE_IP | sairif.L3SubPortTest |
+| nexthop.4  | Repeat nexthop.1 to nexthop.3 tests for nexthop type as SAI_NEXT_HOP_TYPE_TUNNEL_ENCAP | sainhop.NhopTunnelEncapDecapTest |
+| nexthop.5  | Verify traffic after overriding tunnel VNI of tunnel mapper using nexthop atribute SAI_NEXT_HOP_ATTR_TUNNEL_VNI | sainhop.NhopTunnelVniTest |
+| nexthop.6  | Add multiple routes pointing to nexthop and delete the nexthop, check for failures | sainhop.L3NexthopTest.removeNexthopTest |
+| nexthop.7  | Verify traffic for nexthop with LAG RIF when LAG members are deleted, packets rehash and forwarded | sailag.LagL3Nhop |
+| nexthop.8  | Verify traffic for nexthop with LAG RIF when LAG members are added, packets rehash and forwarded | sailag.LagL3Nhop |
+| nexthop.9  | Verify no traffic for v4 route pointing to nexthop when RIF V4 is disabled | sairif.L3InterfaceTest.ipv4DisableTest |
+| nexthop.10 | Verify no traffic for v6 route pointing to nexthop when RIF V6 is disabled | sairif.ipv6DisabledTest |
+| nexthop.11 | Verify correct traffic with host route pointing to CPU interface as SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID | sainhop.L3NexthopTest.cpuNexthopTest |
+| nexthop.12 | Verify correct traffic with LPM route pointing to CPU interface as SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID | sainhop.L3NexthopTest.cpuNexthopTest |
+| nexthop.13 | Verify nexthop.11 and nexthop.12 for both V4 and V6 routes  | sainhop.L3NexthopTest.cpuNexthopTest |
+| nexthop.14 | Route pointing to nexthop with neighbor deleted, post route flood | sairif.L3SVITest.sviIv4HostPortRoutedFloodTest, sairif.L3SVITest.sviIpv6HostPortRoutedFloodTest |
+| nexthop.15 | Verify traffic for SVI nexthop with static MAC move to different interface | sairif.L3SVITest.sviIpv4HostStaticMacMoveTest, sairif.L3SVITest.sviipv6HostStaticMacMoveTest |
+| nexthop.16 | Verify traffic for SVI nexthop with dynamic MAC move to different interface | sairif.L3SVITest.sviIpv4RouteDynamicMacMoveTest, sairif.L3SVITest.sviIpv6DynamicMacMoveTest |
+| nexthop.17 | Verify traffic for nexthop resolution with ARP move         | sairif.L3SVITest.sviIpv4ArpMoveTest, sairif.L3SVITest.sviIpv6IcmpMoveTest |
+| nexthop.18 | Verify traffic when nexthop with static MAC moves to LAG    | sairif.L3SVITest.sviIpv4LagHostStaticMacMoveTest, sairif.L3SVITest.sviIpv6LagHostStaticMacMoveTest |
+| nexthop.19 | Verify traffic when nexthop with dynamic MAC moves to LAG   | sairif.L3SVITest.sviIpv4LagHostDynamicMacMoveTest, sairif.L3SVITest.sviIpv6LagHostDynamicMacMoveTest |
+| nexthop.20 | Verify traffic for nexthop to RIF with MTU less than packet size | sairif.L3nterface.ipv4MtuTest, sairif.L3Interface.ipv6MtuTest |
+| nexthop.21 | Verify traffic for nexthop to LAG RIF with MTU less than packet size | sairif.L3Interface.ipv4MtuTest, sairif.L3Interface.ipv6MtuTest |
+| nexthop.22 | Verify nexthop.20 and nexthop.21 fot both V4 and V6 routes  | nexthop.20 and nexthop.21 test names |
+
 ## Nexthop Group
 
 ## Policer
