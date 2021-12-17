@@ -18,6 +18,7 @@ Thrift SAI interface HASH tests
 
 import binascii
 
+from ptf.testutils import *
 from sai_base_test import *
 
 ROUTER_MAC = '00:77:66:55:44:00'
@@ -246,6 +247,7 @@ def hash_dict_negation(hash_dict):
     return hash_dict_not
 
 
+@group("draft")
 class SAIHashTestBase(SaiHelper):
     """
     Sets base configuration for tests
@@ -684,6 +686,7 @@ class SAIHashTestBase(SaiHelper):
             self.client, ecmp_default_hash_algorithm=algo)
 
 
+@group("draft")
 class SAIHashTest(SAIHashTestBase):
     """
     Runs hash test cases
@@ -2055,6 +2058,7 @@ class SAIHashTest(SAIHashTestBase):
                         "LAG Seed change has no effect on LB")
 
 
+@group("draft")
 class SAIIPv6HashTest(SAIHashTestBase):
     """
     Runs IPv6 hash test cases
@@ -2721,6 +2725,7 @@ class SAIIPv6HashTest(SAIHashTestBase):
         self.assertTrue(nbr_active_ports == 1, "LB not expected")
 
 
+@group("draft")
 class NonIPSrcMacHashTest(SAIHashTest):
     """
     Verfies traffic distribution using src MAC selection for Non-IP Hash
@@ -2731,6 +2736,7 @@ class NonIPSrcMacHashTest(SAIHashTest):
         self.nonIpHashTest(hash_src_mac=True)
 
 
+@group("draft")
 class NonIPDstMacHashTest(SAIHashTest):
     """
     Verfies traffic distribution using dst MAC selection for Non-IP Hash
@@ -2741,6 +2747,7 @@ class NonIPDstMacHashTest(SAIHashTest):
         self.nonIpHashTest(hash_dst_mac=True)
 
 
+@group("draft")
 class L2LagHashEtherTypeTest(SAIHashTest):
     """
     Verfies traffic distribution using the Ether type selection for L2 Lag Hash
@@ -2751,6 +2758,7 @@ class L2LagHashEtherTypeTest(SAIHashTest):
         self.nonIpHashTest(hash_ether_type=True)
 
 
+@group("draft")
 class L2LagHashSrcMACTest(SAIHashTest):
     '''
     Verfies traffic distribution using the src MAC selection for L2 Lag Hash
@@ -2761,6 +2769,7 @@ class L2LagHashSrcMACTest(SAIHashTest):
         self.nonIpHashTest(hash_src_mac=True)
 
 
+@group("draft")
 class L2LagHashDstMACTest(SAIHashTest):
     '''
     Verfies traffic distribution using the dst MAC selection for L2 Lag Hash
@@ -2771,6 +2780,7 @@ class L2LagHashDstMACTest(SAIHashTest):
         self.nonIpHashTest(hash_dst_mac=True)
 
 
+@group("draft")
 class L2LagHashTest(SAIHashTest):
     '''
     Verfies traffic distribution using all fields selection for L2 Lag Hash
@@ -2782,6 +2792,7 @@ class L2LagHashTest(SAIHashTest):
                            hash_ether_type=True)
 
 
+@group("draft")
 class NonIpHashTest(SAIHashTest):
     """
     Verfies traffic distribution using all fields selection for Non-IP Hash
@@ -2793,6 +2804,7 @@ class NonIpHashTest(SAIHashTest):
                            hash_ether_type=True)
 
 
+@group("draft")
 class L2LagHashSeedTest(SAIHashTest):
     """
     Verfies L2 Lag basic case with varing seed values
@@ -2802,6 +2814,7 @@ class L2LagHashSeedTest(SAIHashTest):
         self.l2LagHashSeedTest()
 
 
+@group("draft")
 class EcmpIPv4SrcIPHashTest(SAIHashTest):
     """
     Verfies traffic distribution using src IP selection
@@ -2813,6 +2826,7 @@ class EcmpIPv4SrcIPHashTest(SAIHashTest):
         self.ecmpIPv4HashTest(hash_src_ip=True)
 
 
+@group("draft")
 class FGEcmpIPv4SrcIPHashTest(SAIHashTest):
     """
     Verfies traffic distribution using src IP selection
@@ -2824,6 +2838,7 @@ class FGEcmpIPv4SrcIPHashTest(SAIHashTest):
         self.fgEcmpIPv4HashTest(hash_src_ip=True)
 
 
+@group("draft")
 class EcmpIPv4DstIPHashTest(SAIHashTest):
     """
     Verfies traffic distribution using dst IP selection
@@ -2835,6 +2850,7 @@ class EcmpIPv4DstIPHashTest(SAIHashTest):
         self.ecmpIPv4HashTest(hash_dst_ip=True)
 
 
+@group("draft")
 class EcmpIPv4DstPortHashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using dst port selection
@@ -2846,6 +2862,7 @@ class EcmpIPv4DstPortHashTest(SAIHashTest):
         self.ecmpIPv4HashTest(hash_udp_dport=True)
 
 
+@group("draft")
 class EcmpIPv4SrcPortHashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using src port selection
@@ -2857,6 +2874,7 @@ class EcmpIPv4SrcPortHashTest(SAIHashTest):
         self.ecmpIPv4HashTest(hash_udp_sport=True)
 
 
+@group("draft")
 class EcmpIPv4BasicHashNoLBTest(SAIHashTest):
     """
     Verfies ECMP IPv4 hash defined for single not modified IPv4 hash field
@@ -2867,6 +2885,7 @@ class EcmpIPv4BasicHashNoLBTest(SAIHashTest):
         self.ecmpIPv4BasicHashNoLBTest()
 
 
+@group("draft")
 class EcmpIPv4HashTest(SAIHashTest):
     """
     Verfies traffic distribution using all the fields selected
@@ -2882,6 +2901,7 @@ class EcmpIPv4HashTest(SAIHashTest):
             hash_udp_dport=True)
 
 
+@group("draft")
 class EcmpIPv4vsIPv6HashTest(SAIHashTest):
     """
     Verifies if IPv6 hash does not impact IPv4 hashing
@@ -2891,6 +2911,7 @@ class EcmpIPv4vsIPv6HashTest(SAIHashTest):
         self.ecmpIPv4vsIPv6HashTest()
 
 
+@group("draft")
 class L3EcmpIPv4HashSeedTest(SAIHashTest):
     """
     Verfies IPv4 ECMP seed case with varing values
@@ -2900,6 +2921,7 @@ class L3EcmpIPv4HashSeedTest(SAIHashTest):
         self.l3EcmpIPv4HashSeedTest()
 
 
+@group("draft")
 class EcmpIPv4HashSaveRestoreTest(SAIHashTest):
     """
     Verfies ECMP for IPv4 standard
@@ -2910,6 +2932,7 @@ class EcmpIPv4HashSaveRestoreTest(SAIHashTest):
         self.ecmpIPv4HashSaveRestoreTest()
 
 
+@group("draft")
 class EcmpHashAlgorithmTest(SAIHashTest):
     """
     Verfies ECMP hash algorithm
@@ -2919,6 +2942,7 @@ class EcmpHashAlgorithmTest(SAIHashTest):
         self.ecmpHashAlgorithmTest()
 
 
+@group("draft")
 class L3LagIPv4HashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using all the fields selected
@@ -2935,6 +2959,7 @@ class L3LagIPv4HashTest(SAIHashTest):
             hash_udp_dport=True)
 
 
+@group("draft")
 class LagHashAlgorithmTest(SAIHashTest):
     """
     Verfies lag hash algorithm
@@ -2944,6 +2969,7 @@ class LagHashAlgorithmTest(SAIHashTest):
         self.lagHashAlgorithmTest()
 
 
+@group("draft")
 class L3LagIPv4SrcIPHashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using src IP selection
@@ -2955,6 +2981,7 @@ class L3LagIPv4SrcIPHashTest(SAIHashTest):
         self.l3LagIPv4HashTest(hash_src_ip=True)
 
 
+@group("draft")
 class L3LagIPv4DstIPHashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using dst IP selection
@@ -2966,6 +2993,7 @@ class L3LagIPv4DstIPHashTest(SAIHashTest):
         self.l3LagIPv4HashTest(hash_dst_ip=True)
 
 
+@group("draft")
 class L3LagIPv4SrcPortHashTest(SAIHashTest):
     """
     Verfies L3 IPv4 traffic distribution using src port selection
@@ -2977,6 +3005,7 @@ class L3LagIPv4SrcPortHashTest(SAIHashTest):
         self.l3LagIPv4HashTest(hash_udp_sport=True)
 
 
+@group("draft")
 class L3LagIPv4DstPortHashTest(SAIHashTest):
     """
     Verifies L3 IPv4 traffic distribution using dst port selection
@@ -2988,6 +3017,7 @@ class L3LagIPv4DstPortHashTest(SAIHashTest):
         self.l3LagIPv4HashTest(hash_udp_dport=True)
 
 
+@group("draft")
 class L3LagIPv4HashSeedTest(SAIHashTest):
     """
     Verfies L3 Lag basic case with varing seed values
@@ -2998,6 +3028,7 @@ class L3LagIPv4HashSeedTest(SAIHashTest):
         self.l3LagIPv4HashSeedTest()
 
 
+@group("draft")
 class LagHashSaveRestoreTest(SAIHashTest):
     """
     Verfies modification of the switch lag hash fields
@@ -3007,6 +3038,7 @@ class LagHashSaveRestoreTest(SAIHashTest):
         self.lagHashSaveRestoreTest()
 
 
+@group("draft")
 class LagIPv4HashSaveRestoreTest(SAIHashTest):
     """
     Verfies modification of the switch lag IPv4 hash fields
@@ -3016,6 +3048,7 @@ class LagIPv4HashSaveRestoreTest(SAIHashTest):
         self.lagIPv4HashSaveRestoreTest()
 
 
+@group("draft")
 class LagIPv6HashSaveRestoreTest(SAIHashTest):
     """
     Varifies modification of the switch lag IPv6 hash fields
@@ -3025,6 +3058,7 @@ class LagIPv6HashSaveRestoreTest(SAIHashTest):
         self.lagIPv6HashSaveRestoreTest()
 
 
+@group("draft")
 class L3LagIPv6HashSeedTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 Lag basic case with varing seed values
@@ -3035,6 +3069,7 @@ class L3LagIPv6HashSeedTest(SAIIPv6HashTest):
         self.lagIPv6HashSeedTest()
 
 
+@group("draft")
 class L3LagIPv6HashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using all the fields selected
@@ -3049,6 +3084,7 @@ class L3LagIPv6HashTest(SAIIPv6HashTest):
         self.lagIPv6HashTest(hash_dict)
 
 
+@group("draft")
 class L3LagIPv6FlowLabelHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using all ipv6 flow label
@@ -3061,6 +3097,7 @@ class L3LagIPv6FlowLabelHashTest(SAIIPv6HashTest):
         self.lagIPv6FlowLabelHashTest(hash_dict)
 
 
+@group("draft")
 class L3LagIPv6SrcIPHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using src IP selection
@@ -3073,6 +3110,7 @@ class L3LagIPv6SrcIPHashTest(SAIIPv6HashTest):
         self.lagIPv6HashTest(hash_dict)
 
 
+@group("draft")
 class L3LagIPv6DstIPHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using dst IP selection
@@ -3085,6 +3123,7 @@ class L3LagIPv6DstIPHashTest(SAIIPv6HashTest):
         self.lagIPv6HashTest(hash_dict)
 
 
+@group("draft")
 class L3LagIPv6SrcPortHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using src port selection
@@ -3097,6 +3136,7 @@ class L3LagIPv6SrcPortHashTest(SAIIPv6HashTest):
         self.lagIPv6HashTest(hash_dict)
 
 
+@group("draft")
 class L3LagIPv6DstPortHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using dst port selection
@@ -3109,6 +3149,7 @@ class L3LagIPv6DstPortHashTest(SAIIPv6HashTest):
         self.lagIPv6HashTest(hash_dict)
 
 
+@group("draft")
 class EcmpIPv6HashSaveRestoreTest(SAIIPv6HashTest):
     """
     Verfies ECMP for IPv6 standard
@@ -3119,6 +3160,7 @@ class EcmpIPv6HashSaveRestoreTest(SAIIPv6HashTest):
         self.ecmpIPv6HashSaveRestoreTest()
 
 
+@group("draft")
 class L3EcmpIPv6HashSeedTest(SAIIPv6HashTest):
     """
     Verfies IPv6 ECMP seed case with varing values
@@ -3128,6 +3170,7 @@ class L3EcmpIPv6HashSeedTest(SAIIPv6HashTest):
         self.l3EcmpIPv6HashSeedTest()
 
 
+@group("draft")
 class EcmpIPv6HashTest(SAIIPv6HashTest):
     """
     Verfies traffic distribution using all the field selected
@@ -3143,6 +3186,7 @@ class EcmpIPv6HashTest(SAIIPv6HashTest):
             hash_udp_dport=True)
 
 
+@group("draft")
 class EcmpIPv6DstIPHashTest(SAIIPv6HashTest):
     """
     Verfies traffic distribution using dst IP selection
@@ -3154,6 +3198,7 @@ class EcmpIPv6DstIPHashTest(SAIIPv6HashTest):
         self.ecmpIPv6HashTest(hash_dst_ip=True)
 
 
+@group("draft")
 class EcmpIPv6SrcIPHashTest(SAIIPv6HashTest):
     """
     Verfies traffic distribution using src IP selection
@@ -3165,6 +3210,7 @@ class EcmpIPv6SrcIPHashTest(SAIIPv6HashTest):
         self.ecmpIPv6HashTest(hash_src_ip=True)
 
 
+@group("draft")
 class EcmpIPv6SrcPortHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using src port selection
@@ -3176,6 +3222,7 @@ class EcmpIPv6SrcPortHashTest(SAIIPv6HashTest):
         self.ecmpIPv6HashTest(hash_udp_sport=True)
 
 
+@group("draft")
 class EcmpIPv6DstPortHashTest(SAIIPv6HashTest):
     """
     Verfies L3 IPv6 traffic distribution using dst port selection
@@ -3187,6 +3234,7 @@ class EcmpIPv6DstPortHashTest(SAIIPv6HashTest):
         self.ecmpIPv6HashTest(hash_udp_dport=True)
 
 
+@group("draft")
 class EcmpIPv6vsIPv4HashTest(SAIIPv6HashTest):
     """
     Verifies if IPv4 hash does not impact IPv6 hashing
