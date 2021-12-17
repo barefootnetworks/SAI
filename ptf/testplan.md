@@ -119,7 +119,7 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | nexthop.19 | Verify traffic when nexthop with dynamic MAC moves to LAG   | sairif.L3SVITest.sviIpv4LagHostDynamicMacMoveTest, sairif.L3SVITest.sviIpv6LagHostDynamicMacMoveTest |
 | nexthop.20 | Verify traffic for nexthop to RIF with MTU less than packet size | sairif.L3nterface.ipv4MtuTest, sairif.L3Interface.ipv6MtuTest |
 | nexthop.21 | Verify traffic for nexthop to LAG RIF with MTU less than packet size | sairif.L3Interface.ipv4MtuTest, sairif.L3Interface.ipv6MtuTest |
-| nexthop.22 | Verify nexthop.20 and nexthop.21 fot both V4 and V6 routes  | nexthop.20 and nexthop.21 test names |
+| nexthop.22 | Verify nexthop.14 to nexthop.21 fot both V4 and V6 routes  | nexthop.14 - nexthop.21 test names |
 
 ## Nexthop Group
 
@@ -302,5 +302,55 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | vrf.24 | Verify SMAC configuration on VRF creted with default mac | saivrf.VrfSMACTest.testSMACSet |
 
 ## VLAN
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| vlan.1  | Verify forwarding from untagged to untagged port                       | saivlan.L2VlanTest.forwardingTest |
+| vlan.2  | Verify forwarding from untagged to tagged port                         | saivlan.L2VlanTest.forwardingTest |
+| vlan.3  | Verify forwarding from tagged to tagged port                           | saivlan.L2VlanTest.forwardingTest |
+| vlan.4  | Verify forwarding from tagged to untagged port                         | saivlan.L2VlanTest.forwardingTest |
+| vlan.5  | Verify forwarding of native vlan on tagged port                        | saivlan.L2VlanTest.nativeVlanTest |
+| vlan.6  | Verify forwarding of native vlan on tagged LAG                         | saivlan.L2VlanTest.nativeVlanTest |
+| vlan.7  | Verify forwarding of priority tagged packets on port                   | saivlan.L2VlanTest.priorityTaggingTest |
+| vlan.8  | Verify forwarding of priority tagged packets on LAG                    | saivlan.L2VlanTest.priorityTaggingTest |
+| vlan.9  | Verify drops for invalid port-vlan packet on untagged port             | saivlan.L2VlanTest.pvDropTest |
+| vlan.10 | Verify drops for invalid port-vlan packet on untagged LAG all members  | saivlan.L2VlanTest.lagPvMissTest |
+| vlan.11 | Verify drops for invalid port-vlan packet on tagged port               | saivlan.L2VlanTest.pvDropTest |
+| vlan.12 | Verify drops for invalid port-vlan packet on taggeed LAG all members   | saivlan.L2VlanTest.lagPvMissTest |
+| vlan.13 | Verify flooding on tagged ports with correct tagging                   | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.14 | Verify flooding on tagged LAGs with correct tagging                    | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.15 | Verify flooding on untagged ports with no tagging                      | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.16 | Verify flooding on untagged LAGs with no tagging                       | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.17 | Verify flooding after add tagged physical port vlan member             | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.18 | Verify flooding after add untagged physical port vlan member           | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.19 | Verify flooding after add tagged LAG vlan member                       | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.20 | Verify flooding after add untagged LAG vlan member                     | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.21 | Verify flooding adter add tagged LAG member port                       | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.22 | Verify flooding after add untagged LAG member port                     | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.23 | Verify flooding after remove tagged physical port vlan member          | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.24 | Verify flooding after remove untagged physical port vlan member        | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.25 | Verify flooding after remove tagged LAG vlan member                    | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.26 | Verify flooding after remove untagged LAG vlan member                  | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.27 | Verify flooding after remove tagged LAG member port                    | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.28 | Verify flooding after remove untagged LAG member port                  | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.29 | Verify ingress port pruning on ports when flooding                     | saivlan.L2VlanTest.vlanFloodPruneTest |
+| vlan.30 | Verify ingress port pruning on LAG when flooding                       | saivlan.L2VlanTest.vlanFloodPruneTest |
+| vlan.31 | Verify ingress Unicast/Multicast/Broadcast statistics for VLAN         | saivlan.L2VlanTest.vlanStatsTest |
+| vlan.32 | Verify egress Unicast/Multicast/Broadcast statistics for VLAN          | saivlan.L2VlanTest.vlanStatsTest |
+| vlan.33 | Verify clear statistics for VLAN                                       | saivlan.L2VlanTest.vlanStatsTest.countersClearTest |
+| vlan.34 | Verify learning disabled attribute for VLAN                            | saivlan.L2VlanTest.vlanLearningTest |
+| vlan.35 | Verify VLAN member list using SAI_VLAN_ATTR_MEMBER_LIST                | saivlan.L2VlanTest.vlanMemberList |
+| vlan.36 | Verify flooding for the VLAN which contains ports and LAGs             | saivlan.L2VlanTest.vlanFloodEnhancedTest |
+| vlan.37 | Verify duplicate VLAN creation fails                                   | saivlan.L2VlanTest.vlanNegativeTest |
+| vlan.38 | Verify non-existent VLAN get fails                                     | saivlan.L2VlanTest.vlanNegativeTest |
+| vlan.39 | Verify non-existent VLAN remove fails                                  | saivlan.L2VlanTest.vlanNegativeTest |
+| vlan.40 | Verify non-existent VLAN set fails                                     | saivlan.L2VlanTest.vlanNegativeTest |
+| vlan.41 | Verify vlan member add fails with invalid vlan ID                      | saivlan.L2VlanTest.vlanNegativeTest |
+| vlan.42 | Verify vlan member add fails with invalid port ID                      | saivlan.L2VlanTest.vlanNegatieTest |
+| vlan.43 | Verify packet is dropped when ingress on single vlan member (no flood and pruned) | saivlan.L2VlanTest.singleVlanMemberTest |
+| vlan.44 | Verify flood control attributes for VLAN ('all' and 'none')            | saivlan.L2VlanTest.vlanFloodDisableTest |
+| vlan.45 | Verify binding VLAN to egress acl table                                | saivlan.L2VlanTest.vlanEgressAcl |
+| vlan.46 | Verify binding VLAN to ingress acl table                               | saivlan.L2VlanTest.vlanIngressAcl |
+| vlan.47 | Verify disable learn on vlan if mac entries in fdb table equals or more than MaxLearnedAddresses attrbute | saivlan.L2VlanTest.vlanMacLearnedAddressesTest |
 
 ## WRED
