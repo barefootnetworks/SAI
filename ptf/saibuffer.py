@@ -20,6 +20,7 @@ from sai_thrift.sai_headers import *
 from sai_base_test import *
 
 
+@group("draft")
 class BufferStatistics(MinimalPortVlanConfig):
     """
     Test buffer pool and ingress priority group statictics.
@@ -253,6 +254,7 @@ class BufferStatistics(MinimalPortVlanConfig):
         super(BufferStatistics, self).tearDown()
 
 
+@group("draft")
 class Forwarding(MinimalPortVlanConfig):
     """
     Verify transitioning between different buffer profiles and modyfing buffer
@@ -400,6 +402,7 @@ class Forwarding(MinimalPortVlanConfig):
         super(Forwarding, self).tearDown()
 
 
+@group("draft")
 class BufferPoolNumber(MinimalPortVlanConfig):
     """
     Verify buffer pool creation count:
