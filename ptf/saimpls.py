@@ -409,7 +409,7 @@ class MplsIpv6Test(SaiHelper):
         status = sai_thrift_create_inseg_entry(
             self.client, self.inseg_entry_2000,
             num_of_pop=1,
-            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM,
             next_hop_id=self.nhop_2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
@@ -417,7 +417,7 @@ class MplsIpv6Test(SaiHelper):
         status = sai_thrift_create_inseg_entry(
             self.client, self.inseg_entry_2111,
             num_of_pop=2,
-            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM,
             next_hop_id=self.nhop_2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
@@ -425,7 +425,7 @@ class MplsIpv6Test(SaiHelper):
         status = sai_thrift_create_inseg_entry(
             self.client, self.inseg_entry_2222,
             num_of_pop=3,
-            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM,
             next_hop_id=self.nhop_2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
@@ -957,7 +957,7 @@ class MplsIpv6Test(SaiHelper):
             eth_dst='00:11:22:33:44:55',
             eth_src=ROUTER_MAC,
             ipv6_dst='300::1',
-            ipv6_hlim=63)
+            ipv6_hlim=62)
         recv_mpls_tag_list = [mpls_tag]
         recv_mpls_pkt = simple_mpls_packet(
             eth_dst='00:11:22:33:44:55',
@@ -1509,7 +1509,7 @@ class MplsIpv4Test(SaiHelper):
         status = sai_thrift_create_inseg_entry(
             self.client, self.inseg_entry_2000,
             num_of_pop=1,
-            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM,
             next_hop_id=self.nhop_2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
@@ -1517,7 +1517,7 @@ class MplsIpv4Test(SaiHelper):
         status = sai_thrift_create_inseg_entry(
             self.client, self.inseg_entry_2111,
             num_of_pop=2,
-            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM,
             next_hop_id=self.nhop_2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
@@ -1525,7 +1525,7 @@ class MplsIpv4Test(SaiHelper):
         status = sai_thrift_create_inseg_entry(
             self.client, self.inseg_entry_2222,
             num_of_pop=3,
-            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_PIPE,
+            pop_ttl_mode=SAI_INSEG_ENTRY_POP_TTL_MODE_UNIFORM,
             next_hop_id=self.nhop_2)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
@@ -2154,7 +2154,7 @@ class MplsIpv4Test(SaiHelper):
             eth_dst='00:11:22:33:44:55',
             eth_src=ROUTER_MAC,
             ip_dst='30.30.30.1',
-            ip_ttl=63)
+            ip_ttl=62)
         recv_mpls_tag_list = [mpls_tag]
         recv_mpls_pkt = simple_mpls_packet(
             eth_dst='00:11:22:33:44:55',
