@@ -1,4 +1,4 @@
-#  Copyright 2020-present Intel Corporation.
+#  Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,120 +21,6 @@ from sai_thrift.sai_headers import *
 from ptf.dataplane import DataPlane
 
 from sai_base_test import *
-
-
-###############################################################################
-# Helper functions                                                            #
-# Hack for now, need to be removed or upstreamed                              #
-###############################################################################
-def verify_any_packet_on_ports_list(
-        test,
-        pkts=[],
-        ports=[],
-        device_number=0,
-        timeout=2,
-        no_flood=False):
-    """
-    Ports is list of port lists
-    Check that _any_ packet is received atleast once in every sublist in
-    ports belonging to the given device (default device_number is 0).
-
-    Also verifies that the packet is ot received on any other ports for this
-    device, and that no other packets are received on the device
-    (unless --relax is in effect).
-    Args:
-        test (testcase): Test case
-        pkts (packets): list of packets
-        ports (ports): list of ports
-        device_number (int): device under test
-        timeout (int): timeout
-        no_flood (int): do not flood
-    Returns:
-        rcv_idx: list of port indices
-    """
-    rcv_idx = []
-    failures = {}
-    pkt_cnt = 0
-    for port_list in ports:
-        rcv_ports = set()
-        remaining_timeout = timeout
-        port_sub_list_failures = []
-        port_sub_list_poll_success = False
-        if remaining_timeout > 0:
-            port_idx = 0
-            port_list_len = len(port_list)
-            while remaining_timeout > 0 or port_idx > 0:
-                port = port_list[port_idx]
-                port_idx = (port_idx + 1) % port_list_len
-                remaining_timeout = remaining_timeout - 0.1
-                (rcv_device, rcv_port, rcv_pkt, _) = test.dataplane.poll(
-                    port_number=port, timeout=0.1, filters=get_filters())
-                if rcv_device != device_number:
-                    continue
-                for pkt in pkts:
-                    logging.debug("Checking for pkt on device %d, port %d",
-                                  device_number, port)
-                    if ptf.dataplane.match_exp_pkt(pkt, rcv_pkt):
-                        pkt_cnt += 1
-                        rcv_ports.add(port_list.index(rcv_port))
-                        port_sub_list_failures = []
-                        port_sub_list_poll_success = True
-                        break
-                    else:
-                        port_sub_list_failures.append(
-                            (port, DataPlane.PollFailure(pkt, [rcv_pkt], 1)))
-                if port_sub_list_poll_success and no_flood:
-                    break
-        # Either no expected packets received or unexpected packets recieved
-        if not port_sub_list_poll_success or port_sub_list_failures:
-            port_tuple = tuple(port_list)
-            failures.setdefault(port_tuple, [])
-            failures[port_tuple] = failures[port_tuple] + \
-                port_sub_list_failures
-        rcv_idx.append(rcv_ports)
-
-    verify_no_other_packets(test)
-    if failures:
-        def format_per_port_failure(port, failure):
-            """
-            Format one port
-            Args:
-              port (int): port
-              failure (str): message
-            """
-            return "On port {}\n{}".format(port, failure.format())
-
-        def format_per_port_failures(fail_list):
-            """
-            Format one port all failures
-            Args:
-              fail_list (array): port and failures
-            """
-            return "\n".join([format_per_port_failure(port, failure)
-                              for (port, failure) in fail_list])
-
-        def format_port_list_failures(port_list, fail_list):
-            """
-            Format all port all failures
-            Args:
-              port_list (array): ports
-              fail_list (array): port and failures
-            """
-            return "None of the exp pkts rx'd for port list {}: \n{}".format(
-                port_list, format_per_port_failures(fail_list))
-        failure_report = "\n".join([
-            format_port_list_failures(port_list, fail_list)
-            for port_list, fail_list in list(failures.items())
-        ])
-        test.fail(
-            "Did not receive expected packets on any of {} for device {}. \n{}"
-            .format(ports, device_number, failure_report))
-
-    test.assertTrue(
-        pkt_cnt >= len(ports),
-        "Did not receive pkt on one of ports %r for device %d" %
-        (ports, device_number))
-    return rcv_idx
 
 
 def set_vlan_data(vlan_id=0, ports=None, untagged=None, large_port=0):
@@ -1439,82 +1325,58 @@ class L2VlanTest(SaiHelper):
         try:
             for vlan_key in vlan_data.keys():
                 vlan = vlan_data[vlan_key]
-                print("#### Flooding on %s ####" % (str(vlan["vlan_id"])))
-                self.tagged_pkt[Dot1Q].vlan = vlan["vlan_id"]
-                self.tagged_arp_resp[Dot1Q].vlan = vlan["vlan_id"]
-                pkt_list = [None] * vlan["large_port"]
-                arp_pkt_list = [None] * vlan["large_port"]
-                for port in vlan["ports"]:
-                    if port not in vlan["untagged"]:
+                print "#### Flooding on %s ####" % (str(vlan.vlan_id))
+                self.tagged_pkt[Dot1Q].vlan = vlan.vlan_id
+                self.tagged_arp_resp[Dot1Q].vlan = vlan.vlan_id
+                pkt_list = [None] * vlan.large_port
+                arp_pkt_list = [None] * vlan.large_port
+                for port in vlan.ports:
+                    if port not in vlan.untagged:
                         pkt_list[port - 1] = self.tagged_pkt
                         arp_pkt_list[port - 1] = self.tagged_arp_resp
                     else:
                         pkt_list[port - 1] = self.pkt
                         arp_pkt_list[port - 1] = self.arp_resp
-                pkt_dict = {
-                    "pkt_list": pkt_list,
-                    "arp_pkt_list": arp_pkt_list
-                }
-                self._testFloodingAndLearn(vlan, vlan_key, lag, pkt_dict)
+                for port in vlan.ports:
+                    print "Testing flooding and learning on port%d" % (port)
+                    other_ports = [p for p in vlan.ports if p != port]
+                    verify_pkt_list = [pkt_list[pl - 1] for pl in other_ports]
+                    print "Sending arp request from port ", port, " flooding on ", other_ports
+                    send_packet(self, port, str(pkt_list[port - 1]))
+                    if not lag:
+                        verify_each_packet_on_each_port(
+                            self, verify_pkt_list, other_ports)
+                    else:
+                        ports = []
+                        lag_ports = []
+                        for l in lag:
+                            lag_ports.append(l)
+                        for p in other_ports:
+                            if p not in lag_ports:
+                                ports.append([p])
+                        if port not in lag_ports:
+                            ports.append(lag_ports)
+                        verify_any_packet_on_ports_list(
+                            self, verify_pkt_list, ports)
+                    time.sleep(2)
+                    for send_port in other_ports:
+                        if port in lag and send_port in lag:
+                            continue
+                        print "Sending arp response from ", send_port, "->", port
+                        send_packet(self, send_port, str(
+                            arp_pkt_list[send_port - 1]))
+                        if port in lag:
+                            verify_packet_any_port(
+                                self, arp_pkt_list[port - 1], lag)
+                        else:
+                            verify_packets(
+                                self, arp_pkt_list[port - 1], [port])
+                    sai_thrift_flush_fdb_entries(
+                        self.client, bv_id=vlan_key, entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
         finally:
             for vlan_key in vlan_data.keys():
                 sai_thrift_flush_fdb_entries(
-                    self.client,
-                    bv_id=vlan_key,
-                    entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
-
-    def _testFloodingAndLearn(self, vlan, vlan_key, lag, pkt_dict):
-        """
-        Verifies flooding for the vlan
-
-        Args:
-            vlan (dictionary): dictionary which contains vlan data
-            vlan_key (str): key for the vlan dictionary
-            lag (list): lags list
-            pkt_dict (dictionary): dictionary which contains
-            packages list and arp packages list
-        """
-        for port in vlan["ports"]:
-            print("Testing flooding and learning on port%d" % (port))
-            other_ports = [p for p in vlan["ports"] if p != port]
-            verify_pkt_list = \
-                [pkt_dict["pkt_list"][pl - 1] for pl in other_ports]
-            print("Sending arp request from port ", port,
-                  " flooding on ", other_ports)
-            send_packet(self, port, pkt_dict["pkt_list"][port - 1])
-            if not lag:
-                verify_each_packet_on_each_port(
-                    self, verify_pkt_list, other_ports)
-            else:
-                ports = []
-                lag_ports = []
-                for lag_port in lag:
-                    lag_ports.append(lag_port)
-                for other_port in other_ports:
-                    if other_port not in lag_ports:
-                        ports.append([other_port])
-                if port not in lag_ports:
-                    ports.append(lag_ports)
-                verify_any_packet_on_ports_list(
-                    self, verify_pkt_list, ports)
-            time.sleep(2)
-            for send_port in other_ports:
-                if port in lag and send_port in lag:
-                    continue
-                print("Sending arp response from ",
-                      send_port, "->", port)
-                send_packet(self, send_port,
-                            pkt_dict["arp_pkt_list"][send_port - 1])
-                if port in lag:
-                    verify_packet_any_port(
-                        self, pkt_dict["arp_pkt_list"][port - 1], lag)
-                else:
-                    verify_packet(
-                        self, pkt_dict["arp_pkt_list"][port - 1], port)
-            sai_thrift_flush_fdb_entries(
-                self.client,
-                bv_id=vlan_key,
-                entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
+                    self.client, bv_id=vlan_key, entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
 
     def vlanFloodEnhancedTest(self):
         """
