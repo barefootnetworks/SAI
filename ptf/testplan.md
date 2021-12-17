@@ -163,6 +163,52 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## RIF
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| | L3 Interface | |
+| rif.1  | Verify IPv4 packets are dropped when admin_v4_state is False | sairif.L3Interface.ipv4DisableTest |
+| rif.2  | Verify IPv6 packets are dropped when admin_v6_state is False | sairif.L3Interface.ipv6DisableTest |
+| rif.3  | Verify packet forwarded correctly after MAC address update | sairif.L3Interface.macUpdateTest |
+| rif.4  | Verify packet dropped for old MAC address after update | sairif.L3Interface.macUpdateTest |
+| rif.5  | Verify basic forwarding for IPv4 host | sairif.L3Interface.ipv4FibTest |
+| rif.6  | Verify basic forwarding for IPv6 host | sairif.L3Interface.ipv6FibTest |
+| rif.7  | Verify basic forwarding for IPv4 LPM | sairif.L3Interface.ipv4FibLPMTest |
+| rif.8  | Verify basic forwarding for IPv6 LPM | sairif.L3Interface.ipv6FibLPMTest |
+| rif.9  | Verify IPv4 packet forwarded with packet size less than MTU | sairif.L3Interface.ipv4MtuTest |
+| rif.10 | Verify IPv4 packet forwarded with packet size equal to MTU | sairif.L3Interface.ipv4MtuTest |
+| rif.11 | Verify IPv4 packet dropped with packet size greated than MTU | sairif.L3Interface.ipv4MtuTest |
+| rif.12 | Verify IPv4 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3Interface.ipv4MtuTest |
+| rif.13 | Verify IPv6 packet forwarded with packet size less than MTU | sairif.L3Interface.ipv6MtuTest |
+| rif.14 | Verify IPV6 packet forwarded with packet size equal to MTU | sairif.L3Interface.ipv6MtuTest |
+| rif.15 | Verify IPv6 packet dropped with packet size greated than MTU | sairif.L3Interface.ipv6MtuTest |
+| rif.16 | Verify IPv6 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3Interface.ipv6MtuTest |
+| rif.17 | Verify packet forward after MTU change for IPv4 | sairif.L3Interface.ipv4MtuTest |
+| rif.18 | Verify packet forward after MTU change for IPv6 | sairif.L3Interface.ipv6MtuTest |
+| rif.19 | Verify same MTU value shared between RIF | sairif.L3Interface.rifSharedMtuTest |
+| rif.20 | Verify MTU check works after deleting another RIF with the same MTU value | sairif.L3Interface.rifSharedMtuTest |
+| rif.21 | Verify MTU value works after adding another RIF with the same MTU value | sairif.L3Interface.rifSharedMtuTest |
+| rif.22 | Verify basic forwarding on RIF using LAG IPv4 | sairif.L3Interface.ipv4FibLagTest |
+| rif.23 | Verify basic forwarding on RIF using LAG with new lag member IPv4 | sairif.L3Interface.ipv4FibLagTest |
+| rif.24 | Verify packet dropped on ingress port after being removed from LAG IPv4 | sairif.L3Interface.ipv4FibLagTest |
+| rif.25 | Verify basic forwarding on RIF using LAG IPv6 | sairif.L3Interface.ipv6FibLagTest |
+| rif.26 | Verify basic forwarding on RIF using LAG with new lag member IPv6 | sairif.L3Interface.ipv6FibLagTest |
+| rif.27 | Verify packet dropped on ingress port after being removed from LAG IPv6 | sairif.L3Interface.ipv6FibLagTest |
+| rif.28 | Verify create fails when TYPE is PORT and port_id is 0 | sairif.L3Interface.negativeRifTest |
+| rif.29 | Verify ingress ACL table bind to RIF | sairif.L3Interface.ipv4IngressAclTest |
+| rif.30 | Verify egress ACL table bind to RIF | sairif.L3Interface.ipv4EgressAclTest |
+| rif.31 | Verify ingress ACL group bind to RIF | sairif.L3Interface.ipv4IngressAclTest |
+| rif.32 | Verify egress ACL group bind to RIF | sairif.L3Interface.ipv6EgressAclTest |
+| rif.33 | Verify IPv4 multicast packets are dropped when V4_MCAST_ENABLE is False | sairif.L3Interface.mcastDisableTest |
+| rif.34 | Verify Ipv6 multicast packets are dropped when V6_MCAST_ENABLE is False | sairif.L3Interface.mcastDisableTest |
+| rif.35 | Verify multiple loopback RIF on same VRF is allowed | sairif.L3Interface.loopbackRifTest |
+| rif.36 | Verify Ingress RIF stats for unicast packets | sairif.L3Interface.rifStatsTest |
+| rif.37 | Verify Ingress RIF stats for multicast packets | sairif.L3Interface.rifStatsTest |
+| rif.38 | Verify Egress RIF stats for unicast packets | sairif.L3Interdface.rifStatsTest |
+| rif.39 | Verify Egress RIF stats for multicast packets | sairif.L3Interface.rifStatsTest |
+| rif.40 | Verify MYIP works for subnet routes | sairif.L3Interface.rifMyIPTest |
+| rif.41 | Verify duplicate L3 RIF creation fails | sairif.L3Interface.duplicatePortRifCreationTest |
+| rif.42 | Verify RIF can be created or updated with custom rmac | sarif.L3Interface.rifCreateOrUpdateRmacTest |
+
 ## Scheduler
 
 | Test case id | Description | Test name |
