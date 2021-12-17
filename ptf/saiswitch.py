@@ -84,6 +84,7 @@ def generate_mac_list(no_of_addr):
     return mac_list
 
 
+@group("draft")
 class SwitchAttrTest(SaiHelper):
     '''
     Switch attributes tests
@@ -280,7 +281,7 @@ class SwitchAttrTest(SaiHelper):
                     ip=ip_p,
                     router_interface_id=self.port10_rif,
                     type=SAI_NEXT_HOP_TYPE_IP)
-                self.assertTrue(nexthop != SAI_NULL_OBJECT_ID)
+                self.assertNotEqual(nexthop, SAI_NULL_OBJECT_ID)
                 nhop.update({str(ip_p): nexthop})
                 nhop_number += 1
 
@@ -321,7 +322,7 @@ class SwitchAttrTest(SaiHelper):
                     ip=ip_p,
                     router_interface_id=self.port10_rif,
                     type=SAI_NEXT_HOP_TYPE_IP)
-                self.assertTrue(nexthop != SAI_NULL_OBJECT_ID)
+                self.assertNotEqual(nexthop, SAI_NULL_OBJECT_ID)
                 nhop.update({str(ip_p): nexthop})
                 nhop_number += 1
 
@@ -462,7 +463,7 @@ class SwitchAttrTest(SaiHelper):
             for nhg_number in range(1, max_nhg_entry + 1):
                 nexthop_group = sai_thrift_create_next_hop_group(
                     self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
-                self.assertTrue(nexthop_group != SAI_NULL_OBJECT_ID)
+                self.assertNotEqual(nexthop_group, SAI_NULL_OBJECT_ID)
                 nhg.append(nexthop_group)
 
                 attr = sai_thrift_get_switch_attribute(
@@ -476,7 +477,7 @@ class SwitchAttrTest(SaiHelper):
             try:
                 nexthop_group = sai_thrift_create_next_hop_group(
                     self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
-                self.assertTrue(nexthop_group == SAI_NULL_OBJECT_ID)
+                self.assertEqual(nexthop_group, SAI_NULL_OBJECT_ID)
                 print("No more nexthop group may be created")
             except AssertionError:
                 sai_thrift_remove_next_hop(self.client, nexthop_group)
@@ -516,7 +517,7 @@ class SwitchAttrTest(SaiHelper):
                     group_number < max_nhg_entry:
                 nexthop_group = sai_thrift_create_next_hop_group(
                     self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
-                self.assertTrue(nexthop_group != SAI_NULL_OBJECT_ID)
+                self.assertNotEqual(nexthop_group, SAI_NULL_OBJECT_ID)
                 nhg.append(nexthop_group)
 
                 group_number += 1
@@ -533,7 +534,7 @@ class SwitchAttrTest(SaiHelper):
                         ip=ip_p,
                         router_interface_id=self.port10_rif,
                         type=SAI_NEXT_HOP_TYPE_IP)
-                    self.assertTrue(nexthop != SAI_NULL_OBJECT_ID)
+                    self.assertNotEqual(nexthop, SAI_NULL_OBJECT_ID)
                     nhop.update({str(ip_p): nexthop})
                     nhop_per_group_number += 1
 
@@ -541,7 +542,7 @@ class SwitchAttrTest(SaiHelper):
                         self.client,
                         next_hop_group_id=nexthop_group,
                         next_hop_id=nexthop)
-                    self.assertTrue(nhop_member != SAI_NULL_OBJECT_ID)
+                    self.assertNotEqual(nhop_member, SAI_NULL_OBJECT_ID)
                     members.append(nhop_member)
                     member_number += 1
 
@@ -655,7 +656,7 @@ class SwitchAttrTest(SaiHelper):
                         acl_stage=stage,
                         acl_bind_point_type_list=sai_thrift_s32_list_t(
                             count=1, int32list=[bind_point]))
-                    self.assertTrue(acl_table == SAI_NULL_OBJECT_ID)
+                    self.assertEqual(acl_table, SAI_NULL_OBJECT_ID)
                 except AssertionError:
                     sai_thrift_remove_acl_table(self.client, acl_table)
                     self.fail("Number of available ACL table entries "
@@ -815,9 +816,9 @@ class SwitchAttrTest(SaiHelper):
         attr = sai_thrift_get_switch_attribute(self.client,
                                                default_stp_inst_id=True)
         print(attr)
-        self.assertTrue(attr["default_stp_inst_id"] == SAI_NULL_OBJECT_ID)
-        self.assertTrue(
-            attr["SAI_SWITCH_ATTR_DEFAULT_STP_INST_ID"] == SAI_NULL_OBJECT_ID)
+        self.assertEqual(attr["default_stp_inst_id"], SAI_NULL_OBJECT_ID)
+        self.assertEqual(
+            attr["SAI_SWITCH_ATTR_DEFAULT_STP_INST_ID"], SAI_NULL_OBJECT_ID)
 
         attr = sai_thrift_get_switch_attribute(self.client,
                                                max_stp_instance=True)
@@ -1267,8 +1268,9 @@ class SwitchAttrTest(SaiHelper):
         finally:
             for dnat in dnat_list:
                 sai_thrift_remove_nat_entry(self.client, dnat)
- 
 
+
+@group("draft")
 class SwitchVxlanTest(SaiHelper):
     '''
     Switch VXLAN attributes tests
@@ -1569,6 +1571,7 @@ class SwitchVxlanTest(SaiHelper):
                 self.client, vxlan_default_router_mac=init_mac)
 
 
+@group("draft")
 class SwitchDefaultVlanTest(SaiHelper):
     """
     The class runs VLAN test cases for default vlan returned by SAI
