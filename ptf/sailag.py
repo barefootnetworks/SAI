@@ -49,7 +49,7 @@ class LAGCreateLagMember(SaiHelper):
         self.assertTrue(len(lag_members) == 0,
                         "List of lag members should be empty")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-        assert count == 0
+        self.assertTrue(count == 0, "Counter should be equal to 0")
 
         lag3_member24 = sai_thrift_create_lag_member(
             self.client, lag_id=lag3, port_id=self.port24)
@@ -60,7 +60,7 @@ class LAGCreateLagMember(SaiHelper):
         self.assertTrue(lag_members[0] == lag3_member24,
                         "Lag member has not been created properly")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-        assert count == 1
+        self.assertTrue(count == 1, "Counter should be equal to 1")
         attr_list = sai_thrift_get_lag_member_attribute(
             self.client, lag3_member24, lag_id=True, port_id=True)
         assert attr_list["SAI_LAG_MEMBER_ATTR_LAG_ID"] == lag3
@@ -77,7 +77,7 @@ class LAGCreateLagMember(SaiHelper):
         self.assertTrue(lag_members[0] == lag3_member24,
                         "New lag member shouldn't be created")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-        assert count == 1
+        self.assertTrue(count == 1, "Counter should be equal to 1")
 
         status = sai_thrift_remove_lag_member(self.client, lag3_member24)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
@@ -89,7 +89,7 @@ class LAGCreateLagMember(SaiHelper):
         self.assertTrue(len(lag_members) == 0,
                         "Lag member has not been deleted properly")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
-        assert count == 0
+        self.assertTrue(count == 0, "Counter should be equal to 0")
 
         status = sai_thrift_remove_lag(self.client, lag3)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
