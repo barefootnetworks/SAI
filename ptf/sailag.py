@@ -19,9 +19,11 @@ Thrift SAI interface LAG tests
 import binascii
 
 from sai_thrift.sai_headers import *
+from ptf.testutils import *
 from sai_base_test import *
 
 
+@group("draft")
 class LAGCreateLagMember(SaiHelper):
     '''
     Test LAG member creation
@@ -44,7 +46,8 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        assert len(lag_members) == 0
+        self.assertTrue(len(lag_members) == 0,
+                        "List of lag members should be empty")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 0
 
@@ -54,8 +57,8 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        # print(lag_members)
-        assert lag_members[0] == lag3_member24
+        self.assertTrue(lag_members[0] == lag3_member24,
+                        "Lag member has not been created properly")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 1
         attr_list = sai_thrift_get_lag_member_attribute(
@@ -71,7 +74,8 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        assert lag_members[0] == lag3_member24
+        self.assertTrue(lag_members[0] == lag3_member24,
+                        "New lag member shouldn't be created")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 1
 
@@ -82,7 +86,8 @@ class LAGCreateLagMember(SaiHelper):
         attr_list = sai_thrift_get_lag_attribute(
             self.client, lag3, port_list=portlist)
         lag_members = attr_list["SAI_LAG_ATTR_PORT_LIST"].idlist
-        assert len(lag_members) == 0
+        self.assertTrue(len(lag_members) == 0,
+                        "Lag member has not been deleted properly")
         count = attr_list["SAI_LAG_ATTR_PORT_LIST"].count
         assert count == 0
 
@@ -120,6 +125,7 @@ def print_ports_stats(client, ports):
     print("SUM=%d (i=%d)" % (sum, i))
 
 
+@group("draft")
 class LAGDisableIngressLagMember(SaiHelper):
     '''
     Test Disable Ingress LAG member feature
@@ -214,6 +220,7 @@ class LAGDisableIngressLagMember(SaiHelper):
         super(LAGDisableIngressLagMember, self).tearDown()
 
 
+@group("draft")
 class LAGDisableEgressLagMember(SaiHelper):
     '''
     Test DisableEgress LAG member feature
@@ -649,6 +656,7 @@ class LAGDisableEgressLagMember(SaiHelper):
                 self.client, self.lag1, port_vlan_id=0)
 
 
+@group("draft")
 class LAGAttrPortList(SaiHelper):
     '''
     Test LAG port list attribute
@@ -678,6 +686,7 @@ class LAGAttrPortList(SaiHelper):
         assert self.lag2_member9 == lag_members[2]
 
 
+@group("draft")
 class LAGL2LoadBalancing(SaiHelper):
     '''
     Test LAG L2 load balancing
@@ -767,6 +776,7 @@ class LAGL2LoadBalancing(SaiHelper):
                 vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
 
 
+@group("draft")
 class LAGL3LoadBalancing(SaiHelper):
     '''
     Test LAG L3 load balancing
@@ -1042,6 +1052,7 @@ class LAGL3LoadBalancing(SaiHelper):
         super(LAGL3LoadBalancing, self).tearDown()
 
 
+@group("draft")
 class LagL3Nhop(SaiHelper):
     '''
     LAG L3 Next Hop Group test
