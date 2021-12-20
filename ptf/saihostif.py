@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,37 +16,33 @@
 Thrift SAI interface host interface tests
 """
 
-from __future__ import print_function
-
 from sai_thrift.sai_headers import *
 
 from sai_base_test import *
 
 
+@group("draft")
 class HostifCreationTest(SaiHelper):
     '''
-    Tests host interface creation and packet RX for hostif type = netdev
+    Verify host interface creation and packet RX for hostif type = netdev
     and different host interface object types
     '''
     def runTest(self):
-        try:
-            self.portNetdevHostifCreationTest()
-            self.lagNetdevHostifCreationTest()
-            self.vlanSviNetdevHostifCreationTest()
-        finally:
-            pass
+        self.portNetdevHostifCreationTest()
+        self.lagNetdevHostifCreationTest()
+        self.vlanSviNetdevHostifCreationTest()
 
     def tearDown(self):
-        sai_thrift_flush_fdb_entries(self.client,
-                                     entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+        sai_thrift_flush_fdb_entries(
+            self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
         super(HostifCreationTest, self).tearDown()
 
     def portNetdevHostifCreationTest(self):
         '''
-        This verifies the correctness of host interface creation of type netdev
+        Verify correctness of host interface creation of type netdev
         with object type Port.
-        The test verifies also if management packets are passed to ports host
+        Verify also if management packets are forwarded to ports host
         interfaces after hostif table wildcard entry creation.
         '''
         print("\nportNetdevHostifCreationTest()")
@@ -69,12 +65,12 @@ class HostifCreationTest(SaiHelper):
                                                name=hostif1_name,
                                                obj_id=hostif1_port,
                                                type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif1 != 0)
+            self.assertNotEqual(hostif1, 0)
             hostif2 = sai_thrift_create_hostif(self.client,
                                                name=hostif2_name,
                                                obj_id=hostif2_port,
                                                type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif2 != 0)
+            self.assertNotEqual(hostif2, 0)
 
             hif1_socket = open_packet_socket(hostif1_name)
             hif2_socket = open_packet_socket(hostif2_name)
@@ -83,14 +79,14 @@ class HostifCreationTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(lldp_trap != 0)
+            self.assertNotEqual(lldp_trap, 0)
 
             channel = SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_PHYSICAL_PORT
             hif_tbl_entry = sai_thrift_create_hostif_table_entry(
                 self.client,
                 channel_type=channel,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD)
-            self.assertTrue(hif_tbl_entry != 0)
+            self.assertNotEqual(hif_tbl_entry, 0)
 
             pre_stats = sai_thrift_get_queue_stats(
                 self.client, self.cpu_queue0)
@@ -129,10 +125,10 @@ class HostifCreationTest(SaiHelper):
 
     def lagNetdevHostifCreationTest(self):
         '''
-        This verifies the correctness of host interface creation of type netdev
+        Verify correctness of host interface creation of type netdev
         with object type LAG.
-        The test verifies also if management packets are passed to LAG host
-        interface after hostif table wildcard entry creation.
+        Verify also if management packets are forwarded to LAG host interface
+        after hostif table wildcard entry creation.
         '''
         print("\nlagNetdevHostifCreationTest()")
 
@@ -152,7 +148,7 @@ class HostifCreationTest(SaiHelper):
                                                   name=lag_hostif_name,
                                                   obj_id=lag10,
                                                   type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(lag_hostif != 0)
+            self.assertNotEqual(lag_hostif, 0)
 
             lag_hif_socket = open_packet_socket(lag_hostif_name)
 
@@ -160,22 +156,20 @@ class HostifCreationTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LACP)
-            self.assertTrue(lacp_trap != 0)
+            self.assertNotEqual(lacp_trap, 0)
 
             channel = SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_LOGICAL_PORT
             hif_tbl_entry = sai_thrift_create_hostif_table_entry(
                 self.client,
                 channel_type=channel,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD)
-            self.assertTrue(hif_tbl_entry != 0)
+            self.assertNotEqual(hif_tbl_entry, 0)
 
             # create LAG members
-            lag10_member1 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[0])
-            lag10_member2 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[1])
+            lag10_member1 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[0])
+            lag10_member2 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[1])
 
             pre_stats = sai_thrift_get_queue_stats(
                 self.client, self.cpu_queue0)
@@ -200,7 +194,7 @@ class HostifCreationTest(SaiHelper):
                   "is no longer received on LAG host interface")
             lag10_member1 = sai_thrift_remove_lag_member(self.client,
                                                          lag10_member1)
-            self.assertTrue(lag10_member1 == 0)
+            self.assertEqual(lag10_member1, 0)
 
             print("Sending LACP packet on port %d (removed from LAG)"
                   % lag_dev_ports[0])
@@ -231,9 +225,9 @@ class HostifCreationTest(SaiHelper):
 
     def vlanSviNetdevHostifCreationTest(self):
         '''
-        This verifies the correctness of host interfaces creation of type
-        netdev with object type Port and LAG for VLAN members.
-        The test verifies also if management packets are passed to correct host
+        Verify correctness of host interfaces creation of type netdev
+        with object type Port and LAG for VLAN members.
+        Verify also if management packets are forwarded to correct host
         interfaces after hostif table wildcard entry creation.
         '''
         print("\nvlanSviNetdevHostifCreationTest()")
@@ -261,27 +255,25 @@ class HostifCreationTest(SaiHelper):
                                                    name=vlan_hostif_name,
                                                    obj_id=vlan100,
                                                    type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(vlan_hostif != 0)
+            self.assertNotEqual(vlan_hostif, 0)
 
             arp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST)
-            self.assertTrue(arp_trap != 0)
+            self.assertNotEqual(arp_trap, 0)
 
             # create LAG members
-            lag10_member1 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[0])
-            lag10_member2 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[1])
+            lag10_member1 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[0])
+            lag10_member2 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[1])
 
             lag_hostif = sai_thrift_create_hostif(self.client,
                                                   name=lag_hostif_name,
                                                   obj_id=lag10,
                                                   type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(lag_hostif != 0)
+            self.assertNotEqual(lag_hostif, 0)
 
             lag_hif_socket = open_packet_socket(lag_hostif_name)
 
@@ -292,21 +284,21 @@ class HostifCreationTest(SaiHelper):
                 port_id=vlan_ports[0],
                 type=SAI_BRIDGE_PORT_TYPE_PORT,
                 admin_state=True)
-            self.assertTrue(iport_bp != 0)
+            self.assertNotEqual(iport_bp, 0)
             eport_bp = sai_thrift_create_bridge_port(
                 self.client,
                 bridge_id=self.default_1q_bridge,
                 port_id=vlan_ports[1],
                 type=SAI_BRIDGE_PORT_TYPE_PORT,
                 admin_state=True)
-            self.assertTrue(eport_bp != 0)
+            self.assertNotEqual(eport_bp, 0)
             lag10_bp = sai_thrift_create_bridge_port(
                 self.client,
                 bridge_id=self.default_1q_bridge,
                 port_id=lag10,
                 type=SAI_BRIDGE_PORT_TYPE_PORT,
                 admin_state=True)
-            self.assertTrue(lag10_bp != 0)
+            self.assertNotEqual(lag10_bp, 0)
 
             vlan100_member0 = sai_thrift_create_vlan_member(
                 self.client,
@@ -324,15 +316,15 @@ class HostifCreationTest(SaiHelper):
                 bridge_port_id=lag10_bp,
                 vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
 
-            sai_thrift_set_port_attribute(self.client, vlan_ports[0],
-                                          port_vlan_id=vid)
+            sai_thrift_set_port_attribute(
+                self.client, vlan_ports[0], port_vlan_id=vid)
             sai_thrift_set_lag_attribute(self.client, lag10, port_vlan_id=vid)
 
             hostif1 = sai_thrift_create_hostif(self.client,
                                                name=hostif1_name,
                                                obj_id=vlan_ports[0],
                                                type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif1 != 0)
+            self.assertNotEqual(hostif1, 0)
 
             hif1_socket = open_packet_socket(hostif1_name)
 
@@ -340,7 +332,7 @@ class HostifCreationTest(SaiHelper):
                                                name=hostif2_name,
                                                obj_id=vlan_ports[1],
                                                type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif2 != 0)
+            self.assertNotEqual(hostif2, 0)
 
             hif2_socket = open_packet_socket(hostif2_name)
 
@@ -399,7 +391,8 @@ class HostifCreationTest(SaiHelper):
             sai_thrift_remove_vlan_member(self.client, vlan100_member2)
             sai_thrift_set_port_attribute(
                 self.client, vlan_ports[0], port_vlan_id=0)
-            sai_thrift_set_lag_attribute(self.client, lag10, port_vlan_id=0)
+            sai_thrift_set_lag_attribute(
+                self.client, lag10, port_vlan_id=0)
             sai_thrift_remove_bridge_port(self.client, iport_bp)
             sai_thrift_remove_bridge_port(self.client, eport_bp)
             sai_thrift_remove_bridge_port(self.client, lag10_bp)
@@ -412,46 +405,43 @@ class HostifCreationTest(SaiHelper):
             sai_thrift_remove_lag(self.client, lag10)
 
 
-# setting VLAN tag mode for hostif is not fully implemented
+@group("draft")
 class HostifTaggingTest(SaiHelper):
     '''
-    Tests the ways of VLAN tags handling
+    Verify VLAN tags handling
     '''
     def runTest(self):
-        try:
-            self.hostifStripTagTest()
-            self.hostifKeepTagTest()
-            self.hostifOriginalTagTest()
-        finally:
-            pass
+        self.hostifStripTagTest()
+        self.hostifKeepTagTest()
+        self.hostifOriginalTagTest()
 
     def tearDown(self):
-        sai_thrift_flush_fdb_entries(self.client,
-                                     entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+        sai_thrift_flush_fdb_entries(
+            self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
         super(HostifTaggingTest, self).tearDown()
 
     def hostifStripTagTest(self):
         '''
-        This verifies VLAN tag stripping on host interface
+        Verify VLAN tag stripping on host interface
         '''
         print("\nhostifStripTagTest()")
 
-        # vid = 10
+        vid = 10
         hostif_port = self.port1
-        # hostif_dev_port = self.dev_port1
+        hostif_dev_port = self.dev_port1
         hostif_name = "hostif"
 
-        # lldp_mac = "01:80:c2:00:00:0e"
-        # tag_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
-        #                                   dl_vlan_enable=True,
-        #                                   vlan_vid=vid,
-        #                                   pktlen=104,
-        #                                   eth_type=0x88cc)
-        # exp_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
-        #                                   dl_vlan_enable=False,
-        #                                   pktlen=100,
-        #                                   eth_type=0x88cc)
+        lldp_mac = "01:80:c2:00:00:0e"
+        tag_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
+                                          dl_vlan_enable=True,
+                                          vlan_vid=vid,
+                                          pktlen=104,
+                                          eth_type=0x88cc)
+        exp_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
+                                          dl_vlan_enable=False,
+                                          pktlen=100,
+                                          eth_type=0x88cc)
 
         try:
             hostif = sai_thrift_create_hostif(
@@ -460,56 +450,55 @@ class HostifTaggingTest(SaiHelper):
                 obj_id=hostif_port,
                 type=SAI_HOSTIF_TYPE_NETDEV,
                 vlan_tag=SAI_HOSTIF_VLAN_TAG_STRIP)
-            self.assertTrue(hostif != 0)
+            self.assertNotEqual(hostif, 0)
 
             hif_attr = sai_thrift_get_hostif_attribute(self.client, hostif,
                                                        vlan_tag=True)
             self.assertEqual(hif_attr['vlan_tag'], SAI_HOSTIF_VLAN_TAG_STRIP)
 
-            # hif_socket = open_packet_socket(hostif_name)
+            hif_socket = open_packet_socket(hostif_name)
 
-            # Uncomment when issue(SWI-3378) with vlan tag strip/add is fixed
-            # lldp_trap = sai_thrift_create_hostif_trap(
-            #     self.client,
-            #     packet_action=SAI_PACKET_ACTION_TRAP,
-            #     trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            # self.assertTrue(lldp_trap != 0)
+            lldp_trap = sai_thrift_create_hostif_trap(
+                self.client,
+                packet_action=SAI_PACKET_ACTION_TRAP,
+                trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
+            self.assertNotEqual(lldp_trap, 0)
 
-            # print("Sending packet on port %d" % hostif_dev_port)
-            # send_packet(self, hostif_dev_port, tag_pkt)
+            print("Sending packet on port %d" % hostif_dev_port)
+            send_packet(self, hostif_dev_port, tag_pkt)
 
-            # print("Verifying if packet on port host interface is untagged")
-            # self.assertTrue(socket_verify_packet(exp_pkt, hif_socket))
+            print("Verifying if packet on port host interface is untagged")
+            self.assertTrue(socket_verify_packet(exp_pkt, hif_socket))
             print("\tOK")
 
         finally:
-            # sai_thrift_remove_hostif_trap(self.client, self.lldp_trap)
+            sai_thrift_remove_hostif_trap(self.client, self.lldp_trap)
             sai_thrift_remove_hostif(self.client, hostif)
 
     def hostifKeepTagTest(self):
         '''
-        This verifies VLAN tag keeping on host interface
+        Verify VLAN tag keeping on host interface
         For tagged packets mode tag should be left unchanged, for untagged it
         should be added.
         '''
         print("\nhostifKeepTagTest()")
 
-        # vid = 10
+        vid = 10
         hostif_port = self.port1
-        # hostif_dev_port = self.dev_port1
+        hostif_dev_port = self.dev_port1
         hostif_name = "hostif"
 
-        # lldp_mac = "01:80:c2:00:00:0e"
-        # tag_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
-        #                                   dl_vlan_enable=True,
-        #                                   vlan_vid=vid,
-        #                                   pktlen=104,
-        #                                   eth_type=0x88cc)
-        # pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
-        #                               dl_vlan_enable=False,
-        #                               pktlen=100,
-        #                               eth_type=0x88cc)
-        # exp_pkt = tag_pkt
+        lldp_mac = "01:80:c2:00:00:0e"
+        tag_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
+                                          dl_vlan_enable=True,
+                                          vlan_vid=vid,
+                                          pktlen=104,
+                                          eth_type=0x88cc)
+        pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
+                                      dl_vlan_enable=False,
+                                      pktlen=100,
+                                      eth_type=0x88cc)
+        exp_pkt = tag_pkt
 
         try:
             hostif = sai_thrift_create_hostif(
@@ -519,62 +508,61 @@ class HostifTaggingTest(SaiHelper):
                 type=SAI_HOSTIF_TYPE_NETDEV,
                 vlan_tag=SAI_HOSTIF_VLAN_TAG_KEEP)
 
-            self.assertTrue(hostif != 0)
+            self.assertNotEqual(hostif, 0)
 
             hif_attr = sai_thrift_get_hostif_attribute(self.client, hostif,
                                                        vlan_tag=True)
             self.assertEqual(hif_attr['vlan_tag'], SAI_HOSTIF_VLAN_TAG_KEEP)
 
-            # hif_socket = open_packet_socket(hostif_name)
+            hif_socket = open_packet_socket(hostif_name)
 
-            # Uncomment when issue(SWI-3378) with vlan tag strip/add is fixed
-            # lldp_trap = sai_thrift_create_hostif_trap(
-            #     self.client,
-            #     packet_action=SAI_PACKET_ACTION_TRAP,
-            #     trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            # self.assertTrue(lldp_trap != 0)
+            lldp_trap = sai_thrift_create_hostif_trap(
+                self.client,
+                packet_action=SAI_PACKET_ACTION_TRAP,
+                trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
+            self.assertNotEqual(lldp_trap, 0)
 
-            # print("Sending tagged packet on port %d" % hostif_dev_port)
-            # send_packet(self, hostif_dev_port, tag_pkt)
+            print("Sending tagged packet on port %d" % hostif_dev_port)
+            send_packet(self, hostif_dev_port, tag_pkt)
 
-            # print("Verifying if packet on port host interface is tagged")
-            # self.assertTrue(socket_verify_packet(exp_pkt, hif_socket))
-            # print("\tOK")
+            print("Verifying if packet on port host interface is tagged")
+            self.assertTrue(socket_verify_packet(exp_pkt, hif_socket))
+            print("\tOK")
 
-            # print("Sending untagged packet on port %d" % hostif_dev_port)
-            # send_packet(self, hostif_dev_port, pkt)
+            print("Sending untagged packet on port %d" % hostif_dev_port)
+            send_packet(self, hostif_dev_port, pkt)
 
-            # print("Verifying if packet on port host interface is tagged")
-            # self.assertTrue(socket_verify_packet(exp_pkt, hif_socket))
+            print("Verifying if packet on port host interface is tagged")
+            self.assertTrue(socket_verify_packet(exp_pkt, hif_socket))
             print("\tOK")
 
         finally:
             sai_thrift_remove_hostif(self.client, hostif)
-            # sai_thrift_remove_hostif_trap(self.client, self.lldp_trap)
+            sai_thrift_remove_hostif_trap(self.client, self.lldp_trap)
 
     def hostifOriginalTagTest(self):
         '''
-        This verifies VLAN tag original tagging keeping on host interface
+        Verify keeping original VLAN tagging on host interface
         '''
         print("\nhostifOriginalTagTest()")
 
-        # vid = 10
+        vid = 10
         hostif_port = self.port1
-        # hostif_dev_port = self.dev_port1
+        hostif_dev_port = self.dev_port1
         hostif_name = "hostif"
 
-        # lldp_mac = "01:80:c2:00:00:0e"
-        # tag_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
-        #                                   dl_vlan_enable=True,
-        #                                   vlan_vid=vid,
-        #                                   pktlen=104,
-        #                                   eth_type=0x88cc)
-        # pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
-        #                               dl_vlan_enable=False,
-        #                               pktlen=100,
-        #                               eth_type=0x88cc)
-        # exp_pkt1 = tag_pkt
-        # exp_pkt2 = pkt
+        lldp_mac = "01:80:c2:00:00:0e"
+        tag_pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
+                                          dl_vlan_enable=True,
+                                          vlan_vid=vid,
+                                          pktlen=104,
+                                          eth_type=0x88cc)
+        pkt = simple_eth_dot1q_packet(eth_dst=lldp_mac,
+                                      dl_vlan_enable=False,
+                                      pktlen=100,
+                                      eth_type=0x88cc)
+        exp_pkt1 = tag_pkt
+        exp_pkt2 = pkt
 
         try:
             hostif = sai_thrift_create_hostif(
@@ -583,44 +571,44 @@ class HostifTaggingTest(SaiHelper):
                 obj_id=hostif_port,
                 type=SAI_HOSTIF_TYPE_NETDEV,
                 vlan_tag=SAI_HOSTIF_VLAN_TAG_ORIGINAL)
-            self.assertTrue(hostif != 0)
+            self.assertNotEqual(hostif, 0)
 
-            hif_attr = sai_thrift_get_hostif_attribute(self.client, hostif,
-                                                       vlan_tag=True)
+            hif_attr = sai_thrift_get_hostif_attribute(
+                self.client, hostif, vlan_tag=True)
             self.assertEqual(hif_attr['vlan_tag'],
                              SAI_HOSTIF_VLAN_TAG_ORIGINAL)
 
-            #  hif_socket = open_packet_socket(hostif_name)
+            hif_socket = open_packet_socket(hostif_name)
 
-            # Uncomment when issue(SWI-3378) with vlan tag strip/add is fixed
-            # lldp_trap = sai_thrift_create_hostif_trap(
-            #     self.client,
-            #     packet_action=SAI_PACKET_ACTION_TRAP,
-            #     trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            # self.assertTrue(lldp_trap != 0)
+            lldp_trap = sai_thrift_create_hostif_trap(
+                self.client,
+                packet_action=SAI_PACKET_ACTION_TRAP,
+                trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
+            self.assertNotEqual(lldp_trap, 0)
 
-            # print("Sending tagged packet on port %d" % hostif_dev_port)
-            # send_packet(self, hostif_dev_port, tag_pkt)
+            print("Sending tagged packet on port %d" % hostif_dev_port)
+            send_packet(self, hostif_dev_port, tag_pkt)
 
-            # print("Verifying if packet on port host interface is tagged")
-            # self.assertTrue(socket_verify_packet(exp_pkt1, hif_socket))
-            # print("\tOK")
+            print("Verifying if packet on port host interface is tagged")
+            self.assertTrue(socket_verify_packet(exp_pkt1, hif_socket))
+            print("\tOK")
 
-            # print("Sending untagged packet on port %d" % hostif_dev_port)
-            # send_packet(self, hostif_dev_port, pkt)
+            print("Sending untagged packet on port %d" % hostif_dev_port)
+            send_packet(self, hostif_dev_port, pkt)
 
-            # print("Verifying if packet on port host interface is tagged")
-            # self.assertTrue(socket_verify_packet(exp_pkt2, hif_socket))
+            print("Verifying if packet on port host interface is tagged")
+            self.assertTrue(socket_verify_packet(exp_pkt2, hif_socket))
             print("\tOK")
 
         finally:
             sai_thrift_remove_hostif(self.client, hostif)
-            # sai_thrift_remove_hostif_trap(self.client, self.lldp_trap)
+            sai_thrift_remove_hostif_trap(self.client, self.lldp_trap)
 
 
+@group("draft")
 class HostifTrapActionTest(SaiHelper):
     '''
-    Tests packets handling for different kinds of trap actions
+    Verify packets handling for different kinds of trap actions
     '''
     def setUp(self):
         super(HostifTrapActionTest, self).setUp()
@@ -658,12 +646,10 @@ class HostifTrapActionTest(SaiHelper):
             bridge_port_id=self.eport_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
 
-        sai_thrift_set_port_attribute(self.client,
-                                      self.iport,
-                                      port_vlan_id=vid)
-        sai_thrift_set_port_attribute(self.client,
-                                      self.eport,
-                                      port_vlan_id=vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.iport, port_vlan_id=vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.eport, port_vlan_id=vid)
 
         lldp_mac = "01:80:c2:00:00:0e"
         self.lldp_pkt = simple_eth_packet(eth_dst=lldp_mac,
@@ -674,21 +660,18 @@ class HostifTrapActionTest(SaiHelper):
             self.client, self.cpu_queue0)["SAI_QUEUE_STAT_PACKETS"]
 
     def runTest(self):
-        try:
-            self.dropTrapActionTest()
-            self.forwardTrapActionTest()
-            self.copyTrapActionTest()
-            self.trapTrapActionTest()
-            self.logTrapActionTest()
-            # self.denyTrapActionTest()
-            # self.transitTrapActionTest()
-            self.hostifPriorityTest()
-        finally:
-            pass
+        self.dropTrapActionTest()
+        self.forwardTrapActionTest()
+        self.copyTrapActionTest()
+        self.trapTrapActionTest()
+        self.logTrapActionTest()
+        self.denyTrapActionTest()
+        self.transitTrapActionTest()
+        self.hostifPriorityTest()
 
     def tearDown(self):
-        sai_thrift_flush_fdb_entries(self.client,
-                                     entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+        sai_thrift_flush_fdb_entries(
+            self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member0)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member1)
         sai_thrift_set_port_attribute(self.client, self.iport, port_vlan_id=0)
@@ -701,8 +684,7 @@ class HostifTrapActionTest(SaiHelper):
 
     def dropTrapActionTest(self):
         '''
-        This verifies drop trap action
-        [Drop Packet in data plane]
+        Verify drop trap action
         '''
         print("\ndropTrapActionTest()")
 
@@ -711,7 +693,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_DROP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(drop_trap != 0)
+            self.assertNotEqual(drop_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -724,8 +706,7 @@ class HostifTrapActionTest(SaiHelper):
 
     def forwardTrapActionTest(self):
         '''
-        This verifies forward trap action
-        [Forward Packet in data plane]
+        Verify forward trap action
         '''
         print("\nforwardTrapActionTest()")
 
@@ -734,7 +715,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_FORWARD,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(forward_trap != 0)
+            self.assertNotEqual(forward_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -749,7 +730,7 @@ class HostifTrapActionTest(SaiHelper):
 
     def copyTrapActionTest(self):
         '''
-        This verifies copy trap action
+        Verify copy trap action
         [Copy Packet to CPU without interfering the original packet action in
         the pipeline]
         '''
@@ -760,7 +741,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_COPY,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(copy_trap != 0)
+            self.assertNotEqual(copy_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -784,7 +765,7 @@ class HostifTrapActionTest(SaiHelper):
 
     def trapTrapActionTest(self):
         '''
-        This verifies trap trap action
+        Verify trap trap action
         [This is a combination of SAI packet action COPY and DROP:
         A copy of the original packet is sent to CPU port, the original
         packet is forcefully dropped from the pipeline]
@@ -796,7 +777,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(trap_trap != 0)
+            self.assertNotEqual(trap_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -817,7 +798,7 @@ class HostifTrapActionTest(SaiHelper):
 
     def logTrapActionTest(self):
         '''
-        This verifies log trap action.
+        Verify log trap action.
         [A copy of the original packet is sent to CPU port, the original
         packet, if it was to be dropped in the original pipeline,
         change the pipeline action to forward (cancel drop)]
@@ -829,7 +810,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_LOG,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(log_trap != 0)
+            self.assertNotEqual(log_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -851,10 +832,9 @@ class HostifTrapActionTest(SaiHelper):
         finally:
             sai_thrift_remove_hostif_trap(self.client, log_trap)
 
-    # disabled - trap action DENY not yet implemented
     def denyTrapActionTest(self):
         '''
-        This verifies deny trap action
+        Verify deny trap action
         [This is a combination of SAI packet action COPY_CANCEL and DROP]
         '''
         print("\ndenyTrapActionTest()")
@@ -864,7 +844,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_DENY,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(deny_trap != 0)
+            self.assertNotEqual(deny_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -875,10 +855,9 @@ class HostifTrapActionTest(SaiHelper):
         finally:
             sai_thrift_remove_hostif_trap(self.client, deny_trap)
 
-    # disabled - trap action TRANSIT not yet implemented
     def transitTrapActionTest(self):
         '''
-        This verifies transit trap action
+        Verify transit trap action
         [This is a combination of SAI packet action COPY_CANCEL and FORWARD]
         '''
         print("\ntransitTrapActionTest()")
@@ -888,7 +867,7 @@ class HostifTrapActionTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_FORWARD,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(transit_trap != 0)
+            self.assertNotEqual(transit_trap, 0)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -903,8 +882,7 @@ class HostifTrapActionTest(SaiHelper):
 
     def hostifPriorityTest(self):
         '''
-        This verifies if packets are handled using hostif trap with higher
-        prioriy set
+        Verify if packets are handled using hostif trap with higher prioriy set
         '''
         print("\nhostifPriorityTest()")
 
@@ -915,7 +893,7 @@ class HostifTrapActionTest(SaiHelper):
                 packet_action=SAI_PACKET_ACTION_DROP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP,
                 trap_priority=1)
-            self.assertTrue(drop_trap != 0)
+            self.assertNotEqual(drop_trap, 0)
 
             print("Create higher priority trap with forward action")
             forward_trap = sai_thrift_create_hostif_trap(
@@ -923,7 +901,7 @@ class HostifTrapActionTest(SaiHelper):
                 packet_action=SAI_PACKET_ACTION_FORWARD,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP,
                 trap_priority=5)
-            self.assertTrue(forward_trap != 0)
+            self.assertNotEqual(forward_trap, 0)
             self.dataplane.flush()
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
@@ -935,9 +913,8 @@ class HostifTrapActionTest(SaiHelper):
             print("\tOK")
 
             print("Changing drop trap priority")
-            sai_thrift_set_hostif_trap_attribute(self.client,
-                                                 drop_trap,
-                                                 trap_priority=10)
+            sai_thrift_set_hostif_trap_attribute(
+                self.client, drop_trap, trap_priority=10)
 
             print("Sending LLDP packet on port %d" % self.iport_dev)
             send_packet(self, self.iport_dev, self.lldp_pkt)
@@ -949,22 +926,19 @@ class HostifTrapActionTest(SaiHelper):
             sai_thrift_remove_hostif_trap(self.client, drop_trap)
 
 
-@disabled
+@group("draft")
 class HostifTxTest(SaiHelper):
     '''
-    Tests hostif TX
+    Verify hostif TX
     '''
     def runTest(self):
-        try:
-            self.arpRxTxTest()
-            self.portHostifTxTest()
-            self.lagHostifTxTest()
-        finally:
-            pass
+        self.arpRxTxTest()
+        self.portHostifTxTest()
+        self.lagHostifTxTest()
 
     def arpRxTxTest(self):
         '''
-        This verifies host interface rx/tx path with ARP packet
+        Verify host interface rx/tx path with ARP packet
         '''
         print("\narpRxTxTest()")
 
@@ -1000,19 +974,19 @@ class HostifTxTest(SaiHelper):
                 virtual_router_id=self.default_vrf,
                 port_id=test_port,
                 src_mac_address=rif_mac)
-            self.assertTrue(rif != 0)
+            self.assertNotEqual(rif, 0)
 
             arp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST)
-            self.assertTrue(arp_trap != 0)
+            self.assertNotEqual(arp_trap, 0)
 
             hostif = sai_thrift_create_hostif(self.client,
                                               name=hostif_name,
                                               obj_id=rif,
                                               type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif != 0)
+            self.assertNotEqual(hostif, 0)
 
             hif_socket = open_packet_socket(hostif_name)
 
@@ -1055,7 +1029,7 @@ class HostifTxTest(SaiHelper):
 
     def portHostifTxTest(self):
         '''
-        This verifies port host interface tx
+        Verify port host interface tx
         '''
         print("\nportHostifTxTest()")
 
@@ -1072,7 +1046,7 @@ class HostifTxTest(SaiHelper):
                                               name=hostif_name,
                                               obj_id=test_port,
                                               type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif != 0)
+            self.assertNotEqual(hostif, 0)
 
             hif_socket = open_packet_socket(hostif_name)
 
@@ -1089,7 +1063,7 @@ class HostifTxTest(SaiHelper):
 
     def lagHostifTxTest(self):
         '''
-        This verifies LAG host interface tx
+        Verify LAG host interface tx
         '''
         print("\nlagHostifTxTest()")
 
@@ -1104,18 +1078,16 @@ class HostifTxTest(SaiHelper):
         try:
             lag10 = sai_thrift_create_lag(self.client)
 
-            lag10_member1 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[0])
-            lag10_member2 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[1])
+            lag10_member1 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[0])
+            lag10_member2 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[1])
 
             lag_hostif = sai_thrift_create_hostif(self.client,
                                                   name=lag_hostif_name,
                                                   obj_id=lag10,
                                                   type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(lag_hostif != 0)
+            self.assertNotEqual(lag_hostif, 0)
 
             lag_hif_socket = open_packet_socket(lag_hostif_name)
 
@@ -1128,8 +1100,8 @@ class HostifTxTest(SaiHelper):
             print("\tOK")
 
             print("Removing one lag member")
-            lag10_member1 = sai_thrift_remove_lag_member(self.client,
-                                                         lag10_member1)
+            lag10_member1 = sai_thrift_remove_lag_member(
+                self.client, lag10_member1)
 
             print("Sending packet via LAG hostif")
             lag_hif_socket.send(bytes(pkt))
@@ -1140,8 +1112,8 @@ class HostifTxTest(SaiHelper):
             print("\tOK")
 
             print("Removing last lag member")
-            lag10_member2 = sai_thrift_remove_lag_member(self.client,
-                                                         lag10_member2)
+            lag10_member2 = sai_thrift_remove_lag_member(
+                self.client, lag10_member2)
 
             print("Sending packet via LAG hostif")
             lag_hif_socket.send(bytes(pkt))
@@ -1162,9 +1134,10 @@ class HostifTxTest(SaiHelper):
             sai_thrift_remove_lag(self.client, lag10)
 
 
+@group("draft")
 class HostifTableMatchTest(SaiHelper):
     '''
-    Tests hostif interface table match for entry type Wildcard
+    Verify hostif interface table match for entry type Wildcard
     and channel type = CB
     '''
     def setUp(self):
@@ -1203,25 +1176,22 @@ class HostifTableMatchTest(SaiHelper):
             bridge_port_id=self.eport_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
 
-        sai_thrift_set_port_attribute(self.client, self.iport,
-                                      port_vlan_id=self.vid)
-        sai_thrift_set_port_attribute(self.client, self.eport,
-                                      port_vlan_id=self.vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.iport, port_vlan_id=self.vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.eport, port_vlan_id=self.vid)
 
         self.cpu_queue_state = sai_thrift_get_queue_stats(
             self.client, self.cpu_queue0)["SAI_QUEUE_STAT_PACKETS"]
 
     def runTest(self):
-        try:
-            self.wildcardEntryCbChannelLldp()
-            self.wildcardEntryCbChannelLacp()
-            self.wildcardEntryCbChannelStp()
-        finally:
-            pass
+        self.wildcardEntryCbChannelLldp()
+        self.wildcardEntryCbChannelLacp()
+        self.wildcardEntryCbChannelStp()
 
     def tearDown(self):
-        sai_thrift_flush_fdb_entries(self.client,
-                                     entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+        sai_thrift_flush_fdb_entries(
+            self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member0)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member1)
         sai_thrift_set_port_attribute(self.client, self.iport, port_vlan_id=0)
@@ -1234,7 +1204,7 @@ class HostifTableMatchTest(SaiHelper):
 
     def wildcardEntryCbChannelLldp(self):
         '''
-        This tests hostif interface table match for entry type Wildcard and
+        Verify hostif interface table match for entry type Wildcard and
         channel type = CB with LLDP packet
         '''
         print("\nwildcardEntryCbChannelLldp()")
@@ -1253,7 +1223,7 @@ class HostifTableMatchTest(SaiHelper):
                                               name=hostif_name,
                                               obj_id=hostif_port,
                                               type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(hostif != 0)
+            self.assertNotEqual(hostif, 0)
 
             hif_socket = open_packet_socket(hostif_name)
 
@@ -1261,13 +1231,13 @@ class HostifTableMatchTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_COPY,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(lldp_trap != 0)
+            self.assertNotEqual(lldp_trap, 0)
 
             hif_tbl_entry = sai_thrift_create_hostif_table_entry(
                 self.client,
                 channel_type=SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_CB,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD)
-            self.assertTrue(hif_tbl_entry != 0)
+            self.assertNotEqual(hif_tbl_entry, 0)
 
             print("Sending LLDP packet on port %d" % hostif_dev_port)
             send_packet(self, hostif_dev_port, lldp_pkt)
@@ -1295,7 +1265,7 @@ class HostifTableMatchTest(SaiHelper):
 
     def wildcardEntryCbChannelLacp(self):
         '''
-        This tests hostif interface table match for entry type Wildcard and
+        Verify hostif interface table match for entry type Wildcard and
         channel type = CB with LACP packet
         '''
         print("\nwildcardEntryCbChannelLacp()")
@@ -1316,7 +1286,7 @@ class HostifTableMatchTest(SaiHelper):
                                                   name=lag_hostif_name,
                                                   obj_id=lag10,
                                                   type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(lag_hostif != 0)
+            self.assertNotEqual(lag_hostif, 0)
 
             lag_hif_socket = open_packet_socket(lag_hostif_name)
 
@@ -1324,21 +1294,19 @@ class HostifTableMatchTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_COPY,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LACP)
-            self.assertTrue(lacp_trap != 0)
+            self.assertNotEqual(lacp_trap, 0)
 
             hif_tbl_entry = sai_thrift_create_hostif_table_entry(
                 self.client,
                 channel_type=SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_CB,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD)
-            self.assertTrue(hif_tbl_entry != 0)
+            self.assertNotEqual(hif_tbl_entry, 0)
 
             # create LAG members
-            lag10_member1 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[0])
-            lag10_member2 = sai_thrift_create_lag_member(self.client,
-                                                         lag_id=lag10,
-                                                         port_id=lag_ports[1])
+            lag10_member1 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[0])
+            lag10_member2 = sai_thrift_create_lag_member(
+                self.client, lag_id=lag10, port_id=lag_ports[1])
 
             for dev_port in lag_dev_ports:
                 print("Sending LACP packet on port %d (in LAG)" % dev_port)
@@ -1369,7 +1337,7 @@ class HostifTableMatchTest(SaiHelper):
 
     def wildcardEntryCbChannelStp(self):
         '''
-        This tests hostif interface table match for entry type Wildcard and
+        Verify hostif interface table match for entry type Wildcard and
         channel type = CB with STP packet
         '''
         print("\nwildcardEntryCbChannelStp()")
@@ -1395,7 +1363,7 @@ class HostifTableMatchTest(SaiHelper):
                                                    name=vlan_hostif_name,
                                                    obj_id=self.vlan100,
                                                    type=SAI_HOSTIF_TYPE_NETDEV)
-            self.assertTrue(vlan_hostif != 0)
+            self.assertNotEqual(vlan_hostif, 0)
 
             vlan_hif_socket = open_packet_socket(vlan_hostif_name)
 
@@ -1403,26 +1371,25 @@ class HostifTableMatchTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_COPY,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_STP)
-            self.assertTrue(stp_trap != 0)
+            self.assertNotEqual(stp_trap, 0)
 
             hif_tbl_entry = sai_thrift_create_hostif_table_entry(
                 self.client,
                 channel_type=SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_CB,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD)
-            self.assertTrue(hif_tbl_entry != 0)
+            self.assertNotEqual(hif_tbl_entry, 0)
 
             # change tagging mode for one of test ports
             sai_thrift_remove_vlan_member(self.client, self.vlan100_member1)
-            sai_thrift_set_port_attribute(self.client, vlan_ports[1],
-                                          port_vlan_id=0)
+            sai_thrift_set_port_attribute(
+                self.client, vlan_ports[1], port_vlan_id=0)
             self.vlan100_member1 = sai_thrift_create_vlan_member(
                 self.client,
                 vlan_id=self.vlan100,
                 bridge_port_id=self.eport_bp,
                 vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
-            sai_thrift_set_port_attribute(self.client,
-                                          vlan_ports[1],
-                                          port_vlan_id=self.vid)
+            sai_thrift_set_port_attribute(
+                self.client, vlan_ports[1], port_vlan_id=self.vid)
 
             print("Sending STP packet on port %d (untagged VLAN member)"
                   % vlan_dev_ports[0])
@@ -1465,16 +1432,17 @@ class HostifTableMatchTest(SaiHelper):
                 vlan_id=self.vlan100,
                 bridge_port_id=self.eport_bp,
                 vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
-            sai_thrift_set_port_attribute(self.client, vlan_ports[1],
-                                          port_vlan_id=self.vid)
+            sai_thrift_set_port_attribute(
+                self.client, vlan_ports[1], port_vlan_id=self.vid)
             sai_thrift_remove_hostif_table_entry(self.client, hif_tbl_entry)
             sai_thrift_remove_hostif_trap(self.client, stp_trap)
             sai_thrift_remove_hostif(self.client, vlan_hostif)
 
 
+@group("draft")
 class HostifTrapTypesTest(SaiHelper):
     '''
-    This verifies creation of different types of hostif traps
+    Verify creation of different types of hostif traps
     If action is TRAP - only iport is in use, if action is COPY
     packet is send on iport and should be forwarded to eport
     '''
@@ -1495,7 +1463,7 @@ class HostifTrapTypesTest(SaiHelper):
                                                name=hostif_name,
                                                obj_id=self.iport,
                                                type=SAI_HOSTIF_TYPE_NETDEV)
-        self.assertTrue(self.hostif != 0)
+        self.assertNotEqual(self.hostif, 0)
 
         self.hif_socket = open_packet_socket(hostif_name)
 
@@ -1505,7 +1473,7 @@ class HostifTrapTypesTest(SaiHelper):
                                                 name=hostif_name2,
                                                 obj_id=self.iport2,
                                                 type=SAI_HOSTIF_TYPE_NETDEV)
-        self.assertTrue(self.hostif2 != 0)
+        self.assertNotEqual(self.hostif2, 0)
 
         self.hif_socket2 = open_packet_socket(hostif_name2)
 
@@ -1547,12 +1515,12 @@ class HostifTrapTypesTest(SaiHelper):
             bridge_port_id=self.iport_bp2,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
 
-        sai_thrift_set_port_attribute(self.client, self.iport,
-                                      port_vlan_id=vid)
-        sai_thrift_set_port_attribute(self.client, self.iport2,
-                                      port_vlan_id=vid)
-        sai_thrift_set_port_attribute(self.client, self.eport,
-                                      port_vlan_id=vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.iport, port_vlan_id=vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.iport2, port_vlan_id=vid)
+        sai_thrift_set_port_attribute(
+            self.client, self.eport, port_vlan_id=vid)
 
         # create L3 interfaces
         self.iport_rif = sai_thrift_create_router_interface(
@@ -1621,59 +1589,58 @@ class HostifTrapTypesTest(SaiHelper):
                                       next_hop_id=self.eport_nexthop)
 
         # Ip2me route
-        sw_attr = sai_thrift_get_switch_attribute(self.client,
-                                                  cpu_port=True)
+        sw_attr = sai_thrift_get_switch_attribute(
+            self.client, cpu_port=True)
         cpu_port = sw_attr['cpu_port']
 
         self.ip2me_route = sai_thrift_route_entry_t(
             vr_id=self.default_vrf,
             destination=sai_ipprefix(self.my_ip + '/32'))
-        sai_thrift_create_route_entry(self.client, self.ip2me_route,
-                                      next_hop_id=cpu_port)
+        sai_thrift_create_route_entry(
+            self.client, self.ip2me_route, next_hop_id=cpu_port)
         self.ip2me_v6_route = sai_thrift_route_entry_t(
             vr_id=self.default_vrf,
             destination=sai_ipprefix(self.my_ipv6 + '/128'))
-        sai_thrift_create_route_entry(self.client, self.ip2me_v6_route,
-                                      next_hop_id=cpu_port)
+        sai_thrift_create_route_entry(
+            self.client, self.ip2me_v6_route, next_hop_id=cpu_port)
 
         self.cpu_queue_state = sai_thrift_get_queue_stats(
             self.client, self.cpu_queue0)["SAI_QUEUE_STAT_PACKETS"]
 
     def runTest(self):
-        try:
-            self.arpTrapTest()
-            self.ttlErrorTrapTest()
-            self.bgpTrapTest()
-            self.dhcpTrapTest()
-            self.ip2meTrapTest()
-            self.lldpTrapTest()
-            self.ospfTrapTest()
-            # self.igmpTrapTest()  # disabled while multicast is disabled
-            self.stpTrapTest()
-            self.pimTrapTest()
-            self.udldTrapTest()
-            self.icmpV6TrapTest()
-            self.bfdRxTrapTest()
-            self.dhcpv6TrapTest()
-            self.ptpTrapTest()
-        finally:
-            pass
+        self.arpTrapTest()
+        self.ttlErrorTrapTest()
+        self.bgpTrapTest()
+        self.dhcpTrapTest()
+        self.ip2meTrapTest()
+        self.lldpTrapTest()
+        self.ospfTrapTest()
+        self.igmpTrapTest()
+        self.stpTrapTest()
+        self.pimTrapTest()
+        self.udldTrapTest()
+        self.icmpV6TrapTest()
+        self.bfdRxTrapTest()
+        self.dhcpv6TrapTest()
+        self.ptpTrapTest()
+        self.mplsRouterAlertTrapTest()
+        self.mplsTtlErrorTrapTest()
 
     def tearDown(self):
-        sai_thrift_flush_fdb_entries(self.client,
-                                     entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+        sai_thrift_flush_fdb_entries(
+            self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
         sai_thrift_remove_route_entry(self.client, self.ip2me_route)
         sai_thrift_remove_route_entry(self.client, self.ip2me_v6_route)
         sai_thrift_remove_route_entry(self.client, self.eport_route)
         sai_thrift_remove_route_entry(self.client, self.eport_v6_route)
         sai_thrift_remove_next_hop(self.client, self.eport_nexthop)
-        sai_thrift_remove_neighbor_entry(self.client,
-                                         self.eport_neighbor_entry)
+        sai_thrift_remove_neighbor_entry(
+            self.client, self.eport_neighbor_entry)
         sai_thrift_remove_route_entry(self.client, self.iport_route)
         sai_thrift_remove_route_entry(self.client, self.iport_v6_route)
         sai_thrift_remove_next_hop(self.client, self.iport_nexthop)
-        sai_thrift_remove_neighbor_entry(self.client,
-                                         self.iport_neighbor_entry)
+        sai_thrift_remove_neighbor_entry(
+            self.client, self.iport_neighbor_entry)
         sai_thrift_remove_router_interface(self.client, self.iport_rif)
         sai_thrift_remove_router_interface(self.client, self.eport_rif)
         sai_thrift_remove_vlan_member(self.client, self.vlan100_member0)
@@ -1693,7 +1660,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def arpTrapTest(self):
         '''
-        This verifies trap of type ARP
+        Verify trap of type ARP
         '''
         print("\narpTrapTest()")
 
@@ -1702,12 +1669,12 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST)
-            self.assertTrue(arp_req_trap != 0)
+            self.assertNotEqual(arp_req_trap, 0)
             arp_resp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_ARP_RESPONSE)
-            self.assertTrue(arp_resp_trap != 0)
+            self.assertNotEqual(arp_resp_trap, 0)
 
             # Broadcast ARP Request
             arp_pkt = simple_arp_packet(arp_op=1, pktlen=100)
@@ -1785,7 +1752,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def ttlErrorTrapTest(self):
         '''
-        This verifies trap of type TTL
+        Verify trap of type TTL
         '''
         print("\nttlErrorTrapTest()")
 
@@ -1794,7 +1761,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_DROP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_TTL_ERROR)
-            self.assertTrue(ttl_trap != 0)
+            self.assertNotEqual(ttl_trap, 0)
 
             pkt = simple_udp_packet(eth_dst=ROUTER_MAC,
                                     ip_dst=self.eport_ip,
@@ -1832,7 +1799,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def bgpTrapTest(self):
         '''
-        This verifies trap of type BGP
+        Verify trap of type BGP
         '''
         print("\nbgpTrapTest()")
 
@@ -1843,12 +1810,12 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_BGP)
-            self.assertTrue(bgp_trap != 0)
+            self.assertNotEqual(bgp_trap, 0)
             bgpv6_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_BGPV6)
-            self.assertTrue(bgpv6_trap != 0)
+            self.assertNotEqual(bgpv6_trap, 0)
 
             # BGP v4 - dst BGP port
             bgp_pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
@@ -1907,7 +1874,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def dhcpTrapTest(self):
         '''
-        This verifies trap of type DHCP
+        Verify trap of type DHCP
         '''
         print("\ndhcpTrapTest()")
 
@@ -1921,7 +1888,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP)
-            self.assertTrue(dhcp_trap != 0)
+            self.assertNotEqual(dhcp_trap, 0)
 
             # DHCP request
             dhcp_pkt = simple_udp_packet(eth_dst=bcast_mac,
@@ -1961,7 +1928,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def ip2meTrapTest(self):
         '''
-        This verifies trap of type IP2ME
+        Verify trap of type IP2ME
         '''
         print("\nip2meTrapTest()")
 
@@ -1970,7 +1937,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_IP2ME)
-            self.assertTrue(myip_trap != 0)
+            self.assertNotEqual(myip_trap, 0)
 
             pkt = simple_udp_packet(eth_dst=ROUTER_MAC, ip_dst=self.my_ip)
 
@@ -1995,7 +1962,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def lacpTrapTest(self):
         '''
-        This verifies trap of type LACP
+        Verify trap of type LACP
         '''
         print("\nlacpTrapTest()")
 
@@ -2006,7 +1973,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LACP)
-            self.assertTrue(lacp_trap != 0)
+            self.assertNotEqual(lacp_trap, 0)
 
             lacp_pkt = simple_eth_packet(eth_dst=lacp_mac, pktlen=100)
 
@@ -2031,7 +1998,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def lldpTrapTest(self):
         '''
-        This verifies trap of type LLDP
+        Verify trap of type LLDP
         '''
         print("\nlldpTrapTest()")
 
@@ -2043,7 +2010,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
-            self.assertTrue(lldp_trap != 0)
+            self.assertNotEqual(lldp_trap, 0)
 
             # LLDP DMAC=01:80:C2:00:00:0e
             lldp_pkt = simple_eth_packet(eth_dst=lldp_mac1,
@@ -2081,7 +2048,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def ospfTrapTest(self):
         '''
-        This verifies trap of type OSPF
+        Verify trap of type OSPF
         '''
         print("\nospfTrapTest()")
 
@@ -2094,7 +2061,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_COPY,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_OSPF)
-            self.assertTrue(ospf_trap != 0)
+            self.assertNotEqual(ospf_trap, 0)
 
             # OSPF Hello
             ospf_pkt = simple_ip_packet(ip_dst=ospf_hello_ip, ip_proto=proto)
@@ -2128,7 +2095,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def igmpTrapTest(self):
         '''
-        This verifies trap of different IGMP types
+        Verify trap of different IGMP types
         '''
         print("\nigmTrapTest()")
 
@@ -2142,8 +2109,7 @@ class HostifTrapTypesTest(SaiHelper):
             [SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V2_REPORT,
              0x16, "V2 Report"],
             [SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V3_REPORT,
-             0x22, "V3 Report"]
-        ]
+             0x22, "V3 Report"]]
 
         try:
             # enable VLAN100 igmp snooping
@@ -2157,7 +2123,7 @@ class HostifTrapTypesTest(SaiHelper):
                         self.client,
                         packet_action=SAI_PACKET_ACTION_TRAP,
                         trap_type=trap_info[0])
-                    self.assertTrue(igmp_trap != 0)
+                    self.assertNotEqual(igmp_trap, 0)
 
                     igmp_pkt = simple_igmp_packet(igmp_type=trap_info[1])
 
@@ -2187,7 +2153,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def stpTrapTest(self):
         '''
-        This verifies trap of type STP
+        Verify trap of type STP
         '''
         print("\nstpTrapTest()")
 
@@ -2198,7 +2164,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_STP)
-            self.assertTrue(stp_trap != 0)
+            self.assertNotEqual(stp_trap, 0)
 
             stp_pkt = simple_eth_packet(eth_dst=stp_mac, pktlen=100)
 
@@ -2223,7 +2189,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def pimTrapTest(self):
         '''
-        This verifies trap of type PIM
+        Verify trap of type PIM
         '''
         print("\npimTrapTest()")
 
@@ -2234,7 +2200,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_PIM)
-            self.assertTrue(pim_trap != 0)
+            self.assertNotEqual(pim_trap, 0)
 
             pim_pkt = simple_ip_packet(ip_proto=proto)
 
@@ -2259,7 +2225,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def udldTrapTest(self):
         '''
-        This verifies trap of type UDLD
+        Verify trap of type UDLD
         '''
         print("\nudldTrapTest()")
 
@@ -2270,7 +2236,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_UDLD)
-            self.assertTrue(udld_trap != 0)
+            self.assertNotEqual(udld_trap, 0)
 
             udld_pkt = simple_eth_packet(eth_dst=udld_mac, pktlen=100)
 
@@ -2295,7 +2261,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def icmpV6TrapTest(self):
         '''
-        This verifies trap of type ICMPv6
+        Verify trap of type ICMPv6
         '''
         print("\nicmpV6TrapTest()")
 
@@ -2307,7 +2273,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_IPV6_NEIGHBOR_DISCOVERY)
-            self.assertTrue(icmpv6_trap != 0)
+            self.assertNotEqual(icmpv6_trap, 0)
 
             # IPv6 Router Solicitation
             all_rt_ipv6 = "ff02::2"
@@ -2383,7 +2349,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def bfdRxTrapTest(self):
         '''
-        This verifies trap of type BFD RX
+        Verify trap of type BFD RX
         '''
         print("\nbfdRxTrapTest()")
 
@@ -2394,7 +2360,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_BFD)
-            self.assertTrue(bfd_trap != 0)
+            self.assertNotEqual(bfd_trap, 0)
 
             bfd_pkt = simple_udp_packet(eth_dst=ROUTER_MAC,
                                         ip_dst=self.iport_ip,
@@ -2421,7 +2387,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def dhcpv6TrapTest(self):
         '''
-        This verifies trap of type DHCPv6
+        Verify trap of type DHCPv6
         '''
         print("\ndhcpv6TrapTest()")
 
@@ -2435,15 +2401,14 @@ class HostifTrapTypesTest(SaiHelper):
             [ROUTER_MAC, self.my_ipv6, dhcpv6_client_port,
              dhcpv6_srv_port, "ip-to-me server"],
             [ROUTER_MAC, self.my_ipv6, dhcpv6_srv_port,
-             dhcpv6_client_port, "ip-to-me client"]
-        ]
+             dhcpv6_client_port, "ip-to-me client"]]
 
         try:
             dhcpv6_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_DHCPV6)
-            self.assertTrue(dhcpv6_trap != 0)
+            self.assertNotEqual(dhcpv6_trap, 0)
 
             for dhcpv6_pkt_params in dhcpv6_pkt_params_list:
                 dhcpv6_pkt = simple_udpv6_packet(
@@ -2475,7 +2440,7 @@ class HostifTrapTypesTest(SaiHelper):
 
     def ptpTrapTest(self):
         '''
-        This verifies trap of type PTP
+        Verify trap of type PTP
         '''
         print("\nptpTrapTest()")
 
@@ -2487,7 +2452,7 @@ class HostifTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_PTP)
-            self.assertTrue(ptp_trap != 0)
+            self.assertNotEqual(ptp_trap, 0)
 
             ptp_pkt = simple_udp_packet(eth_dst=ROUTER_MAC,
                                         ip_dst=self.iport_ip,
@@ -2521,44 +2486,9 @@ class HostifTrapTypesTest(SaiHelper):
         finally:
             sai_thrift_remove_hostif_trap(self.client, ptp_trap)
 
-
-@group('mpls')
-class HostifMplsTrapTypesTest(SaiHelper):
-    '''
-    This verifies creation of hostif traps of types related to MPLS
-    functionality.
-    '''
-    def setUp(self):
-        super(HostifMplsTrapTypesTest, self).setUp()
-
-        self.iport = self.port24
-        self.iport_dev = self.dev_port24
-
-        hostif_name = "hostif"
-
-        self.hostif = sai_thrift_create_hostif(self.client,
-                                               name=hostif_name,
-                                               obj_id=self.iport,
-                                               type=SAI_HOSTIF_TYPE_NETDEV)
-        self.assertTrue(self.hostif != 0)
-
-        self.hif_socket = open_packet_socket(hostif_name)
-
-    def runTest(self):
-        try:
-            self.mplsRouterAlertTrapTest()
-            self.mplsTtlErrorTrapTest()
-        finally:
-            pass
-
-    def tearDown(self):
-        sai_thrift_remove_hostif(self.client, self.hostif)
-
-        super(HostifMplsTrapTypesTest, self).tearDown()
-
     def mplsRouterAlertTrapTest(self):
         '''
-        This verifies trap of type MPLS router alert
+        Verify trap of type MPLS router alert
         '''
         print("\nmplsRouterAlertTrapTest()")
 
@@ -2570,7 +2500,7 @@ class HostifMplsTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_MPLS_ROUTER_ALERT_LABEL)
-            self.assertTrue(mpls_trap != 0)
+            self.assertNotEqual(mpls_trap, 0)
 
             inner_pkt = simple_udp_packet(eth_dst=ROUTER_MAC)
 
@@ -2600,7 +2530,7 @@ class HostifMplsTrapTypesTest(SaiHelper):
 
     def mplsTtlErrorTrapTest(self):
         '''
-        This verifies trap of type MPLS TTL error
+        Verify trap of type MPLS TTL error
         '''
         print("\nmplsTtlErrorTrapTest()")
 
@@ -2611,7 +2541,7 @@ class HostifMplsTrapTypesTest(SaiHelper):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_MPLS_TTL_ERROR)
-            self.assertTrue(mpls_trap != 0)
+            self.assertNotEqual(mpls_trap, 0)
 
             inner_pkt = simple_udp_packet(eth_dst=ROUTER_MAC)
 
@@ -2640,9 +2570,10 @@ class HostifMplsTrapTypesTest(SaiHelper):
             sai_thrift_remove_hostif_trap(self.client, mpls_trap)
 
 
+@group("draft")
 class HostifUserDefinedTrapTest(SaiHelper):
     '''
-    Test hostif user defined traps
+    Verify hostif user defined traps
     '''
     def setUp(self):
         super(HostifUserDefinedTrapTest, self).setUp()
@@ -2662,14 +2593,14 @@ class HostifUserDefinedTrapTest(SaiHelper):
                                                 obj_id=port,
                                                 type=SAI_HOSTIF_TYPE_NETDEV)
 
-        self.assertTrue(self.hostif1 != 0)
+        self.assertNotEqual(self.hostif1, 0)
 
         self.hostif2 = sai_thrift_create_hostif(self.client,
                                                 name=hostif2_name,
                                                 obj_id=port,
                                                 type=SAI_HOSTIF_TYPE_NETDEV)
 
-        self.assertTrue(self.hostif2 != 0)
+        self.assertNotEqual(self.hostif2, 0)
         time.sleep(6)
 
         self.hostif1_socket = open_packet_socket(hostif1_name)
@@ -2677,14 +2608,12 @@ class HostifUserDefinedTrapTest(SaiHelper):
 
         # create user defined traps
         self.udt1 = sai_thrift_create_hostif_user_defined_trap(
-            self.client,
-            type=SAI_HOSTIF_USER_DEFINED_TRAP_TYPE_ACL)
-        self.assertTrue(self.udt1 != 0)
+            self.client, type=SAI_HOSTIF_USER_DEFINED_TRAP_TYPE_ACL)
+        self.assertNotEqual(self.udt1, 0)
 
         self.udt2 = sai_thrift_create_hostif_user_defined_trap(
-            self.client,
-            type=SAI_HOSTIF_USER_DEFINED_TRAP_TYPE_ACL)
-        self.assertTrue(self.udt2 != 0)
+            self.client, type=SAI_HOSTIF_USER_DEFINED_TRAP_TYPE_ACL)
+        self.assertNotEqual(self.udt2, 0)
 
         # associate user defined trap 1 with hostif 1
         channel = SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_PHYSICAL_PORT
@@ -2695,7 +2624,7 @@ class HostifUserDefinedTrapTest(SaiHelper):
                 host_if=self.hostif1,
                 trap_id=self.udt1,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_TRAP_ID)
-        self.assertTrue(self.hostif_table_entry_udt1_hif1 != 0)
+        self.assertNotEqual(self.hostif_table_entry_udt1_hif1, 0)
 
         # associate user defined trap 2 with hostif 2
         channel = SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_PHYSICAL_PORT
@@ -2706,7 +2635,7 @@ class HostifUserDefinedTrapTest(SaiHelper):
                 host_if=self.hostif2,
                 trap_id=self.udt2,
                 type=SAI_HOSTIF_TABLE_ENTRY_TYPE_TRAP_ID)
-        self.assertTrue(self.hostif_table_entry_udt2_hif2 != 0)
+        self.assertNotEqual(self.hostif_table_entry_udt2_hif2, 0)
 
         # create ACL table
         table_stage = SAI_ACL_STAGE_INGRESS
@@ -2718,7 +2647,7 @@ class HostifUserDefinedTrapTest(SaiHelper):
             acl_stage=table_stage,
             acl_bind_point_type_list=table_bind_point_type_list,
             field_src_ip=True)
-        self.assertTrue(self.acl_table != 0)
+        self.assertNotEqual(self.acl_table, 0)
 
         # test will create ACL rules to match these addresses and
         # trap mathing packets
@@ -2746,7 +2675,7 @@ class HostifUserDefinedTrapTest(SaiHelper):
             field_src_ip=src_ip_t,
             action_set_user_trap_id=set_user_trap_id,
             action_packet_action=packet_action)
-        self.assertTrue(self.acl_entry1 != 0)
+        self.assertNotEqual(self.acl_entry1, 0)
 
         # create ACL table entry and associate it with user defined trap 2
         src_ip_t = sai_thrift_acl_field_data_t(
@@ -2766,13 +2695,10 @@ class HostifUserDefinedTrapTest(SaiHelper):
             field_src_ip=src_ip_t,
             action_set_user_trap_id=set_user_trap_id,
             action_packet_action=packet_action)
-        self.assertTrue(self.acl_entry2 != 0)
+        self.assertNotEqual(self.acl_entry2, 0)
 
     def runTest(self):
-        try:
-            self.aclIpSrcNetdevTrapTest()
-        finally:
-            pass
+        self.aclIpSrcNetdevTrapTest()
 
     def tearDown(self):
         sai_thrift_remove_acl_entry(self.client, self.acl_entry2)
@@ -2848,9 +2774,10 @@ class HostifUserDefinedTrapTest(SaiHelper):
             self.dataplane.flush()
 
 
+@group("draft")
 class HostifTrapAttributeGetterTest(SaiHelperBase):
     '''
-    Performs testing of saihostif.cpp sai_get_hostif_trap_attribute
+    Verify getting of hostif attributes
     '''
     def runTest(self):
         self.trapPriorityTest()
@@ -2860,7 +2787,7 @@ class HostifTrapAttributeGetterTest(SaiHelperBase):
 
     def trapPriorityTest(self):
         '''
-        tests sai_get_hostif_trap_attribute with priority attribute
+        Verify priority attribute getting
         '''
         try:
             custom_priotiy_1 = 11
@@ -2868,15 +2795,13 @@ class HostifTrapAttributeGetterTest(SaiHelperBase):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP,
-                trap_priority=custom_priotiy_1,
-            )
+                trap_priority=custom_priotiy_1)
             self.assertGreater(lldp_trap, 0)
 
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 lldp_trap,
-                trap_priority=True,
-            )
+                trap_priority=True)
             self.assertEqual(attrs["trap_priority"], custom_priotiy_1)
 
             custom_priotiy_2 = 5
@@ -2885,15 +2810,13 @@ class HostifTrapAttributeGetterTest(SaiHelperBase):
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP,
-                trap_priority=custom_priotiy_2,
-            )
+                trap_priority=custom_priotiy_2)
             self.assertGreater(dhcp_trap, 0)
 
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 dhcp_trap,
-                trap_priority=True,
-            )
+                trap_priority=True)
             self.assertEqual(attrs["trap_priority"], custom_priotiy_2)
 
         finally:
@@ -2902,35 +2825,31 @@ class HostifTrapAttributeGetterTest(SaiHelperBase):
 
     def trapTypeTest(self):
         '''
-        tests sai_get_hostif_trap_attribute with trap type attribute
+        Verify type attribute getting
         '''
         try:
             lldp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
-                trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP,
-            )
+                trap_type=SAI_HOSTIF_TRAP_TYPE_LLDP)
             self.assertGreater(lldp_trap, 0)
 
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 lldp_trap,
-                trap_type=True,
-            )
+                trap_type=True)
             self.assertEqual(attrs["trap_type"], SAI_HOSTIF_TRAP_TYPE_LLDP)
 
             dhcp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
-                trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP,
-            )
+                trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP)
             self.assertGreater(dhcp_trap, 0)
 
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 dhcp_trap,
-                trap_type=True,
-            )
+                trap_type=True)
             self.assertEqual(attrs["trap_type"], SAI_HOSTIF_TRAP_TYPE_DHCP)
 
         finally:
@@ -2939,40 +2858,35 @@ class HostifTrapAttributeGetterTest(SaiHelperBase):
 
     def trapGroupTest(self):
         '''
-        tests sai_get_hostif_trap_attribute with trap group attribute
+        Verify group attribute getting
         '''
         try:
             custom_trap_group = sai_thrift_create_hostif_trap_group(
                 self.client,
-                admin_state=True,
-            )
+                admin_state=True)
             self.assertGreater(custom_trap_group, 0)
 
             ip2me_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
-                trap_type=SAI_HOSTIF_TRAP_TYPE_IP2ME,
-            )
+                trap_type=SAI_HOSTIF_TRAP_TYPE_IP2ME)
             self.assertGreater(ip2me_trap, 0)
 
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 ip2me_trap,
-                trap_group=True,
-            )
+                trap_group=True)
             self.assertNotEqual(attrs["trap_group"], custom_trap_group)
 
             dhcp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
                 trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP,
-                trap_group=custom_trap_group,
-            )
+                trap_group=custom_trap_group)
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 dhcp_trap,
-                trap_group=True,
-            )
+                trap_group=True)
 
             self.assertEqual(attrs["trap_group"], custom_trap_group)
 
@@ -2983,33 +2897,29 @@ class HostifTrapAttributeGetterTest(SaiHelperBase):
 
     def trapActionTest(self):
         '''
-        tests sai_get_hostif_trap_attribute with action attribute
+        Verify action attribute getting
         '''
         try:
             ip2me_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_TRAP,
-                trap_type=SAI_HOSTIF_TRAP_TYPE_IP2ME,
-            )
+                trap_type=SAI_HOSTIF_TRAP_TYPE_IP2ME)
             self.assertGreater(ip2me_trap, 0)
 
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 ip2me_trap,
-                packet_action=True,
-            )
+                packet_action=True)
             self.assertEqual(attrs["packet_action"], SAI_PACKET_ACTION_TRAP)
 
             dhcp_trap = sai_thrift_create_hostif_trap(
                 self.client,
                 packet_action=SAI_PACKET_ACTION_DROP,
-                trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP,
-            )
+                trap_type=SAI_HOSTIF_TRAP_TYPE_DHCP)
             attrs = sai_thrift_get_hostif_trap_attribute(
                 self.client,
                 dhcp_trap,
-                packet_action=True,
-            )
+                packet_action=True)
 
             self.assertEqual(attrs["packet_action"], SAI_PACKET_ACTION_DROP)
 
