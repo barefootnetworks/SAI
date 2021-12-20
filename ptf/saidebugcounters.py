@@ -583,12 +583,11 @@ class BaseDebugCounterClass(SaiHelperBase):
               % (port_drop_counter_before, port_drop_counter_after,
                  packets_requested))
 
-        self.assertTrue(
-            dc_counter_after == dc_counter_before + expected_drops)
+        self.assertEqual(dc_counter_after,
+                         dc_counter_before + expected_drops)
         if drop_expected:
-            self.assertTrue(
-                port_drop_counter_after == port_drop_counter_before +
-                expected_drops)
+            self.assertEqual(port_drop_counter_after,
+                             port_drop_counter_before + expected_drops)
         print("\tok")
 
     def testSwitchDebugCounter(self,
@@ -640,12 +639,11 @@ class BaseDebugCounterClass(SaiHelperBase):
                   "Switch drop counter after=%d, packets requested=%d"
                   % (switch_counter_before, switch_counter_after,
                      packets_requested))
-            self.assertTrue(
-                dc_counter_after == dc_counter_before + expected_drops)
+            self.assertEqual(dc_counter_after,
+                             dc_counter_before + expected_drops)
             if drop_expected:
-                self.assertTrue(
-                    switch_counter_after == switch_counter_before +
-                    expected_drops)
+                self.assertEqual(switch_counter_after,
+                                 switch_counter_before + expected_drops)
 
     def verifyPortDebugCounterDropPackets(
             self, port, dc_oid, drop_reason_list):
@@ -859,9 +857,8 @@ class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
 
             for i in range(0, len(drop_reason_cap)):
                 if i == 0:
-                    print(
-                        "Verify initial drop_reason_list with traffic: %s" %
-                        (map_drop_reason_to_string(drop_reason_list)))
+                    print("Verify initial drop_reason_list with traffic: %s" %
+                          (map_drop_reason_to_string(drop_reason_list)))
                     self.assertTrue(self.verifyPortDebugCounterDropPackets(
                         self.port0, port_dc_oid, drop_reason_list))
 
@@ -1074,7 +1071,7 @@ class PortDropMCSMAC(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group("draft")
+
 class SwitchDropMCSMAC(BaseDebugCounterClass):
     ''' Switch Debug Counter for SMAC Multicast test. '''
 
@@ -2145,7 +2142,7 @@ class PortDropAclAnyTest(BaseDebugCounterClass):
                 acl_action_type_list=acl_action_type_list,
                 field_dst_ip=dip_ind,
                 field_dst_mac=dmac_ind)
-            self.assertTrue(acl_table_id != 0)
+            self.assertTrue(acl_table_id != 0, "Failed to Create ACL table")
 
             action_drop = action
             packet_action = sai_thrift_acl_action_data_t(
@@ -2156,7 +2153,7 @@ class PortDropAclAnyTest(BaseDebugCounterClass):
                 action_packet_action=packet_action,
                 field_dst_ip=dst_ip,
                 field_dst_mac=dst_mac)
-            self.assertTrue(acl_entry != 0)
+            self.assertTrue(acl_entry != 0, "Failed to Create ACL entry")
 
             acl_table_group = sai_thrift_create_acl_table_group(
                 self.client,
@@ -2292,7 +2289,7 @@ class GetDebugCounterAvailability(BaseDebugCounterClass):
 
             print("verify DC Type = %s, dc_availability=%d"
                   % (dc_type, dc_avail))
-            self.assertTrue(dc_avail == 0x400)
+            self.assertEqual(dc_avail, 0x400)
             print("\tok")
 
         # Verify unknown(random) debug counter types, should return value of 0
@@ -2304,5 +2301,5 @@ class GetDebugCounterAvailability(BaseDebugCounterClass):
                 dc_type)
             print("verify unsupported DC Type = %s, dc_availability=%d"
                   % (dc_type, dc_avail))
-            self.assertTrue(dc_avail == 0)
+            self.assertEqual(dc_avail, 0)
             print("\tok")
