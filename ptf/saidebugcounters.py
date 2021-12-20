@@ -53,6 +53,7 @@ def map_drop_reason_to_string(drop_reason_list):
     drop_reason_map[SAI_IN_DROP_REASON_SIP_LINK_LOCAL] = "SIP_LINK_LOCAL"
     drop_reason_map[SAI_IN_DROP_REASON_SIP_UNSPECIFIED] = "SIP_UNSPECIFIED"
     drop_reason_map[SAI_IN_DROP_REASON_UC_DIP_MC_DMAC] = "UC_DIP_MC_DMAC"
+    drop_reason_map[SAI_IN_DROP_REASON_NON_ROUTABLE] = "IGMP_NON_ROUTABLE"
     drop_reason_map[SAI_IN_DROP_REASON_MPLS_MISS] = "MPLS_MISS"
     drop_reason_map[SAI_IN_DROP_REASON_SRV6_LOCAL_SID_DROP] = \
         "SRV6_LOCAL_SID_DROP"
@@ -165,6 +166,11 @@ class BaseDebugCounterClass(SaiHelperBase):
     ip_mask_v6 = 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:0'
     v4_enabled = 1
     v6_enabled = 1
+    igmp_type_query = 0x11
+    igmp_type_leave = 0x17
+    igmp_type_v1_report = 0x12
+    igmp_type_v2_report = 0x16
+    igmp_type_v3_report = 0x22
 
     dc_oid = None
     second_dc_oid = None
@@ -680,8 +686,8 @@ class BaseDebugCounterClass(SaiHelperBase):
                 continue
         counter_after = self.getDebugDounterPortStatsByOid(
             port, dc_oid)
-        print("counter=%d, counter_after=%d, dc_pkt_cnt=%d"
-              % counter, counter_after, dc_pkt_cnt)
+        print("counter=%d, counter_after=%d, dc_pkt_cnt=%d" %
+              (counter, counter_after, dc_pkt_cnt))
         if (counter + dc_pkt_cnt) != counter_after:
             return False
 
@@ -724,8 +730,8 @@ class BaseDebugCounterClass(SaiHelperBase):
                 # Skip check as there is no packet sent
                 continue
         counter_after = self.getDebugCounterSwitchStatsByOid(dc_oid)
-        print("counter=%d, counter_after=%d, dc_pkt_cnt=%d"
-              % counter, counter_after, dc_pkt_cnt)
+        print("counter=%d, counter_after=%d, dc_pkt_cnt=%d" %
+              (counter, counter_after, dc_pkt_cnt))
         if (counter + dc_pkt_cnt) != counter_after:
             return False
 
@@ -970,7 +976,6 @@ class PortDebugCounterAddDropReason(BaseDebugCounterClass):
 
             drop_reason_list = []
             for drop_reason in drop_reason_cap:
-                # Drop_reason = drop_reason_cap[i]
                 drop_reason_list.append(drop_reason)
                 print("Setting DebugCounter drop_reason_list to: %s" %
                       (map_drop_reason_to_string(drop_reason_list)))
@@ -1020,7 +1025,6 @@ class SwitchDebugCounterAddDropReason(BaseDebugCounterClass):
 
             drop_reason_list = []
             for drop_reason in drop_reason_cap:
-                # Drop_reason = drop_reason_cap[i]
                 drop_reason_list.append(drop_reason)
                 print("Setting DebugCounter drop_reason_list to: %s" %
                       (map_drop_reason_to_string(drop_reason_list)))
@@ -2201,6 +2205,7 @@ class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
             SAI_IN_DROP_REASON_ACL_EGRESS_RIF,
             SAI_IN_DROP_REASON_ACL_EGRESS_SWITCH,
             SAI_IN_DROP_REASON_FDB_AND_BLACKHOLE_DISCARDS,
+            SAI_IN_DROP_REASON_NON_ROUTABLE,
             SAI_IN_DROP_REASON_MPLS_MISS,
             SAI_IN_DROP_REASON_SRV6_LOCAL_SID_DROP]
 
