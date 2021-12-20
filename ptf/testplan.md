@@ -153,6 +153,25 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Policer
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| policer.1  | Verify policer creation for various meter types. | saipolicer.policerCreate |
+| policer.2  | Verfiy policer creation for various supported color sources. | saipolicer.policerCreate |
+| policer.3  | Verify policer creation for various modes. | saipolicer.policerCreate |
+| policer.4  | Verify policer bind to hostif_trap_group with existing policer. | saipolicer.policerOverwriteTrapGroup |
+| policer.5  | Verify policer bind to hostif_trap_group with no existing policer. | saipolicer.noPolicerTrapGroup |
+| policer.6  | Verify policer can be bound to >1 hostif_trap_group. | saipolicer.Overflow1Policer2TrapGroups, saipolicer.Underflow1Policer2TrapGroups |
+| policer.7  | Verify policer is being applied for all hostif_trap object if bound to >1 hostif_trap_group. | saipolicer.Overflow1Policer2TrapGroups, saipolicer.Underflow1Policer2TrapGroups |
+| policer.8  | Verify policer unbind from one hostif_trap_group does not affect other. | saipolicer.Overflow1Policer2TrapGroups, saipolicer.Underflow1Policer2TrapGroups |
+| policer.9  | Verify policer bind to ACL entry. | saipolicer.BindPolicerToAclEntry |
+| policer.10 | Verify policer bind to ingress mirror session object. | saimirror.ingressMirrorPolicingTest |
+| policer.11 | Verify policer bind to egress mirror session object. | saimirror.egressMirrorPolicingTest |
+| policer.12 | Verify policer bind to port. | saipolicer.BindPolicerToPort |
+| policer.13 | Verify policer works for SAI_PORT_ATTR_BROADCAST_STORM_CONTROL_POLICER_ID. | saipolicer.StormControlTests |
+| policer.14 | Verify policer works for SAI_PORT_ATTR_MULTICAST_STORM_CONTROL_POLICER_ID. | saipolicer.StormControlTests |
+| policer.15 | Verify policer works for SAI_PORT_ATTR_FLOOD_STORM_CONTROL_POLICER_ID. | saipolicer.StormControlTests |
+| policer.16 | Verify counters per color. | saipolicer.VerifyColors |
+
 ## Port
 
 ## QoS Map
