@@ -45,6 +45,7 @@ def set_vlan_data(vlan_id=0, ports=None, untagged=None, large_port=0):
     return vlan_data_dict
 
 
+@group("draft")
 class L2VlanTest(SaiHelper):
     """
     The class runs VLAN test cases
