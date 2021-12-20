@@ -453,14 +453,14 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | vlan.18 | Verify flooding after add untagged physical port vlan member           | saivlan.L2VlanTest.vlanFloodTest |
 | vlan.19 | Verify flooding after add tagged LAG vlan member                       | saivlan.L2VlanTest.vlanFloodTest |
 | vlan.20 | Verify flooding after add untagged LAG vlan member                     | saivlan.L2VlanTest.vlanFloodTest |
-| vlan.21 | Verify flooding adter add tagged LAG member port                       | saivlan.L2VlanTest.vlanFloodTest |
-| vlan.22 | Verify flooding after add untagged LAG member port                     | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.21 | Verify flooding adter add tagged LAG member port                       | saivlan.L2VlanTest.vlanFloodEnhancedTest |
+| vlan.22 | Verify flooding after add untagged LAG member port                     | saivlan.L2VlanTest.vlanFloodEnhancedTest |
 | vlan.23 | Verify flooding after remove tagged physical port vlan member          | saivlan.L2VlanTest.vlanFloodTest |
 | vlan.24 | Verify flooding after remove untagged physical port vlan member        | saivlan.L2VlanTest.vlanFloodTest |
 | vlan.25 | Verify flooding after remove tagged LAG vlan member                    | saivlan.L2VlanTest.vlanFloodTest |
 | vlan.26 | Verify flooding after remove untagged LAG vlan member                  | saivlan.L2VlanTest.vlanFloodTest |
-| vlan.27 | Verify flooding after remove tagged LAG member port                    | saivlan.L2VlanTest.vlanFloodTest |
-| vlan.28 | Verify flooding after remove untagged LAG member port                  | saivlan.L2VlanTest.vlanFloodTest |
+| vlan.27 | Verify flooding after remove tagged LAG member port                    | saivlan.L2VlanTest.vlanFloodEnhancedTest |
+| vlan.28 | Verify flooding after remove untagged LAG member port                  | saivlan.L2VlanTest.vlanFloodEnhancedTest |
 | vlan.29 | Verify ingress port pruning on ports when flooding                     | saivlan.L2VlanTest.vlanFloodPruneTest |
 | vlan.30 | Verify ingress port pruning on LAG when flooding                       | saivlan.L2VlanTest.vlanFloodPruneTest |
 | vlan.31 | Verify ingress Unicast/Multicast/Broadcast statistics for VLAN         | saivlan.L2VlanTest.vlanStatsTest |
