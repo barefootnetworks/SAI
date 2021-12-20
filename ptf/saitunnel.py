@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 Thrift SAI interface Tunnel tests
 """
 
-from __future__ import print_function
-
 import binascii
 import random
 
@@ -27,9 +25,10 @@ from ptf.mask import Mask
 from sai_base_test import *
 
 
+@group("draft")
 class VxLanBaseSetup(SaiHelper):
     '''
-    This class contains basic configuration for VxLAN tunnel tests
+    Basic configuration for VxLAN tunnel tests
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -222,10 +221,7 @@ class VxLanBaseSetup(SaiHelper):
                                       next_hop_id=self.unhop)
 
     def runTest(self):
-        try:
-            self.basicTunnelTest()
-        finally:
-            pass
+        self.basicTunnelTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.tunnel_route)
@@ -259,7 +255,7 @@ class VxLanBaseSetup(SaiHelper):
 
     def basicTunnelTest(self):
         '''
-        Verifies if dataplane is correctly set before sending malformed packets
+        Verify if dataplane is correctly set before sending malformed packets
         '''
         print("\nbasicTunnelTest()")
 
@@ -305,10 +301,10 @@ class VxLanBaseSetup(SaiHelper):
 
 
 # # # # # # # # # # VxLAN malformed packets tests follow # # # # # # # # # #
+@group("draft")
 class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
     '''
-    This class contains base tests regarding different cases of malformed
-    encap packets
+    Tests regarding different cases of malformed encap packets
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -319,7 +315,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidIpVersionTest(self):
         '''
-        This verifies if encapsulated packet with invalid version is dropped
+        Verify if encapsulated packet with invalid version is dropped
         '''
         print("\ntunnelEncapInvalidIpVersionTest()")
 
@@ -350,7 +346,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidIhlTest(self):
         '''
-        This verifies if encapsulated packet with invalid IHL value is dropped
+        Verify if encapsulated packet with invalid IHL value is dropped
         '''
         print("\ntunnelEncapInvalidIhlTest()")
 
@@ -371,7 +367,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidTtlTest(self):
         '''
-        This verifies if encapsulated packet with invalid TTL value is dropped
+        Verify if encapsulated packet with invalid TTL value is dropped
         '''
         print("\ntunnelEncapInvalidTtlTest()")
 
@@ -389,7 +385,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidChksumTest(self):
         '''
-        This verifies if encapsulated packet with invalid checksum is dropped
+        Verify if encapsulated packet with invalid checksum is dropped
         '''
         print("\ntunnelEncapInvalidChksumTest()")
 
@@ -410,7 +406,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidSrcIpTest(self):
         '''
-        This verifies if encapsulated packets with invalid source IP addresses
+        Verify if encapsulated packets with invalid source IP addresses
         are dropped
         '''
         print("\ntunnelEncapInvalidSrcIpTest()")
@@ -453,7 +449,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidIpv4MtuTest(self):
         '''
-        This verifies if encapsulated IPv4 packet with invalid size is dropped
+        Verify if encapsulated IPv4 packet with invalid size is dropped
         '''
         print("\ntunnelEncapInvalidIpv4MtuTest()")
 
@@ -601,7 +597,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidHlimTest(self):
         '''
-        This verifies if encapsulated packets with invalid Hop limit is dropped
+        Verify if encapsulated packets with invalid Hop limit is dropped
         '''
         print("\ntunnelEncapInvalidHlimTest()")
 
@@ -618,7 +614,7 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
 
     def tunnelEncapInvalidIpv6MtuTest(self):
         '''
-        This verifies if encapsulated IPv6 packet with invalid size is dropped
+        Verify if encapsulated IPv6 packet with invalid size is dropped
         '''
         print("\ntunnelEncapInvalidIpv6MtuTest()")
 
@@ -759,32 +755,31 @@ class TunnelMalformedEncapPacketsBase(VxLanBaseSetup):
                                                       mtu=urif_mtu)
 
 
+@group("draft")
 class TunnelMalformedEncapPacketsIpv4UnderlayTest(
         TunnelMalformedEncapPacketsBase):
     '''
-    This class calls tests regarding different cases of malformed encap
-    packets with IPv4 underlay
+    Tests regarding different cases of malformed encap packets
+    with IPv4 underlay
     '''
 
     def runTest(self):
-        try:
-            self.tunnelEncapInvalidIpVersionTest()
-            self.tunnelEncapInvalidIhlTest()
-            self.tunnelEncapInvalidTtlTest()
-            self.tunnelEncapInvalidChksumTest()
-            self.tunnelEncapInvalidSrcIpTest()
-            self.tunnelEncapInvalidIpv4MtuTest()
-            self.tunnelEncapInvalidHlimTest()
-            self.tunnelEncapInvalidIpv6MtuTest()
-        finally:
-            pass
+        self.tunnelEncapInvalidIpVersionTest()
+        self.tunnelEncapInvalidIhlTest()
+        self.tunnelEncapInvalidTtlTest()
+        self.tunnelEncapInvalidChksumTest()
+        self.tunnelEncapInvalidSrcIpTest()
+        self.tunnelEncapInvalidIpv4MtuTest()
+        self.tunnelEncapInvalidHlimTest()
+        self.tunnelEncapInvalidIpv6MtuTest()
 
 
+@group("draft")
 class TunnelMalformedEncapPacketsIpv6UnderlayTest(
         TunnelMalformedEncapPacketsBase):
     '''
-    This class calls tests regarding different cases of malformed encap
-    packets with IPv6 underlay
+    Tests regarding different cases of malformed encap packets with
+    IPv6 underlay
     '''
 
     def __init__(self):
@@ -792,23 +787,20 @@ class TunnelMalformedEncapPacketsIpv6UnderlayTest(
             ipv6=True)
 
     def runTest(self):
-        try:
-            self.tunnelEncapInvalidIpVersionTest()
-            self.tunnelEncapInvalidIhlTest()
-            self.tunnelEncapInvalidTtlTest()
-            self.tunnelEncapInvalidChksumTest()
-            self.tunnelEncapInvalidSrcIpTest()
-            self.tunnelEncapInvalidIpv4MtuTest()
-            self.tunnelEncapInvalidHlimTest()
-            self.tunnelEncapInvalidIpv6MtuTest()
-        finally:
-            pass
+        self.tunnelEncapInvalidIpVersionTest()
+        self.tunnelEncapInvalidIhlTest()
+        self.tunnelEncapInvalidTtlTest()
+        self.tunnelEncapInvalidChksumTest()
+        self.tunnelEncapInvalidSrcIpTest()
+        self.tunnelEncapInvalidIpv4MtuTest()
+        self.tunnelEncapInvalidHlimTest()
+        self.tunnelEncapInvalidIpv6MtuTest()
 
 
+@group("draft")
 class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
     '''
-    This class contains base tests regarding different cases of malformed
-    decap packets
+    Tests regarding different cases of malformed decap packets
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -817,10 +809,9 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
     def __init__(self, ipv6=False):
         super(TunnelMalformedDecapPacketsBase, self).__init__(ipv6=ipv6)
 
-    # disabled - not supported
     def tunnelInvalidInnerSmacTest(self):
         '''
-        This verifies if packets with invalid SMACs in inner ethernet header
+        Verify if packets with invalid SMACs in inner ethernet header
         is dropped
         '''
         print("\ntunnelInvalidInnerSmacTest()")
@@ -925,8 +916,7 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelInvalidInnerDmacTest(self):
         '''
-        This verifies if packets with invalid DMAC in inner ethernet header
-        is dropped
+        Verify if packets with invalid DMAC in inner ethernet header is dropped
         '''
         print("\ntunnelZeroedInnerDmacDropTest()")
 
@@ -968,7 +958,7 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidInnerDmacTest(self):
         '''
-        This verifies if decapsulated packet with invalid DMAC in inner packet
+        Verify if decapsulated packet with invalid DMAC in inner packet
         not equal to router MAC is dropped
         '''
         print("\ntunnelDecapInvalidInnerDmacTest()")
@@ -1044,8 +1034,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidInnerIpVersionTest(self):
         '''
-        This verifies if decapsulated packet with invalid version in inner
-        packet header is dropped
+        Verify if decapsulated packet with invalid version in inner packet
+        header is dropped
         '''
         print("\ntunnelDecapInvalidInnerIpVersionTest()")
 
@@ -1124,8 +1114,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidInnerIhlTest(self):
         '''
-        This verifies if decapsulated packet with invalid IHL values in inner
-        packet is dropped
+        Verify if decapsulated packet with invalid IHL values in inner packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidInnerIhlTest()")
 
@@ -1170,8 +1160,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidInnerTtlTest(self):
         '''
-        This verifies if decapsulated packet with invalid TTL value in inner
-        packet is dropped
+        Verify if decapsulated packet with invalid TTL value in inner packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidInnerTtlTest()")
 
@@ -1211,8 +1201,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidInnerChksumTest(self):
         '''
-        This verifies if decapsulated packet with invalid checksum in inner
-        packet is dropped
+        Verify if decapsulated packet with invalid checksum in inner packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidInnerChksumTest()")
 
@@ -1254,10 +1244,9 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
         verify_no_other_packets(self)
         print("\tDropped")
 
-    # disabled - not supported
     def tunnelDecapInvalidInnerSrcIpTest(self):
         '''
-        This verifies if decapsulated packets with invalid source IP addresses
+        Verify if decapsulated packets with invalid source IP addresses
         in inner packet are dropped
         '''
         print("\ntunnelDecapInvalidInnerSrcIpTest()")
@@ -1402,8 +1391,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidInnerHlimTest(self):
         '''
-        This verifies if decapsulated packet with invalid Hop limit in inner
-        packet is dropped
+        Verify if decapsulated packet with invalid Hop limit in inner packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidInnerHlimTest()")
 
@@ -1442,8 +1431,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidOuterIpVersionTest(self):
         '''
-        This verifies if decapsulated IP packet with invalid version in outer
-        packet is dropped
+        Verify if decapsulated IP packet with invalid version in outer packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidOuterIpVersionTest()")
 
@@ -1522,8 +1511,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidOuterIhlTest(self):
         '''
-        This verifies if decapsulated packet with invalid IHL values in outer
-        packet is dropped
+        Verify if decapsulated packet with invalid IHL values in outer packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidOuterIhlTest()")
 
@@ -1586,8 +1575,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidOuterTtlTest(self):
         '''
-        This verifies if decapsulated packet with invalid TTL value in outer
-        packet is dropped
+        Verify if decapsulated packet with invalid TTL value in outer packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidOuterTtlTest()")
 
@@ -1642,8 +1631,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidOuterChksumTest(self):
         '''
-        This verifies if decapsulated packet with invalid checksum in outer
-        packet is dropped
+        Verify if decapsulated packet with invalid checksum in outer packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidOuterChksumTest()")
 
@@ -1704,7 +1693,7 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidOuterSrcIpTest(self):
         '''
-        This verifies if decapsulated packets with invalid source IP addresses
+        Verify if decapsulated packets with invalid source IP addresses
         in outer packet are dropped
         '''
         print("\ntunnelDecapInvalidOuterSrcIpTest()")
@@ -1714,7 +1703,6 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
             lpb_ip = "127.0.0.1"
         else:
             mcast_ip = "ff02::2"
-            # lpb_ip = "0::1"  # not yet supported
 
         inner_pkt_v4 = simple_udp_packet(eth_dst=ROUTER_MAC,
                                          eth_src=self.inner_dmac,
@@ -1803,8 +1791,8 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
 
     def tunnelDecapInvalidOuterHlimTest(self):
         '''
-        This verifies if decapsulated packet with invalid Hop limit in outer
-        packet is dropped
+        Verify if decapsulated packet with invalid Hop limit in outer packet
+        is dropped
         '''
         print("\ntunnelDecapInvalidOuterHlimTest()")
 
@@ -1856,37 +1844,36 @@ class TunnelMalformedDecapPacketsBase(VxLanBaseSetup):
         print("\tDropped")
 
 
+@group("draft")
 class TunnelMalformedDecapPacketsIpv4UnderlayTest(
         TunnelMalformedDecapPacketsBase):
     '''
-    This class contains tests regarding different cases of malformed decap
+    Tests regarding different cases of malformed decap
     packets with underlay layer configured with IPv4
     '''
 
     def runTest(self):
-        try:
-            # self.tunnelInvalidInnerSmacTest() # disabled
-            self.tunnelInvalidInnerDmacTest()
-            self.tunnelDecapInvalidInnerDmacTest()
-            self.tunnelDecapInvalidInnerIpVersionTest()
-            self.tunnelDecapInvalidInnerIhlTest()
-            self.tunnelDecapInvalidInnerTtlTest()
-            self.tunnelDecapInvalidInnerChksumTest()
-            # self.tunnelDecapInvalidInnerSrcIpTest() # disabled
-            self.tunnelDecapInvalidInnerHlimTest()
-            self.tunnelDecapInvalidOuterIpVersionTest()
-            self.tunnelDecapInvalidOuterIhlTest()
-            self.tunnelDecapInvalidOuterTtlTest()
-            self.tunnelDecapInvalidOuterChksumTest()
-            self.tunnelDecapInvalidOuterSrcIpTest()
-        finally:
-            pass
+        self.tunnelInvalidInnerSmacTest()
+        self.tunnelInvalidInnerDmacTest()
+        self.tunnelDecapInvalidInnerDmacTest()
+        self.tunnelDecapInvalidInnerIpVersionTest()
+        self.tunnelDecapInvalidInnerIhlTest()
+        self.tunnelDecapInvalidInnerTtlTest()
+        self.tunnelDecapInvalidInnerChksumTest()
+        self.tunnelDecapInvalidInnerSrcIpTest()
+        self.tunnelDecapInvalidInnerHlimTest()
+        self.tunnelDecapInvalidOuterIpVersionTest()
+        self.tunnelDecapInvalidOuterIhlTest()
+        self.tunnelDecapInvalidOuterTtlTest()
+        self.tunnelDecapInvalidOuterChksumTest()
+        self.tunnelDecapInvalidOuterSrcIpTest()
 
 
+@group("draft")
 class TunnelMalformedDecapPacketsIpv6UnderlayTest(
         TunnelMalformedDecapPacketsBase):
     '''
-    This class contains tests regarding different cases of malformed decap
+    Tests regarding different cases of malformed decap
     packets with underlay layer configured with IPv6
     '''
 
@@ -1895,28 +1882,25 @@ class TunnelMalformedDecapPacketsIpv6UnderlayTest(
             ipv6=True)
 
     def runTest(self):
-        try:
-            # self.tunnelInvalidInnerSmacDropTest() # disabled
-            self.tunnelInvalidInnerDmacTest()
-            self.tunnelDecapInvalidInnerDmacTest()
-            self.tunnelDecapInvalidInnerIpVersionTest()
-            self.tunnelDecapInvalidInnerIhlTest()
-            self.tunnelDecapInvalidInnerTtlTest()
-            self.tunnelDecapInvalidInnerChksumTest()
-            # self.tunnelDecapInvalidInnerSrcIpTest() # disabled
-            self.tunnelDecapInvalidInnerHlimTest()
-            self.tunnelDecapInvalidOuterIpVersionTest()
-            self.tunnelDecapInvalidOuterHlimTest()
-            self.tunnelDecapInvalidOuterSrcIpTest()
-        finally:
-            pass
+        self.tunnelInvalidInnerSmacDropTest()
+        self.tunnelInvalidInnerDmacTest()
+        self.tunnelDecapInvalidInnerDmacTest()
+        self.tunnelDecapInvalidInnerIpVersionTest()
+        self.tunnelDecapInvalidInnerIhlTest()
+        self.tunnelDecapInvalidInnerTtlTest()
+        self.tunnelDecapInvalidInnerChksumTest()
+        self.tunnelDecapInvalidInnerSrcIpTest()
+        self.tunnelDecapInvalidInnerHlimTest()
+        self.tunnelDecapInvalidOuterIpVersionTest()
+        self.tunnelDecapInvalidOuterHlimTest()
+        self.tunnelDecapInvalidOuterSrcIpTest()
 
 
 # # # # # # # # # # VxLAN nexthop resolution tests follow # # # # # # # # # #
+@group("draft")
 class TunnelNhopResolutionBase(SaiHelper):
     '''
-    This class contains base tests regarding different cases of nexthop
-    resolution
+    Tests regarding different cases of nexthop resolution
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -2023,23 +2007,20 @@ class TunnelNhopResolutionBase(SaiHelper):
             underlay_interface=self.urif_lpb)
 
     def runTest(self):
-        try:
-            self.tunnelL3IntfTest()
-            self.tunnelL3LagIntfTest()
-            self.tunnelL3SubPortIntfTest()
-            self.tunnelSviIntfTest()
-            self.multiTunnelNhopTest()
-            self.ecmpTunnelTest()
-            self.underlayEcmpTunnelTest()
-        finally:
-            pass
+        self.tunnelL3IntfTest()
+        self.tunnelL3LagIntfTest()
+        self.tunnelL3SubPortIntfTest()
+        self.tunnelSviIntfTest()
+        self.multiTunnelNhopTest()
+        self.ecmpTunnelTest()
+        self.underlayEcmpTunnelTest()
 
     def tearDown(self):
         sai_thrift_remove_tunnel(self.client, self.tunnel)
-        sai_thrift_remove_tunnel_map_entry(self.client,
-                                           self.decap_tunnel_map_entry)
-        sai_thrift_remove_tunnel_map_entry(self.client,
-                                           self.encap_tunnel_map_entry)
+        sai_thrift_remove_tunnel_map_entry(
+            self.client, self.decap_tunnel_map_entry)
+        sai_thrift_remove_tunnel_map_entry(
+            self.client, self.encap_tunnel_map_entry)
         sai_thrift_remove_tunnel_map(self.client, self.decap_tunnel_map)
         sai_thrift_remove_tunnel_map(self.client, self.encap_tunnel_map)
         sai_thrift_remove_router_interface(self.client, self.orif)
@@ -2052,7 +2033,7 @@ class TunnelNhopResolutionBase(SaiHelper):
     # Helper functions for traffic verification
     def _v4TrafficTest(self, rcv_ports, pkt_data=None):
         '''
-        Additional helper function for checking packet forwarding
+        A helper function for checking packet forwarding
 
         Args:
             rcv_ports (list): a list of underlay port device numbers
@@ -2136,7 +2117,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v6TrafficTest(self, rcv_ports, pkt_data=None):
         '''
-        Additional helper function for checking packet forwarding
+        A helper function for checking packet forwarding
 
         Args:
             rcv_ports (list): a list of underlay port device numbers
@@ -2218,7 +2199,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v4TrafficMissTest(self):
         '''
-        Additional helper function for checking packet forwarding
+        A helper function for checking packet forwarding
         '''
         pkt = simple_udp_packet(eth_dst=ROUTER_MAC,
                                 eth_src=self.customer_mac,
@@ -2234,7 +2215,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v6TrafficMissTest(self):
         '''
-        Additional helper function for checking packet forwarding
+        A helper function for checking packet forwarding
         '''
         pkt = simple_udpv6_packet(eth_dst=ROUTER_MAC,
                                   eth_src=self.customer_mac,
@@ -2249,7 +2230,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v4TrafficFloodTest(self, rcv_ports):
         '''
-        Additional helper function for checking IPv4 packet flooding
+        A helper function for checking IPv4 packet flooding
 
         Args:
             rcv_ports (list): a list of underlay port device numbers
@@ -2300,7 +2281,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v6TrafficFloodTest(self, rcv_ports):
         '''
-        Additional helper function for checking IPv6 packet flooding
+        A helper function for checking IPv6 packet flooding
 
         Args:
             rcv_ports (list): a list of underlay port device numbers
@@ -2349,7 +2330,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v4TrafficEcmpTest(self, pkt_params):
         '''
-        Additional helper function for checking IPv4 ECMP traffic
+        A helper function for checking IPv4 ECMP traffic
 
         Args:
             pkt_params (dict): a dictionary with port device numbers as keys
@@ -2408,7 +2389,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _v6TrafficEcmpTest(self, pkt_params):
         '''
-        Additional helper function for checking IPv6 ECMP traffic
+        A helper function for checking IPv6 ECMP traffic
 
         Args:
             pkt_params (dict): a dictionary with port device numbers as keys
@@ -2466,7 +2447,7 @@ class TunnelNhopResolutionBase(SaiHelper):
     # Underlay port, LAG, and subport interfaces tests
     def _sequenceTest1(self, urif, uports, vlan_no=0):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay Neighbor -> Underlay Tunnel
         Route -> Overlay Tunnel Nexthop -> Overlay Customer route
 
@@ -2531,7 +2512,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sequenceTest2(self, urif, uports, vlan_no=0):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay
         Nexthop -> Underlay Neighbor -> Underlay Tunnel Route
 
@@ -2596,7 +2577,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sequenceTest3(self, urif, uports, vlan_no=0):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Cusotmer Route -> Underlay
         Nexthop -> Underlay Tunnel Route -> Underlay Neighbor
 
@@ -2661,7 +2642,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sequenceTest4(self, urif, uports, vlan_no=0):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: 4. Overlay Tunnel Nexthop -> Overlay Cusotmer Route ->
         Underlay Neighbor-> Underlay Nexthop -> Underlay Tunnel Route
 
@@ -2726,7 +2707,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _underlayTunnelRouteUpdateTest(self, urif_data):
         '''
-        This verifies nexthop resolution for underlay tunnel route update
+        Verify nexthop resolution for underlay tunnel route update
 
         Args:
             urif_data (list): a list of 2 sets (underlay RIF object ID,
@@ -2833,7 +2814,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _underlayTunnelRouteUpdateDropTest(self, urif, uports, vlan_no=0):
         '''
-        This verifies nexthop resolution for underlay tunnel route update
+        Verify nexthop resolution for underlay tunnel route update
 
         Args:
             urif (oid): underlay RIF object ID
@@ -2914,8 +2895,8 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _underlayRouteFallbackTest(self, urif_data):
         '''
-        This verifies nexthop resolution for underlay tunnel route when the
-        host route is removed and LPM route should be used
+        Verify nexthop resolution for underlay tunnel route when the host route
+        is removed and LPM route should be used
 
         Args:
             urif_data (list): a list of 2 sets (underlay RIF object ID,
@@ -3021,8 +3002,8 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _overlayTunnelNexthopUpdateTest(self, urif, uports, vlan_no=0):
         '''
-        This verifies nexthop resolution for underlay tunnel route when the
-        overlay tunnel nexthop is updated
+        Verify nexthop resolution for underlay tunnel route when the overlay
+        tunnel nexthop is updated
 
         Args:
             urif (oid): underlay RIF object ID
@@ -3115,7 +3096,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def tunnelL3IntfTest(self):
         '''
-        This runs route resolution tests when underlay RIF is L3 interface
+        Route resolution tests with L3 interface as underlay RIF
         '''
         print("\ntunnelL3IntfTest()")
 
@@ -3154,7 +3135,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def tunnelL3LagIntfTest(self):
         '''
-        This runs route resolution tests when underlay RIF is L3 LAG
+        Route resolution tests with L3 LAG underlay RIF
         '''
         print("\ntunnelL3LagIntfTest()")
 
@@ -3177,8 +3158,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def tunnelL3SubPortIntfTest(self):
         '''
-        This runs route resolution tests when underlay RIF is L3 subport
-        interface
+        Route resolution tests with L3 subport interface underlay RIF
         '''
         print("\ntunnelL3SubPortIntfTest()")
 
@@ -3223,7 +3203,7 @@ class TunnelNhopResolutionBase(SaiHelper):
     # SVI underlay interface tests
     def _sviSequenceTest1(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay
         Nexthop -> Underlay Route -> Underlay Neighbor -> Underlay MAC
 
@@ -3298,7 +3278,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest2(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay
         Neighbor -> Underlay MAC -> Underlay Nexthop -> Underlay Route
 
@@ -3373,7 +3353,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest3(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay
         MAC -> Underlay Neighbor -> Underlay Nexthop -> Underlay Route
 
@@ -3448,7 +3428,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest4(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay
         MAC -> Underlay Nexthop -> Underlay Route -> Underlay Neighbor
 
@@ -3523,7 +3503,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest5(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay
         Neighbor -> Underlay Nexthop -> Underlay Route -> Underlay MAC
 
@@ -3598,7 +3578,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest6(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay Neighbor -> Underlay MAC ->
         Underlay Route -> Overlay Tunnel Nexthop -> Overlay Customer Route
 
@@ -3673,7 +3653,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest7(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay MAC -> Underlay Route -> Overlay
         Tunnel Nexthop -> Overlay Customer route  -> Underlay Neighbor
 
@@ -3748,7 +3728,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest8(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay Neighbor -> Underlay Route ->
         Overlay Tunnel Nexthop -> Overlay Customer route -> Underlay MAC
 
@@ -3823,7 +3803,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest9(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay Neighbor -> Underlay MAC ->
         Overlay Tunnel Nexthop -> Overlay Customer route -> Underlay Route
 
@@ -3898,7 +3878,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest10(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay Neighbor  ->  Overlay Tunnel
         Nexthop -> Overlay Customer route -> Underlay MAC -> Underlay Route
 
@@ -3973,7 +3953,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest11(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop  ->  Overlay Tunnel Nexthop -> Overlay
         Customer route -> Underlay Neighbor  -> Underlay MAC -> Underlay Route
 
@@ -4048,7 +4028,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviSequenceTest12(self, urif, uport, port_bp, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay MAC -> Overlay Tunnel Nexthop
         -> Overlay Customer route -> Underlay Neighbor -> Underlay Route
 
@@ -4123,7 +4103,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _sviMacMoveTest(self, urif, uport_data, vlan_id):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay MAC -> Overlay Tunnel Nexthop
         -> Overlay Customer route -> Underlay Neighbor -> Underlay Route
 
@@ -4208,10 +4188,9 @@ class TunnelNhopResolutionBase(SaiHelper):
             sai_thrift_remove_route_entry(self.client, vm_route)
             sai_thrift_remove_next_hop(self.client, tunnel_nhop)
 
-    # currently unsupported
     def _sviMacFloodTest(self, urif, uports):
         '''
-        This verifies nexthop resolution for the following sequence of objects
+        Verify nexthop resolution for the following sequence of objects
         creation: Underlay Nexthop -> Underlay MAC -> Overlay Tunnel Nexthop
         -> Overlay Customer route -> Underlay Neighbor -> Underlay Route
 
@@ -4275,20 +4254,19 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def tunnelSviIntfTest(self):
         '''
-        This runs route resolution tests when underlay RIF is SVI
+        Route resolution tests with SVI underlay RIF
         '''
         print("\ntunnelSviIntfTest()")
 
         urif1 = self.vlan30_rif  # port20, port21 (tag), lag5=[port22, port23]
-        # urif1_ports = [[self.dev_port20], [self.dev_port21],
-        #                [self.dev_port22, self.dev_port23]]
+        urif1_ports = [[self.dev_port20], [self.dev_port21],
+                       [self.dev_port22, self.dev_port23]]
 
         mac_port1 = self.dev_port20
         mac_port1_bp = self.port20_bp
         mac_port2 = self.dev_port21
         mac_port2_bp = self.port21_bp
         vlan_id = self.vlan30
-        # vlan_no = 30
 
         try:
             # change port21 tagging mode (set operation not supported)
@@ -4314,7 +4292,7 @@ class TunnelNhopResolutionBase(SaiHelper):
             self._sviMacMoveTest(
                 urif1, [[mac_port1, mac_port1_bp], [mac_port2, mac_port2_bp]],
                 vlan_id)
-            # self._sviMacFloodTest(urif1, urif1_ports) # unsupported
+            self._sviMacFloodTest(urif1, urif1_ports)
 
             mac_entry = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
                                                mac_address=self.unbor_mac1,
@@ -4329,7 +4307,7 @@ class TunnelNhopResolutionBase(SaiHelper):
                 type=SAI_ROUTER_INTERFACE_TYPE_VLAN,
                 virtual_router_id=self.default_vrf,
                 vlan_id=self.vlan10)
-            self.assertTrue(urif2 != 0)
+            self.assertNotEqual(urif2, 0)
 
             mac_entry2 = sai_thrift_fdb_entry_t(switch_id=self.switch_id,
                                                 mac_address=self.unbor_mac2,
@@ -4359,7 +4337,7 @@ class TunnelNhopResolutionBase(SaiHelper):
     # Multiple nexthop tests
     def _multiNhopSequenceTest1(self, urif, uport):
         '''
-        This verifies multiple nexthop resolution for the following sequence
+        Verify multiple nexthop resolution for the following sequence
         of objects creation: Overlay Nexthop 1 -> Overlay Customer Route 1 ->
         Overlay Nexthop 2 -> Overlay Customer Route 2 - > Underlay Neighbor ->
         Underlay Nexthop -> Underlay Route
@@ -4463,7 +4441,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _multiNhopSequenceTest2(self, urif, uport):
         '''
-        This verifies multiple nexthop resolution for the following sequence
+        Verify multiple nexthop resolution for the following sequence
         of objects creation: Overlay Nexthop 1 -> Overlay Customer Route 1 ->
         Underlay Neighbor -> Underlay Nexthop -> Underlay Route -> Overlay
         Nexthop 2 -> Overlay Customer Route 2
@@ -4567,7 +4545,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _multiNhopSequenceTest3(self, urif, uport):
         '''
-        This verifies multiple nexthop resolution for the following sequence
+        Verify multiple nexthop resolution for the following sequence
         of objects creation: Underlay Neighbor -> Underlay Nexthop -> Underlay
         Route -> Overlay Nexthop 1 -> Overlay Route 1 -> Overlay Nexthop 2 ->
         Overlay Route 2
@@ -4671,7 +4649,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _multiNhopFallbackTest(self, urif_data):
         '''
-        This verifies nexthop resolution for underlay tunnel route when the
+        Verify nexthop resolution for underlay tunnel route when the
         host route is removed and LPM route should be used
 
         Args:
@@ -5078,7 +5056,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def multiTunnelNhopTest(self):
         '''
-        This runs nexthop resolution tests with multiple tunnel nexthops
+        Nexthop resolution tests with multiple tunnel nexthops
         '''
         print("\nmultiTunnelNhopTest()")
 
@@ -5115,8 +5093,8 @@ class TunnelNhopResolutionBase(SaiHelper):
     # ECMP tunnel tests
     def _ecmpTunnelSequenceTest1(self, urif_data):
         '''
-        This verifies ECMP tunnel nexthop resolution for the following
-        sequence of objects creation: Overlay Tunnel Nexthops -> Overlay ECMP
+        Verify ECMP tunnel nexthop resolution for the following sequence
+        of objects creation: Overlay Tunnel Nexthops -> Overlay ECMP
         -> Overlay ECMP Members -> Overlay Route -> Underlay Routes
 
         Args:
@@ -5291,8 +5269,8 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpTunnelSequenceTest2(self, urif_data):
         '''
-        This verifies ECMP tunnel nexthop resolution for the following
-        sequence of objects creation: Overlay ECMP -> Overlay Routes ->
+        Verify ECMP tunnel nexthop resolution for the following sequence
+        of objects creation: Overlay ECMP -> Overlay Routes ->
         Overlay Tunnel Nexthops -> Overlay ECMP Members -> Underlay Routes
 
         Args:
@@ -5467,8 +5445,8 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpTunnelSequenceTest3(self, urif_data):
         '''
-        This verifies ECMP tunnel nexthop resolution for the following
-        sequence of objects creation: Overlay ECMP -> Overlay Route ->
+        Verify ECMP tunnel nexthop resolution for the following sequence
+        of objects creation: Overlay ECMP -> Overlay Route ->
         Underlay Routes -> Overlay Tunnel Nexthops -> Overlay ECMP Members
 
         Args:
@@ -5643,8 +5621,8 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpTunnelSequenceTest4(self, urif_data):
         '''
-        This verifies ECMP tunnel nexthop resolution for the following
-        sequence of objects creation: Underlay Routes -> Overlay Tunnel
+        Verify ECMP tunnel nexthop resolution for the following sequence
+        of objects creation: Underlay Routes -> Overlay Tunnel
         Nexthops -> Overlay ECMP -> ECMP Members -> Overlay Route
 
         Args:
@@ -5818,7 +5796,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpTunnelUpdateTest(self, urif_data):
         '''
-        This verifies ECMP tunnel nexthop resolution after ECMP gorup updates
+        Verify ECMP tunnel nexthop resolution after ECMP gorup updates
 
         Args:
             urif_data (list): a list containing 3 pairs (underlay RIF,
@@ -6019,7 +5997,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def ecmpTunnelTest(self):
         '''
-        This runs nexthop resolution tests with underlay ECMP
+        Nexthop resolution tests with underlay ECMP
         '''
         print("\necmpTunnelTest()")
 
@@ -6073,7 +6051,7 @@ class TunnelNhopResolutionBase(SaiHelper):
     # Underlay ECMP tests
     def _ecmpSequenceTest1(self, uport, unhop):
         '''
-        This verifies nexthop resolution with underlay ECMP for the following
+        Verify nexthop resolution with underlay ECMP for the following
         sequence of objects creation: Underlay ECMP -> Underlay ECMP member ->
         Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay Route
 
@@ -6131,7 +6109,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpSequenceTest2(self, uport, unhop):
         '''
-        This verifies nexthop resolution with underlay ECMP for the following
+        Verify nexthop resolution with underlay ECMP for the following
         sequence of objects creation: Overlay Tunnel Nexthop -> Overlay
         Customer Route -> Underlay ECMP -> Underlay Route -> Underlay ECMP
         member
@@ -6190,7 +6168,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpSequenceTest3(self, uport, unhop):
         '''
-        This verifies nexthop resolution with underlay ECMP for the following
+        Verify nexthop resolution with underlay ECMP for the following
         sequence of objects creation: Overlay Tunnel Nexthop -> Overlay
         Customer Route ->  Underlay ECMP -> Underlay ECMP Member -> Underlay
         Route
@@ -6249,7 +6227,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpSequenceTest4(self, uport, unhop):
         '''
-        This verifies nexthop resolution with underlay ECMP for the following
+        Verify nexthop resolution with underlay ECMP for the following
         sequence of objects creation: Underlay ECMP -> Underlay Route ->
         Overlay Tunnel Nexthop -> Overlay Customer Route -> Underlay ECMP
         Member
@@ -6308,7 +6286,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpSequenceTest5(self, uport, unhop):
         '''
-        This verifies nexthop resolution with underlay ECMP for the following
+        Verify nexthop resolution with underlay ECMP for the following
         sequence of objects creation: Overlay Tunnel Nexthop -> Underlay ECMP
         -> Underlay ECMP Member- > Underlay Route -> Overlay Customer Route
 
@@ -6366,8 +6344,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpRouteFallbackTest(self, uport, unhop):
         '''
-        This verifies nexthop resolution with underlay ECMP for route fallback
-        case
+        Verify nexthop resolution with underlay ECMP for route fallback case
 
         Args:
             uport (int): underlay port number
@@ -6532,7 +6509,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def _ecmpUpdateTest(self, uport, unhop):
         '''
-        This verifies nexthop resolution for underlay ECMP update
+        Verify nexthop resolution for underlay ECMP update
 
         Args:
             uport (int): underlay port number
@@ -6686,7 +6663,7 @@ class TunnelNhopResolutionBase(SaiHelper):
 
     def underlayEcmpTunnelTest(self):
         '''
-        This verifies tunnel underlay nexthop resolution with underlay ECMP
+        Verify tunnel underlay nexthop resolution with underlay ECMP
         '''
         print("\nunderlayEcmpTunnelTest()")
 
@@ -6726,52 +6703,48 @@ class TunnelNhopResolutionBase(SaiHelper):
             sai_thrift_remove_router_interface(self.client, urif)
 
 
+@group("draft")
 class TunnelNhopResolutionIpv4UnderlayTest(TunnelNhopResolutionBase):
     '''
-    This class contains tests regarding different cases of nexthop resolution
-    cases with IPv4 underlay
+    Tests regarding different cases of nexthop resolution cases with
+    IPv4 underlay
     '''
 
     def runTest(self):
-        try:
-            self.tunnelL3IntfTest()
-            self.tunnelL3LagIntfTest()
-            self.tunnelL3SubPortIntfTest()
-            self.tunnelSviIntfTest()
-            self.multiTunnelNhopTest()
-            self.ecmpTunnelTest()
-            self.underlayEcmpTunnelTest()
-        finally:
-            pass
+        self.tunnelL3IntfTest()
+        self.tunnelL3LagIntfTest()
+        self.tunnelL3SubPortIntfTest()
+        self.tunnelSviIntfTest()
+        self.multiTunnelNhopTest()
+        self.ecmpTunnelTest()
+        self.underlayEcmpTunnelTest()
 
 
+@group("draft")
 class TunnelNhopResolutionIpv6UnderlayTest(TunnelNhopResolutionBase):
     '''
-    This class contains tests regarding different cases of nexthop resolution
-    cases with IPv6 underlay
+    Tests regarding different cases of nexthop resolution cases with
+    IPv6 underlay
     '''
 
     def __init__(self):
         super(TunnelNhopResolutionIpv6UnderlayTest, self).__init__(ipv6=True)
 
     def runTest(self):
-        try:
-            self.tunnelL3IntfTest()
-            self.tunnelL3LagIntfTest()
-            self.tunnelL3SubPortIntfTest()
-            self.tunnelSviIntfTest()
-            self.multiTunnelNhopTest()
-            self.ecmpTunnelTest()
-            self.underlayEcmpTunnelTest()
-        finally:
-            pass
+        self.tunnelL3IntfTest()
+        self.tunnelL3LagIntfTest()
+        self.tunnelL3SubPortIntfTest()
+        self.tunnelSviIntfTest()
+        self.multiTunnelNhopTest()
+        self.ecmpTunnelTest()
+        self.underlayEcmpTunnelTest()
 
 
 # # # # # # # # VxLAN multiple tunnel forwarding tests follow # # # # # # # #
+@group("draft")
 class VxlanMultiTunnelBase(SaiHelper):
     '''
-    This class contains base configuration for multiple tunnel forwarding
-    tests
+    Base configuration for multiple tunnel forwarding tests
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -7197,8 +7170,8 @@ class VxlanMultiTunnelBase(SaiHelper):
 
     def multipleTunnelIpv4Test(self):
         '''
-        This verifies multi tunnel forwarding with single overlay VRF and
-        multiple underlay VRFs with IPv4 overlay packet
+        Verify multi tunnel forwarding with single overlay VRF andmultiple
+        underlay VRFs with IPv4 overlay packet
         '''
         print("\nmultipleTunnelIpv4Test()")
 
@@ -7382,8 +7355,8 @@ class VxlanMultiTunnelBase(SaiHelper):
 
     def multipleTunnelIpv6Test(self):
         '''
-        This verifies multi tunnel forwarding with single overlay VRF and
-        multiple underlay VRFs with IPv6 overlay packet
+        Verify multi tunnel forwarding with single overlay VRF andmultiple
+        underlay VRFs with IPv6 overlay packet
         '''
         print("\nmultipleTunnelIpv6Test()")
 
@@ -7558,9 +7531,7 @@ class VxlanMultiTunnelBase(SaiHelper):
         print("\tOK")
 
 
-@disabled
-# Currently tunnel identification is based on Tunnel Type and Address Family
-# so there is no possibility to create multiple tunnels of the same type
+@group("draft")
 class SingleOvrfMultiTunnelIpv4UnderlayTest(VxlanMultiTunnelBase):
     '''
     This class tests multiple tunnel configuration with single overlay VRF
@@ -7568,16 +7539,11 @@ class SingleOvrfMultiTunnelIpv4UnderlayTest(VxlanMultiTunnelBase):
     '''
 
     def runTest(self):
-        try:
-            self.multipleTunnelIpv4Test()
-            self.multipleTunnelIpv6Test()
-        finally:
-            pass
+        self.multipleTunnelIpv4Test()
+        self.multipleTunnelIpv6Test()
 
 
-@disabled
-# Currently tunnel identification is based on Tunnel Type and Address Family
-# so there is no possibility to create multiple tunnels of the same type
+@group("draft")
 class MultipleOvrfMultiTunnelIpv4UnderlayTest(VxlanMultiTunnelBase):
     '''
     This class tests multiple tunnel configuration with multiple overlay VRF
@@ -7589,16 +7555,11 @@ class MultipleOvrfMultiTunnelIpv4UnderlayTest(VxlanMultiTunnelBase):
             multiple_ovrf=True)
 
     def runTest(self):
-        try:
-            self.multipleTunnelIpv4Test()
-            self.multipleTunnelIpv6Test()
-        finally:
-            pass
+        self.multipleTunnelIpv4Test()
+        self.multipleTunnelIpv6Test()
 
 
-@disabled
-# Currently tunnel identification is based on Tunnel Type and Address Family
-# so there is no possibility to create multiple tunnels of the same type
+@group("draft")
 class SingleOvrfMultiTunnelIpv6UnderlayTest(VxlanMultiTunnelBase):
     '''
     This class tests multiple tunnel configuration with single overlay VRF
@@ -7610,16 +7571,11 @@ class SingleOvrfMultiTunnelIpv6UnderlayTest(VxlanMultiTunnelBase):
             ipv6=True)
 
     def runTest(self):
-        try:
-            self.multipleTunnelIpv4Test()
-            self.multipleTunnelIpv6Test()
-        finally:
-            pass
+        self.multipleTunnelIpv4Test()
+        self.multipleTunnelIpv6Test()
 
 
-@disabled
-# Currently tunnel identification is based on Tunnel Type and Address Family
-# so there is no possibility to create multiple tunnels of the same type
+@group("draft")
 class MultipleOvrfMultiTunnelIpv6UnderlayTest(VxlanMultiTunnelBase):
     '''
     This class tests multiple tunnel configuration with multiple overlay VRF
@@ -7631,18 +7587,15 @@ class MultipleOvrfMultiTunnelIpv6UnderlayTest(VxlanMultiTunnelBase):
             ipv6=True, multiple_ovrf=True)
 
     def runTest(self):
-        try:
-            self.multipleTunnelIpv4Test()
-            self.multipleTunnelIpv6Test()
-        finally:
-            pass
+        self.multipleTunnelIpv4Test()
+        self.multipleTunnelIpv6Test()
 
 
 # # # # # # # # # # # # Tunnel attributes tests follow # # # # # # # # # # # #
-# some TTL-related attributes are omitted in SAI implementation
+@group("draft")
 class TunnelAttributesTest(SaiHelper):
     '''
-    This class contains different tunnel-related attributes tests
+    Tunnel-related attributes tests
     '''
 
     def setUp(self):
@@ -7774,30 +7727,23 @@ class TunnelAttributesTest(SaiHelper):
                                       next_hop_id=self.onhop_v6)
 
     def runTest(self):
-        try:
-            self.encapTtlPipeModeVxlanTest()
-            self.encapTtlPipeModeIpInIpTest()
-            self.encapTtlPipeModeIpv6InIpv6Test()
-            self.decapTtlPipeModeVxlanTest()
-            self.decapTtlPipeModeIpInIpTest()
-            self.decapTtlPipeModeIpv6InIpv6Test()
-            self.encapDscpUniformModeVxlanTest()
-            self.encapDscpUniformModeIpv4InIpv4Test()
-            #TBD self.encapDscpUniformModeIpv4InIpv6Test()
-            #TBD self.encapDscpUniformModeIpv6InIpv4Test()
-            self.encapDscpUniformModeIpv6InIpv6Test()
-            self.decapDscpUniformModeVxlanTest()
-            self.decapDscpUniformModeIpv4InIpv4Test()
-            #TBD self.decapDscpUniformModeIpv4InIpv6Test()
-            #TBD self.decapDscpUniformModeIpv6InIpv4Test()
-            self.decapDscpUniformModeIpv6InIpv6Test()
-            self.tunnelTermDstIpTest()
-            self.tunnelTermVrIdTest()
-            self.tunnelDualEncapMapperTest()
-            self.tunnelDualDecapMapperTest()
-            self.tunnelPeerModeTest()
-        finally:
-            pass
+        self.encapTtlPipeModeVxlanTest()
+        self.encapTtlPipeModeIpInIpTest()
+        self.encapTtlPipeModeIpv6InIpv6Test()
+        self.decapTtlPipeModeVxlanTest()
+        self.decapTtlPipeModeIpInIpTest()
+        self.decapTtlPipeModeIpv6InIpv6Test()
+        self.encapDscpUniformModeVxlanTest()
+        self.encapDscpUniformModeIpv4InIpv4Test()
+        self.encapDscpUniformModeIpv6InIpv6Test()
+        self.decapDscpUniformModeVxlanTest()
+        self.decapDscpUniformModeIpv4InIpv4Test()
+        self.decapDscpUniformModeIpv6InIpv6Test()
+        self.tunnelTermDstIpTest()
+        self.tunnelTermVrIdTest()
+        self.tunnelDualEncapMapperTest()
+        self.tunnelDualDecapMapperTest()
+        self.tunnelPeerModeTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.tunnel_route)
@@ -7823,7 +7769,7 @@ class TunnelAttributesTest(SaiHelper):
 
     def encapTtlPipeModeVxlanTest(self):
         '''
-        This verifies if TTL value is properly set according to
+        Verify if TTL value is properly set according to
         SAI_TUNNEL_ATTR_ENCAP_TTL_VAL attribute in VXLAN packets
         '''
         print("\nencapTtlPipeModeVxlanTest()")
@@ -7958,7 +7904,7 @@ class TunnelAttributesTest(SaiHelper):
 
     def encapTtlPipeModeIpInIpTest(self):
         '''
-        This verifies if TTL value is properly set according to
+        Verify if TTL value is properly set according to
         SAI_TUNNEL_ATTR_ENCAP_TTL_VAL attribute in IP-in-IP packets
         '''
         print("\nencapTtlPipeModeIpInIpTest()")
@@ -8033,7 +7979,7 @@ class TunnelAttributesTest(SaiHelper):
 
     def encapTtlPipeModeIpv6InIpv6Test(self):
         '''
-        This verifies if TTL value is properly set according to
+        Verify if TTL value is properly set according to
         SAI_TUNNEL_ATTR_ENCAP_TTL_VAL attribute in IPv6-in-IPv6 packets
         '''
         print("\nencapTtlPipeModeIpv6InIpv6Test()")
@@ -8106,8 +8052,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def decapTtlPipeModeVxlanTest(self):
         '''
-        This verifies if TTL value is properly set according to the
-        inner packet, when using pipe mode in VXLAN packets
+        Verify if TTL value is properly set according to the inner packet,
+        when using pipe mode in VXLAN packets
         '''
         print("\ndecapTtlPipeModeVxlanTest()")
 
@@ -8216,8 +8162,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def decapTtlPipeModeIpInIpTest(self):
         '''
-        This verifies if TTL value is properly set according to the
-        inner packet, when using pipe mode in IP-in-IP packets
+        Verify if TTL value is properly set according to the inner packet,
+        when using pipe mode in IP-in-IP packets
         '''
         print("\ndecapTtlPipeModeIpInIpTest()")
 
@@ -8290,8 +8236,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def decapTtlPipeModeIpv6InIpv6Test(self):
         '''
-        This verifies if TTL value is properly set according to the
-        inner packet, when using pipe mode in IPv6-in-IPv6 packets
+        Verify if TTL value is properly set according to the inner packet,
+        when using pipe mode in IPv6-in-IPv6 packets
         '''
         print("\ndecapTtlPipeModeIpv6InIpv6Test()")
 
@@ -8362,8 +8308,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def encapDscpUniformModeVxlanTest(self):
         '''
-        This verifies if DSCP value is properly set in VXLAN packets,
-        according to the received DSCP value
+        Verify if DSCP value is properly set in VXLAN packets, according
+        to the received DSCP value
         '''
         print("\nencapDscpUniformModeVxlanTest()")
 
@@ -8497,8 +8443,8 @@ class TunnelAttributesTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -8510,9 +8456,9 @@ class TunnelAttributesTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -8581,8 +8527,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def encapDscpUniformModeIpv4InIpv4Test(self):
         '''
-        This verifies if DSCP value is properly set in VXLAN packets,
-        according to the received DSCP value
+        Verify if DSCP value is properly set in VXLAN packets, according
+        to the received DSCP value
         '''
         print("\nencapDscpUniformModeIpv4InIpv4Test()")
 
@@ -8661,8 +8607,8 @@ class TunnelAttributesTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -8674,9 +8620,9 @@ class TunnelAttributesTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -8734,8 +8680,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def encapDscpUniformModeIpv6InIpv6Test(self):
         '''
-        This verifies if DSCP value is properly set in VXLAN packets,
-        according to the received DSCP value
+        Verify if DSCP value is properly set in VXLAN packets, according
+        to the received DSCP value
         '''
         print("\nencapDscpUniformModeIpv6InIpv6Test()")
 
@@ -8812,8 +8758,8 @@ class TunnelAttributesTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -8825,9 +8771,9 @@ class TunnelAttributesTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -8882,8 +8828,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def decapDscpUniformModeVxlanTest(self):
         '''
-        This verifies if DSCP value is properly set according to the
-        outer packet, when using uniform mode in VXLAN packets
+        Verify if DSCP value is properly set according to the outer packet,
+        when using uniform mode in VXLAN packets
         '''
         print("\ndecapDscpUniformModeVxlanTest()")
 
@@ -8991,8 +8937,8 @@ class TunnelAttributesTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=tunnel_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=tunnel_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -9004,9 +8950,9 @@ class TunnelAttributesTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -9074,8 +9020,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def decapDscpUniformModeIpv4InIpv4Test(self):
         '''
-        This verifies if DSCP value is properly set according to the
-        outer packet, when using uniform mode in IP-in-IP packets
+        Verify if DSCP value is properly set according to the outer packet,
+        when using uniform mode in IP-in-IP packets
         '''
         print("\ndecapDscpUniformModeIpv4InIpv4Test()")
 
@@ -9153,8 +9099,8 @@ class TunnelAttributesTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=tunnel_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=tunnel_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -9166,9 +9112,9 @@ class TunnelAttributesTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -9226,8 +9172,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def decapDscpUniformModeIpv6InIpv6Test(self):
         '''
-        This verifies if DSCP value is properly set according to the
-        outer packet, when using uniform mode in IPv6-in-IPv6 packets
+        Verify if DSCP value is properly set according to the outer packet,
+        when using uniform mode in IPv6-in-IPv6 packets
         '''
         print("\ndecapDscpUniformModeIpv6InIpv6Test()")
 
@@ -9303,8 +9249,8 @@ class TunnelAttributesTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=tunnel_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=tunnel_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -9316,9 +9262,9 @@ class TunnelAttributesTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -9373,7 +9319,7 @@ class TunnelAttributesTest(SaiHelper):
 
     def tunnelTermDstIpTest(self):
         '''
-        This verifies if only tunneled packets with destination IP set as
+        Verify if only tunneled packets with destination IP set as
         SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_DST_IP are de-encapsulated
         '''
         print("\ntunnelTermDstIpTest()")
@@ -9491,7 +9437,7 @@ class TunnelAttributesTest(SaiHelper):
 
     def tunnelTermVrIdTest(self):
         '''
-        This verifies if only tunneled packets coming in on VRF set as
+        Verify if only tunneled packets coming in on VRF set as
         SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_VR_ID are de-encapsulated
         '''
         print("\ntunnelTermVrIdTest()")
@@ -9619,9 +9565,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def tunnelDualEncapMapperTest(self):
         '''
-        This verifies that tunneled packets are still transmitted when
-        the tunnel is defined with two encap mappers (VRF_TO_VNI and
-        VLAN_TO_VNI)
+        Verify that tunneled packets are still transmitted when the tunnel
+        is defined with two encap mappers (VRF_TO_VNI and VLAN_TO_VNI)
         '''
         print("\ntunnelDualEncapMapperTest()")
 
@@ -9736,9 +9681,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def tunnelDualDecapMapperTest(self):
         '''
-        This verifies that tunneled packets are still received when
-        the tunnel is defined with two decap mappers (VNI_TO_VRF and
-        VNI_TO_VLAN)
+        Verify that tunneled packets are still received when the tunnel
+        is defined with two decap mappers (VNI_TO_VRF and VNI_TO_VLAN)
         '''
         print("\ntunnelDualDecapMapperTest()")
 
@@ -9949,9 +9893,8 @@ class TunnelAttributesTest(SaiHelper):
 
             print("Sending L3 VxLan packet with single decap mapper entry "
                   "for vlan, should still be routed due to rif in same vrf")
-            # disabling this until L2 VXLAN is implemented
-            #send_packet(self, self.uport_dev, l3_vxlan_pkt)
-            #verify_packet(self, l3_pkt, self.oport_dev)
+            send_packet(self, self.uport_dev, l3_vxlan_pkt)
+            verify_packet(self, l3_pkt, self.oport_dev)
             print("\tOK")
 
             print("Create overlapping decap tunnel_mapper_entry for vrf "
@@ -9983,9 +9926,8 @@ class TunnelAttributesTest(SaiHelper):
 
             print("Sending L3 VxLan packet after deleting overlapping "
                   "decap mapper entry for vrf")
-            # disabling this until L2 VXLAN is implemented
-            #send_packet(self, self.uport_dev, l3_vxlan_pkt)
-            #verify_packet(self, l3_pkt, self.oport_dev)
+            send_packet(self, self.uport_dev, l3_vxlan_pkt)
+            verify_packet(self, l3_pkt, self.oport_dev)
             print("\tOK")
 
             print("Sending L2 VxLan packet after deleting overlapping "
@@ -10019,8 +9961,8 @@ class TunnelAttributesTest(SaiHelper):
 
     def tunnelPeerModeTest(self):
         '''
-        This verifies that tunneled packets are still received when
-        the tunnel is defined with peer mode P2MP
+        Verify that tunneled packets are still received when the tunnel
+        is defined with peer mode P2MP
         '''
         print("\ntunnelPeerModeTest()")
 
@@ -10135,11 +10077,10 @@ class TunnelAttributesTest(SaiHelper):
             sai_thrift_remove_tunnel_map(self.client, encap_tunnel_map)
 
 
-@group('ttl_mode')
+@group("draft")
 class TunnelTtlModeTest(SaiHelper):
     '''
-    This class contains tests of the ttl_mode, focusing mostly on
-    the uniform mode.
+    Tests of the ttl_mode, focusing mostly on the uniform mode.
     Note that the pipe ttl_mode is covered in more detail in
     TunnelAttributesTest.
     '''
@@ -10270,19 +10211,16 @@ class TunnelTtlModeTest(SaiHelper):
                                       next_hop_id=self.onhop_v6)
 
     def runTest(self):
-        try:
-            self.encapTtlUniformModeVxlanTest()
-            self.encapTtlUniformModeIpv4InIpv4Test()
-            self.encapTtlUniformModeIpv4InIpv6Test()
-            self.encapTtlUniformModeIpv6InIpv4Test()
-            self.encapTtlUniformModeIpv6InIpv6Test()
-            self.decapTtlUniformModeVxlanTest()
-            self.decapTtlUniformModeIpv4InIpv4Test()
-            self.decapTtlUniformModeIpv4InIpv6Test()
-            self.decapTtlUniformModeIpv6InIpv4Test()
-            self.decapTtlUniformModeIpv6InIpv6Test()
-        finally:
-            pass
+        self.encapTtlUniformModeVxlanTest()
+        self.encapTtlUniformModeIpv4InIpv4Test()
+        self.encapTtlUniformModeIpv4InIpv6Test()
+        self.encapTtlUniformModeIpv6InIpv4Test()
+        self.encapTtlUniformModeIpv6InIpv6Test()
+        self.decapTtlUniformModeVxlanTest()
+        self.decapTtlUniformModeIpv4InIpv4Test()
+        self.decapTtlUniformModeIpv4InIpv6Test()
+        self.decapTtlUniformModeIpv6InIpv4Test()
+        self.decapTtlUniformModeIpv6InIpv6Test()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.tunnel_route)
@@ -10308,8 +10246,8 @@ class TunnelTtlModeTest(SaiHelper):
 
     def encapTtlUniformModeVxlanTest(self):
         '''
-        This verifies if TTL value is properly set in VXLAN packets,
-        according to the received TTL value
+        Verify if TTL value is properly set in VXLAN packets, according
+        to the received TTL value
         '''
         print("\nencapTtlUniformModeVxlanTest()")
 
@@ -10454,8 +10392,8 @@ class TunnelTtlModeTest(SaiHelper):
 
     def encapTtlUniformModeIpv4InIpv4Test(self):
         '''
-        This verifies if TTL value is properly set in IPv4-in-IPv4 packets,
-        according to the received TTL value
+        Verify if TTL value is properly set in IPv4-in-IPv4 packets, according
+        to the received TTL value
         '''
         print("\nencapTtlUniformModeIpv4InIpv4Test()")
 
@@ -10559,8 +10497,8 @@ class TunnelTtlModeTest(SaiHelper):
 
     def encapTtlUniformModeIpv4InIpv6Test(self):
         '''
-        This verifies if TTL value is properly set in IPv4-in-IPv6 packets,
-        according to the received TTL value
+        Verify if TTL value is properly set in IPv4-in-IPv6 packets, according
+        to the received TTL value
         '''
         print("\nencapTtlUniformModeIpv4InIpv6Test()")
 
@@ -10662,8 +10600,8 @@ class TunnelTtlModeTest(SaiHelper):
 
     def encapTtlUniformModeIpv6InIpv4Test(self):
         '''
-        This verifies if TTL value is properly set in IPv6-in-IPv4 packets,
-        according to the received TTL value
+        Verify if TTL value is properly set in IPv6-in-IPv4 packets, according
+        to the received TTL value
         '''
         print("\nencapTtlUniformModeIpv6InIpv4Test()")
 
@@ -10766,8 +10704,8 @@ class TunnelTtlModeTest(SaiHelper):
 
     def encapTtlUniformModeIpv6InIpv6Test(self):
         '''
-        This verifies if TTL value is properly set in IPv6-in-IPv6 packets
-        according to the received TTL value
+        Verify if TTL value is properly set in IPv6-in-IPv6 packets according
+        to the received TTL value
         '''
         print("\nencapTtlUniformModeIpv6InIpv6Test()")
 
@@ -10868,8 +10806,8 @@ class TunnelTtlModeTest(SaiHelper):
 
     def decapTtlUniformModeVxlanTest(self):
         '''
-        This verifies if TTL value is properly set according to the
-        outer packet, when using uniform mode in VXLAN packets
+        Verify if TTL value is properly set according to the outer packet,
+        when using uniform mode in VXLAN packets
         '''
         print("\ndecapTtlUniformModeVxlanTest()")
 
@@ -11006,12 +10944,11 @@ class TunnelTtlModeTest(SaiHelper):
 
     def decapTtlUniformModeIpv4InIpv4Test(self):
         '''
-        This verifies if TTL value is properly set according to the
-        outer packet, when using uniform mode in IPv4-in-IPv4 packets
+        Verify if TTL value is properly set according to the outer packet,
+        when using uniform mode in IPv4-in-IPv4 packets
         '''
         print("\ndecapTtlUniformModeIpv4InIpv4Test()")
 
-        ttl_val = 20
         ttl_mode = SAI_TUNNEL_TTL_MODE_UNIFORM_MODEL
         tunnel_type = SAI_TUNNEL_TYPE_IPINIP
         term_type = SAI_TUNNEL_TERM_TABLE_ENTRY_TYPE_P2P
@@ -11108,12 +11045,11 @@ class TunnelTtlModeTest(SaiHelper):
 
     def decapTtlUniformModeIpv4InIpv6Test(self):
         '''
-        This verifies if TTL value is properly set according to the
-        outer packet, when using uniform mode in IPv4-in-IPv6 packets
+        Verify if TTL value is properly set according to the outer packet,
+        when using uniform mode in IPv4-in-IPv6 packets
         '''
         print("\ndecapTtlUniformModeIpv4InIpv6Test()")
 
-        ttl_val = 20
         ttl_mode = SAI_TUNNEL_TTL_MODE_UNIFORM_MODEL
         tunnel_type = SAI_TUNNEL_TYPE_IPINIP
         term_type = SAI_TUNNEL_TERM_TABLE_ENTRY_TYPE_P2P
@@ -11210,12 +11146,11 @@ class TunnelTtlModeTest(SaiHelper):
 
     def decapTtlUniformModeIpv6InIpv4Test(self):
         '''
-        This verifies if TTL value is properly set according to the
-        outer packet, when using uniform mode in IPv6-in-IPv4 packets
+        Verify if TTL value is properly set according to the outer packet,
+        when using uniform mode in IPv6-in-IPv4 packets
         '''
         print("\ndecapTtlUniformModeIpv6InIpv4Test()")
 
-        ttl_val = 20
         ttl_mode = SAI_TUNNEL_TTL_MODE_UNIFORM_MODEL
         tunnel_type = SAI_TUNNEL_TYPE_IPINIP
         term_type = SAI_TUNNEL_TERM_TABLE_ENTRY_TYPE_P2P
@@ -11310,12 +11245,11 @@ class TunnelTtlModeTest(SaiHelper):
 
     def decapTtlUniformModeIpv6InIpv6Test(self):
         '''
-        This verifies if TTL value is properly set according to the
-        outer packet, when using uniform mode in IPv6-in-IPv6 packets
+        Verify if TTL value is properly set according to the outer packet,
+        when using uniform mode in IPv6-in-IPv6 packets
         '''
         print("\ndecapTtlUniformModeIpv6InIpv6Test()")
 
-        ttl_val = 20
         ttl_mode = SAI_TUNNEL_TTL_MODE_UNIFORM_MODEL
         tunnel_type = SAI_TUNNEL_TYPE_IPINIP
         term_type = SAI_TUNNEL_TERM_TABLE_ENTRY_TYPE_P2P
@@ -11408,11 +11342,10 @@ class TunnelTtlModeTest(SaiHelper):
             sai_thrift_remove_tunnel(self.client, tunnel)
 
 
-@group('qos_mode')
+@group("draft")
 class TunnelQosModeTest(SaiHelper):
     '''
-    This class contains tests of the qos_mode, focusing mostly on
-    the pipe mode.
+    Tests of the qos_mode, focusing mostly on the pipe mode.
     Note that the uniform ttl_mode is covered in more detail in
     TunnelAttributesTest.
     '''
@@ -11543,15 +11476,12 @@ class TunnelQosModeTest(SaiHelper):
                                       next_hop_id=self.onhop_v6)
 
     def runTest(self):
-        try:
-            self.encapDscpPipeModeVxlanTest()
-            self.encapDscpPipeModeIpInIpTest()
-            self.encapDscpPipeModeIpv6InIpv6Test()
-            self.decapDscpPipeModeVxlanTest()
-            self.decapDscpPipeModeIpInIpTest()
-            self.decapDscpPipeModeIpv6InIpv6Test()
-        finally:
-            pass
+        self.encapDscpPipeModeVxlanTest()
+        self.encapDscpPipeModeIpInIpTest()
+        self.encapDscpPipeModeIpv6InIpv6Test()
+        self.decapDscpPipeModeVxlanTest()
+        self.decapDscpPipeModeIpInIpTest()
+        self.decapDscpPipeModeIpv6InIpv6Test()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.tunnel_route)
@@ -11577,7 +11507,7 @@ class TunnelQosModeTest(SaiHelper):
 
     def encapDscpPipeModeVxlanTest(self):
         '''
-        This verifies if DSCP value is properly set according to
+        Verify if DSCP value is properly set according to
         SAI_TUNNEL_ATTR_ENCAP_DSCP_VAL attribute
         '''
         print("\nencapDscpPipeModeVxlanTest()")
@@ -11712,8 +11642,8 @@ class TunnelQosModeTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -11725,9 +11655,9 @@ class TunnelQosModeTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -11796,7 +11726,7 @@ class TunnelQosModeTest(SaiHelper):
 
     def encapDscpPipeModeIpInIpTest(self):
         '''
-        This verifies if DSCP value is properly set according to
+        Verify if DSCP value is properly set according to
         SAI_TUNNEL_ATTR_ENCAP_DSCP_VAL attribute in IP-in-IP packets
         '''
         print("\nencapDscpPipeModeIpInIpTest()")
@@ -11876,8 +11806,8 @@ class TunnelQosModeTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -11889,9 +11819,9 @@ class TunnelQosModeTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -11949,7 +11879,7 @@ class TunnelQosModeTest(SaiHelper):
 
     def encapDscpPipeModeIpv6InIpv6Test(self):
         '''
-        This verifies if DSCP value is properly set according to
+        Verify if DSCP value is properly set according to
         SAI_TUNNEL_ATTR_ENCAP_DSCP_VAL attribute in IPv6-in-IPv6 packets
         '''
         print("\nencapDscpPipeModeIpv6InIpv6Test()")
@@ -12027,8 +11957,8 @@ class TunnelQosModeTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=orig_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -12040,9 +11970,9 @@ class TunnelQosModeTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -12097,8 +12027,8 @@ class TunnelQosModeTest(SaiHelper):
 
     def decapDscpPipeModeVxlanTest(self):
         '''
-        This verifies if DSCP value is properly set according to the
-        inner packet, when using pipe mode in VXLAN packets
+        Verify if DSCP value is properly set according to the inner packet,
+        when using pipe mode in VXLAN packets
         '''
         print("\ndecapDscpPipeModeVxlanTest()")
 
@@ -12206,8 +12136,8 @@ class TunnelQosModeTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=inner_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=inner_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -12219,9 +12149,9 @@ class TunnelQosModeTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -12289,8 +12219,8 @@ class TunnelQosModeTest(SaiHelper):
 
     def decapDscpPipeModeIpInIpTest(self):
         '''
-        This verifies if DSCP value is properly set according to the
-        inner packet, when using pipe mode in IP-in-IP packets
+        Verify if DSCP value is properly set according to the inner packet,
+        when using pipe mode in IP-in-IP packets
         '''
         print("\ndecapDscpPipeModeIpInIpTest()")
 
@@ -12368,8 +12298,8 @@ class TunnelQosModeTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=inner_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=inner_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -12381,9 +12311,9 @@ class TunnelQosModeTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -12441,8 +12371,8 @@ class TunnelQosModeTest(SaiHelper):
 
     def decapDscpPipeModeIpv6InIpv6Test(self):
         '''
-        This verifies if DSCP value is properly set according to the
-        inner packet, when using pipe mode in IPv6-in-IPv6 packets
+        Verify if DSCP value is properly set according to the inner packet,
+        when using pipe mode in IPv6-in-IPv6 packets
         '''
         print("\ndecapDscpPipeModeIpv6InIpv6Test()")
 
@@ -12518,8 +12448,8 @@ class TunnelQosModeTest(SaiHelper):
             dscp_to_tc_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(dscp=inner_dscp_val),
-                 value=sai_thrift_qos_map_params_t(tc=map_tc))])
+                    key=sai_thrift_qos_map_params_t(dscp=inner_dscp_val),
+                    value=sai_thrift_qos_map_params_t(tc=map_tc))])
             dscp_to_tc_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_DSCP_TO_TC,
@@ -12531,9 +12461,9 @@ class TunnelQosModeTest(SaiHelper):
             tc_to_dscp_map_list = sai_thrift_qos_map_list_t(
                 1,
                 [sai_thrift_qos_map_t(
-                 key=sai_thrift_qos_map_params_t(tc=map_tc,
-                                                 color=SAI_PACKET_COLOR_GREEN),
-                 value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
+                    key=sai_thrift_qos_map_params_t(
+                        tc=map_tc, color=SAI_PACKET_COLOR_GREEN),
+                    value=sai_thrift_qos_map_params_t(dscp=rewrite_dscp_val))])
             tc_to_dscp_map_id = sai_thrift_create_qos_map(
                 self.client,
                 type=SAI_QOS_MAP_TYPE_TC_AND_COLOR_TO_DSCP,
@@ -12588,21 +12518,19 @@ class TunnelQosModeTest(SaiHelper):
 
 
 # # # # # # # # # # Base VxLAN point to point tests follow # # # # # # # # # #
+@group("draft")
 class VxLanTunnelIpv4UnderlayTest(VxLanBaseSetup):
     '''
-    This class contains VxLAN tunnel tests with IPv4 underlay layer
+    VxLAN tunnel tests with IPv4 underlay layer
     '''
 
     def runTest(self):
-        try:
-            self.encapDecapTest()
-            self.tunnelTermSrcIpTest()
-        finally:
-            pass
+        self.encapDecapTest()
+        self.tunnelTermSrcIpTest()
 
     def encapDecapTest(self):
         '''
-        This verifies encapsulation and decapsulation for VxLAN tunnels
+        Verify encapsulation and decapsulation for VxLAN tunnels
         '''
         print("\nencapDecapTest()")
 
@@ -12667,8 +12595,8 @@ class VxLanTunnelIpv4UnderlayTest(VxLanBaseSetup):
 
     def tunnelTermSrcIpTest(self):
         '''
-        This verifies if tunnel de-encapsulation doesn't occur only for
-        tunneled packets with source IP not equal to
+        Verify if tunnel de-encapsulation doesn't occur only for tunneled
+        packets with source IP not equal to
         SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_SRC_IP
         '''
         print("\ntunnelTermSrcIpTest()")
@@ -12699,24 +12627,22 @@ class VxLanTunnelIpv4UnderlayTest(VxLanBaseSetup):
         print("\tDropped")
 
 
+@group("draft")
 class VxLanTunnelIpv6UnderlayTest(VxLanBaseSetup):
     '''
-    This class contains VxLAN tunnel tests with IPv6 underlay layer
+    VxLAN tunnel tests with IPv6 underlay layer
     '''
 
     def __init__(self):
         super(VxLanTunnelIpv6UnderlayTest, self).__init__(ipv6=True)
 
     def runTest(self):
-        try:
-            self.encapDecapTest()
-            self.tunnelTermSrcIpTest()
-        finally:
-            pass
+        self.encapDecapTest()
+        self.tunnelTermSrcIpTest()
 
     def encapDecapTest(self):
         '''
-        This verifies encapsulation and decapsulation for VxLAN tunnels
+        Verify encapsulation and decapsulation for VxLAN tunnels
         '''
         print("\nencapDecapTest()")
 
@@ -12777,8 +12703,8 @@ class VxLanTunnelIpv6UnderlayTest(VxLanBaseSetup):
 
     def tunnelTermSrcIpTest(self):
         '''
-        This verifies if tunnel de-encapsulation doesn't occur only for
-        tunneled packets with source IP not equal to
+        Verify if tunnel de-encapsulation doesn't occur only for tunneled
+        packets with source IP not equal to
         SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_SRC_IP
         '''
         print("\ntunnelTermSrcIpTest()")
@@ -12808,9 +12734,10 @@ class VxLanTunnelIpv6UnderlayTest(VxLanBaseSetup):
 
 
 # # # # # # # # # Base IP in IP point to point tests follow # # # # # # # # #
+@group("draft")
 class IpInIpTunnelBase(SaiHelper):
     '''
-    This class contains base setup for IP in IP tunnel tests
+    Base setup for IP in IP tunnel tests
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -13138,8 +13065,8 @@ class IpInIpTunnelBase(SaiHelper):
 
     def tunnelTermSrcIpTest(self):
         '''
-        This verifies if tunnel de-encapsulation doesn't occur only for
-        tunneled packets with source IP not equal to
+        Verify if tunnel de-encapsulation doesn't occur only for tunneled
+        packets with source IP not equal to
         SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_SRC_IP
         '''
         print("\ntunnelTermSrcIpTest()")
@@ -13173,42 +13100,38 @@ class IpInIpTunnelBase(SaiHelper):
         print("\tDropped")
 
 
+@group("draft")
 class IpInIpTnnnelIpv4UnderlayTest(IpInIpTunnelBase):
     '''
-    This class contains IP in IP tunnel tests with IPv4 underlay layer
+    IP in IP tunnel tests with IPv4 underlay layer
     '''
 
     def runTest(self):
-        try:
-            self.innerIpv4TunnelTest()
-            self.innerIpv6TunnelTest()
-            self.tunnelTermSrcIpTest()
-        finally:
-            pass
+        self.innerIpv4TunnelTest()
+        self.innerIpv6TunnelTest()
+        self.tunnelTermSrcIpTest()
 
 
+@group("draft")
 class IpInIpTnnnelIpv6UnderlayTest(IpInIpTunnelBase):
     '''
-    This class contains IP in IP tunnel tests with IPv6 underlay layer
+    IP in IP tunnel tests with IPv6 underlay layer
     '''
 
     def __init__(self):
         super(IpInIpTnnnelIpv6UnderlayTest, self).__init__(ipv6=True)
 
     def runTest(self):
-        try:
-            self.innerIpv4TunnelTest()
-            self.innerIpv6TunnelTest()
-            self.tunnelTermSrcIpTest()
-        finally:
-            pass
+        self.innerIpv4TunnelTest()
+        self.innerIpv6TunnelTest()
+        self.tunnelTermSrcIpTest()
 
 
 # # # # # # # # # # VxLAN point to multipoint tests follow # # # # # # # # # #
+@group("draft")
 class VxLanP2MpTnnnelBase(SaiHelper):
     '''
-    This class contains base configuration for VxLAN tunnel point
-    to multipoint tests
+    Base configuration for VxLAN tunnel point to multipoint tests
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -13535,8 +13458,7 @@ class VxLanP2MpTnnnelBase(SaiHelper):
 
     def vxLanP2MpSingleIpv4OvrfTunnelTest(self):
         '''
-        This verifies point to multipoint tunnel case with single IPv4
-        overlay VRF
+        Verify point to multipoint tunnel case with single IPv4 overlay VRF
         '''
         print("\nvxLanP2MpSingleIpv4OvrfTunnelTest()")
 
@@ -13707,8 +13629,7 @@ class VxLanP2MpTnnnelBase(SaiHelper):
 
     def vxLanP2MpSingleIpv6OvrfTunnelTest(self):
         '''
-        This verifies point to multipoint tunnel case with single IPv6
-        overlay VRF
+        Verify point to multipoint tunnel case with single IPv6 overlay VRF
         '''
         print("\nvxLanP2MpSingleIpv6OvrfTunnelTest()")
 
@@ -13871,7 +13792,7 @@ class VxLanP2MpTnnnelBase(SaiHelper):
 
     def vxLanP2MpMultipleOvrfTunnelTest(self):
         '''
-        This verifies point to multipoint tunnel with multiple overlay VRF
+        Verify point to multipoint tunnel with multiple overlay VRF
         '''
         print("\nvxLanP2MpIpv4MultipleOvrfTunnelTest()")
 
@@ -14336,20 +14257,19 @@ class VxLanP2MpTnnnelBase(SaiHelper):
         print("\tDropped")
 
 
+@group("draft")
 class VxLanP2MpTnnnelIpv4UnderlayTest(VxLanP2MpTnnnelBase):
     '''
     Base VxLAN tunnel point to multipoint tests with IPv4 underlay layer
     '''
 
     def runTest(self):
-        try:
-            self.vxLanP2MpSingleIpv4OvrfTunnelTest()
-            self.vxLanP2MpSingleIpv6OvrfTunnelTest()
-            self.vxLanP2MpMultipleOvrfTunnelTest()
-        finally:
-            pass
+        self.vxLanP2MpSingleIpv4OvrfTunnelTest()
+        self.vxLanP2MpSingleIpv6OvrfTunnelTest()
+        self.vxLanP2MpMultipleOvrfTunnelTest()
 
 
+@group("draft")
 class VxLanP2MpTnnnelIpv6UnderlayTest(VxLanP2MpTnnnelBase):
     '''
     Base VxLAN tunnel point to multipoint tests with IPv6 underlay layer
@@ -14359,19 +14279,16 @@ class VxLanP2MpTnnnelIpv6UnderlayTest(VxLanP2MpTnnnelBase):
         super(VxLanP2MpTnnnelIpv6UnderlayTest, self).__init__(ipv6=True)
 
     def runTest(self):
-        try:
-            self.vxLanP2MpSingleIpv4OvrfTunnelTest()
-            self.vxLanP2MpSingleIpv6OvrfTunnelTest()
-            self.vxLanP2MpMultipleOvrfTunnelTest()
-        finally:
-            pass
+        self.vxLanP2MpSingleIpv4OvrfTunnelTest()
+        self.vxLanP2MpSingleIpv6OvrfTunnelTest()
+        self.vxLanP2MpMultipleOvrfTunnelTest()
 
 
 # # # # # # # # # IP in IP point to multipoint tests follow # # # # # # # # #
+@group("draft")
 class IpInIpP2MpTunnelBase(SaiHelper):
     '''
-    This class contains base setup for IP in IP tunnel point to multipoint
-    tests
+    Base setup for IP in IP tunnel point to multipoint tests
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -14923,19 +14840,18 @@ class IpInIpP2MpTunnelBase(SaiHelper):
         print("\tOK")
 
 
+@group("draft")
 class IpInIpP2MpTnnnelIpv4UnderlayTest(IpInIpP2MpTunnelBase):
     '''
     Base IP in IP tunnel point to multipoint tests with IPv4 underlay layer
     '''
 
     def runTest(self):
-        try:
-            self.innerIpv4P2MpTunnelTest()
-            self.innerIpv6P2MpTunnelTest()
-        finally:
-            pass
+        self.innerIpv4P2MpTunnelTest()
+        self.innerIpv6P2MpTunnelTest()
 
 
+@group("draft")
 class IpInIpP2MpTnnnelIpv6UnderlayTest(IpInIpP2MpTunnelBase):
     '''
     Base Ip in IP tunnel point to multipoint tests with IPv6 underlay layer
@@ -14945,18 +14861,16 @@ class IpInIpP2MpTnnnelIpv6UnderlayTest(IpInIpP2MpTunnelBase):
         super(IpInIpP2MpTnnnelIpv6UnderlayTest, self).__init__(ipv6=True)
 
     def runTest(self):
-        try:
-            self.innerIpv4P2MpTunnelTest()
-            self.innerIpv6P2MpTunnelTest()
-        finally:
-            pass
+        self.innerIpv4P2MpTunnelTest()
+        self.innerIpv6P2MpTunnelTest()
 
 
 # # # # # # # # # VxLAN multiple mapper entries tests follow # # # # # # # # #
+@group("draft")
 class MultipleMapperEntriesBase(SaiHelper):
     '''
-    This class contains base setup for tests verifying encap/decap on
-    different overlay VRFs + RIFs configurations (multiple mapper entries)
+    Base setup for tests verifying encap/decap on different overlay
+    VRFs + RIFs configurations (multiple mapper entries)
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -15747,7 +15661,7 @@ class MultipleMapperEntriesBase(SaiHelper):
 
     def encapV4Test(self):
         '''
-        This verifies IPv4 packets encapsulation with multiple mapper entries
+        Verify IPv4 packets encapsulation with multiple mapper entries
         '''
         print("\nencapV4Test()")
 
@@ -15811,7 +15725,7 @@ class MultipleMapperEntriesBase(SaiHelper):
 
     def decapV4Test(self):
         '''
-        This verifies IPv4 packets decapsulation with multiple mapper entries
+        Verify IPv4 packets decapsulation with multiple mapper entries
         '''
         print("\ndecapV4Test()")
 
@@ -15873,7 +15787,7 @@ class MultipleMapperEntriesBase(SaiHelper):
 
     def encapV6Test(self):
         '''
-        This verifies IPv6 packets encapsulation with multiple mapper entries
+        Verify IPv6 packets encapsulation with multiple mapper entries
         '''
         print("\nencapV6Test()")
 
@@ -15935,7 +15849,7 @@ class MultipleMapperEntriesBase(SaiHelper):
 
     def decapV6Test(self):
         '''
-        This verifies IPv6 packets decapsulation with multiple mapper entries
+        Verify IPv6 packets decapsulation with multiple mapper entries
         '''
         print("\ndecapV6Test()")
 
@@ -15995,8 +15909,8 @@ class MultipleMapperEntriesBase(SaiHelper):
 
     def addDelMapperEntriesTest(self):
         '''
-        This verifies packets encap/decap when mapper entries are added
-        or removed dynamically
+        Verify packets encap/decap when mapper entries are added or removed
+        dynamically
         '''
         print("\naddDelMapperEntriesTest()")
 
@@ -16071,12 +15985,11 @@ class MultipleMapperEntriesBase(SaiHelper):
                                                   vxlan_vni=self.vni8,
                                                   inner_frame=inner_pkt)
 
-        # Should it be dropped?? or received with VNI=0??
         print("Verifying encapsulation without mapper entries")
-        # send_packet(self, self.oport8_dev, enc_pkt)
-        # verify_packet(self, enc_vxlan_pkt, self.uport_dev)
-        # verify_no_other_packets(self)
-        # print("\tDropped")
+        send_packet(self, self.oport8_dev, enc_pkt)
+        verify_packet(self, enc_vxlan_pkt, self.uport_dev)
+        verify_no_other_packets(self)
+        print("\tDropped")
 
         print("Verifying decapsulation without mapper entries")
         send_packet(self, self.uport_dev, dec_vxlan_pkt)
@@ -16137,13 +16050,12 @@ class MultipleMapperEntriesBase(SaiHelper):
         print("Removing encap mapper entry")
         sai_thrift_remove_tunnel_map_entry(self.client, encap_tunnel_map_entry)
 
-        # Should it be dropped?? or received with VNI=0??
         print("Verifying encapsulation after removing encap and decap "
               "mapper entries")
-        # send_packet(self, self.oport8_dev, enc_pkt)
-        # verify_packet(self, enc_vxlan_pkt, self.uport_dev)
-        # verify_no_other_packets(self)
-        # print("\tDropped")
+        send_packet(self, self.oport8_dev, enc_pkt)
+        verify_packet(self, enc_vxlan_pkt, self.uport_dev)
+        verify_no_other_packets(self)
+        print("\tDropped")
 
         print("Verifying decapsulation after removing encap and decap "
               "mapper entries")
@@ -16152,48 +16064,47 @@ class MultipleMapperEntriesBase(SaiHelper):
         print("\tDropped")
 
 
+@group("draft")
 class MultipleMapperEntriesIpv4UnderlayTest(MultipleMapperEntriesBase):
     '''
-    This class contains tests verifying encap/decap on different overlay
-    VRFs + RIFs (multiple mapper entries) with IPv4 underlay layer
+    Tests verifying encap/decap on different overlay VRFs + RIFs
+    (multiple mapper entries) with IPv4 underlay layer
     '''
 
     def runTest(self):
-        try:
-            self.encapV4Test()
-            self.decapV4Test()
-            self.encapV6Test()
-            self.decapV6Test()
-            self.addDelMapperEntriesTest()
-        finally:
-            pass
+        self.encapV4Test()
+        self.decapV4Test()
+        self.encapV6Test()
+        self.decapV6Test()
+        self.addDelMapperEntriesTest()
 
 
+
+@group("draft")
 class MultipleMapperEntriesIpv6UnderlayTest(MultipleMapperEntriesBase):
     '''
-    This class contains tests verifying encap/decap on different overlay
-    VRFs + RIFs (multiple mapper entries) with IPv6 underlay layer
+    Tests verifying encap/decap on different overlay VRFs + RIFs
+    (multiple mapper entries) with IPv6 underlay layer
     '''
 
     def __init__(self):
         super(MultipleMapperEntriesIpv6UnderlayTest, self).__init__(ipv6=True)
 
     def runTest(self):
-        try:
-            self.encapV4Test()
-            self.decapV4Test()
-            self.encapV6Test()
-            self.decapV6Test()
-            self.addDelMapperEntriesTest()
-        finally:
-            pass
+        self.encapV4Test()
+        self.decapV4Test()
+        self.encapV6Test()
+        self.decapV6Test()
+        self.addDelMapperEntriesTest()
+
 
 
 # # # # # # # # # # # # # VxLAN MP to MP tests follow # # # # # # # # # # # #
+@group("draft")
 class VxLanRifsConfigBaseSetup(SaiHelperBase):
     '''
-    This class contains base setup for multipoint-to-multipoint tunnel tests
-    regarding different overlay-underlay interfaces configutrations
+    Base setup for multipoint-to-multipoint tunnel tests regarding different
+    overlay-underlay interfaces configutrations
 
     Args:
         ipv6 (bool): ipv6 underlay configuraton indicator
@@ -16214,8 +16125,6 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
         super(VxLanRifsConfigBaseSetup, self).setUp()
 
         self.vni = 1000
-        # self.tun_ip = "10.10.10.1"
-        # self.lpb_ip = "10.10.10.10"
         self.inner_dmac = "00:11:11:11:11:11"
 
         self.ovrf = sai_thrift_create_virtual_router(self.client)
@@ -16301,8 +16210,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _configureOrif(self, port_vlan_id, addrs, bridge_ports=None,
                        rif_type=SAI_ROUTER_INTERFACE_TYPE_PORT):
         '''
-        Additional helper function for creating the objects related with
-        overlay configuration.
+        A helper function for creating the objects related with overlay
+        configuration.
 
         Args:
             port_vlan_id (oid): object ID of port or vlan for which RIF
@@ -16414,8 +16323,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _configureUrif(self, port_vlan_id, addrs, bridge_ports=None,
                        rif_type=SAI_ROUTER_INTERFACE_TYPE_PORT):
         '''
-        Additional helper function for creating the objects related with
-        overlay configuration.
+        A helper function for creating the objects related with overlay
+        configuration.
 
         Args:
             port_vlan_id (oid): object ID of port or vlan for which RIF
@@ -16555,8 +16464,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _configureOverlayEcmp(self, oport, odata, tun_data, ecmp):
         '''
-        Additional helper function for creating the objects related with
-        overlay ECMP configuration.
+        A helper function for creating the objects related with overlay ECMP
+        configuration.
 
         Args:
             oport (oid): object ID of port RIF is to be created
@@ -16664,7 +16573,7 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _v4EncapTest(self, src_port, dst_ports, pkt_data, vlan_no=None):
         '''
-        Additional helper function for checking IPv4 packets encapsulation
+        A helper function for checking IPv4 packets encapsulation
 
         Args:
             src_port (int): an overlay device port number
@@ -16750,7 +16659,7 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _v6EncapTest(self, src_port, dst_ports, pkt_data, vlan_no=None):
         '''
-        Additional helper function for checking IPv6 packets encapsulation
+        A helper function for checking IPv6 packets encapsulation
 
         Args:
             src_port (int): an overlay device port number
@@ -16834,7 +16743,7 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _v4DecapTest(self, src_port, dst_ports, pkt_data, vlan_no=None):
         '''
-        Additional helper function for checking IPv4 packets decapsulation
+        A helper function for checking IPv4 packets decapsulation
 
         Args:
             src_port (int): an underlay device port number
@@ -16914,7 +16823,7 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _v6DecapTest(self, src_port, dst_ports, pkt_data, vlan_no=None):
         '''
-        Additional helper function for checking IPv6 packets decapsulation
+        A helper function for checking IPv6 packets decapsulation
 
         Args:
             src_port (int): an underlay device port number
@@ -16990,10 +16899,9 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
         verify_packet_any_port(self, pkt, dst_ports)
         print("\tOK")
 
-    def _verifyEncap(self, oports, uports, customer_data, underlay_data):  # noqa pylint: disable=too-many-branches
+    def _verifyEncap(self, oports, uports, customer_data, underlay_data):
         '''
-        Additional helper function for preparing data for encapsulation
-        verification
+        A helper function for preparing data for encapsulation verification
 
         Args:
             oports (list_or_int): overlay port number(s)
@@ -17099,10 +17007,9 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
                                           {"in": in_vlan_no[i],
                                            "out": out_vlan_no[j]})
 
-    def _verifyDecap(self, oports, uports, customer_data, underlay_data):  # noqa pylint: disable=too-many-branches
+    def _verifyDecap(self, oports, uports, customer_data, underlay_data):
         '''
-        Additional helper function for preparing data for encapsulation
-        verification
+        A helper function for preparing data for encapsulation verification
 
         Args:
             oports (list_or_int): overlay port number(s)
@@ -17212,8 +17119,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _v4EcmpEncapTest(self, src_port, dst_ports, customer_data,
                          underlay_data):
         '''
-        Additional helper function for checking IPv4 packets encapsulation
-        with underlay ECMP
+        A helper function for checking IPv4 packets encapsulation with underlay
+        ECMP
 
         Args:
             src_port (int): an overlay device port number
@@ -17314,8 +17221,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _v6EcmpEncapTest(self, src_port, dst_ports, customer_data,
                          underlay_data):
         '''
-        Additional helper function for checking IPv6 packets encapsulation
-        with underlay ECMP
+        A helper function for checking IPv6 packets encapsulation with underlay
+        ECMP
 
         Args:
             src_port (int): an overlay device port number
@@ -17417,8 +17324,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _v4OverlayEcmpEncapTest(self, src_port, dst_ports, customer_data,
                                 underlay_data):
         '''
-        Additional helper function for checking IPv4 packets encapsulation
-        with overlay ECMP
+        A helper function for checking IPv4 packets encapsulation with overlay
+        ECMP
 
         Args:
             src_port (int): an overlay device port number
@@ -17506,8 +17413,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _v6OverlayEcmpEncapTest(self, src_port, dst_ports, customer_data,
                                 underlay_data):
         '''
-        Additional helper function for checking IPv6 packets encapsulation
-        with overlay ECMP
+        A helper function for checking IPv6 packets encapsulation with overlay
+        ECMP
 
         Args:
             src_port (int): an overlay device port number
@@ -17594,8 +17501,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _v4BothEcmpEncapTest(self, src_port, dst_ports, customer_data,
                              underlay_data):
         '''
-        Additional helper function for checking IPv4 packets encapsulation
-        with overlay and underlay ECMP
+        A helper function for checking IPv4 packets encapsulation with overlay
+        and underlay ECMP
 
         Args:
             src_port (int): an overlay device port number
@@ -17684,8 +17591,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _v6BothEcmpEncapTest(self, src_port, dst_ports, customer_data,
                              underlay_data):
         '''
-        Additional helper function for checking IPv6 packets encapsulation
-        with overlay and underlay ECMP
+        A helper function for checking IPv6 packets encapsulation with overlay
+        and underlay ECMP
 
         Args:
             src_port (int): an overlay device port number
@@ -17772,8 +17679,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _verifyEcmpEncap(self, src_port, dst_ports, pkt_data, mode=None):
         '''
-        Additional helper function for preparing data for encapsulation
-        verification with underlay ECMP
+        A helper function for preparing data for encapsulation verification
+        with underlay ECMP
 
         Args:
             src_port (int_or_list): an overlay device port number(s)
@@ -17830,8 +17737,8 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
 
     def _addDelEcmpMemberTest(self, oport, uports, pkt_data, member_list):
         '''
-        Additional helper function for removing a random ECMP or adding given
-        member from a passed list of ECMP members
+        A helper function for removing a random ECMP or adding given member
+        from a passed list of ECMP members
 
         Args:
             oport (int): an overlay device port number
@@ -17902,7 +17809,7 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     def _loadBalancingTest(self, src_port, dst_ports, customer_data,
                            underlay_data):
         '''
-        Additional helper function for ECMP load balancing verification
+        A helper function for ECMP load balancing verification
 
         Args:
             src_port (int): an overlay device port number
@@ -18029,9 +17936,9 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     @classmethod
     def _prepareUnderlayData(cls, underlay_data):
         '''
-        Additional helper function for preparing underlay data. It operates on
-        a list of dictionaries and in case when some of them have a value of
-        type list it brokes it into a list of dictionaries.
+        A helper function for preparing underlay data. It operates on a list
+        of dictionaries and in case when some of them have a value of type list
+        it brokes it into a list of dictionaries.
 
         Args:
             underlay_data (list): a list of dictionaries with underlay data
@@ -18057,9 +17964,9 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     @classmethod
     def _prepareDstPortList(cls, port_list):
         '''
-        Additional helper function for preparing port list for ECMP
-        verification. It flattens a list in case when it includes a list of
-        lists (SVI interfaces).
+        A helper function for preparing port list for ECMP verification.
+        It flattens a list in case when it includes a list of lists
+        (SVI interfaces).
 
         Args:
             port_list (list): a list of underlay port numbers
@@ -18084,9 +17991,9 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
     @classmethod
     def _determinePortGroups(cls, port_list):
         '''
-        Additional helper function for determining if verified ports belong
-        to some LAG groups as this is necessary for correct counter
-        verification while load balancing is checked
+        A helper function for determining if verified ports belong to some
+        LAG groups as this is necessary for correct counter verification while
+        load balancing is checked
 
         Args:
             port_list (list): an unmodified list of underlay port numbers
@@ -18116,12 +18023,13 @@ class VxLanRifsConfigBaseSetup(SaiHelperBase):
         return port_groups
 
 
+@group("draft")
 class VxLanRifsConfigTunnelIpv4UnderlayOportsTest(VxLanRifsConfigBaseSetup):
     '''
-    This class contains multipoint-to-multipoint tunnel tests regarding
-    different overlay-underlay interfaces configutrations with IPv4 underlay
-    layer and different types of RIFs as an overlay ports:
-        L3 Port, L3 Subport, SVI: [Tagged & Untagged, Port & LAG], L3 LAG
+    Multipoint-to-multipoint tunnel tests regarding different overlay-underlay
+    interfaces configutrations with IPv4 underlay layer and different
+    types of RIFs as an overlay ports: L3 Port, L3 LAG, L3 Subport,
+    SVI: [Tagged & Untagged, Port & LAG]
     '''
 
     def setUp(self):
@@ -18304,12 +18212,9 @@ class VxLanRifsConfigTunnelIpv4UnderlayOportsTest(VxLanRifsConfigBaseSetup):
         self.customer_route_list.extend(customer_routes)
 
     def runTest(self):
-        try:
-            self.portsToPortsConfigTest()
-            self.portsToEcmpConfigTest()
-            self.portsToPortsEcmpConfigTest()
-        finally:
-            pass
+        self.portsToPortsConfigTest()
+        self.portsToEcmpConfigTest()
+        self.portsToPortsEcmpConfigTest()
 
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
@@ -18351,8 +18256,8 @@ class VxLanRifsConfigTunnelIpv4UnderlayOportsTest(VxLanRifsConfigBaseSetup):
 
     def portsToPortsConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
-            L3 Port, L3 Subport, SVI: [Tagged & Untagged, Port & LAG], L3 LAG
+        Verify tunnel encap/decap for following underlay configuration:
+            L3 Port, L3 LAG, L3 Subport, SVI: [Tagged & Untagged, Port & LAG]
         '''
         print("\nportsToPortsConfigTest()")
 
@@ -18629,7 +18534,7 @@ class VxLanRifsConfigTunnelIpv4UnderlayOportsTest(VxLanRifsConfigBaseSetup):
 
     def portsToEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP: (L3 Port, L3 Subport, L3LAG,  SVI: [Tagged & Untagged,
             Port & LAG])
         '''
@@ -18921,7 +18826,7 @@ class VxLanRifsConfigTunnelIpv4UnderlayOportsTest(VxLanRifsConfigBaseSetup):
 
     def portsToPortsEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP of L3 Ports, L3 Subport, L3 LAG, SVI: [Tagged & Untagged,
             Port & LAG]
         '''
@@ -19285,11 +19190,11 @@ class VxLanRifsConfigTunnelIpv4UnderlayOportsTest(VxLanRifsConfigBaseSetup):
             sai_thrift_remove_lag(self.client, ulag1)
 
 
+@group("draft")
 class VxLanRifsConfigTunnelIpv4UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
     '''
-    This class contains multipoint-to-multipoint tunnel tests regarding
-    different overlay-underlay interfaces configutrations with IPv4 underlay
-    layer and overlay ECMP.
+    Multipoint-to-multipoint tunnel tests regarding different overlay-underlay
+    interfaces configutrations with IPv4 underlay layer and overlay ECMP.
     '''
 
     def setUp(self):
@@ -19319,12 +19224,9 @@ class VxLanRifsConfigTunnelIpv4UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
             self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
 
     def runTest(self):
-        try:
-            self.ecmpToPortsConfigTest()
-            self.ecmpToEcmpConfigTest()
-            self.ecmpToPortsEcmpConfigTest()
-        finally:
-            pass
+        self.ecmpToPortsConfigTest()
+        self.ecmpToEcmpConfigTest()
+        self.ecmpToPortsEcmpConfigTest()
 
     def tearDown(self):
         sai_thrift_remove_next_hop_group(self.client, self.tunnel_ecmp)
@@ -19333,8 +19235,8 @@ class VxLanRifsConfigTunnelIpv4UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
     def ecmpToPortsConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
-            L3 Port, L3 Subport, SVI: [Tagged & Untagged, Port & LAG], L3 LAG
+        Verify tunnel encap/decap for following underlay configuration:
+            L3 Port, L3 LAG, L3 Subport, SVI: [Tagged & Untagged, Port & LAG]
         '''
         print("\necmpToPortsConfigTest()")
 
@@ -19625,7 +19527,7 @@ class VxLanRifsConfigTunnelIpv4UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
     def ecmpToEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP: (L3 Port, L3 Subport, L3 LAG SVI: [Tagged & Untagged,
             Port & LAG])
         '''
@@ -19914,7 +19816,7 @@ class VxLanRifsConfigTunnelIpv4UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
     def ecmpToPortsEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP of L3 Ports, L3 Subport, L3 LAG,  SVI: [Tagged & Untagged,
             Port & LAG]
         '''
@@ -20276,12 +20178,13 @@ class VxLanRifsConfigTunnelIpv4UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
                 sai_thrift_remove_next_hop(self.client, tunnel_nhop)
 
 
+@group("draft")
 class VxLanRifsConfigTunnelIpv6UnderlayOportsTest(VxLanRifsConfigBaseSetup):
     '''
-    This class contains multipoint-to-multipoint tunnel tests regarding
-    different overlay-underlay interfaces configutrations with IPv6 underlay
-    layer and different types of RIFs as an overlay ports:
-        L3 Port, L3 Subport, SVI: [Tagged & Untagged, Port & LAG], L3 LAG
+    Multipoint-to-multipoint tunnel tests regarding different overlay-underlay
+    interfaces configutrations with IPv6 underlay layer and different
+    types of RIFs as an overlay ports: L3 Port, L3 LAG, L3 Subport,
+    SVI: [Tagged & Untagged, Port & LAG]
     '''
 
     def __init__(self):
@@ -20468,12 +20371,9 @@ class VxLanRifsConfigTunnelIpv6UnderlayOportsTest(VxLanRifsConfigBaseSetup):
         self.customer_route_list.extend(customer_routes)
 
     def runTest(self):
-        try:
-            self.portsToPortsConfigTest()
-            self.portsToEcmpConfigTest()
-            self.portsToPortsEcmpConfigTest()
-        finally:
-            pass
+        self.portsToPortsConfigTest()
+        self.portsToEcmpConfigTest()
+        self.portsToPortsEcmpConfigTest()
 
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
@@ -20515,8 +20415,8 @@ class VxLanRifsConfigTunnelIpv6UnderlayOportsTest(VxLanRifsConfigBaseSetup):
 
     def portsToPortsConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
-            L3 Port, L3 Subport, SVI: [Tagged & Untagged, Port & LAG], L3 LAG
+        Verify tunnel encap/decap for following underlay configuration:
+            L3 Port, L3 LAG, L3 Subport, SVI: [Tagged & Untagged, Port & LAG]
         '''
         print("\nportsToPortsConfigTest()")
 
@@ -20795,7 +20695,7 @@ class VxLanRifsConfigTunnelIpv6UnderlayOportsTest(VxLanRifsConfigBaseSetup):
 
     def portsToEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP: (L3 Port, L3 Subport, L3LAG,  SVI: [Tagged & Untagged,
             Port & LAG])
         '''
@@ -21088,7 +20988,7 @@ class VxLanRifsConfigTunnelIpv6UnderlayOportsTest(VxLanRifsConfigBaseSetup):
 
     def portsToPortsEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP of L3 Ports, L3 Subport, L3 LAG, SVI: [Tagged & Untagged,
             Port & LAG]
         '''
@@ -21454,11 +21354,11 @@ class VxLanRifsConfigTunnelIpv6UnderlayOportsTest(VxLanRifsConfigBaseSetup):
             sai_thrift_remove_lag(self.client, ulag1)
 
 
+@group("draft")
 class VxLanRifsConfigTunnelIpv6UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
     '''
-    This class contains multipoint-to-multipoint tunnel tests regarding
-    different overlay-underlay interfaces configutrations with IPv6 underlay
-    layer and overlay ECMP.
+    Multipoint-to-multipoint tunnel tests regarding different overlay-underlay
+    interfaces configutrations with IPv6 underlay layer and overlay ECMP.
     '''
 
     def __init__(self):
@@ -21492,12 +21392,9 @@ class VxLanRifsConfigTunnelIpv6UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
             self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
 
     def runTest(self):
-        try:
-            self.ecmpToPortsConfigTest()
-            self.ecmpToEcmpConfigTest()
-            self.ecmpToPortsEcmpConfigTest()
-        finally:
-            pass
+        self.ecmpToPortsConfigTest()
+        self.ecmpToEcmpConfigTest()
+        self.ecmpToPortsEcmpConfigTest()
 
     def tearDown(self):
         sai_thrift_remove_next_hop_group(self.client, self.tunnel_ecmp)
@@ -21506,8 +21403,8 @@ class VxLanRifsConfigTunnelIpv6UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
     def ecmpToPortsConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
-            L3 Port, L3 Subport, SVI: [Tagged & Untagged, Port & LAG], L3 LAG
+        Verify tunnel encap/decap for following underlay configuration:
+            L3 Port, L3 LAG, L3 Subport, SVI: [Tagged & Untagged, Port & LAG]
         '''
         print("\necmpToPortsConfigTest()")
 
@@ -21800,7 +21697,7 @@ class VxLanRifsConfigTunnelIpv6UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
     def ecmpToEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP: (L3 Port, L3 Subport, L3 LAG SVI: [Tagged & Untagged,
             Port & LAG])
         '''
@@ -22091,7 +21988,7 @@ class VxLanRifsConfigTunnelIpv6UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
     def ecmpToPortsEcmpConfigTest(self):
         '''
-        This verifies tunnel encap/decap for following underlay configuration:
+        Verify tunnel encap/decap for following underlay configuration:
             ECMP of L3 Ports, L3 Subport, L3 LAG,  SVI: [Tagged & Untagged,
             Port & LAG]
         '''
@@ -22453,9 +22350,10 @@ class VxLanRifsConfigTunnelIpv6UnderlayOecmpTest(VxLanRifsConfigBaseSetup):
 
 
 # # # # # # # # # # # # # # VxLAN EVPN Tests follow # # # # # # # # # # # # # #
+@group("draft")
 class VxLanEvpnTest(SaiHelper):
     '''
-    This class contains tests for EVPN support
+    Tests for EVPN support
     '''
 
     def __init__(self):
@@ -22473,9 +22371,6 @@ class VxLanEvpnTest(SaiHelper):
         self.oport1 = self.port0
         self.oport1_dev = self.dev_port0
         self.oport1_bp = self.port0_bp
-        # if self.multiple_ovrf is True:
-        #     self.oport2 = self.port25
-        #     self.oport2_dev = self.dev_port25
         self.uport1 = self.port10
         self.uport1_dev = self.dev_port10
         self.uport1_rif = self.port10_rif
@@ -22636,10 +22531,7 @@ class VxLanEvpnTest(SaiHelper):
             router_interface_id=self.vlan10_rif)
 
     def runTest(self):
-        try:
-            self.vxLanL3EvpnPrefixTest()
-        finally:
-            pass
+        self.vxLanL3EvpnPrefixTest()
 
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
@@ -22666,7 +22558,7 @@ class VxLanEvpnTest(SaiHelper):
 
     def vxLanL3EvpnPrefixTest(self):
         '''
-        This test verifies that packets are properly encapsulated and
+        This test Verify that packets are properly encapsulated and
         decapsulated after SAI API calls emulating SONiC L3 EVPN operation,
         specifically after receiving EVPN Type 5 (IP prefix) routes.
         '''
@@ -22705,8 +22597,6 @@ class VxLanEvpnTest(SaiHelper):
                 self.client, type=SAI_TUNNEL_MAP_TYPE_VIRTUAL_ROUTER_ID_TO_VNI)
 
             # create tunnel
-            # Note: encap_maps order of vlan first then vrf exposes SWI-3916,
-            #       with the reverse order the test passes even without a fix
             decap_maps = sai_thrift_object_list_t(
                 count=2,
                 idlist=[decap_tunnel_map_vlan,
@@ -22817,15 +22707,6 @@ class VxLanEvpnTest(SaiHelper):
                 tunnel_id=tunnel0,
                 tunnel_vni=self.vni_for_ovrf,
                 tunnel_mac=self.inner_dmac)
-
-            # Next hop for asymmetric operation
-            # tunnel_nhop_asym = sai_thrift_create_next_hop(
-            #     self.client,
-            #     type=SAI_NEXT_HOP_TYPE_TUNNEL_ENCAP,
-            #     ip=sai_ipaddress(self.tun1_ip),
-            #     tunnel_id=tunnel0,
-            #     tunnel_vni=self.vni1,
-            #     tunnel_mac=self.customer1_mac)
 
             customer2_prefix_route = sai_thrift_route_entry_t(
                 destination=sai_ipprefix(self.customer2_ip + '/24'),
