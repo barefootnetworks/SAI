@@ -1770,7 +1770,7 @@ class SAIHashTest(SAIHashTestBase):
                 self.client, ecmp_default_hash_algorithm=True)
             self.assertEqual(hash_attr_get[
                 'SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM'],
-                            SAI_HASH_ALGORITHM_CRC)
+                             SAI_HASH_ALGORITHM_CRC)
             print('Read value of algorithm: ', hash_attr_get)
 
             # should ballance equally
@@ -1794,7 +1794,7 @@ class SAIHashTest(SAIHashTestBase):
             print('Read value of algorithm: ', hash_attr_get)
             self.assertEqual(hash_attr_get[
                 'SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM'],
-                            SAI_HASH_ALGORITHM_RANDOM)
+                             SAI_HASH_ALGORITHM_RANDOM)
 
             ecmp_random_count = self.l3IPv4EcmpPacketTest(hash_dict,
                                                           max_itrs=L3_MAX_ITRS)
@@ -1928,7 +1928,7 @@ class SAIHashTest(SAIHashTestBase):
                 self.client, lag_default_hash_algorithm=True)
             self.assertEqual(hash_attr_get[
                 'SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM'],
-                            SAI_HASH_ALGORITHM_CRC)
+                             SAI_HASH_ALGORITHM_CRC)
             print('Read value of algorithm: ', hash_attr_get)
             hash_dict = {'hash_src_ip': True, 'hash_udp_dport': True,
                          'hash_udp_sport': True}
@@ -1950,7 +1950,7 @@ class SAIHashTest(SAIHashTestBase):
                 self.client, lag_default_hash_algorithm=True)
             self.assertEqual(hash_attr_get[
                 'SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM'],
-                            SAI_HASH_ALGORITHM_RANDOM)
+                             SAI_HASH_ALGORITHM_RANDOM)
             print('Read value of algorithm: ', hash_attr_get)
 
             pkt_count_random = self.l3IPv4LagPacketTest(hash_dict,
