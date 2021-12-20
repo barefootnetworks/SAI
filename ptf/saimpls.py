@@ -22,6 +22,7 @@ from sai_thrift.sai_headers import *
 from sai_base_test import *
 
 
+@group("draft")
 class MplsCpuTrapTest(SaiHelper):
     ''' Basic MPLS trap test class '''
     def setUp(self):
@@ -229,6 +230,7 @@ class MplsCpuTrapTest(SaiHelper):
             sai_thrift_remove_debug_counter(self.client, debug_cnt)
 
 
+@group("draft")
 class MplsIpv6Test(SaiHelper):
     ''' Basic IPv6 MPLS test class '''
     def setUp(self):
@@ -1306,6 +1308,7 @@ class MplsIpv6Test(SaiHelper):
         self.assertTrue(self._verifyStats())
 
 
+@group("draft")
 class MplsIpv4Test(SaiHelper):
     ''' Basic IPv4 MPLS test class '''
     def setUp(self):
@@ -2503,6 +2506,7 @@ class MplsIpv4Test(SaiHelper):
         self.assertTrue(self._verifyStats())
 
 
+@group("draft")
 class MplsCreationTest(SaiHelper):
     ''' Basic MPLS creation test class '''
     def runTest(self):
@@ -2608,6 +2612,7 @@ class MplsCreationTest(SaiHelper):
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
 
+@group("draft")
 class MplsObjectsAvailabilityTest(SaiHelperBase):
     ''' CRM objects availability verification class '''
     def runTest(self):
@@ -2658,6 +2663,7 @@ class MplsObjectsAvailabilityTest(SaiHelperBase):
             sai_thrift_remove_router_interface(self.client, mpls_rif)
 
 
+@group("draft")
 class MplsIpv6TtlModeTest(SaiHelper):
     '''
     This class contains tests of the ttl_mode for IPv6 MPLS packets,
@@ -3280,6 +3286,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
                 self.client, self.inseg_entry_2222, num_of_pop=3)
 
 
+@group("draft")
 class MplsIpv4TtlModeTest(SaiHelper):
     '''
     This class contains tests of the ttl_mode for IPv4 MPLS packets,
