@@ -127,6 +127,7 @@ def get_switch_stats(counters):
     return stats
 
 
+@group("draft")
 class BaseDebugCounterClass(SaiHelperBase):
     ''' SAI DebugCounters test class. '''
 
@@ -819,6 +820,7 @@ class BaseDebugCounterClass(SaiHelperBase):
         return stats[dc_index]
 
 
+@group("draft")
 class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
     ''' Port debug counter - remove drop reasons test. '''
 
@@ -885,6 +887,7 @@ class PortDebugCounterRemoveDropReason(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, port_dc_oid)
 
 
+@group("draft")
 class SwitchDebugCounterRemoveDropReason(BaseDebugCounterClass):
     ''' Switch Debug Counter Remove drop reasons test. '''
 
@@ -950,6 +953,7 @@ class SwitchDebugCounterRemoveDropReason(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDebugCounterAddDropReason(BaseDebugCounterClass):
     ''' Port Debug Counter add drop reasons test. '''
 
@@ -998,6 +1002,7 @@ class PortDebugCounterAddDropReason(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, port_dc_oid)
 
 
+@group("draft")
 class SwitchDebugCounterAddDropReason(BaseDebugCounterClass):
     ''' Switch Debug Counter add drop reasons test. '''
 
@@ -1045,6 +1050,7 @@ class SwitchDebugCounterAddDropReason(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropMCSMAC(BaseDebugCounterClass):
     ''' Port Debug Counter for SMAC Multicast test. '''
 
@@ -1068,6 +1074,7 @@ class PortDropMCSMAC(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropMCSMAC(BaseDebugCounterClass):
     ''' Switch Debug Counter for SMAC Multicast test. '''
 
@@ -1090,6 +1097,7 @@ class SwitchDropMCSMAC(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropL2Any(BaseDebugCounterClass):
     ''' Port Debug Counter for L2 any drop reason test. '''
 
@@ -1116,6 +1124,7 @@ class PortDropL2Any(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropL2Any(BaseDebugCounterClass):
     ''' Switch Debug Counter for L2 any drop reason test. '''
 
@@ -1142,6 +1151,7 @@ class SwitchDropL2Any(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropSMACequalsDMAC(BaseDebugCounterClass):
     ''' Port Debug Counter for SMAC equals DMAC drop reason test. '''
 
@@ -1165,6 +1175,7 @@ class PortDropSMACequalsDMAC(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropSMACequalsDMAC(BaseDebugCounterClass):
     ''' Switch Debug Counter for SMAC equals DMAC drop reason test. '''
 
@@ -1188,6 +1199,7 @@ class SwitchDropSMACequalsDMAC(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropIngressVLANFilter(BaseDebugCounterClass):
     ''' Port Debug Counter for Ingress VLAN filter drop reason test. '''
 
@@ -1209,6 +1221,7 @@ class PortDropIngressVLANFilter(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropIngressVLANFilter(BaseDebugCounterClass):
     ''' Switch Debug Counter for Ingress VLAN filter drop reason test. '''
 
@@ -1230,6 +1243,7 @@ class SwitchDropIngressVLANFilter(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropSIPMCTest(BaseDebugCounterClass):
     ''' Port Debug Counter for source IP Multicast drop reason test. '''
 
@@ -1252,6 +1266,7 @@ class PortDropSIPMCTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropSIPMCTest(BaseDebugCounterClass):
     ''' Switch Debug Counter for source IP Multicast drop reason test. '''
 
@@ -1274,6 +1289,7 @@ class SwitchDropSIPMCTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropReasonTTLTest(BaseDebugCounterClass):
     ''' Port Debug Counter for TTL zero  drop reason test. '''
 
@@ -1296,6 +1312,7 @@ class PortDropReasonTTLTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropReasonTTLTest(BaseDebugCounterClass):
     ''' Switch Debug Counter for TTL zero drop reason test. '''
 
@@ -1318,6 +1335,7 @@ class SwitchDropReasonTTLTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropSIPClassETest(BaseDebugCounterClass):
     ''' Port Debug Counter for SIP Class E drop reason test. '''
 
@@ -1349,6 +1367,7 @@ class PortDropSIPClassETest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropSIPClassETest(BaseDebugCounterClass):
     ''' Switch Debug Counter for SIP Class E drop reason test. '''
 
@@ -1380,7 +1399,7 @@ class SwitchDropSIPClassETest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropUCDIPMCDMACTest(BaseDebugCounterClass):
     ''' Port Debug Counter for UC DIP with MC DMAC drop reason test. '''
 
@@ -1414,7 +1433,7 @@ class PortDropUCDIPMCDMACTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
     ''' Port Debug Counter for IP header error drop reason test. '''
 
@@ -1438,6 +1457,7 @@ class PortDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
     ''' Switch Debug Counter for IP header error drop reason test. '''
 
@@ -1461,6 +1481,7 @@ class SwitchDropReasonIPHeaderErrorTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortMultiDebugCounters(BaseDebugCounterClass):
     ''' Port multi Debug Counter test. '''
 
@@ -1518,6 +1539,7 @@ class PortMultiDebugCounters(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid3)
 
 
+@group("draft")
 class SwitchMultiDebugCounters(BaseDebugCounterClass):
     ''' Switch multi Debug Counter test. '''
 
@@ -1581,6 +1603,7 @@ class SwitchMultiDebugCounters(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid3)
 
 
+@group("draft")
 class PortDropDIPLinkLocalTest(BaseDebugCounterClass):
     ''' Port Debug Counter for DIP Link Local drop reason test. '''
 
@@ -1607,6 +1630,7 @@ class PortDropDIPLinkLocalTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropSIPLinkLocalTest(BaseDebugCounterClass):
     ''' Port Debug Counter for SIP Link Local drop reason test. '''
 
@@ -1633,6 +1657,7 @@ class PortDropSIPLinkLocalTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropSIPUnspecifiedTest(BaseDebugCounterClass):
     ''' Port Debug Counter for SIP Unspecified drop reason test. '''
 
@@ -1659,6 +1684,7 @@ class PortDropSIPUnspecifiedTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropIPv4RIFDisabled(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv4 disabled rif drop reason test. '''
 
@@ -1703,6 +1729,7 @@ class PortDropIPv4RIFDisabled(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropIPv4L3AnyRIFDisabled(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv4 disabled rif and L3 any
         drop reasons test.
@@ -1750,6 +1777,7 @@ class PortDropIPv4L3AnyRIFDisabled(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropIPv6RIFDisabled(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv6 disabled RIF drop reason test. '''
 
@@ -1789,6 +1817,7 @@ class PortDropIPv6RIFDisabled(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class PortDropIPv6L3AnyRIFDisabled(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv6 disabled rif and L3 any
         drop reasons test.
@@ -1832,6 +1861,7 @@ class PortDropIPv6L3AnyRIFDisabled(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropDIPLoopback(BaseDebugCounterClass):
     ''' Switch Debug Counter for DIP loopback drop reasons test.
     '''
@@ -1868,6 +1898,7 @@ class SwitchDropDIPLoopback(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
+@group("draft")
 class SwitchDropSIPLoopback(BaseDebugCounterClass):
     ''' Switch Debug Counter for SIP loopback drop reasons test.
     '''
@@ -1895,7 +1926,7 @@ class SwitchDropSIPLoopback(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropIPv4Miss(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv4 route miss drop reasons test. '''
 
@@ -1918,7 +1949,7 @@ class PortDropIPv4Miss(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropIPv6Miss(BaseDebugCounterClass):
     ''' Port Debug Counter for IPv6 route miss drop reasons test. '''
 
@@ -1940,7 +1971,7 @@ class PortDropIPv6Miss(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropBlackHoleRoute(BaseDebugCounterClass):
     ''' Port Debug Counter for blackhole route drop reasons test. '''
 
@@ -1966,7 +1997,7 @@ class PortDropBlackHoleRoute(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropL3AnyTest(BaseDebugCounterClass):
     ''' Port Debug Counter for L3 any drop reasons test. '''
 
@@ -2006,7 +2037,7 @@ class PortDropL3AnyTest(BaseDebugCounterClass):
                 sai_thrift_remove_debug_counter(self.client, dc_oid)
 
 
-@group('debug_counters')
+@group("draft")
 class PortDropAclAnyTest(BaseDebugCounterClass):
     ''' Port Debug Counter for ACL any drop reason test. '''
 
@@ -2146,6 +2177,7 @@ class PortDropAclAnyTest(BaseDebugCounterClass):
         return acl
 
 
+@group("draft")
 class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
     ''' SAI query DebugCounter enum values capabilities. '''
 
@@ -2240,6 +2272,7 @@ class GetDebugCounterEnumValuesCapabilities(BaseDebugCounterClass):
         print("\tok")
 
 
+@group("draft")
 class GetDebugCounterAvailability(BaseDebugCounterClass):
     ''' SAI query DebugCounter availability. '''
 
