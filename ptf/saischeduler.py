@@ -20,6 +20,7 @@ from sai_thrift.sai_headers import *
 from sai_base_test import *
 
 
+@group("draft")
 class SchedulerParamsTest(SaiHelper):
     '''
     Basic scheduler parameters tests
@@ -312,6 +313,7 @@ class SchedulerParamsTest(SaiHelper):
             sai_thrift_remove_scheduler(self.client, sched)
 
 
+@group("draft")
 class SchedulerGroupAttachTest(SaiHelper):
     '''
     Verify possibilities of attaching scheduler with different params set
@@ -625,6 +627,7 @@ class SchedulerGroupAttachTest(SaiHelper):
             sai_thrift_remove_scheduler(self.client, sched)
 
 
+@group("draft")
 class SchedulerPortAttachTest(SaiHelper):
     '''
     Verify possibilities of attaching scheduler with different params set
