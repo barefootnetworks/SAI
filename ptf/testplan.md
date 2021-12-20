@@ -178,6 +178,19 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Queue
 
+| queue.1 | Query queue handles for the port. Query for SAI_QUEUE_ATTR_PORT and SAI_QUEUE_ATTR_INDEX attributes and validate. | saiqueue.portQueueQueryTest |
+| queue.2 | Configure DSCP-->TC and TC-->Queue map table. Modify the queue index in the map table to reflect the correct queue. | saiqosmap.L3IPv4QosMapMultipleDscpToSingleTcMappingTest |
+| queue.3 | Configure PCP-->TC and TC-->Queue map table. Modify the queue index in the map table to reflect the correct queue. | saiqosmap.L2QosMapOneToOnePCPToTcMappingTest |
+| queue.4 | Configure PFC priority to Queue map table. Modify the queue index in the map table to reflect the correct queue. | saiqueue.pfcPriorityQueueTest |
+| queue.5 | Query SAI_QUEUE_ATTR_PARENT_SCHEDULER_NODE attribute. | saiqueue.portQueueQueryTest |
+| queue.6 | Assign queue WRED profile and validate WRED functionality. | saiqueue.wredQueueTest |
+| queue.7 | Assign queue buffer profile and validate the buffer profile parameters. | saiqueue.bufferQueueTest |
+| queue.8 | Remove queue buffer profile and the queue should be assigned to the default buffer profile. | saiqueue.bufferQueueTest |
+| queue.9 | Attach Scheduler profile to the queue and validate Queue priority, Weight, min/max rate. | saiqueue.schedulerQueueTest |
+| queue.10 | Modify the attached scheduler profile parameters and validate those parameters. | saiqueue.schedulerQueueTest |
+| queue.11 | Try above tests on CPU port queue object. | saiqueue.cpuPortQueueObjectTest |
+| queue.12 | Verify a queue creation. | saiqueue.queueCreateTest |
+
 ## Route
 
 | Test case id | Description | Test name |
