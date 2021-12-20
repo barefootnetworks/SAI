@@ -60,6 +60,50 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Mirror
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| mirror.1 | Verify port ingress local mirror, monitor = Port. | saimirror.localIngressPortMirroringTest |
+| mirror.2 | Verify port egress local mirror, monitor = Port. | saimirror.localEgressPortMirroringTest |
+| mirror.3 | Verify port ingress local mirror, monitor = LAG. Start with empty LAG, verify no mirored packets. | saimirror.localIngressLagMirroringTest |
+| mirror.4 | Verify port ingress local mirror, monitor = LAG. Add two ports to LAG, verify mirrored packet. | saimirror.localIngressLagMirroringTest |
+| mirror.5 | Verify port ingress local mirror, monitor = LAG. Remove the port on which previous mirrored packet received, verify packet mirrored to other lag port. | saimirror.localIngressLagMirroringTest |
+| mirror.6 | Verify port ingress local mirror, monitor = LAG. Remove the last lag member, verify no mirrored packet. | saimirror.localIngressLagMirroringTest |
+| mirror.7 | Verify port ingress local mirror, monitor = LAG. Update monitor LAG1 -> LAG2, verify mirrored packet. | saimirror.localIngressLagMirroringTest |
+| mirror.8 | Verify port ingress local mirror, monitor = LAG. Update monitor LAG2 -> Port, verify mirrored packet. | saimirror.localIngressLagMirroringTest |
+| mirror.9 | Verify port ingress local mirror, monitor = LAG. Update monitor Port -> LAG1 , verify mirrored packet. | saimirror.localIngressLagMirroringTest |
+| mirror.10 | Verify port egress local mirror, monitor = LAG. Start with empty LAG, verify no mirored packets. | saimirror.localEgressLagMirroringTest |
+| mirror.11 | Verify port egress local mirror, monitor = LAG. Add two ports to LAG, verify mirrored packet. | saimirror.localEgressLagMirroringTest |
+| mirror.12 | Verify port egress local mirror, monitor = LAG. Remove the port on which previous mirrored packet received, verify packet mirrored to other lag port. | saimirror.localEgressLagMirroringTest |
+| mirror.13 | Verify port egress local mirror, monitor = LAG. Remove the last lag member, verify no mirrored packet. | saimirror.localEgressLagMirroringTest |
+| mirror.14 | Verify port egress local mirror, monitor = LAG. Update monitor LAG1 -> LAG2, verify mirrored packet. | saimirror.localEgressLagMirroringTest |
+| mirror.15 | Verify port egress local mirror, monitor = LAG. Update monitor LAG2 -> Port, verify mirrored packet. | saimirror.localEgressLagMirroringTest |
+| mirror.16 | Verify port egress local mirror, monitor = LAG. Update monitor Port -> LAG1 , verify mirrored packet. | saimirror.localEgressLagMirroringTest |
+| mirror.17 | Verify same mirror session applied together: port ingress and port egress. | saimirror.ingressEgressMirrorSessionTest |
+| mirror.18 | Verify packet with destination egress port p2, dropped in ingress port p1 is not mirrored by egress mirror. | saimirror.egressMirrorDropOnIngress |
+| mirror.19 | Verify packet dropped in ingress is mirrored with ingress mirror. | saimirror.mirrorDroppedPacketIngressTest |
+| mirror.20 | Verify packet dropped in egress is mirrored with egress mirror. | saimirror.mirrorDroppedPacketEgressTest |
+| mirror.21 | Verify span mirror session TC (queue ID). | saimirror.mirrorSessionTrafficClassTest |
+| mirror.22 | Verify span ingress mirror meter. | saimirror.ingressMirrorPolicingTest |
+| mirror.23 | Verify ACL ingress local mirror, monitor = LAG. | saimirror.localAclIngressLagMirroringTest |
+| mirror.24 | Verify ACL Egress Local Mirror, monitor = LAG. | saimirror.localAclEgressLagMirroringTest |
+| mirror.25 | Verify same mirror session applied together to: ACL ingress, ACL egress. | saimirror.aclIngressEgressMirrorSessionTest |
+| mirror.26 | Verify packet dropped with ingress ACL is mirrored with ingress ACL mirror | saimirror.aclMirrorDroppedPacketIngressTest |
+| mirror.27 | Verify packet dropped with egress ACL is mirrored with egress ACL mirror | saimirror.aclMirrorDroppedPacketEgressTest |
+| mirror.28 | Verify egress ACL ERSPAN, GRE protocol type = 0x22eb. | saimirror.erspanAclEgressGreProto0x22ebTest |
+| mirror.29 | Verify ERSPAN, monitor = Port. | saimirror.erspanPortMirroringTest |
+| mirror.30 | Verify ERSPAN, monitor = LAG. | saimirror.erspanLagMirroringTest |
+| mirror.31 | Verify ERSPAN mirror session TC (queue ID). | saimirror.erspanMirrorSessionTrafficClassTest |
+| mirror.32 | Verify ERSPAN ingress mirror meter. | saimirror.erspanIngressMirrorPolicingTest |
+| mirror.33 | Verify ERSPAN egress mirror meter. | saimirror.erspanEgressMirrorPolicingTest |
+| mirror.34 | Verify ERSPAN TPID create and set. | saimirror.erspanPortMirroringTest |
+| mirror.35 | Verify ERSPAN VLAN ID create and set. | saimirror.erspanVlanPortMirroringTest |
+| mirror.36 | Verify ERSPAN VLAN priority create and set. | saimirror.erspanPortMirroringTest |
+| mirror.37 | Verify ERSPAN CFI create and set. | saimirror.erspanVlanPortMirroringTest |
+| mirror.38 | Verify ERSPAN mirror session source IP v4 create and set. | saimirror.erspanPortMirroringTest |
+| mirror.39 | Verify ERSPAN mirror session destination IP v4 create and set. | saimirror.erspanPortMirroringTest |
+| mirror.40 | Verify ERSPAN mirror session source MAC create and set. | saimirror.erspanPortMirroringTest |
+| mirror.41 | Verify ERSPAN mirror session destination MAC create and set. | saimirror.erspanPortMirroringTest |
+
 ## MPLS
 
 | Test case id | Description | Test name |
