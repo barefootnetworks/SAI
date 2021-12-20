@@ -79,7 +79,7 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | ------------ | ----------- | --------- |
 | neighbor.1  | Verify packet DMAC updated with neighbor dst MAC for dst IP after routing for L3 RIF | sairif.L3InterfaceTest |
 | neighbor.2  | Verify packet DMAC updated with neighbor dst MAC for dst IP after routing for SVI | sairif.L3SVITest |
-| neighbor.3  | Verify packet DMAC is correct if neihgbor created after nexthop for L3 RIF | sairif.L3InterfaceTest |
+| neighbor.3  | Verify packet DMAC is correct if neihgbor created after nexthop for L3 IFF | sairif.L3InterfaceTest |
 | neighbor.4  | Verify packet DMAC is correct if neihgbor created before nexthop for L3 RIF | sairif.L3InterfaceTest |
 | neighbor.5  | Verify packet DMAC is correct if neighbor created after nexthop SVI, MAC already learnt | sairif.L3SVITest |
 | neighbor.6  | Verify packet DMAC is correct if neighbor created before nexthop SVI, MAC already learnt | sairif.L3SVITest |
@@ -177,11 +177,11 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | rif.9  | Verify IPv4 packet forwarded with packet size less than MTU | sairif.L3Interface.ipv4MtuTest |
 | rif.10 | Verify IPv4 packet forwarded with packet size equal to MTU | sairif.L3Interface.ipv4MtuTest |
 | rif.11 | Verify IPv4 packet dropped with packet size greated than MTU | sairif.L3Interface.ipv4MtuTest |
-| rif.12 | Verify IPv4 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3Interface.ipv4MtuTest |
+| rif.12 | Verify IPv4 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3MtuTrapTest.ipv4MtuTest |
 | rif.13 | Verify IPv6 packet forwarded with packet size less than MTU | sairif.L3Interface.ipv6MtuTest |
 | rif.14 | Verify IPV6 packet forwarded with packet size equal to MTU | sairif.L3Interface.ipv6MtuTest |
 | rif.15 | Verify IPv6 packet dropped with packet size greated than MTU | sairif.L3Interface.ipv6MtuTest |
-| rif.16 | Verify IPv6 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3Interface.ipv6MtuTest |
+| rif.16 | Verify IPv6 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3MtuTrapTest.ipv6MtuTest |
 | rif.17 | Verify packet forward after MTU change for IPv4 | sairif.L3Interface.ipv4MtuTest |
 | rif.18 | Verify packet forward after MTU change for IPv6 | sairif.L3Interface.ipv6MtuTest |
 | rif.19 | Verify same MTU value shared between RIF | sairif.L3Interface.rifSharedMtuTest |
@@ -208,6 +208,88 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | rif.40 | Verify MYIP works for subnet routes | sairif.L3Interface.rifMyIPTest |
 | rif.41 | Verify duplicate L3 RIF creation fails | sairif.L3Interface.duplicatePortRifCreationTest |
 | rif.42 | Verify RIF can be created or updated with custom rmac | sarif.L3Interface.rifCreateOrUpdateRmacTest |
+| | Sub-port Interface | |
+| rif.43  | Verify packet routed with valid vlan on sub-port | sairif.L3SubPortTest.rifToSubPortTest |
+| rif.44  | Verify packet dropped when invalid vlan tag on port | sairif.L3SubPortTest.pvMissTest |
+| rif.45  | Verify up to 256 sub-ports can be created per port or LAG | sairif.L3SubPortTest.subPortNoTest |
+| rif.46  | Verify multiple sub-ports with same vlan ID and different ports | sairif.L3SubPortTest.setUp |
+| rif.47  | Verify packet not flooded on tagged VLAN when no route hit | sairif.L3SubPortTest.noFloodTest |
+| rif.48  | Verify routing between sub-ports | sairif.L3SubPortTest.subPortToSubPortTest |
+| rif.49  | Verify routing between sub-ports on the same physical port or LAG | sairif.L3SubPortTest.subPortToSubPortTest |
+| rif.50  | Verify routing between SVI and sub-port | sairif.L3SubPortTest.subPortToRifTest |
+| rif.51  | Verify routing between L3 RIF and sub-port | sairif.L3SubPortTest.rifToSubPortTest |
+| rif.52  | Verify load-balancing when sub-port is part of ECMP | sairif.L3SubPortTest.subPortECMPTest |
+| rif.53  | Verify tunnel encap-decap over sub-port| sairif.TunnelL3SubPortTest.subPortTunnelTest |
+| rif.54  | Verify IP2ME is working for sub-port | sairif.L3SubPortTest.subPortMyIPTest |
+| rif.55  | Verify admin atatus DOWN disabled packet forwarding on ingress | sairif.L3SubPortTest.subPortAdminV*StatusTest |
+| rif.56  | Verify hostif creation with CPU rx/tx | saihostif multiple tests |
+| rif.57  | Create a VLAN RIF and sub-port RIF with the same vlan number and make sure two separete RIFs are created. Now delete VLAN and make sure sub-port RIF is not impacted. Repeat but this time delete the sub-port RIF.| sairif.L3SubPortTest.vlanConflictTest |
+| rif.58  | Verify ingress ACL table is bound correctly to sub-port | sairif.L3SubPortTest.subPortIngressAclTest |
+| rif.59  | Verify egress ACL table is bound correctly to sub-port | sairif.L3SubPortTest.subPortEgressAclTest |
+| rif.60  | Verify ingress ACL group is bound correctly to sub-port | sairif.L3SubPortTest.subPortIngressAclTest |
+| rif.61  | Verify egress ACL group is bound correctly to sub-port | sairif.L3SubPortTest.subPortEgressAclTest |
+| rif.62  | Verify QoS group setting inherited from parent port or LAG | sairif.L3SubPortTest.subPortQosGroupTest |
+| rif.63  | Verify IPv4 packets are dropped when admin_v4_state is False | sairif.L3SubPortTest.subPortAdminV4StatusTest |
+| rif.64  | Verify IPv6 packets are dropped when admin_v6_state is False| sairif.L3SubPortTest.subPortAdminV6StatusTest |
+| rif.65  | Verify IPv4 packet forwarded with packet size less than MTU | sairif.L3SubPortTest.subPotyV4MtuTest |
+| rif.66  | Verify IPv4 packet forwarded with packet size equal to MTU | sairif.L3SubPortTest.subPortV4MtuTest |
+| rif.67  | Verify IPv4 packet dropped with packet size greater than MTU | sairif.L3SubPortTest.subPortV4MtuTest |
+| rif.68  | Verify IPv4 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3MtuTrapTest.subPortIpv4MtuTrapTest |
+| rif.69  | Verify IPv6 packet forwarded with packet size less than MTU | sairif.L3SubPortTest.subPortV6MtuTest |
+| rif.70  | Verify IPv6 packet forwarded with packet size equal to MTU | sairif.L3SubPortTest.subPortV6MtuTest |
+| rif.71  | Verify IPv6 packet dropped with packet size greated than MTU | sairif.L3SubPortTest.subPortV6MtuTest |
+| rif.72  | Verify IPv6 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3MtuTrapTest.subPortIpv6MtuTrapTest |
+| rif.73  | Verify packet forwarded after MTU change for IPv4 | sairif.L3SubPortTest.subPortV4MtuTest |
+| rif.74  | Verify packet forwarded after MTU change for IPv6 | sairif.L3SubPortTest.subPortV6MtuTest |
+| rif.75  | Verify ingress sub-port stats for unicast packets | sairif.L3SubPortTest.subPortStatsTest |
+| rif.76  | Verify egress sub-port stats for unicast packets | sairif.L3SubPortTest.subPortStatsTest |
+| rif.77  | Verify MYIP works for subnet routes | sairif.L3SubPortTest.subPortMyIPTest |
+| | VLAN Interface | |
+| rif.78  | Verify IPv4 packets are dropped when admin_v4_state is False | sairif.L3SviTest.sviRifIpv4DisableTest |
+| rif.79  | Verify IPv6 packets are dropped when admin_v6_state is False | sairif.L3SviTest.sviRifIpv6DisableTest |
+| rif.80  | Verify L2 bridging on SVI port for rmac miss | sairif.L3SviTest.sviBridgingTest |
+| rif.81  | Verify L2 flooding on SVI for broadcast packet| sairif.L3SviTest.sviBridgingTest |
+| rif.82  | Verify routing between SVIs | sairif.L3SviTest.sviToSviRoutingTest |
+| rif.83  | Verify routing after NHOP resolved via static MAC entry | sairif.L3SviTest.sviHostTest.sviHostTest |
+| rif.84  | Verify routing after NHOP resolved via static MAC entry on tagged member | sairif.L3SviTest.sviHostVlanTaggingTest |
+| rif.85  | Verify port routed flood when static MAC entry is missing | sairif.L3SviTest.svIPv4HostPostRoutedFloodTest, sairif.L3SviTest.sviIPv6HostPostRoutedFloodTest |
+| rif.86  | Verify routing after NHOP resolved via static MAC move | sairif.L3SviTest.sviIPv4HostStaticMacMoveTest, sairif.L3SviTest.sviIPv6HostStaticMacMoveTest |
+| rif.87  | Verify routing after NHOP resolved via dynamically learnt MAC entry | sairif.L3SviTest.sviRouteDynamicMacTest |
+| rif.88  | Verify routing after NHOP resolved when dynamically learnt MAC entry is moved | sairif.L3SviTest.sviRouteDynamicMacMoveTest |
+| rif.89  | Verify routing after NHOP resolved via dynamically after neighbor is moved | sairif.L3SviTest.sviIPv4ArpMoveTest, sairif.L3SviTest.sviIPv6IcmpMoveTest |
+| rif.90  | Verify routing after NHOP resolved via static MAC entry on LAG | sairif.L3SviTest.sviLagHostTest |
+| rif.91  | Verify routing after NHOP resolved via static MAC move for LAG | sairif.L3SviTest.sviIPv4LagHostStaticMacMoveTest, sairif.L3SviTest.sviIPv6LagHostStaticMacMoveTest |
+| rif.92  | Verify routing after NHOP resolved via dynamically learnt MAC entry for LAG | sairif.L3SviTest.sviLagHostDynamicMacTest |
+| rif.93  | Verify routing after NHOP resolved when dynamically learnt MAC entry is moved for LAG| sairif.L3SviTest.sviIPv4LagHostDynamicMacMoveTest, sairif.L3SviTest.sviIPv6LagHostDynamicMacMoveTest |
+| rif.94  | Verify IPv4 packet forwarded with packet size less than MTU | sairif.L3SviTest.sviIPv4MtuTest |
+| rif.95  | Verify IPv4 packet forwarded wth packet size equal to MTU | sairif.L3SviTest.sviIPv4MtuTest |
+| rif.96  | Verify IPv4 packet dropped with packet size greater than MTU | sairif.L3SviTest.sviIPv4MtuTest |
+| rif.97  | Verify IPv4 packet with packet size greater than MTU punted to CPU if trap present| sairif.L3MtuTrapTest.sviIpv4MtuTrapTest |
+| rif.98  | Verify IPv6 packet forwarded with packet size less than MTU | sairif.L3SviTest.sviIPv6MtuTest |
+| rif.99  | Verify Ipv6 packet forwarded with packet size equal to MTU | sairif.L3SviTest.sviIPv6MtuTest |
+| rif.100 | Verify IPv6 packet dropped with packet size greater than MTU | sairif.L3SviTest.sviIPv6MtuTest |
+| rif.101 | Verify IPv6 packet with packet size greater than MTU punted to CPU if trap present | sairif.L3MtuTrapTest.svi.Ipv6MtuTrapTest |
+| rif.102 | Verify packet forward after MTU change for IPv4 | sairif.L3SviTest.sviIPv4MtuTest |
+| rif.103 | Verify packet forward after MTU change for IPv6 | sairif.L3SviTest.sviIPv6MtuTest |
+| rif.104 | Verify ingress sub-port stats for unicast packets | sairif.L3SviTest.sviStatsTest |
+| rif.105 | Verify egress sub-port stats for unicast packets | sairif.L3SviTest.sviStatsTest |
+| rif.106 | Verify ingress sub-port stats for broadcast packets | sairif.L3SviTest.sviStatsTest |
+| rif.107 | Verify egress sub-port stats for broadcast packets | sairif.L3SviTest.sviStatsTest |
+| rif.108 | Verify packet not routed if tagged packet ingresses on untagged SVI | sairif.L3SviTest.sviTaggingTest |
+| rif.109 | Verify packet dropped if unknown vlan tagged packet on tagged SVI | sairif.L3SviTest.sviTaggingTest |
+| rif.110 | Verify IP2ME on untagged RIF port | sairif.L3SviTest.sviMyIPTest |
+| rif.111 | Verify IP2ME on tagged RIF port | sairif.L3SviTest.sviMyIPTest |
+| rif.112 | Verify ARP reply from linux interface on untagged RIF | sairif.L3SviTest.sviArpReplyTest |
+| rif.113 | Verify ARP reply from linux interface on tagged RIF | sairif.L3SviTest.?????????????? |
+| rif.114 | Verify MYIP works for subnet routes | sairif.L3SviTest.sviMyIPTest |
+| rif.115 | Verify create fails when TYPE is VLAN and vlan_id is 0 | sairif.L3SviTest.incorrectVlanIdTest |
+| rif.116 | Verify duplicate VLAN interface creation fails | sairif.L3SviTest.duplicateVlanRifCreationTest |
+| | Common tests | |
+| rif.117 | Verify MTU trap packet statistics | sairif.L3MtuTrapTest.mtuPacketStatsTest |
+| rif.119 | Verify get of non existent RIF fails | sairif.L3Interface.negativeRifTest |
+| rif.120 | Verify removal of non existent RIF fails | sairif.L3Interface.negativeRifTest |
+| rif.121 | Verify set of non existent RIF fails | sairif.L3Interface.negativeRifTest |
+| rif.122 | Verify create fails with invalid vrf_id | sairif.L3Interface.negativeRifTest |
 
 ## Scheduler
 
