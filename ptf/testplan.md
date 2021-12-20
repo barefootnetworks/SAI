@@ -222,6 +222,8 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Queue
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
 | queue.1 | Query queue handles for the port. Query for SAI_QUEUE_ATTR_PORT and SAI_QUEUE_ATTR_INDEX attributes and validate. | saiqueue.portQueueQueryTest |
 | queue.2 | Configure DSCP-->TC and TC-->Queue map table. Modify the queue index in the map table to reflect the correct queue. | saiqosmap.L3IPv4QosMapMultipleDscpToSingleTcMappingTest |
 | queue.3 | Configure PCP-->TC and TC-->Queue map table. Modify the queue index in the map table to reflect the correct queue. | saiqosmap.L2QosMapOneToOnePCPToTcMappingTest |
