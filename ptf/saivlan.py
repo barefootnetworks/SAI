@@ -1206,7 +1206,7 @@ class L2VlanTest(SaiHelper):
                     self.dev_port28], self.dev_port29),
                 self.vlan70: set_vlan_data(70, vlan_ports, [
                     self.dev_port29], self.dev_port29)}
-            self._basicVlanFloodTest(vlan_data, [])
+            self._basicVlanFloodTest(vlan_data)
 
             self.client.sai_thrift_remove_vlan_member(self.vlan_member44)
             self.client.sai_thrift_remove_vlan_member(self.vlan_member52)
@@ -1226,7 +1226,7 @@ class L2VlanTest(SaiHelper):
                 self.vlan70: set_vlan_data(70, [
                     self.dev_port27, self.dev_port28, self.dev_port29], [
                         self.dev_port29], self.dev_port29)}
-            self._basicVlanFloodTest(vlan_data, [])
+            self._basicVlanFloodTest(vlan_data)
 
             self.vlan_member44 = sai_thrift_create_vlan_member(
                 self.client,
@@ -1262,48 +1262,8 @@ class L2VlanTest(SaiHelper):
                 self.vlan70: set_vlan_data(
                     70, vlan_ports, [
                         self.dev_port29], self.dev_port29)}
-            self._basicVlanFloodTest(vlan_data, [])
+            self._basicVlanFloodTest(vlan_data)
 
-            vlan_ports2 = [
-                self.dev_port26,
-                self.dev_port27,
-                self.dev_port28,
-                self.dev_port29,
-                self.dev_port30]
-            lag_member = sai_thrift_create_lag_member(
-                self.client, lag_id=self.lag10, port_id=self.port30)
-            vlan_data = {
-                self.vlan40: set_vlan_data(
-                    40, vlan_ports2, [
-                        self.dev_port26], self.dev_port30),
-                self.vlan50: set_vlan_data(
-                    50, vlan_ports2, [
-                        self.dev_port27], self.dev_port30),
-                self.vlan60: set_vlan_data(
-                    60, vlan_ports2, [
-                        self.dev_port28, self.dev_port30], self.dev_port30),
-                self.vlan70: set_vlan_data(
-                    70, vlan_ports2, [
-                        self.dev_port29], self.dev_port30)}
-            self._basicVlanFloodTest(
-                vlan_data, lag=[
-                    self.dev_port28, self.dev_port30])
-
-            sai_thrift_remove_lag_member(self.client, lag_member)
-            vlan_data = {
-                self.vlan40: set_vlan_data(
-                    40, vlan_ports, [
-                        self.dev_port26], self.dev_port29),
-                self.vlan50: set_vlan_data(
-                    50, vlan_ports, [
-                        self.dev_port27], self.dev_port29),
-                self.vlan60: set_vlan_data(
-                    60, vlan_ports, [
-                        self.dev_port28], self.dev_port29),
-                self.vlan70: set_vlan_data(
-                    70, vlan_ports, [
-                        self.dev_port29], self.dev_port29)}
-            self._basicVlanFloodTest(vlan_data, [])
         finally:
             sai_thrift_set_port_attribute(
                 self.client, self.port26, port_vlan_id=1)
@@ -1314,64 +1274,43 @@ class L2VlanTest(SaiHelper):
             sai_thrift_set_lag_attribute(
                 self.client, self.lag11, port_vlan_id=1)
 
-    def _basicVlanFloodTest(self, vlan_data, lag=None):
+    def _basicVlanFloodTest(self, vlan_data):
         """
         Checks flooding for the chosen vlan_data
 
         Args:
             vlan_data (dictionary): dictionary which contains dictionaries
             with VLANs data
-            lag (list): lags list
         """
         try:
             for vlan_key in vlan_data.keys():
                 vlan = vlan_data[vlan_key]
-                print "#### Flooding on %s ####" % (str(vlan.vlan_id))
-                self.tagged_pkt[Dot1Q].vlan = vlan.vlan_id
-                self.tagged_arp_resp[Dot1Q].vlan = vlan.vlan_id
-                pkt_list = [None] * vlan.large_port
-                arp_pkt_list = [None] * vlan.large_port
-                for port in vlan.ports:
-                    if port not in vlan.untagged:
+                print("#### Flooding on %s ####" % (str(vlan["vlan_id"])))
+                self.tagged_pkt[Dot1Q].vlan = vlan["vlan_id"]
+                self.tagged_arp_resp[Dot1Q].vlan = vlan["vlan_id"]
+                pkt_list = [None] * vlan["large_port"]
+                arp_pkt_list = [None] * vlan["large_port"]
+                for port in vlan["ports"]:
+                    if port not in vlan["untagged"]:
                         pkt_list[port - 1] = self.tagged_pkt
                         arp_pkt_list[port - 1] = self.tagged_arp_resp
                     else:
                         pkt_list[port - 1] = self.pkt
                         arp_pkt_list[port - 1] = self.arp_resp
-                for port in vlan.ports:
-                    print "Testing flooding and learning on port%d" % (port)
-                    other_ports = [p for p in vlan.ports if p != port]
+                for port in vlan["ports"]:
+                    print("Testing flooding and learning on port%d" % (port))
+                    other_ports = [p for p in vlan["ports"] if p != port]
                     verify_pkt_list = [pkt_list[pl - 1] for pl in other_ports]
-                    print "Sending arp request from port ", port, " flooding on ", other_ports
-                    send_packet(self, port, str(pkt_list[port - 1]))
-                    if not lag:
-                        verify_each_packet_on_each_port(
-                            self, verify_pkt_list, other_ports)
-                    else:
-                        ports = []
-                        lag_ports = []
-                        for l in lag:
-                            lag_ports.append(l)
-                        for p in other_ports:
-                            if p not in lag_ports:
-                                ports.append([p])
-                        if port not in lag_ports:
-                            ports.append(lag_ports)
-                        verify_any_packet_on_ports_list(
-                            self, verify_pkt_list, ports)
+                    print("Sending arp request from port ", port, " flooding on ", other_ports)
+                    send_packet(self, port, pkt_list[port - 1])
+                    verify_each_packet_on_each_port(
+                        self, verify_pkt_list, other_ports)
                     time.sleep(2)
                     for send_port in other_ports:
-                        if port in lag and send_port in lag:
-                            continue
-                        print "Sending arp response from ", send_port, "->", port
-                        send_packet(self, send_port, str(
-                            arp_pkt_list[send_port - 1]))
-                        if port in lag:
-                            verify_packet_any_port(
-                                self, arp_pkt_list[port - 1], lag)
-                        else:
-                            verify_packets(
-                                self, arp_pkt_list[port - 1], [port])
+                        print("Sending arp response from ", send_port, "->", port)
+                        send_packet(self, send_port, arp_pkt_list[send_port - 1])
+                        verify_packets(
+                            self, arp_pkt_list[port - 1], [port])
                     sai_thrift_flush_fdb_entries(
                         self.client, bv_id=vlan_key, entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
         finally:
@@ -1385,11 +1324,6 @@ class L2VlanTest(SaiHelper):
         """
         print("\nvlanFloodEnhancedTest()")
         print("Flood test on ports 1,2, lag 1 and 2")
-
-        lag_mbr32 = sai_thrift_create_lag_member(
-            self.client, lag_id=self.lag10, port_id=self.port24)
-        lag_mbr42 = sai_thrift_create_lag_member(
-            self.client, lag_id=self.lag11, port_id=self.port25)
 
         vlan100 = sai_thrift_create_vlan(self.client, vlan_id=100)
         vlan_member101 = sai_thrift_create_vlan_member(
@@ -1469,6 +1403,68 @@ class L2VlanTest(SaiHelper):
             pktlen=100)
 
         try:
+            print("Add ports 24 and 25 to lag10 and lag11")
+            lag_mbr32 = sai_thrift_create_lag_member(
+                self.client, lag_id=self.lag10, port_id=self.port24)
+            lag_mbr42 = sai_thrift_create_lag_member(
+                self.client, lag_id=self.lag11, port_id=self.port25)
+
+            lag1_ports = [self.dev_port28, self.dev_port24]
+            lag2_ports = [self.dev_port29, self.dev_port25]
+            send_packet(self, self.dev_port26, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [lag1_ports, lag2_ports,
+                 [self.dev_port27], [self.dev_port30]])
+            send_packet(self, self.dev_port28, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [[self.dev_port26], lag2_ports,
+                 [self.dev_port27], [self.dev_port30]])
+            send_packet(self, self.dev_port29, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [[self.dev_port26], lag1_ports,
+                 [self.dev_port27], [self.dev_port30]])
+            send_packet(self, self.dev_port30, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [[self.dev_port26], lag1_ports,
+                 lag2_ports, [self.dev_port27]])
+            
+            print("Remove ports 24 and 25 from lag10 and lag11")
+            sai_thrift_remove_lag_member(self.client, lag_mbr32)
+            sai_thrift_remove_lag_member(self.client, lag_mbr42)
+
+            lag1_ports = [self.dev_port28]
+            lag2_ports = [self.dev_port29]
+            send_packet(self, self.dev_port26, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [lag1_ports, lag2_ports,
+                 [self.dev_port27], [self.dev_port30]])
+            send_packet(self, self.dev_port28, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [[self.dev_port26], lag2_ports,
+                 [self.dev_port27], [self.dev_port30]])
+            send_packet(self, self.dev_port29, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [[self.dev_port26], lag1_ports,
+                 [self.dev_port27], [self.dev_port30]])
+            send_packet(self, self.dev_port30, pkt100)
+            verify_each_packet_on_multiple_port_lists(
+                self, [pkt100] * 4,
+                [[self.dev_port26], lag1_ports,
+                 lag2_ports, [self.dev_port27]])
+
+            print("Add ports 24 and 25 to lag10 and lag11")
+            lag_mbr32 = sai_thrift_create_lag_member(
+                self.client, lag_id=self.lag10, port_id=self.port24)
+            lag_mbr42 = sai_thrift_create_lag_member(
+                self.client, lag_id=self.lag11, port_id=self.port25)
+
             lag1_ports = [self.dev_port28, self.dev_port24]
             lag2_ports = [self.dev_port29, self.dev_port25]
             send_packet(self, self.dev_port26, pkt100)
