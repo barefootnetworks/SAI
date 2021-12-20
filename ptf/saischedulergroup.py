@@ -21,6 +21,7 @@ from sai_thrift.sai_headers import *
 from sai_base_test import *
 
 
+@group("draft")
 class SchGroupParamsTest(SaiHelper):
     '''
     Base scheduler group parameters tests
@@ -79,6 +80,7 @@ class SchGroupParamsTest(SaiHelper):
             sai_thrift_remove_scheduler(self.client, sched)
 
 
+@group("draft")
 class SchGroupCrteateFailTest(SaiHelper):
     '''
     Verify if scheduler group creation fails without mandatory parameters
