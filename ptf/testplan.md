@@ -57,6 +57,21 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 ## Hostif
 
 ## Lag
+| lag.1 | Verify basic load balancing of L2 traffic | sailag.LAGL2LoadBalancing |
+| lag.2 | Verify basic load balancing of L3 traffic | sailag.LAGL3LoadBalancing |
+| lag.3 | Verify load balancing after add/delete LAG member | sailag.LAGL3LoadBalancing.l3LoadBalancingRemovedMembersTest |
+| lag.4 | Verify load balancing after activate/deactivate LAG member | sailag.LAGL3LoadBalancing.l3LoadBalancingDisableMembersTest |
+| lag.5 | Verify no traffic if all members inactive | sailag.LAGDisableEgressLagMember |
+| lag.6 | Verify traffic with 1 active LAG member after disabling other members | sailag.LAGDisableEgressLagMember |
+| lag.7 | Verify LAG ingress/egress when LAG is tagged on multiple VLAN | sailag.LAGDisableEgressLagMember.multipleVlanTest |
+| lag.8 | Verify PV miss when LAG is tagged on multiple VLAN | sailag.LAGDisableEgressLagMember.multipleVlanTest |
+| lag.9 | Verify LAG member list using SAI_LAG_ATTR_PORT_LIST | sailag.LAGAttrPortList |
+| lag.10 | Verify no flooding on deactivated LAG member | sailag.LAGDisableEgressLagMember.lagMemberActivateFloodTest |
+| lag.11 | Verify no bridging on deactivated LAG member | sailag.LAGDisableEgressLagMember.lagMemberActivateBridgeTest |
+| lag.12 | Verify no egress traffic on lag member when egress_disable set | sailag.LAGDisableEgressLagMember |
+| lag.13 | Verify no ingress traffic on lag member when ingress_disable set | sailag.LAGDisableIngressLagMember |
+| lag.14 | Create/Remove Lag/Lag member | sailag.LAGCreateLagMember |
+| lag.15 | L2 verify Load Balancing with LAG HASH modifications | saihash.L2LagHashTest saihash.L2LagHashEtherTypeTest saihash.L2LagHashSrcMACTest saihash.L2LagHashDstMACTest |
 
 ## Mirror
 
