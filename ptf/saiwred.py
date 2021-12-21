@@ -17,13 +17,10 @@ Thrift SAI interface Weighted random early detection (WRED) tests
 """
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
-from ptf.packet import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 
+@group("draft")
 class WredBaseTest(SaiHelper):
     """
     WRED base test
@@ -253,7 +250,7 @@ class WredBaseTest(SaiHelper):
             self._verifyStat(i_stats, e_stats, name, delta)
 
 
-@group('wred-traffic')
+@group("draft")
 class WredTrafficTest(WredBaseTest):
     """
     Test WRED with traffic
@@ -979,6 +976,7 @@ class WredTrafficTest(WredBaseTest):
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
 
+@group("draft")
 class WredTest(WredBaseTest):
     """
     Test WRED interface, also with traffic not affected by WRED
