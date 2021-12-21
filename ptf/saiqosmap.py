@@ -16,10 +16,6 @@ Thrift SAI QosMap interface tester
 """
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
-from ptf.packet import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 
@@ -247,6 +243,7 @@ def create_and_verify_qos_map(client, map_type, key_list, data_list,
     return qos_map_id
 
 
+@group("draft")
 class L2QosMapBaseClass(SaiHelperBase):
     """Verifies SAI bridge port flood test case"""
     def setUp(self):
@@ -317,6 +314,7 @@ class L2QosMapBaseClass(SaiHelperBase):
         return total_cnt
 
 
+@group("draft")
 class L3QosMapBaseClass(SaiHelperBase):
     ''' QOS Map Tests Base class '''
     def setUp(self):
@@ -565,6 +563,7 @@ class L3QosMapBaseClass(SaiHelperBase):
                 qos_dscp_to_tc_map=getattr(self, 't_qos_dscp_to_tc_map'))
 
 
+@group("draft")
 class L3QosDscpToTcTest(L3QosMapBaseClass):
     """ L3 Test qos map Dscp to Tc Test attributes """
     def setUp(self):
@@ -2634,6 +2633,7 @@ class L3QosDscpToTcTest(L3QosMapBaseClass):
             sai_thrift_remove_qos_map(self.client, qos_tc_to_queue_map_id)
 
 
+@group("draft")
 class QosDscpToColorTest(L3QosMapBaseClass):
     ''' Qos DSCP to Color test class.
     '''
@@ -3135,6 +3135,7 @@ class QosDscpToColorTest(L3QosMapBaseClass):
                                                        qos_dscp_to_color_map=0)
 
 
+@group("draft")
 class QosTcToPriorityGroupTestPFC(L3QosMapBaseClass):
     ''' QOS map TC to priority group test class
     '''
@@ -4779,6 +4780,7 @@ class QosTcToPriorityGroupTestPFC(L3QosMapBaseClass):
         print("\tok")
 
 
+@group("draft")
 class QosTcToPriorityGroupTestTC(L3QosMapBaseClass):
     ''' QOS map TC to priority group test class
     '''
@@ -6211,6 +6213,7 @@ class QosTcToPriorityGroupTestTC(L3QosMapBaseClass):
         self.dataplane.flush()
 
 
+@group("draft")
 class QosTcAndColorToDscpTest(L3QosMapBaseClass):
     ''' QOS TC and COLOR to DSCP test '''
     def setUp(self):
@@ -6791,6 +6794,7 @@ class QosTcAndColorToDscpTest(L3QosMapBaseClass):
                     self.client, port, qos_tc_and_color_to_dscp_map=0)
 
 
+@group("draft")
 class L2QosMapPcpToColorTest(L2QosMapBaseClass):
     ''' L2 PCP -> COLOR QOS mapping test base class '''
     def setUp(self):
@@ -8071,6 +8075,7 @@ class L2QosMapPcpToColorTest(L2QosMapBaseClass):
             print("\tPacket flooded. ok")
 
 
+@group("draft")
 class L2QosMapPcpToTcTest(L2QosMapBaseClass):
     ''' L2 PCP to TC QOS map tests base class. '''
     def setUp(self):
@@ -9116,6 +9121,7 @@ class L2QosMapPcpToTcTest(L2QosMapBaseClass):
             sai_thrift_remove_qos_map(self.client, qos_dot1p_to_tc_map_id)
 
 
+@group("draft")
 class QosMapCreateModifyTest(L2QosMapBaseClass):
     ''' QOS map create and modify test base class.
     '''
