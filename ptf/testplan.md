@@ -53,6 +53,46 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 ## FDB
 
 ## Hash
+| saihash.1 | L2 Lag basic test with varing seed values | saihash.L2LagHashSeedTest |
+| saihash.2 | L3 Lag basic test with varing seed values | saihash.L3LagIPv4HashSeedTest |
+| saihash.3 | IPv4 ECMP seed test with varing values | saihash.L3EcmpIPv4HashSeedTest |
+| saihash.4 | IPv6 ECMP seed test with varing values | saihash.L3EcmpIPv6HashSeedTest |
+| saihash.5 | Traffic distribution using Src MAC selection for LAG hash | saihash.L2LagHashSrcMACTest |
+| saihash.6 | Traffic distribution using Dst MAC selection for LAG hash | saihash.L2LagHashDstMACTest |
+| saihash.7 | L3 IPv4 traffic distribution using Src port selection for LAG hash | saihash.L3LagIPv4SrcPortHashTest |
+| saihash.8 | L3 IPv4 traffic distribution using Dst Port selection for IPv4 LAG hash | saihash.L3LagIPv4DstPortHashTest |
+| saihash.9 | L3 IPv4 traffic distribution using Src IP selection for IPv4 LAG hash | saihash.L3LagIPv4SrcIPHashTest |
+| saihash.10 | L3 IPv4 traffic distribution using Dst IP selection for IPv4 LAG hash | saihash.L3LagIPv4DstIPHashTest |
+| saihash.11 | L3 IPv4 traffic distribution using using all the field selected for IPv4 LAG hash | saihash.L3LagIPv4HashTest |
+| saihash.12 | Traffic distribution using Src IP selection for ECMP IPv4 hash | saihash.EcmpIPv4SrcIPHashTest |
+| saihash.13 | Traffic distribution using Dst IP selection for ECMP IPv4 hash | saihash.EcmpIPv4DstIPHashTest |
+| saihash.14 | Traffic distribution using using all the field selected for ECMP IPv4 hash | saihash.EcmpIPv4HashTest |
+| saihash.15 | Traffic distribution using Src IP selection for ECMP IPv6 hash | saihash.EcmpIPv6SrcIPHashTest |
+| saihash.16 | Traffic distribution using Dst IP selection for ECMP IPv6 hash | saihash.EcmpIPv6DstIPHashTest |
+| saihash.17 | Traffic distribution using all the field selected for ECMP IPv6 hash | saihash.EcmpIPv6HashTest |
+| saihash.18 | Traffic distribution using Src MAC selection for Non-IP hash | saihash.NonIPSrcMacHashTest |
+| saihash.19 | Traffic distribution using Dst MAC selection for Non-IP hash | saihash.NonIPDstMacHashTest |
+| saihash.20 | ECMP IPv4 hash defined for single IPv4 hash field with traffic with this field NOT being modified . No LB | saihash.EcmpIPv4BasicHashNoLBTest |
+| saihash.21 | Same as above but for LAG. No LB | all tests with hash_field config |
+| saihash.22 | IPv4 create/modify/remove ecmp hash fields | saihash.EcmpIPv4HashSaveRestoreTest |
+| saihash.23 | IPv6 create/modify/remove ecmp hash fields | saihash.EcmpIPv6HashSaveRestoreTest |
+| saihash.24 | Modify switch lag hash fields | saihash.LagHashSaveRestoreTest |
+| saihash.25 | Modify switch lag IPv4 hash fields | saihash.LagIPv4HashSaveRestoreTest |
+| saihash.26 | Modify switch lag IPv6  hash fields | saihash.LagIPv6HashSaveRestoreTest |
+| saihash.27 | Verify IPv6 hash does not impact IPv4 hashing | saihash.EcmpIPv4vsIPv6HashTest |
+| saihash.28 | Verify IPv4 hash does not impact IPv6 hashing | saihash.EcmpIPv6vsIPv4HashTest |
+| saihash.29 | L3 IPv6 Lag basic test with varing seed values | saihash.L3LagIPv6HashSeedTest |
+| saihash.30 | L3 IPv6 traffic distribution using Src port selection for LAG hash | saihash.L3LagIPv6SrcPortHashTest |
+| saihash.31 | L3 IPv6 traffic distribution using Dst port selection for LAG hash | saihash.L3LagIPv6DstPortHashTest |
+| saihash.32 | L3 IPv6 traffic distribution using Src IP selection for LAG hash | saihash.L3LagIPv6SrcIPHashTest |
+| saihash.33 | L3 IPv6 traffic distribution using Dst IP selection for LAG hash | saihash.L3LagIPv6DstIPHashTest |
+| saihash.34 | L3 IPv6 traffic distribution using using all the field selected for LAG hash | saihash.L3LagIPv6HashTest |
+| saihash.35 | L3 IPv4 traffic distribution using Dst port selection for ECMP hash | saihash.EcmpIPv4DstPortHashTest |
+| saihash.36 | L3 IPv4 traffic distribution using Src port selection for ECMP hash | saihash.EcmpIPv4SrcPortHashTest |
+| saihash.37 | L3 IPv6 traffic distribution using Dst port selection for ECMP hash | saihash.EcmpIPv6DstPortHashTest |
+| saihash.38 | L3 IPv6 traffic distribution using Src port selection for ECMP hash | saihash.EcmpIPv6SrcPortHashTest |
+| saihash.39 | L2 Lag basic test with varing hash fields values | saihash.L2LagHashTest |
+| saihash.40 | L2 Lag hashing on Ether Type | saihash.L2LagHashEtherTypeTest |
 
 ## Hostif
 
