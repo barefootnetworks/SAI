@@ -230,7 +230,7 @@ class L3IPv4EcmpHost(SaiHelper):
         self.ipv4_hash_id, self.ipv6_hash_id = setup_hash(self)
 
     def runTest(self):
-        self.l3SaiNngSetGetTest()
+        self.l3SaiNhgSetGetTest()
         self.l3IPv4EcmpHostTest()
 
     def tearDown(self):
@@ -253,12 +253,12 @@ class L3IPv4EcmpHost(SaiHelper):
         finally:
             super(L3IPv4EcmpHost, self).tearDown()
 
-    def l3SaiNngSetGetTest(self):
+    def l3SaiNhgSetGetTest(self):
         """
         Checks SAI switch ECMP attributes and validates
         get and set attributes
         """
-        print("l3SaiNngSetGetTest")
+        print("l3SaiNhgSetGetTest")
         try:
             # predefined NHG self.nhop_group1 with 2 memners
             nhg1_size = 2
