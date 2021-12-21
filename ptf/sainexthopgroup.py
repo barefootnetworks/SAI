@@ -18,9 +18,6 @@ Thrift SAI interface NextHopGroup tests
 import binascii
 
 from sai_thrift.sai_headers import *
-from ptf.testutils import *
-from ptf.packet import *
-from ptf.thriftutils import *
 
 from sai_base_test import *
 
@@ -170,6 +167,7 @@ def save_number_of_available_nhg_resources(self, debug=False):
         print_number_of_available_nhg_resources(self)
 
 
+@group("draft")
 class L3IPv4EcmpHost(SaiHelper):
     """
     Base ECMP tests for IPv4 and ECMP members as regular L3 port RIFs
@@ -458,6 +456,7 @@ class L3IPv4EcmpHost(SaiHelper):
             self, [exp_pkt2, exp_pkt1], [self.dev_port11, self.dev_port12])
 
 
+@group("draft")
 class L3ipv6EcmpHost(SaiHelper):
     """
     Basic ECMP tests for IPv6 and regular L3 port RIFs
@@ -589,6 +588,7 @@ class L3ipv6EcmpHost(SaiHelper):
             self, [exp_pkt2, exp_pkt1], [self.dev_port11, self.dev_port12])
 
 
+@group("draft")
 class L3IPv4EcmpLpmTest(SaiHelper):
     """
     Base ECMP tests with LPM routes for IPv4
@@ -909,6 +909,7 @@ class L3IPv4EcmpLpmTest(SaiHelper):
             sai_thrift_remove_next_hop(self.client, nhop4)
 
 
+@group("draft")
 class L3IPv4EcmpLagTest(SaiHelper):
     """
     Base ECMP tests with lag for IPv4
@@ -1804,6 +1805,7 @@ class L3IPv4EcmpLagTest(SaiHelper):
                 ecmp_default_hash_seed=ecmp_default_hash_seed)
 
 
+@group("draft")
 class L3IPv6EcmpLagTest(SaiHelper):
     """
     Base ECMP tests with ECMP members as LAG RIFs
@@ -2763,6 +2765,7 @@ class L3IPv6EcmpLagTest(SaiHelper):
                                 "Ecmp paths are not equally balanced")
 
 
+@group("draft")
 class L3IPv4SVIEcmpTest(SaiHelper):
     """
     Base ECMP tests for IPv4 and ECMP members as SVI RIFs
@@ -3249,6 +3252,7 @@ class L3IPv4SVIEcmpTest(SaiHelper):
             sai_thrift_remove_fdb_entry(self.client, fdb_entry2)
 
 
+@group("draft")
 class L3IPv6SVIEcmpTest(SaiHelper):
     """
     Base ECMP tests for IPv6 and ECMP members as SVI RIFs
