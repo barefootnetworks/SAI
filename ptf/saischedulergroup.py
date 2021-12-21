@@ -81,7 +81,7 @@ class SchGroupParamsTest(SaiHelper):
 
 
 @group("draft")
-class SchGroupCrteateFailTest(SaiHelper):
+class SchGroupCreateFailTest(SaiHelper):
     '''
     Verify if scheduler group creation fails without mandatory parameters
     '''
