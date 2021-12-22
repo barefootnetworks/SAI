@@ -1385,9 +1385,9 @@ class MplsIpv4Test(SaiHelper):
             outseg_exp_value=exp_value,
             outseg_type=SAI_OUTSEG_TYPE_PUSH)
 
-        # note: nbr with the same dst_ip as mpls nhop has to be created
-        # after mpls nhop is created,
-        # if not it will create second nhop of type IP with this dst_ip
+        # note: neighbor with the same dst_ip as MPLS nexthop has to be created
+        # after MPLS nexthop is created,
+        # if not it will create second nexthop of type IP with this dst_ip
         # and neither of them will be functioning correctly - packets
         # will be gleaned to CPU
         self.mpls_neighbor_entry_1 = sai_thrift_neighbor_entry_t(
@@ -2740,9 +2740,9 @@ class MplsIpv6TtlModeTest(SaiHelper):
             outseg_exp_value=exp_value,
             outseg_type=SAI_OUTSEG_TYPE_PUSH)
 
-        # note: nbr with the same dst_ip as mpls nhop has to be created
-        # after mpls nhop is created,
-        # if not it will create second nhop of type IP with this dst_ip
+        # note: neighbor with the same dst_ip as MPLS nexthop has to be created
+        # after MPLS nexthop is created,
+        # if not it will create second nexthop of type IP with this dst_ip
         # and neither of them will be functioning correctly - packets
         # will be gleaned to CPU
         self.mpls_neighbor_entry_1 = sai_thrift_neighbor_entry_t(
@@ -3363,9 +3363,9 @@ class MplsIpv4TtlModeTest(SaiHelper):
             outseg_exp_value=exp_value,
             outseg_type=SAI_OUTSEG_TYPE_PUSH)
 
-        # note: nbr with the same dst_ip as mpls nhop has to be created
-        # after mpls nhop is created,
-        # if not it will create second nhop of type IP with this dst_ip
+        # note: neighbor with the same dst_ip as MPLS nexthop has to be created
+        # after MPLS nexthop is created,
+        # if not it will create second nexthop of type IP with this dst_ip
         # and neither of them will be functioning correctly - packets
         # will be gleaned to CPU
         self.mpls_neighbor_entry_1 = sai_thrift_neighbor_entry_t(
