@@ -88,7 +88,7 @@ class MplsCpuTrapTest(SaiHelper):
 
     def mplsImplicitNullLabelTrapDropTest(self):
         '''
-        Verifies if MPLS packet with implicit null label (3) is trapped
+        Verify if MPLS packet with implicit null label (3) is trapped
         or dropped as defined.
         '''
         print("\nmplsImplicitNullLabelTrapDropTest()")
@@ -162,7 +162,7 @@ class MplsCpuTrapTest(SaiHelper):
 
     def mplsLabelLookupMissTest(self):
         '''
-        Verifies if MPLS packet with unknown label is dropped and checks
+        Verify if MPLS packet with unknown label is dropped and checks
         that associated debug counter is hit.
         '''
         print("\nmplsLabelLookupMissTest()")
@@ -307,9 +307,9 @@ class MplsIpv6Test(SaiHelper):
             outseg_exp_value=exp_value,
             outseg_type=SAI_OUTSEG_TYPE_PUSH)
 
-        # note: nbr with the same dst_ip as mpls nhop has to be created
-        # after mpls nhop is created,
-        # if not it will create second nhop of type IP with this dst_ip
+        # note: neighbor with the same dst_ip as MPLS nexthop has to be created
+        # after MPLS nexthop is created,
+        # if not it will create second nexthop of type IP with this dst_ip
         # and neither of them will be functioning correctly - packets
         # will be gleaned to CPU
         self.mpls_neighbor_entry_1 = sai_thrift_neighbor_entry_t(
@@ -772,7 +772,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsIngressLERTest(self):
         '''
-        Verifies if MPLS labels are added to packet in ingress LER.
+        Verify if MPLS labels are added to packet in ingress LER.
         '''
         print("\nmplsIngressLERTest()")
 
@@ -863,7 +863,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsEgressLERTermTest(self):
         '''
-        Verfies if MPLS label is popped in Egress LER and packet is forwarded
+        Verify if MPLS label is popped in Egress LER and packet is forwarded
         based on IP lookup.
         '''
         print("\nmplsIngressLERTermTest()")
@@ -894,7 +894,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsEgressLERNullTermTest(self):
         '''
-        Verfies if MPLS null label is popped in Egress LER and packet
+        Verify if MPLS null label is popped in Egress LER and packet
         is forwarded based on IP lookup.
         '''
         print("\nmplsIngressLERNullTermTest()")
@@ -925,7 +925,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsEgressPhpTest(self):
         '''
-        Verfies PHP pops label and forwards packet.
+        Verify PHP pops label and forwards packet.
         '''
         print("\nmplsEgressPhpTest()")
 
@@ -1007,7 +1007,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsEgressPhpSwapNullTest(self):
         '''
-        Verfies PHP swaps label with explicit null and forwards packet.
+        Verify PHP swaps label with explicit null and forwards packet.
         '''
         print("\nmplsEgressPhpSwapNullTest()")
 
@@ -1179,7 +1179,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsTransitSwapEcmpHashTest(self):
         '''
-        Verifies ECMP forwarding with MPLS Transit nhops.
+        Verify ECMP forwarding with MPLS Transit nhops.
         '''
         print("\nmplsTransitSwapEcmpHashTest()")
 
@@ -1276,7 +1276,7 @@ class MplsIpv6Test(SaiHelper):
 
     def mplsTransitPushTest(self):
         '''
-        Verifies MPLS label is pushed on stack in transit LSR.
+        Verify MPLS label is pushed on stack in transit LSR.
         '''
         print("\nmplsTransitPushTest()")
 
@@ -1884,7 +1884,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsIngressLERTest(self):
         '''
-        Verifies if MPLS labels are added to packet in ingress LER.
+        Verify if MPLS labels are added to packet in ingress LER.
         '''
         print("\nmplsIngressLERTest()")
 
@@ -1975,7 +1975,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsEgressLERTermTest(self):
         '''
-        Verfies if MPLS label is popped in Egress LER and packet is forwarded
+        Verify if MPLS label is popped in Egress LER and packet is forwarded
         based on IP lookup.
         '''
         print("\nmplsIngressLERTermTest()")
@@ -2006,7 +2006,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsEgressLERTermUpdateMplsRifVrfTest(self):
         '''
-        Verfies if MPLS label is popped in Egress LER and packet is forwarded
+        Verify if MPLS label is popped in Egress LER and packet is forwarded
         based on IP lookup afert changing VRF on MPLS RIF.
         '''
         print("\nmplsIngressLERTermUpdateMplsRifVrfTest()")
@@ -2092,7 +2092,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsEgressLERNullTermTest(self):
         '''
-        Verfies if MPLS null label is popped in Egress LER and packet
+        Verify if MPLS null label is popped in Egress LER and packet
         is forwarded based on IP lookup.
         '''
         print("\nmplsIngressLERNullTermTest()")
@@ -2123,7 +2123,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsEgressPhpTest(self):
         '''
-        Verfies PHP pops label and forwards packet.
+        Verify PHP pops label and forwards packet.
         '''
         print("\nmplsEgressPhpTest()")
 
@@ -2205,7 +2205,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsEgressPhpSwapNullTest(self):
         '''
-        Verfies PHP swaps label with explicit null and forwards packet.
+        Verify PHP swaps label with explicit null and forwards packet.
         '''
         print("\nmplsEgressPhpSwapNullTest()")
 
@@ -2474,7 +2474,7 @@ class MplsIpv4Test(SaiHelper):
 
     def mplsTransitPushTest(self):
         '''
-        Verifies MPLS label is pushed on stack in transit LSR.
+        Verify MPLS label is pushed on stack in transit LSR.
         '''
         print("\nmplsTransitPushTest()")
 
@@ -2528,7 +2528,7 @@ class MplsCreationTest(SaiHelper):
 
     def mplsAttributesTest(self):
         '''
-        Verifies set and get operations on MPLS attributes.
+        Verify set and get operations on MPLS attributes.
         '''
         print("\nmplsAttributesTest()")
 
@@ -2594,7 +2594,7 @@ class MplsCreationTest(SaiHelper):
 
     def mplsCreateTheSameEntryTest(self):
         '''
-        Verifies it is not possible to create duplicated MPLS entry.
+        Verify it is not possible to create duplicated MPLS entry.
         '''
         print("\nmplsCreateTheSameEntryTest()")
 
@@ -2989,7 +2989,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
 
     def mplsIngressLERTtlModeTest(self):
         '''
-        Verifies if MPLS labels are added to packet in ingress LER
+        Verify if MPLS labels are added to packet in ingress LER
         using TTL values from the incoming IPv6 packets.
         '''
         print("\nmplsIngressLERTtlModeTest()")
@@ -3132,7 +3132,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
 
     def mplsEgressLERTermTtlModeTest(self):
         '''
-        Verifies if MPLS label is popped in Egress LER and packet is forwarded
+        Verify if MPLS label is popped in Egress LER and packet is forwarded
         based on IP lookup using the TTL value from the popped MPLS label.
         '''
         print("\nmplsEgressLERTermTtlModeTest()")
@@ -3177,7 +3177,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
 
     def mplsEgressLERNullTermTtlModeTest(self):
         '''
-        Verifies if MPLS null label is popped in Egress LER and packet
+        Verify if MPLS null label is popped in Egress LER and packet
         is forwarded based on IP lookup using the TTL value from the
         popped MPLS label.
         '''
@@ -3205,7 +3205,7 @@ class MplsIpv6TtlModeTest(SaiHelper):
 
     def mplsEgressPhpTtlModeTest(self):
         '''
-        Verifies PHP pops label and forwards packet using TTL
+        Verify PHP pops label and forwards packet using TTL
         value from the top label in the stack.
         '''
         print("\nmplsEgressPhpTtlModeTest()")
@@ -3612,7 +3612,7 @@ class MplsIpv4TtlModeTest(SaiHelper):
 
     def mplsIngressLERTtlModeTest(self):
         '''
-        Verifies if MPLS labels are added to packet in ingress LER
+        Verify if MPLS labels are added to packet in ingress LER
         using TTL values from the incoming IPv4 packets.
         '''
         print("\nmplsIngressLERTtlModeTest()")
@@ -3702,7 +3702,7 @@ class MplsIpv4TtlModeTest(SaiHelper):
 
     def mplsEgressLERTermTtlModeTest(self):
         '''
-        Verifies if MPLS label is popped in Egress LER and packet is forwarded
+        Verify if MPLS label is popped in Egress LER and packet is forwarded
         based on IP lookup using the TTL value from the popped MPLS label.
         '''
         print("\nmplsIngressLERTermTtlModeTest()")
@@ -3729,7 +3729,7 @@ class MplsIpv4TtlModeTest(SaiHelper):
 
     def mplsEgressLERNullTermTtlModeTest(self):
         '''
-        Verifies if MPLS null label is popped in Egress LER and packet
+        Verify if MPLS null label is popped in Egress LER and packet
         is forwarded based on IP lookup using the TTL value from the
         popped MPLS label.
         '''
@@ -3757,7 +3757,7 @@ class MplsIpv4TtlModeTest(SaiHelper):
 
     def mplsEgressPhpTtlModeTest(self):
         '''
-        Verifies PHP pops label and forwards packet using TTL value
+        Verify PHP pops label and forwards packet using TTL value
         from the top label in the stack.
         '''
         print("\nmplsEgressPhpTtlModeTest()")
