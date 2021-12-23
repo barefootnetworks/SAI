@@ -4,12 +4,42 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## ACL
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| acl.1 | Create ACL table, ACL entries and attach table to port/LAG/RIF/Vlan | saiacl.SonicACLTest, saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.TCPFlagsACLTest, saiacl.AclIpTypeTrapTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.IngressL3AclDscp, saiacl.AclRedirectTest, saiacl.AclLagTest, saiacl.AclPreIngressTest, saiacl.L3AclCounterTest, saiacl.AclGroupTest |
+| acl.2 | Create ACL table, attach table to port and add entries to ACL | saiacl.SonicACLTest, saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.TCPFlagsACLTest, saiacl.AclIpTypeTrapTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.IngressL3AclDscp, saiacl.AclRedirectTest, saiacl.AclLagTest, saiacl.AclPreIngressTest, saiacl.L3AclCounterTest, saiacl.AclGroupTest |
+| acl.3 | Add ACL table group, V4 or V6 permit/deny/redirect ACL and V4/V6 mirror ACLs and attach to port/LAG/RIF/vlan  | saiacl.ACLGroupSeveralMembersTest |
+| acl.4 | Add ACL table group, V4 or V6 permit/deny/redirect ACL tables attach to port/LAG/RIF/vlan and add Mirror ACLs | saiacl.MultAclTableGroupBindTest |
+| acl.5 | ACL field validation - SRC IP field | saiacl.SrcIpAclTest |
+| acl.6 | ACL field validation - DST IP field | saiacl.DstIpAclTest |
+| acl.7 | ACL field validation - SRC MAC field | saiacl.MACSrcAclTest |
+| acl.8 | ACL field validation - L4 DST port and L4 SRC port fields | saiacl.L3L4PortTest |
+| acl.9 | ACL field validation - TCP flag field | saiacl.TCPFlagsACLTest |
+| acl.10 | ACL field validation - ACL IP type field | saiacl.AclIpTypeTrapTest |
+| acl.11 | ACL field validation - IPv6 next header field | saiacl.IPv6NextHdrTest |
+| acl.12 | ACL field validation - IP fragmentation field | saiacl.IPAclFragmentTest |
+| acl.13 | ACL field validation - DSCP field | saiacl.IngressL3AclDscp |
+| acl.14 | ACL action validation - permit | saiacl.SonicACLTest, saiacl.AclPreIngressTest, saiacl.IPv6NextHdrTest |
+| acl.15 | ACL action validation - deny | saiacl.AclGroupTest, saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.ACLGroupSeveralMembersTest, saiacl.MultAclTableGroupBindTest, saiacl.SonicACLTest, saiacl.TCPFlagsACLTest, saiacl.AclTableTypeTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.L3AclCounterTest, saiacl.VlanAclTest, saiacl.IngressL3AclDscp |
+| acl.16 | ACL action validation - mirror | saiacl.AclTableTypeTest, saiacl.MultAclTableGroupBindTest |
+| acl.17 | ACL action validation - redirect to port and LAG | saiacl.AclRedirectTest|
+| acl.18 | ACL action validation - trap | saiacl.AclIpTypeTrapTest |
+| acl.19 | Verify all ACL action modification | saiacl.SonicACLTest |
+| acl.20 | Add higher/lower priority ACL rules with conflicting match and actions | saiacl.SonicACLTest |
+| acl.21 | Matching on ACL range | saiacl.L3AclRangeTest |
+| acl.22 | Test pre-ingress matching and VRF assignment | saiacl.AclPreIngressTest |
+| acl.23 | Verify ACL counters | saiacl.L3AclCounterTest |
+| acl.24 | Verify ACL with LAG | saiacl.AclLagTest |
+| acl.25 | Attach ACL table group to set of combination of bind points(Port+LAG, Port+RIF, LAG+RIF etc.,) | saiacl.AclGroupTest |
+
 ## Bridge Port
 
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
 | bridgeport.1 | Verify sample bridge port attributes getting and setting | saibridgeport.BridgePortAttributeTest |
 | bridgeport.2 | Verify creation of bridge port of type Port | saibridgeport.BridgePortCreationTest.bpTypePortCreationTest |
+| acl. | Add ACL table group, V4 or V6 permit/deny/redirect ACL and V4/V6 mirror ACLs and attach to port, LAG, RIF, vlan | ACLGroupSeveralMembersTest |
+| acl. | Add ACL table group, V4 or V6 permit/deny/redirect ACL tables attach to port, LAG, RIF, vlan and add Mirror ACLs | MultAclTableGroupBindTest |
 | bridgeport.3 | Verify packet is dropped on port when no bridge_port is created on that port | saibridgeport.BridgePortCreationTest.noBpDropTest |
 | bridgeport.4 | Verify FDB is being flushed on port if bridge port admin_state is being set to DOWN | saibridgeport.BridgePortStateTest.bpStateDownFlushTest |
 | bridgeport.5 | Verify MAC address in not being learnt when bridge port admin_state is DOWN | saibridgeport.BridgePortStateTest.bpStateDownNoLearnTest |
@@ -54,9 +84,55 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Hash
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| saihash.1 | L2 Lag basic test with varing seed values | saihash.L2LagHashSeedTest |
+| saihash.2 | L3 Lag basic test with varing seed values | saihash.L3LagIPv4HashSeedTest |
+| saihash.3 | IPv4 ECMP seed test with varing values | saihash.L3EcmpIPv4HashSeedTest |
+| saihash.4 | IPv6 ECMP seed test with varing values | saihash.L3EcmpIPv6HashSeedTest |
+| saihash.5 | Traffic distribution using Src MAC selection for LAG hash | saihash.L2LagHashSrcMACTest |
+| saihash.6 | Traffic distribution using Dst MAC selection for LAG hash | saihash.L2LagHashDstMACTest |
+| saihash.7 | L3 IPv4 traffic distribution using Src port selection for LAG hash | saihash.L3LagIPv4SrcPortHashTest |
+| saihash.8 | L3 IPv4 traffic distribution using Dst Port selection for IPv4 LAG hash | saihash.L3LagIPv4DstPortHashTest |
+| saihash.9 | L3 IPv4 traffic distribution using Src IP selection for IPv4 LAG hash | saihash.L3LagIPv4SrcIPHashTest |
+| saihash.10 | L3 IPv4 traffic distribution using Dst IP selection for IPv4 LAG hash | saihash.L3LagIPv4DstIPHashTest |
+| saihash.11 | L3 IPv4 traffic distribution using using all the field selected for IPv4 LAG hash | saihash.L3LagIPv4HashTest |
+| saihash.12 | Traffic distribution using Src IP selection for ECMP IPv4 hash | saihash.EcmpIPv4SrcIPHashTest |
+| saihash.13 | Traffic distribution using Dst IP selection for ECMP IPv4 hash | saihash.EcmpIPv4DstIPHashTest |
+| saihash.14 | Traffic distribution using using all the field selected for ECMP IPv4 hash | saihash.EcmpIPv4HashTest |
+| saihash.15 | Traffic distribution using Src IP selection for ECMP IPv6 hash | saihash.EcmpIPv6SrcIPHashTest |
+| saihash.16 | Traffic distribution using Dst IP selection for ECMP IPv6 hash | saihash.EcmpIPv6DstIPHashTest |
+| saihash.17 | Traffic distribution using all the field selected for ECMP IPv6 hash | saihash.EcmpIPv6HashTest |
+| saihash.18 | Traffic distribution using Src MAC selection for Non-IP hash | saihash.NonIPSrcMacHashTest |
+| saihash.19 | Traffic distribution using Dst MAC selection for Non-IP hash | saihash.NonIPDstMacHashTest |
+| saihash.20 | ECMP IPv4 hash defined for single IPv4 hash field with traffic with this field NOT being modified . No LB | saihash.EcmpIPv4BasicHashNoLBTest |
+| saihash.21 | Same as above but for LAG. No LB | all tests with hash_field config |
+| saihash.22 | IPv4 create/modify/remove ecmp hash fields | saihash.EcmpIPv4HashSaveRestoreTest |
+| saihash.23 | IPv6 create/modify/remove ecmp hash fields | saihash.EcmpIPv6HashSaveRestoreTest |
+| saihash.24 | Modify switch lag hash fields | saihash.LagHashSaveRestoreTest |
+| saihash.25 | Modify switch lag IPv4 hash fields | saihash.LagIPv4HashSaveRestoreTest |
+| saihash.26 | Modify switch lag IPv6  hash fields | saihash.LagIPv6HashSaveRestoreTest |
+| saihash.27 | Verify IPv6 hash does not impact IPv4 hashing | saihash.EcmpIPv4vsIPv6HashTest |
+| saihash.28 | Verify IPv4 hash does not impact IPv6 hashing | saihash.EcmpIPv6vsIPv4HashTest |
+| saihash.29 | L3 IPv6 Lag basic test with varing seed values | saihash.L3LagIPv6HashSeedTest |
+| saihash.30 | L3 IPv6 traffic distribution using Src port selection for LAG hash | saihash.L3LagIPv6SrcPortHashTest |
+| saihash.31 | L3 IPv6 traffic distribution using Dst port selection for LAG hash | saihash.L3LagIPv6DstPortHashTest |
+| saihash.32 | L3 IPv6 traffic distribution using Src IP selection for LAG hash | saihash.L3LagIPv6SrcIPHashTest |
+| saihash.33 | L3 IPv6 traffic distribution using Dst IP selection for LAG hash | saihash.L3LagIPv6DstIPHashTest |
+| saihash.34 | L3 IPv6 traffic distribution using using all the field selected for LAG hash | saihash.L3LagIPv6HashTest |
+| saihash.35 | L3 IPv4 traffic distribution using Dst port selection for ECMP hash | saihash.EcmpIPv4DstPortHashTest |
+| saihash.36 | L3 IPv4 traffic distribution using Src port selection for ECMP hash | saihash.EcmpIPv4SrcPortHashTest |
+| saihash.37 | L3 IPv6 traffic distribution using Dst port selection for ECMP hash | saihash.EcmpIPv6DstPortHashTest |
+| saihash.38 | L3 IPv6 traffic distribution using Src port selection for ECMP hash | saihash.EcmpIPv6SrcPortHashTest |
+| saihash.39 | L2 Lag basic test with varing hash fields values | saihash.L2LagHashTest |
+| saihash.40 | L2 Lag hashing on Ether Type | saihash.L2LagHashEtherTypeTest |
+
 ## Hostif
 
 ## Lag
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
 | lag.1 | Verify basic load balancing of L2 traffic | sailag.LAGL2LoadBalancing |
 | lag.2 | Verify basic load balancing of L3 traffic | sailag.LAGL3LoadBalancing |
 | lag.3 | Verify load balancing after add/delete LAG member | sailag.LAGL3LoadBalancing.l3LoadBalancingRemovedMembersTest |
@@ -71,7 +147,7 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | lag.12 | Verify no egress traffic on lag member when egress_disable set | sailag.LAGDisableEgressLagMember |
 | lag.13 | Verify no ingress traffic on lag member when ingress_disable set | sailag.LAGDisableIngressLagMember |
 | lag.14 | Create/Remove Lag/Lag member | sailag.LAGCreateLagMember |
-| lag.15 | L2 verify Load Balancing with LAG HASH modifications | saihash.L2LagHashTest saihash.L2LagHashEtherTypeTest saihash.L2LagHashSrcMACTest saihash.L2LagHashDstMACTest |
+| lag.15 | L2 verify Load Balancing with LAG HASH modifications | saihash.L2LagHashTest, saihash.L2LagHashEtherTypeTest, saihash.L2LagHashSrcMACTest, saihash.L2LagHashDstMACTest |
 
 ## Mirror
 
