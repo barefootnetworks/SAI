@@ -49,6 +49,46 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | buffer.25 | For egress queue verify SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE with traffic. | saibuffer.BufferStatistics |
 
 ## Debug Counter
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| dbgc.1 |  Verify Port Debug Counter Remove drop reasons | saidebugcounters.PortDebugCounterRemoveDropReason |
+| dbgc.2 |  Verify Debug Counter Remove drop reasons | saidebugcounters.SwitchDebugCounterRemoveDropReason |
+| dbgc.3 |  Verify Port Debug Counter add drop reasons | saidebugcounters.PortDebugCounterAddDropReason |
+| dbgc.4 |  Verify Switch Debug Counter add drop reasons | saidebugcounters.SwitchDebugCounterAddDropReason |
+| dbgc.5 |  Verify Port Debug Counter for SMAC Multicast | saidebugcounters.PortDropMCSMAC |
+| dbgc.6 |  Verify Switch Debug Counter for SMAC Multicast | saidebugcounters.SwitchDropMCSMAC |
+| dbgc.7 |  Verify Port Debug Counter for L2 any drop reason | saidebugcounters.PortDropL2Any |
+| dbgc.8 |  Verify Switch Debug Counter for L2 any drop reason | saidebugcounters.SwitchDropL2Any |
+| dbgc.9 |  Verify Port Debug Counter for SMAC equals DMAC drop reason | saidebugcounters.PortDropSMACequalsDMAC |
+| dbgc.10 |  Verify Switch Debug Counter for SMAC equals DMAC drop reason | saidebugcounters.SwitchDropSMACequalsDMAC |
+| dbgc.11 |  Verify Port Debug Counter for Ingress VLAN filter drop reason | saidebugcounters.PortDropIngressVLANFilter |
+| dbgc.12 |  Verify Switch Debug Counter for Ingress VLAN filter drop reason | saidebugcounters.SwitchDropIngressVLANFilter |
+| dbgc.13 |  Verify Port Debug Counter for source IP Multicast drop reason | saidebugcounters.PortDropSIPMCTest |
+| dbgc.14 |  Verify Switch Debug Counter for source IP Multicast drop reason | saidebugcounters.PortDropSIPMCTest |
+| dbgc.15 |  Verify Port Debug Counter for TTL zero  drop reason | saidebugcounters.PortDropReasonTTLTest |
+| dbgc.16 |  Verify Switch Debug Counter for TTL zero  drop reason | saidebugcounters.SwitchDropReasonTTLTest |
+| dbgc.17 |  Verify Port Debug Counter for SIP Class E drop reason | saidebugcounters.PortDropSIPClassETest |
+| dbgc.18 |  Verify Switch Debug Counter for SIP Class E drop reason | saidebugcounters.SwitchDropSIPClassETest |
+| dbgc.19 |  Verify Port Debug Counter for UC DIP with MC DMAC drop reason | saidebugcounters.PortDropUCDIPMCDMACTest |
+| dbgc.20 |  Verify Port Debug Counter for IP header error drop reason | saidebugcounters.PortDropReasonIPHeaderErrorTest |
+| dbgc.21 |  Verify Switch Debug Counter for IP header error drop reason | saidebugcounters.SwitchDropReasonIPHeaderErrorTest |
+| dbgc.22 |  Verify Port multi Debug Counter | saidebugcounters.PortMultiDebugCounters |
+| dbgc.23 |  Verify Switch multi Debug Counter | saidebugcounters.SwitchMultiDebugCounters |
+| dbgc.24 |  Verify Port Debug Counter for DIP Link Local drop reason | saidebugcounters.PortDropDIPLinkLocalTest |
+| dbgc.25 |  Verify Port Debug Counter for SIP Link Local drop reason | saidebugcounters.PortDropSIPLinkLocalTest |
+| dbgc.26 |  Verify Port Debug Counter for SIP Unspecified drop reason | saidebugcounters.PortDropSIPUnspecifiedTest |
+| dbgc.27 |  Verify Port Debug Counter for IPv4 disabled rif drop reason | saidebugcounters.PortDropIPv4RIFDisabled |
+| dbgc.28 |  Verify Port Debug Counter for IPv4 disabled rif and L3 any drop reasons | saidebugcounters.PortDropIPv4L3AnyRIFDisabled |
+| dbgc.29 |  Verify Port Debug Counter for IPv6 disabled RIF drop reason | saidebugcounters.PortDropIPv6RIFDisabled |
+| dbgc.30 |  Verify Switch Debug Counter for DIP loopback drop reasons | saidebugcounters.SwitchDropDIPLoopback |
+| dbgc.31 |  Verify Switch Debug Counter for SIP loopback drop reasons | saidebugcounters.SwitchDropSIPLoopback |
+| dbgc.32 |  Verify Port Debug Counter for IPv4 route miss drop reasons | saidebugcounters.PortDropIPv4Miss |
+| dbgc.33 |  Verify Port Debug Counter for IPv6 route miss drop reasons | saidebugcounters.PortDropIPv6Miss |
+| dbgc.34 |  Verify Port Debug Counter for blackhole route drop reasons | saidebugcounters.PortDropBlackHoleRoute
+| dbgc.35 |  Verify Port Debug Counter for L3 any drop reasons | saidebugcounters.PortDropL3AnyTest
+| dbgc.36 |  Verify Port Debug Counter for ACL any drop reason | saidebugcounters.PortDropAclAnyTest
+| dbgc.37 |  Verify SAI query DebugCounter enum values capabilities | saidebugcounters.GetDebugCounterEnumValuesCapabilities
+| dbgc.38 |  Verify SAI query DebugCounter availability | saidebugcounters.GetDebugCounterAvailability
 
 ## FDB
 
