@@ -3718,32 +3718,32 @@ class AclRedirectTest(SaiHelper):
 
         print('#### NO ACL Applied ####')
         # send the test packet(s)
-        print("Sending Test packet EthType:0x%lx port 1 -> port 0" % (
+        print("Sending Test packet EthType:0x%lx port 25 -> port 24" % (
             eth_pkt1[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt1)
         verify_packets(self, eth_pkt1, [self.dev_port24])
 
-        print("Sending Test packet EthType:0x%lx port 1 -> port 0" % (
+        print("Sending Test packet EthType:0x%lx port 25 -> port 24" % (
             eth_pkt2[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt2)
         verify_packets(self, eth_pkt2, [self.dev_port24])
 
-        print("Sending Test packet EthType:0x%lx port 1 -> port 0" % (
+        print("Sending Test packet EthType:0x%lx port 25 -> port 24" % (
             eth_pkt3[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt3)
         verify_packets(self, eth_pkt3, [self.dev_port24])
 
-        print("Sending Test packet EthType:0x%lx port 1 -> port 0" % (
+        print("Sending Test packet EthType:0x%lx port 25 -> port 24" % (
             eth_pkt4[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt4)
         verify_packets(self, eth_pkt4, [self.dev_port24])
 
-        print("Sending Test(negative test) packet EthType:0x%lx port 1 -> "
-              "port 0" % (neg_test_pkt[Ether].type))
+        print("Sending Test(negative test) packet EthType:0x%lx port 25 -> "
+              "port 24" % (neg_test_pkt[Ether].type))
         send_packet(self, self.dev_port25, neg_test_pkt)
         verify_packets(self, neg_test_pkt, [self.dev_port24])
-        print("Sending Test(negative test) packet EthType:0x%lx port 1 -> "
-              "port 0" % (neg_test_pkt[Ether].type))
+        print("Sending Test(negative test) packet EthType:0x%lx port 25 -> "
+              "port 24" % (neg_test_pkt[Ether].type))
 
         # setup ACL to redirect based on Ether type
         entry_priority = 1
@@ -3928,40 +3928,40 @@ class AclRedirectTest(SaiHelper):
               "created 0x%lx" % (eth_pkt3[Ether].type, self.lag_id,
                                  acl_ip_entry_id_ingress))
 
-        print("Binding ACL grp 0x%lx to Port2" % (acl_table_group_ingress))
+        print("Binding ACL grp 0x%lx to Port25" % (acl_table_group_ingress))
         # bind ACL GRP to Port25
         sai_thrift_set_port_attribute(
             self.client, self.port25, ingress_acl=acl_table_group_ingress)
 
-        print("Sending Test packet EthType:0x%lx port 1 -> [ACL REDIRECT] "
-              "-> port 2" % (eth_pkt1[Ether].type))
+        print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
+              "-> port 26" % (eth_pkt1[Ether].type))
         # ensure packet is redirected!
         send_packet(self, self.dev_port25, eth_pkt1)
         verify_packets(self, eth_pkt1, [self.dev_port26])
 
         # ensure packet is redirected!
-        print("Sending Test packet EthType:0x%lx port 3 -> [ACL REDIRECT] "
-              "-> Lag1 (Port 3/Port 4)" % (eth_pkt2[Ether].type))
+        print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
+              "-> Lag1 (Port 26/Port 27)" % (eth_pkt2[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt2)
         verify_packets_any(self, eth_pkt2, [self.dev_port27,
                                             self.dev_port28])
 
         # ensure packet is redirected!
-        print("Sending Test packet EthType:0x%lx port 1 -> [ACL REDIRECT] "
-              "-> port 2" % (eth_pkt3[Ether].type))
+        print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
+              "-> port 26" % (eth_pkt3[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt3)
         verify_packets(self, eth_pkt3, [self.dev_port26])
 
         # ensure packet is redirected!
-        print("Sending Test packet EthType:0x%lx port 1 -> [ACL REDIRECT] "
-              "-> Lag1 (Port 3/Port 4)" % (eth_pkt4[Ether].type))
+        print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
+              "-> Lag1 (Port 27/Port 28)" % (eth_pkt4[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt4)
         verify_packets_any(self, eth_pkt4, [self.dev_port27,
                                             self.dev_port28])
 
         # ensure packet is not redirected!
-        print("Sending Test(negative test) packet EthType:0x%lx port 1 -> "
-              "port 0" % (neg_test_pkt[Ether].type))
+        print("Sending Test(negative test) packet EthType:0x%lx port 25 -> "
+              "port 24" % (neg_test_pkt[Ether].type))
         send_packet(self, self.dev_port25, neg_test_pkt)
         verify_packets(self, neg_test_pkt, [self.dev_port24])
 
