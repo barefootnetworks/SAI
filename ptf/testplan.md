@@ -79,10 +79,90 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | buffer.25 | For egress queue verify SAI_BUFFER_PROFILE_ATTR_RESERVED_BUFFER_SIZE with traffic. | saibuffer.BufferStatistics |
 
 ## Debug Counter
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| dbgc.1 |  Verify Port Debug Counter Remove drop reasons | saidebugcounters.PortDebugCounterRemoveDropReason |
+| dbgc.2 |  Verify Debug Counter Remove drop reasons | saidebugcounters.SwitchDebugCounterRemoveDropReason |
+| dbgc.3 |  Verify Port Debug Counter add drop reasons | saidebugcounters.PortDebugCounterAddDropReason |
+| dbgc.4 |  Verify Switch Debug Counter add drop reasons | saidebugcounters.SwitchDebugCounterAddDropReason |
+| dbgc.5 |  Verify Port Debug Counter for SMAC Multicast | saidebugcounters.PortDropMCSMAC |
+| dbgc.6 |  Verify Switch Debug Counter for SMAC Multicast | saidebugcounters.SwitchDropMCSMAC |
+| dbgc.7 |  Verify Port Debug Counter for L2 any drop reason | saidebugcounters.PortDropL2Any |
+| dbgc.8 |  Verify Switch Debug Counter for L2 any drop reason | saidebugcounters.SwitchDropL2Any |
+| dbgc.9 |  Verify Port Debug Counter for SMAC equals DMAC drop reason | saidebugcounters.PortDropSMACequalsDMAC |
+| dbgc.10 |  Verify Switch Debug Counter for SMAC equals DMAC drop reason | saidebugcounters.SwitchDropSMACequalsDMAC |
+| dbgc.11 |  Verify Port Debug Counter for Ingress VLAN filter drop reason | saidebugcounters.PortDropIngressVLANFilter |
+| dbgc.12 |  Verify Switch Debug Counter for Ingress VLAN filter drop reason | saidebugcounters.SwitchDropIngressVLANFilter |
+| dbgc.13 |  Verify Port Debug Counter for source IP Multicast drop reason | saidebugcounters.PortDropSIPMCTest |
+| dbgc.14 |  Verify Switch Debug Counter for source IP Multicast drop reason | saidebugcounters.PortDropSIPMCTest |
+| dbgc.15 |  Verify Port Debug Counter for TTL zero  drop reason | saidebugcounters.PortDropReasonTTLTest |
+| dbgc.16 |  Verify Switch Debug Counter for TTL zero  drop reason | saidebugcounters.SwitchDropReasonTTLTest |
+| dbgc.17 |  Verify Port Debug Counter for SIP Class E drop reason | saidebugcounters.PortDropSIPClassETest |
+| dbgc.18 |  Verify Switch Debug Counter for SIP Class E drop reason | saidebugcounters.SwitchDropSIPClassETest |
+| dbgc.19 |  Verify Port Debug Counter for UC DIP with MC DMAC drop reason | saidebugcounters.PortDropUCDIPMCDMACTest |
+| dbgc.20 |  Verify Port Debug Counter for IP header error drop reason | saidebugcounters.PortDropReasonIPHeaderErrorTest |
+| dbgc.21 |  Verify Switch Debug Counter for IP header error drop reason | saidebugcounters.SwitchDropReasonIPHeaderErrorTest |
+| dbgc.22 |  Verify Port multi Debug Counter | saidebugcounters.PortMultiDebugCounters |
+| dbgc.23 |  Verify Switch multi Debug Counter | saidebugcounters.SwitchMultiDebugCounters |
+| dbgc.24 |  Verify Port Debug Counter for DIP Link Local drop reason | saidebugcounters.PortDropDIPLinkLocalTest |
+| dbgc.25 |  Verify Port Debug Counter for SIP Link Local drop reason | saidebugcounters.PortDropSIPLinkLocalTest |
+| dbgc.26 |  Verify Port Debug Counter for SIP Unspecified drop reason | saidebugcounters.PortDropSIPUnspecifiedTest |
+| dbgc.27 |  Verify Port Debug Counter for IPv4 disabled rif drop reason | saidebugcounters.PortDropIPv4RIFDisabled |
+| dbgc.28 |  Verify Port Debug Counter for IPv4 disabled rif and L3 any drop reasons | saidebugcounters.PortDropIPv4L3AnyRIFDisabled |
+| dbgc.29 |  Verify Port Debug Counter for IPv6 disabled RIF drop reason | saidebugcounters.PortDropIPv6RIFDisabled |
+| dbgc.30 |  Verify Switch Debug Counter for DIP loopback drop reasons | saidebugcounters.SwitchDropDIPLoopback |
+| dbgc.31 |  Verify Switch Debug Counter for SIP loopback drop reasons | saidebugcounters.SwitchDropSIPLoopback |
+| dbgc.32 |  Verify Port Debug Counter for IPv4 route miss drop reasons | saidebugcounters.PortDropIPv4Miss |
+| dbgc.33 |  Verify Port Debug Counter for IPv6 route miss drop reasons | saidebugcounters.PortDropIPv6Miss |
+| dbgc.34 |  Verify Port Debug Counter for blackhole route drop reasons | saidebugcounters.PortDropBlackHoleRoute
+| dbgc.35 |  Verify Port Debug Counter for L3 any drop reasons | saidebugcounters.PortDropL3AnyTest
+| dbgc.36 |  Verify Port Debug Counter for ACL any drop reason | saidebugcounters.PortDropAclAnyTest
+| dbgc.37 |  Verify SAI query DebugCounter enum values capabilities | saidebugcounters.GetDebugCounterEnumValuesCapabilities
+| dbgc.38 |  Verify SAI query DebugCounter availability | saidebugcounters.GetDebugCounterAvailability
 
 ## FDB
 
 ## Hash
+| saihash.1 | L2 Lag basic test with varing seed values | saihash.L2LagHashSeedTest |
+| saihash.2 | L3 Lag basic test with varing seed values | saihash.L3LagIPv4HashSeedTest |
+| saihash.3 | IPv4 ECMP seed test with varing values | saihash.L3EcmpIPv4HashSeedTest |
+| saihash.4 | IPv6 ECMP seed test with varing values | saihash.L3EcmpIPv6HashSeedTest |
+| saihash.5 | Traffic distribution using Src MAC selection for LAG hash | saihash.L2LagHashSrcMACTest |
+| saihash.6 | Traffic distribution using Dst MAC selection for LAG hash | saihash.L2LagHashDstMACTest |
+| saihash.7 | L3 IPv4 traffic distribution using Src port selection for LAG hash | saihash.L3LagIPv4SrcPortHashTest |
+| saihash.8 | L3 IPv4 traffic distribution using Dst Port selection for IPv4 LAG hash | saihash.L3LagIPv4DstPortHashTest |
+| saihash.9 | L3 IPv4 traffic distribution using Src IP selection for IPv4 LAG hash | saihash.L3LagIPv4SrcIPHashTest |
+| saihash.10 | L3 IPv4 traffic distribution using Dst IP selection for IPv4 LAG hash | saihash.L3LagIPv4DstIPHashTest |
+| saihash.11 | L3 IPv4 traffic distribution using using all the field selected for IPv4 LAG hash | saihash.L3LagIPv4HashTest |
+| saihash.12 | Traffic distribution using Src IP selection for ECMP IPv4 hash | saihash.EcmpIPv4SrcIPHashTest |
+| saihash.13 | Traffic distribution using Dst IP selection for ECMP IPv4 hash | saihash.EcmpIPv4DstIPHashTest |
+| saihash.14 | Traffic distribution using using all the field selected for ECMP IPv4 hash | saihash.EcmpIPv4HashTest |
+| saihash.15 | Traffic distribution using Src IP selection for ECMP IPv6 hash | saihash.EcmpIPv6SrcIPHashTest |
+| saihash.16 | Traffic distribution using Dst IP selection for ECMP IPv6 hash | saihash.EcmpIPv6DstIPHashTest |
+| saihash.17 | Traffic distribution using all the field selected for ECMP IPv6 hash | saihash.EcmpIPv6HashTest |
+| saihash.18 | Traffic distribution using Src MAC selection for Non-IP hash | saihash.NonIPSrcMacHashTest |
+| saihash.19 | Traffic distribution using Dst MAC selection for Non-IP hash | saihash.NonIPDstMacHashTest |
+| saihash.20 | ECMP IPv4 hash defined for single IPv4 hash field with traffic with this field NOT being modified . No LB | saihash.EcmpIPv4BasicHashNoLBTest |
+| saihash.21 | Same as above but for LAG. No LB | all tests with hash_field config |
+| saihash.22 | IPv4 create/modify/remove ecmp hash fields | saihash.EcmpIPv4HashSaveRestoreTest |
+| saihash.23 | IPv6 create/modify/remove ecmp hash fields | saihash.EcmpIPv6HashSaveRestoreTest |
+| saihash.24 | Modify switch lag hash fields | saihash.LagHashSaveRestoreTest |
+| saihash.25 | Modify switch lag IPv4 hash fields | saihash.LagIPv4HashSaveRestoreTest |
+| saihash.26 | Modify switch lag IPv6  hash fields | saihash.LagIPv6HashSaveRestoreTest |
+| saihash.27 | Verify IPv6 hash does not impact IPv4 hashing | saihash.EcmpIPv4vsIPv6HashTest |
+| saihash.28 | Verify IPv4 hash does not impact IPv6 hashing | saihash.EcmpIPv6vsIPv4HashTest |
+| saihash.29 | L3 IPv6 Lag basic test with varing seed values | saihash.L3LagIPv6HashSeedTest |
+| saihash.30 | L3 IPv6 traffic distribution using Src port selection for LAG hash | saihash.L3LagIPv6SrcPortHashTest |
+| saihash.31 | L3 IPv6 traffic distribution using Dst port selection for LAG hash | saihash.L3LagIPv6DstPortHashTest |
+| saihash.32 | L3 IPv6 traffic distribution using Src IP selection for LAG hash | saihash.L3LagIPv6SrcIPHashTest |
+| saihash.33 | L3 IPv6 traffic distribution using Dst IP selection for LAG hash | saihash.L3LagIPv6DstIPHashTest |
+| saihash.34 | L3 IPv6 traffic distribution using using all the field selected for LAG hash | saihash.L3LagIPv6HashTest |
+| saihash.35 | L3 IPv4 traffic distribution using Dst port selection for ECMP hash | saihash.EcmpIPv4DstPortHashTest |
+| saihash.36 | L3 IPv4 traffic distribution using Src port selection for ECMP hash | saihash.EcmpIPv4SrcPortHashTest |
+| saihash.37 | L3 IPv6 traffic distribution using Dst port selection for ECMP hash | saihash.EcmpIPv6DstPortHashTest |
+| saihash.38 | L3 IPv6 traffic distribution using Src port selection for ECMP hash | saihash.EcmpIPv6SrcPortHashTest |
+| saihash.39 | L2 Lag basic test with varing hash fields values | saihash.L2LagHashTest |
+| saihash.40 | L2 Lag hashing on Ether Type | saihash.L2LagHashEtherTypeTest |
 
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
