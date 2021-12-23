@@ -1,4 +1,4 @@
-# Copyright 2021-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@ import random
 
 from sai_thrift.sai_headers import *
 
-from ptf.testutils import *
-from ptf.packet import *
-from ptf.thriftutils import *
-
 from sai_base_test import *
 
 
+@group("draft")
 class Srv6SrcEncapTest(SaiHelper):
     '''
     SRv6 source encapsulation tests
@@ -287,7 +284,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def clientIpRouteTest(self):
         '''
-        Verifies client IP route forwarding
+        Verify client IP route forwarding
         '''
         print("\nclientIpRouteTest()")
 
@@ -309,7 +306,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def sourceEncapOneSidTest(self):
         '''
-        Verifies SRv6 source encapsulation with one SID
+        Verify SRv6 source encapsulation with one SID
         '''
         print("\nsourceEncapOneSidTest()")
 
@@ -342,7 +339,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def sourceEncapTwoSidTest(self):
         '''
-        Verifies SRv6 source encapsulation with two SIDs
+        Verify SRv6 source encapsulation with two SIDs
         '''
         print("\nsourceEncapTwoSidTest()")
 
@@ -397,7 +394,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def sourceEncapThreeSidTest(self):
         '''
-        Verifies SRv6 source encapsulation with three SIDs
+        Verify SRv6 source encapsulation with three SIDs
         '''
         print("\nsourceEncapThreeSidTest()")
 
@@ -451,7 +448,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def sourceEncapEcmpSidTest(self):
         '''
-        Verifies SRv6 source encapsulation with ECMP SID
+        Verify SRv6 source encapsulation with ECMP SID
         '''
         print("\nsourceEncapEcmpSidTest()")
 
@@ -523,7 +520,7 @@ class Srv6SrcEncapTest(SaiHelper):
             print("Encap ECMP count: ", count)
 
             for i in range(0, 2):
-                self.assertTrue(count[i] != 0)
+                self.assertNotEqual(count[i], 0)
 
         finally:
             sai_thrift_set_route_entry_attribute(self.client,
@@ -534,7 +531,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def insertOneSidTest(self):
         '''
-        Verifies SRv6 insert headend operation with a single SID
+        Verify SRv6 insert headend operation with a single SID
         '''
         print("\ninsertOneSidTest()")
         seglist4 = [self.seg4]
@@ -566,7 +563,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def insertTwoSidTest(self):
         '''
-        Verifies SRv6 insert headend operation with two SIDs
+        Verify SRv6 insert headend operation with two SIDs
         '''
         print("\ninsertTwoSidTest()")
         v6_pkt = self.v6_pkt.copy()
@@ -600,7 +597,7 @@ class Srv6SrcEncapTest(SaiHelper):
 
     def getSetSidlistTest(self):
         '''
-        Verifies getting and setting SRv6 sidlist members
+        Verify getting and setting SRv6 sidlist members
         '''
         print("\ngetSetSidlistTest()")
 
@@ -641,11 +638,11 @@ class Srv6SrcEncapTest(SaiHelper):
             self.assertEqual(attr["segment_list"].count, 3)
 
             print(" segment 1 %s" % (attr["segment_list"].ip6list[0]))
-            self.assertTrue(attr["segment_list"].ip6list[0] == self.seg3)
+            self.assertEqual(attr["segment_list"].ip6list[0], self.seg3)
             print(" segment 2 %s" % (attr["segment_list"].ip6list[1]))
-            self.assertTrue(attr["segment_list"].ip6list[1] == self.seg2)
+            self.assertEqual(attr["segment_list"].ip6list[1], self.seg2)
             print(" segment 3 %s" % (attr["segment_list"].ip6list[2]))
-            self.assertTrue(attr["segment_list"].ip6list[2] == self.seg1)
+            self.assertEqual(attr["segment_list"].ip6list[2], self.seg1)
 
             new_segment_list = sai_thrift_segment_list_t(
                 count=2, ip6list=[new_seg2, new_seg1])
@@ -662,12 +659,11 @@ class Srv6SrcEncapTest(SaiHelper):
             self.assertEqual(attr["segment_list"].count, 2)
 
             print(" segment 1 %s" % (attr["segment_list"].ip6list[0]))
-            self.assertTrue(attr["segment_list"].ip6list[0] == new_seg2)
+            self.assertEqual(attr["segment_list"].ip6list[0], new_seg2)
             print(" segment 2 %s" % (attr["segment_list"].ip6list[1]))
-            self.assertTrue(attr["segment_list"].ip6list[1] == new_seg1)
+            self.assertEqual(attr["segment_list"].ip6list[1], new_seg1)
 
             # verify packets are handled with new sidlist
-            # doesn't work - received packets have an old sidlist
             sai_thrift_set_route_entry_attribute(self.client,
                                                  self.over_route_entry,
                                                  next_hop_id=self.sr_nhop_sid3)
@@ -698,9 +694,10 @@ class Srv6SrcEncapTest(SaiHelper):
                 self.client, self.sidlist3, segment_list=sai_segment_list_3)
 
 
+@group("draft")
 class Srv6MySidTest(SaiHelper):
     '''
-    SRv6 my SID tests
+    SRv6 local my SID behaviors tests
     '''
     def setUp(self):
         super(Srv6MySidTest, self).setUp()
@@ -830,7 +827,7 @@ class Srv6MySidTest(SaiHelper):
             self.end_sid,
             endpoint_behavior=SAI_MY_SID_ENTRY_ENDPOINT_BEHAVIOR_E,
             endpoint_behavior_flavor=end_bf,
-            counter_id = self.end_sid_counter)
+            counter_id=self.end_sid_counter)
 
         # End.T SID
         sai_thrift_create_route_entry(
@@ -1035,7 +1032,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndTest(self):
         '''
-        Verifies SRv6 End endpoint behavior
+        Verify SRv6 End endpoint behavior
         '''
         print("\nmySidEndTest()")
 
@@ -1111,7 +1108,6 @@ class Srv6MySidTest(SaiHelper):
             verify_packet(self, exp_pkt2, self.dev_port12)
             self.end_sid_stats += 1
 
-
             print("END with USD: Send packet with seg_left == 0")
             send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
             verify_packet(self, exp_pkt3, self.dev_port10)
@@ -1122,8 +1118,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndTTest(self):
         '''
-        Verifies SRv6 End.T endpoint behavior
-        NOTE: This behavior doesn't support PSP and USD flavors yet
+        Verify SRv6 End.T endpoint behavior
         '''
         print("\nmySidEndTTest()")
 
@@ -1163,7 +1158,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndDT46Test(self):
         '''
-        Verifies SRv6 End.DT46 endpoint behavior
+        Verify SRv6 End.DT46 endpoint behavior
         '''
         print("\nmySidEndDT46Test()")
 
@@ -1245,7 +1240,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndDT6Test(self):
         '''
-        Verifies SRv6 End.DT6 endpoint behavior
+        Verify SRv6 End.DT6 endpoint behavior
         '''
         print("\nmySidEndDT6Test()")
 
@@ -1311,7 +1306,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndDT4Test(self):
         '''
-        Verifies SRv6 End.DT4 endpoint behavior
+        Verify SRv6 End.DT4 endpoint behavior
         '''
         print("\nmySidEndDT4Test()")
 
@@ -1376,7 +1371,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndDT4ReEncapTest(self):
         '''
-        Verifies a following scenario:
+        Verify a following scenario:
         1) A packet come with the DT4 SID and hit the my_sid entry
         2) Packet is decapsulated and inner packet is forwarded
            using inner IP and VRF from my_sid entry
@@ -1434,7 +1429,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndDT6ReEncapTest(self):
         '''
-        Verifies a following scenario:
+        Verify a following scenario:
         1) A packet come with the DT6 SID and hit the my_sid entry
         2) Packet is decapsulated and inner packet is forwarded
            using inner IP and VRF from my_sid entry
@@ -1491,7 +1486,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidEndDT46ReEncapTest(self):
         '''
-        Verifies a following scenario (for both: IPv4 and IPv6 inner packet):
+        Verify a following scenario (for both: IPv4 and IPv6 inner packet):
         1) A packet come with the DT46 SID and hit the my_sid entry
         2) Packet is decapsulated and inner packet is forwarded
            using inner IP and VRF from my_sid entry
@@ -1598,7 +1593,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidXConnectTest(self):
         '''
-        Verifies SRv6 End.X endpoint behavior
+        Verify SRv6 End.X endpoint behavior
         '''
         print("\nmySidXConnectTest()")
 
@@ -1767,7 +1762,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidB6EncapTest(self):
         '''
-        Verifies SRv6 End.B6.Encaps.Red endpoint beahvior
+        Verify SRv6 End.B6.Encaps.Red endpoint beahvior
         '''
         print("\nmySidB6EncapTest()")
 
@@ -1868,7 +1863,7 @@ class Srv6MySidTest(SaiHelper):
 
     def mySidB6InsertTest(self):
         '''
-        Verifies SRv6 End.B6.Insert.Red endpoint beahvior
+        Verify SRv6 End.B6.Insert.Red endpoint beahvior
         '''
         print("\nmySidB6InsertTest()")
 
@@ -1941,7 +1936,7 @@ class Srv6MySidTest(SaiHelper):
 
     def getSetMySidEntryTest(self):
         '''
-        Verifies getting and setting my SID entry attributes
+        Verify getting and setting my SID entry attributes
         '''
         print("\ngetSetMySidEntryTest()")
 
@@ -1977,14 +1972,14 @@ class Srv6MySidTest(SaiHelper):
                 endpoint_behavior_flavor=True,
                 packet_action=True)
 
-            self.assertTrue(
-                attr['endpoint_behavior'] ==
+            self.assertEqual(
+                attr['endpoint_behavior'],
                 SAI_MY_SID_ENTRY_ENDPOINT_BEHAVIOR_E)
-            self.assertTrue(
-                attr['endpoint_behavior_flavor'] ==
+            self.assertEqual(
+                attr['endpoint_behavior_flavor'],
                 SAI_MY_SID_ENTRY_ENDPOINT_BEHAVIOR_FLAVOR_PSP_AND_USD)
-            self.assertTrue(
-                attr['packet_action'] == SAI_PACKET_ACTION_FORWARD)
+            self.assertEqual(
+                attr['packet_action'], SAI_PACKET_ACTION_FORWARD)
 
             print("Set new attributes values")
             sai_thrift_set_my_sid_entry_attribute(
@@ -2010,14 +2005,14 @@ class Srv6MySidTest(SaiHelper):
                 endpoint_behavior_flavor=True,
                 vrf=True)
 
-            self.assertTrue(
-                attr['endpoint_behavior'] ==
+            self.assertEqual(
+                attr['endpoint_behavior'],
                 SAI_MY_SID_ENTRY_ENDPOINT_BEHAVIOR_T)
-            self.assertTrue(
-                attr['endpoint_behavior_flavor'] ==
+            self.assertEqual(
+                attr['endpoint_behavior_flavor'],
                 SAI_MY_SID_ENTRY_ENDPOINT_BEHAVIOR_FLAVOR_PSP)
-            self.assertTrue(
-                attr['vrf'] == self.t_vrf_id)
+            self.assertEqual(
+                attr['vrf'], self.t_vrf_id)
 
             print("END -> END.T: Sending packet on port %d to port %d - "
                   "forward through another vrf"
@@ -2035,8 +2030,7 @@ class Srv6MySidTest(SaiHelper):
                 self.end_sid,
                 packet_action=True)
 
-            self.assertTrue(
-                attr['packet_action'] == SAI_PACKET_ACTION_DROP)
+            self.assertEqual(attr['packet_action'], SAI_PACKET_ACTION_DROP)
 
             print("END -> END.T: Sending packet on port %d - "
                   "drop the packet" % self.dev_port11)
@@ -2094,9 +2088,10 @@ class Srv6MySidTest(SaiHelper):
         print("My SID counter clear")
 
 
+@group("draft")
 class Srv6MySidUsidTest(SaiHelper):
     '''
-    SRv6 local behaviors with compressed SIDs tests
+    SRv6 local my SID behaviors with compressed SIDs tests
     '''
     def setUp(self):
         super(Srv6MySidUsidTest, self).setUp()
@@ -2238,7 +2233,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUNTest(self):
         '''
-        Verifies SRv6 End.uN uSID behavior
+        Verify SRv6 End.uN uSID behavior
         '''
         print("\nmySidEndUNTest()")
 
@@ -2298,7 +2293,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUNPSPTest(self):
         '''
-        Verifies SRv6 End.uN uSID behavior with PSP flavor
+        Verify SRv6 End.uN uSID behavior with PSP flavor
         '''
         print("\nmySidEndUNPSPTest()")
 
@@ -2354,7 +2349,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUNUSDTest(self):
         '''
-        Verifies SRv6 End.uN uSID behavior with USD flavor
+        Verify SRv6 End.uN uSID behavior with USD flavor
         '''
         print("\nmySidEndUNUSDTest()")
 
@@ -2410,7 +2405,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUNUSDNoSRHTest(self):
         '''
-        Verifies SRv6 End.uN uSID behavior with USD flavor and no SRH
+        Verify SRv6 End.uN uSID behavior with USD flavor and no SRH
         '''
         print("\nmySidEndUNUSDNoSRHTest()")
 
@@ -2454,7 +2449,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUATest(self):
         '''
-        Verifies SRv6 End.uA uSID behavior
+        Verify SRv6 End.uA uSID behavior
         '''
         print("\nmySidEndUATest()")
 
@@ -2514,7 +2509,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUAPSPTest(self):
         '''
-        Verifies SRv6 End.uA uSID behavior with PSP flavor
+        Verify SRv6 End.uA uSID behavior with PSP flavor
         '''
         print("\nmySidEndUAPSPTest()")
 
@@ -2570,7 +2565,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUAUSDTest(self):
         '''
-        Verifies SRv6 End.uA uSID behavior with USD flavor
+        Verify SRv6 End.uA uSID behavior with USD flavor
         '''
         print("\nmySidEndUAUSDTest()")
 
@@ -2626,7 +2621,7 @@ class Srv6MySidUsidTest(SaiHelper):
 
     def mySidEndUAUSDNoSRHTest(self):
         '''
-        Verifies SRv6 End.uA uSID behavior with USD flavor and no SRH
+        Verify SRv6 End.uA uSID behavior with USD flavor and no SRH
         '''
         print("\nmySidEndUAUSDNoSRHTest()")
 
@@ -2669,10 +2664,11 @@ class Srv6MySidUsidTest(SaiHelper):
         verify_packet(self, exp_pkt, self.dev_port10)
 
 
+@group("draft")
 class Srv6MySidDropTest(SaiHelper):
     '''
     SRv6 drop cases tests
-    Verifies if debug counter is hit while SRv6 packets are dropped
+    Verify if debug counter is hit while SRv6 packets are dropped
     '''
     def setUp(self):
         super(Srv6MySidDropTest, self).setUp()
@@ -2782,7 +2778,7 @@ class Srv6MySidDropTest(SaiHelper):
 
     def packetActionDropTest(self):
         '''
-        Verifies if packets are dropped when my SID packet action is
+        Verify if packets are dropped when my SID packet action is
         SAI_PACKET_ACTION_DROP
         '''
         print("\npacketActionDropTest()")
@@ -2838,8 +2834,8 @@ class Srv6MySidDropTest(SaiHelper):
             self.drop_stats += drop_pkt_no
 
             print("Checking SRv6 debug counter")
-            dc_stats = sai_thrift_get_port_stats_ext(
-                self.client, self.port11, [self.dc_index], SAI_STATS_MODE_READ)
+            dc_stats = sai_thrift_get_debug_counter_port_stats(
+                self.client, self.port11, [self.dc_index])
             self.assertEqual(dc_stats[self.dc_index], self.drop_stats,
                              "SRv6 debug counter value = %d incorrect! "
                              "Should be: %d"
@@ -2850,7 +2846,7 @@ class Srv6MySidDropTest(SaiHelper):
 
     def nonZeroSlEndDTxDropTest(self):
         '''
-        Verifies if packets with SL!=0 are dropped for End.D* endpoints
+        Verify if packets with SL!=0 are dropped for End.D* endpoints
         '''
         print("\nnonZeroSlEndDTxDropTest()")
 
@@ -2885,8 +2881,8 @@ class Srv6MySidDropTest(SaiHelper):
             self.drop_stats += drop_pkt_no
 
             print("Checking SRv6 debug counter")
-            dc_stats = sai_thrift_get_port_stats_ext(
-                self.client, self.port11, [self.dc_index], SAI_STATS_MODE_READ)
+            dc_stats = sai_thrift_get_debug_counter_port_stats(
+                self.client, self.port11, [self.dc_index])
             self.assertEqual(dc_stats[self.dc_index], self.drop_stats,
                              "SRv6 debug counter value = %d incorrect! "
                              "Should be: %d"
@@ -2907,8 +2903,8 @@ class Srv6MySidDropTest(SaiHelper):
             self.drop_stats += drop_pkt_no
 
             print("Checking SRv6 debug counter")
-            dc_stats = sai_thrift_get_port_stats_ext(
-                self.client, self.port11, [self.dc_index], SAI_STATS_MODE_READ)
+            dc_stats = sai_thrift_get_debug_counter_port_stats(
+                self.client, self.port11, [self.dc_index])
             self.assertEqual(dc_stats[self.dc_index], self.drop_stats,
                              "SRv6 debug counter value = %d incorrect! "
                              "Should be: %d"
@@ -2931,8 +2927,8 @@ class Srv6MySidDropTest(SaiHelper):
             self.drop_stats += drop_pkt_no
 
             print("Checking SRv6 debug counter")
-            dc_stats = sai_thrift_get_port_stats_ext(
-                self.client, self.port11, [self.dc_index], SAI_STATS_MODE_READ)
+            dc_stats = sai_thrift_get_debug_counter_port_stats(
+                self.client, self.port11, [self.dc_index])
             self.assertEqual(dc_stats[self.dc_index], self.drop_stats,
                              "SRv6 debug counter value = %d incorrect! "
                              "Should be: %d"
@@ -2942,8 +2938,11 @@ class Srv6MySidDropTest(SaiHelper):
             sai_thrift_remove_my_sid_entry(self.client, my_sid)
 
 
+@group("draft")
 class MySidObjectsAvailibilityTest(SaiHelperBase):
-    ''' CRM objects availability verification class '''
+    '''
+    CRM objects availability verification class
+    '''
     def runTest(self):
         print("\nMySidObjectsAvailibilityTest()")
 
