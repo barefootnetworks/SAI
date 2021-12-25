@@ -50,7 +50,7 @@ QOS_TYPE_DICT = {
 
 def fec_to_str(fec):
     '''
-    Converts fec mode to string
+    Convert fec mode to string
 
     Args:
         fec (int): fec mode
@@ -69,7 +69,7 @@ def fec_to_str(fec):
 
 def speed_to_num_lanes(speed):
     '''
-    Converts speed to lanes number
+    Convert speed to lanes number
 
     Args:
         speed (int): speed value
@@ -89,7 +89,7 @@ def speed_to_num_lanes(speed):
 
 def num_lanes_to_lane_list(num_lanes):
     '''
-    Returns lane list depending on the lanes number value
+    Return lane list depending on the lanes number value
 
     Args:
         num_lanes (int): number of lanes
@@ -112,7 +112,7 @@ def num_lanes_to_lane_list(num_lanes):
 
 def acl_test_case(name, add_remove_bind=None, use_acl_group=None):
     '''
-    Prints test case name
+    Print test case name
 
     Args:
         name(str): base test case name
@@ -156,7 +156,7 @@ class PortAttributeTest(SaiHelper):
         super(PortAttributeTest, self).tearDown()
 
     def switchAttributePortListTest(self):
-        ''' Tests switch attribute port list '''
+        ''' Test switch attribute port list '''
         print("switchAttributePortListTest")
 
         # Get active port list based on number_of_active_ports
@@ -175,7 +175,7 @@ class PortAttributeTest(SaiHelper):
         self.assertEqual(number_of_active_ports, attr['port_list'].count)
 
     def portAttributeIngressSamplePacket(self):
-        ''' Verifies the creation of sample packet '''
+        ''' Verify the creation of sample packet '''
         print("portAttributeIngressSamplePacket")
         sample_packet = 0
         try:
@@ -203,7 +203,7 @@ class PortAttributeTest(SaiHelper):
                 sai_thrift_remove_samplepacket(self.client, sample_packet)
 
     def portBufferProfileList(self):
-        ''' Verifies the creation of buffer profile list '''
+        ''' Verify the creation of buffer profile list '''
         print("portBufferProfileList")
         try:
             ingress_pool_size = 1024
@@ -249,7 +249,7 @@ class PortAttributeTest(SaiHelper):
                 sai_thrift_remove_buffer_pool(self.client, ig_buffer_pool_id)
 
     def portAttributeTest(self):
-        '''Tests port attribites'''
+        '''Test port attribites'''
         print("portAttributeTest")
         attr = sai_thrift_get_port_attribute(
             self.client, self.port, speed=True)
@@ -560,7 +560,7 @@ class PortQOSAttributeTest(SaiHelperBase):
 
 def create_qos_map(client, map_type, key_list, data_list):
     '''
-    Creates qos map
+    Create qos map
 
     Args:
         client (sai_thrift.sai_rpc.Client): RPC client
@@ -614,7 +614,7 @@ def create_qos_map(client, map_type, key_list, data_list):
 
 @group("draft")
 class PortQosMapAttributeTest(SaiHelperBase):
-    ''' Tests port qos map attributes '''
+    ''' Test port qos map attributes '''
 
     def setUp(self):
         self.portx = None
@@ -637,7 +637,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
         super(PortQosMapAttributeTest, self).tearDown()
 
     def portQosDscpToTcMapAttributeTest(self):
-        ''' Tests port qos dscp to tc map attribute '''
+        ''' Test port qos dscp to tc map attribute '''
         print("portQosDscpToTcMapAttributeTest")
         # SAI_PORT_ATTR_QOS_DSCP_TO_TC_MAP - qos_dscp_to_tc_map
         # create/set
@@ -695,7 +695,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosDot1pToColorMapAttributeTest(self):
-        ''' Tests port qos dot1p to color map attribute '''
+        ''' Test port qos dot1p to color map attribute '''
         print("portQosDot1pToColorMapAttributeTest")
         # SAI_PORT_ATTR_QOS_DOT1P_TO_COLOR_MAP - qos_dot1p_to_color_map
         # create/set
@@ -754,7 +754,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosDot1pToTcMapAttributeTest(self):
-        ''' Tests port qos dot1p to tc map attribute '''
+        ''' Test port qos dot1p to tc map attribute '''
         print("portQosDot1pToTcMapAttributeTest")
         # SAI_PORT_ATTR_QOS_DOT1P_TO_TC_MAP - qos_dot1p_to_tc_map
         # create/set
@@ -811,7 +811,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosDscpToColorMapAttributeTest(self):
-        ''' Tests port qos dscp to color map attribute '''
+        ''' Test port qos dscp to color map attribute '''
         print("portQosDscpToColorMapAttributeTest")
         # SAI_PORT_ATTR_QOS_DSCP_TO_COLOR_MAP - qos_dscp_to_color_map
         # create/set
@@ -868,7 +868,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosTcToQueueMapAttributeTest(self):
-        ''' Tests port qos tc to queue map attribute '''
+        ''' Test port qos tc to queue map attribute '''
         print("portQosTcToQueueMapAttributeTest")
         # SAI_PORT_ATTR_QOS_TC_TO_QUEUE_MAP - qos_tc_to_queue_map
         # create/set
@@ -925,7 +925,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosTcToPriorityGroupMapAttributeTest(self):
-        ''' Tests port qos tc to priority group map attribute '''
+        ''' Test port qos tc to priority group map attribute '''
         print("portQosTcToPriorityGroupMapAttributeTest")
         # SAI_PORT_ATTR_QOS_TC_TO_PRIORITY_GROUP_MAP
         #  - qos_tc_to_priority_group_map
@@ -993,7 +993,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosTcAndColorToDscpMapAttributeTest(self):
-        ''' Tests port qos tc and color to dscp map attribute '''
+        ''' Test port qos tc and color to dscp map attribute '''
         print("portQosTcAndColorToDscpMapAttributeTest")
         # SAI_PORT_ATTR_QOS_TC_AND_COLOR_TO_DSCP_MAP
         #  - qos_tc_and_color_to_dscp_map
@@ -1053,7 +1053,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosTcAndColorToDot1pMapAttributeTest(self):
-        ''' Tests port qos tc and color to dot1p map attribute '''
+        ''' Test port qos tc and color to dot1p map attribute '''
         print("portQosTcAndColorToDot1pMapAttributeTest")
         # SAI_PORT_ATTR_QOS_TC_AND_COLOR_TO_DOT1P_MAP
         #   - qos_tc_and_color_to_dot1p_map
@@ -1113,7 +1113,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosPfcPriorityToQueueMapAttributeTest(self):
-        ''' Tests port qos pfc priority to queue map attribute '''
+        ''' Test port qos pfc priority to queue map attribute '''
         print("portQosPfcPriorityToQueueMapAttributeTest")
         # SAI_PORT_ATTR_QOS_PFC_PRIORITY_TO_QUEUE_MAP
         #  - qos_pfc_priority_to_queue_map
@@ -1173,7 +1173,7 @@ class PortQosMapAttributeTest(SaiHelperBase):
             status = sai_thrift_remove_port(self.client, self.portx)
 
     def portQosPfcPriorityToPriorityGroupMapAttributeTest(self):
-        ''' Tests port qos pfc priority to priority group map attribute '''
+        ''' Test port qos pfc priority to priority group map attribute '''
         print("portQosPfcPriorityToPriorityGroupMapAttributeTest")
         # SAI_PORT_ATTR_QOS_PFC_PRIORITY_TO_PRIORITY_GROUP_MAP
         #  - qos_pfc_priority_to_priority_group_map
@@ -1240,48 +1240,11 @@ class PortQosMapAttributeTest(SaiHelperBase):
 
 
 @group("draft")
-class SAIBridgePortNoFloodTest(SaiHelperBase):
-    ''' Verifies SAI bridge port no flood test case '''
-
-    def setUp(self):
-
-        super(SAIBridgePortNoFloodTest, self).setUp()
-
-        self.test_port_list = [self.port0, self.port1, self.port2, self.port3]
-        self.dev_test_port_list = [
-            self.dev_port0,
-            self.dev_port1,
-            self.dev_port2,
-            self.dev_port3]
-        vlan_id = 1
-        for port in self.test_port_list:
-            attr = sai_thrift_set_port_attribute(self.client, port,
-                                                 port_vlan_id=vlan_id)
-            attr = sai_thrift_get_port_attribute(self.client, port,
-                                                 port_vlan_id=True)
-            self.assertTrue(attr['SAI_PORT_ATTR_PORT_VLAN_ID'] == vlan_id)
-
-    def runTest(self):
-        print("SAIBridgePortNoFloodTest")
-
-        src_mac = "00:11:11:11:11:11"
-        dst_mac = "00:22:22:22:22:22"
-
-        pkt = simple_udp_packet(eth_dst=dst_mac,
-                                eth_src=src_mac,
-                                pktlen=100)
-        print("Sending packet on port with no bridge port created")
-        send_packet(self, self.dev_port1, pkt)
-        verify_no_other_packets(self)
-        print("\tPacket dropped. OK")
-
-
-@group("draft")
-class SAIBridgePortFloodClass(SaiHelperBase):
+class PortFloodClass(SaiHelperBase):
     ''' Verifies SAI bridge port flood test case '''
 
     def setUp(self):
-        super(SAIBridgePortFloodClass, self).setUp()
+        super(PortFloodClass, self).setUp()
         self.test_port = None
         self.bp_port_list = []
         self.vlan_member_list = []
@@ -1315,30 +1278,6 @@ class SAIBridgePortFloodClass(SaiHelperBase):
             self.vlan_member_list.append(vlan_member)
             i += 1
 
-    def saiBridgePortFlood(self):
-        ''' Tests SAI bridge port flood '''
-        print("saiBridgePortFlood")
-
-        self.test_port = self.dev_port1
-        src_mac = "00:11:11:11:11:11"
-        dst_mac = "00:22:22:22:22:22"
-
-        pkt = simple_udp_packet(eth_dst=dst_mac,
-                                eth_src=src_mac,
-                                pktlen=100)
-        flood_port_list = [[self.dev_port0],
-                           [self.dev_port2],
-                           [self.dev_port3]]
-        flood_pkt_list = [pkt, pkt, pkt]
-
-        print("Sending packet on port %d with bridge port created"
-              % (self.test_port))
-        send_packet(self, self.test_port, pkt)
-        verify_each_packet_on_multiple_port_lists(
-            self, flood_pkt_list, flood_port_list)
-        print("\tPacket flooded. OK")
-        verify_no_other_packets(self)
-
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
             self.client,
@@ -1350,12 +1289,12 @@ class SAIBridgePortFloodClass(SaiHelperBase):
         for port in self.test_port_list:
             sai_thrift_set_port_attribute(
                 self.client, port, port_vlan_id=0)
-        super(SAIBridgePortFloodClass, self).tearDown()
+        super(PortFloodClass, self).tearDown()
 
 
 @group("draft")
 class PortFecModeAttributeTest(SaiHelper):
-    ''' Tests port fec mode attribute '''
+    ''' Test port fec mode attribute '''
 
     def setUp(self):
         self.portx = 0
@@ -1505,7 +1444,7 @@ class PortFecModeAttributeTest(SaiHelper):
 
 @group("draft")
 class PortSpeedAttributeTest(SaiHelperBase):
-    '''Tests port speed attribute'''
+    '''Test port speed attribute'''
 
     def setUp(self):
         self.portx = 0
@@ -1583,7 +1522,7 @@ class PortSpeedAttributeTest(SaiHelperBase):
 
 @group("draft")
 class PortAutoNegAttributeTest(SaiHelperBase):
-    ''' Tests auto negation attribute '''
+    ''' Test auto negation attribute '''
 
     def setUp(self):
         self.portx = None
@@ -1713,15 +1652,7 @@ def set_port_speed(client, port, requested_speed, verify=None):
 
 
 @group("draft")
-class SAIBridgePortFlood(SAIBridgePortFloodClass):
-    ''' Runs SAI bridge port flood '''
-
-    def runTest(self):
-        self.saiBridgePortFlood()
-
-
-@group("draft")
-class PortAclBindingClass(SAIBridgePortFloodClass):
+class PortAclBindingClass(PortFloodClass):
     ''' Port ACL binding class '''
 
     def setUp(self):
@@ -1743,7 +1674,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def findPortObj(self, port):
         '''
-        Finds port object in the port_pairs array based on dev_port number.
+        Find port object in the port_pairs array based on dev_port number.
         Returns 0 if not found.
 
         Args:
@@ -1759,7 +1690,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def portsToPortObjs(self, ports):
         '''
-        Converts ports to port objects
+        Convert ports to port objects
 
         Args:
             ports (list): list of ports
@@ -1775,7 +1706,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def getPortStats(self, ports, port_stats):
         '''
-        Gets port statistics
+        Get port statistics
 
         Args:
             ports (list): list of ports
@@ -1797,7 +1728,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def assignPortIngressAcl(self, ports, acl=0):
         '''
-        Assigns port ingress acl
+        Assign port ingress acl
 
         Args:
             ports (list): list of ports
@@ -1814,7 +1745,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def assignPortEgressAcl(self, ports, acl=0):
         '''
-        Assigns port egress acl
+        Assign port egress acl
 
         Args:
             ports (list): list of ports
@@ -1831,7 +1762,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def clearAcl(self, acl_list):
         '''
-        Clears acl
+        Clear acl
 
         Args:
             acl_list (list): list of acls
@@ -1851,7 +1782,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
             action=SAI_PACKET_ACTION_DROP,
             mac_mask='FF:FF:FF:FF:FF:FF'):
         '''
-        Sets up port ingress drop acl
+        Set up port ingress drop acl
 
         Args:
             dmac (str): destination mac address
@@ -1936,7 +1867,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
             action=SAI_PACKET_ACTION_DROP,
             mac_mask='FF:FF:FF:FF:FF:FF'):
         '''
-        Sets up port egress drop acl
+        Set up port egress drop acl
 
         Args:
             dmac (str): destination mac address
@@ -2016,7 +1947,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def portIngressAclBindingSinglePortTest(self, use_acl_group=True):
         '''
-        Tests port ingress acl binding single port
+        Test port ingress acl binding single port
 
         Args:
             use_acl_group (bool): if True uses acl group
@@ -2103,7 +2034,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
     def portIngressAclBindingTest(self, add_remove_bind=None,
                                   use_acl_group=None):
         '''
-        Tests port ingress acl binding
+        Test port ingress acl binding
 
         Args:
             add_remove_bind(bool): if True adds/removes bind
@@ -2250,7 +2181,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
     def portEgressAclBindingTest(self, add_remove_bind=None,
                                  use_acl_group=None):
         '''
-        Tests port egress acl binding
+        Test port egress acl binding
 
         Args:
             add_remove_bind(bool): if True adds/removes bind
@@ -2375,7 +2306,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def floodTest(self, pkt, port_list1, port_list2):
         '''
-        Flooding test
+        Test flooding
 
         Args:
             pkt (Ether): simple tcp test packet
@@ -2400,7 +2331,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
     def portEgressAclBindingSinglePortTest(self, use_acl_group=None):
         '''
-        Tests port egress acl binding single port
+        Test port egress acl binding single port
 
         Args:
             use_acl_group (bool): if True uses acl group
@@ -2486,7 +2417,7 @@ class PortAclBindingClass(SAIBridgePortFloodClass):
 
 
 @group("draft")
-class PortEgressMirrorSessionTest(SAIBridgePortFloodClass):
+class PortEgressMirrorSessionTest(PortFloodClass):
     ''' Test port PortEgressMirrorSessionTest attributes '''
 
     def setUp(self):
@@ -2611,7 +2542,7 @@ class PortEgressMirrorSessionTest(SAIBridgePortFloodClass):
 
 
 @group("draft")
-class PortIngressMirrorSessionTest(SAIBridgePortFloodClass):
+class PortIngressMirrorSessionTest(PortFloodClass):
     ''' Test port PortIngressMirrorSessionTest attributes '''
 
     def setUp(self):
@@ -2733,7 +2664,7 @@ class PortIngressMirrorSessionTest(SAIBridgePortFloodClass):
 # PORT ingress_acl tests
 @group("draft")
 class SinglePortIngressAclTableBindingTest(PortAclBindingClass):
-    ''' Tests single port ingress acl table binding '''
+    ''' Test single port ingress acl table binding '''
 
     def runTest(self):
         self.portIngressAclBindingSinglePortTest()
@@ -2741,7 +2672,7 @@ class SinglePortIngressAclTableBindingTest(PortAclBindingClass):
 
 @group("draft")
 class SinglePortIngressAclGroupBindingTest(PortAclBindingClass):
-    ''' Tests single port ingress acl group binding '''
+    ''' Test single port ingress acl group binding '''
 
     def runTest(self):
         self.portIngressAclBindingSinglePortTest(use_acl_group=True)
@@ -2749,7 +2680,7 @@ class SinglePortIngressAclGroupBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortIngressAclTableBindingTest(PortAclBindingClass):
-    ''' Tests port ingress acl table binding '''
+    ''' Test port ingress acl table binding '''
 
     def runTest(self):
         self.portIngressAclBindingTest()
@@ -2757,7 +2688,7 @@ class PortIngressAclTableBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortIngressAclTableAddRemoveBindingTest(PortAclBindingClass):
-    ''' Tests port ingress acl table add remove binding '''
+    ''' Test port ingress acl table add remove binding '''
 
     def runTest(self):
         self.portIngressAclBindingTest(add_remove_bind=True)
@@ -2765,7 +2696,7 @@ class PortIngressAclTableAddRemoveBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortIngressAclGroupBindingTest(PortAclBindingClass):
-    ''' Tests port ingress acl group binding '''
+    ''' Test port ingress acl group binding '''
 
     def runTest(self):
         self.portIngressAclBindingTest(use_acl_group=True)
@@ -2773,7 +2704,7 @@ class PortIngressAclGroupBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortIngressAclGroupAddRemoveBindingTest(PortAclBindingClass):
-    ''' Tests port ingress acl group add remove binding '''
+    ''' Test port ingress acl group add remove binding '''
 
     def runTest(self):
         self.portIngressAclBindingTest(add_remove_bind=True,
@@ -2783,7 +2714,7 @@ class PortIngressAclGroupAddRemoveBindingTest(PortAclBindingClass):
 # PORT egress_acl tests
 @group("draft")
 class SinglePortEgressAclTableBindingTest(PortAclBindingClass):
-    ''' Tests single port egress acl table binding '''
+    ''' Test single port egress acl table binding '''
 
     def runTest(self):
         self.portEgressAclBindingSinglePortTest()
@@ -2791,7 +2722,7 @@ class SinglePortEgressAclTableBindingTest(PortAclBindingClass):
 
 @group("draft")
 class SinglePortEgressAclGroupBindingTest(PortAclBindingClass):
-    ''' Tests single port egress acl group binding '''
+    ''' Test single port egress acl group binding '''
 
     def runTest(self):
         self.portEgressAclBindingSinglePortTest(use_acl_group=True)
@@ -2799,7 +2730,7 @@ class SinglePortEgressAclGroupBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortEgressAclTableBindingTest(PortAclBindingClass):
-    ''' Tests port egress acl table binding '''
+    ''' Test port egress acl table binding '''
 
     def runTest(self):
         self.portEgressAclBindingTest()
@@ -2807,7 +2738,7 @@ class PortEgressAclTableBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortEgressAclTableAddRemoveBindingTest(PortAclBindingClass):
-    ''' Tests port egress acl table add remove binding '''
+    ''' Test port egress acl table add remove binding '''
 
     def runTest(self):
         self.portEgressAclBindingTest(add_remove_bind=True)
@@ -2815,7 +2746,7 @@ class PortEgressAclTableAddRemoveBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortEgressAclGroupBindingTest(PortAclBindingClass):
-    ''' Tests port egress acl group binding '''
+    ''' Test port egress acl group binding '''
 
     def runTest(self):
         self.portEgressAclBindingTest(use_acl_group=True)
@@ -2823,7 +2754,7 @@ class PortEgressAclGroupBindingTest(PortAclBindingClass):
 
 @group("draft")
 class PortEgressAclGroupAddRemoveBindingTest(PortAclBindingClass):
-    ''' Tests port egress acl group add remove binding '''
+    ''' Test port egress acl group add remove binding '''
 
     def runTest(self):
         self.portEgressAclBindingTest(add_remove_bind=True, use_acl_group=True)
