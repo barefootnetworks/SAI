@@ -194,6 +194,11 @@ class AclGroupTest(SaiHelper):
             sai_thrift_set_acl_entry_attribute(
                 self.client, acl_entry,
                 action_counter=action_counter_t)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 0)
+
             sai_thrift_remove_acl_counter(self.client, acl_counter)
 
             sai_thrift_set_port_attribute(self.client, self.port0,
@@ -331,6 +336,11 @@ class AclGroupTest(SaiHelper):
             sai_thrift_set_acl_entry_attribute(
                 self.client, acl_entry,
                 action_counter=action_counter_t)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 0)
+
             sai_thrift_remove_acl_counter(self.client, acl_counter)
 
             sai_thrift_set_port_attribute(self.client, self.port0,
@@ -1351,7 +1361,7 @@ class L3AclRangeTest(SaiHelper):
 @group('acl-m1')
 class ACLGroupSeveralMembersTest(SaiHelper):
     """
-    Test matching on ACL groups
+    Test matching on ACL groups with the IPv4 and IPv6 groups members
     """
     def setUp(self):
         super(ACLGroupSeveralMembersTest, self).setUp()
