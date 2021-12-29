@@ -235,6 +235,54 @@ SAI PTF TESTPLAN contains all test cases covered in ptf/ directory divided by fu
 
 ## Hostif
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| hostif.1 | Verify host interface creation and packet Rx for hostif type = netdev, host interface object type Port | saihostif.HostifCreationTest.portNetdevHostifCreationTest |
+| hostif.2 | Verify host interface creation and packet Rx for hostif type = netdev, host interface object type LAG | saihostif.HostifCreationTest.lagNetdevHostifCreationTest |
+| hostif.3 | Verify host interface creation and packet Rx for hostif type = netdev, host interface object type VLAN (L3 SVI) | saihostif.HostifCreationTest.vlanSviNetdevHostifCreationTest |
+| hostif.4 | Verify hostif received packet VLAN tag is stripped when hostif VLAN tag type is STRIP for hostif type = netdev | saihostif.HosifTaggingTest/hostifStripTagTest |
+| hostif.5 | Verify hostif received packet VLAN tag is stripped when hostif VLAN tag type is KEEP for hostif type = netdev | saihostif.HosifTaggingTest/hostifKeepTagTest |
+| hostif.6 | Verify hostif received packet VLAN tag is stripped when hostif VLAN tag type is ORIGINAL for hostif type = netdev | saihostif.HosifTaggingTest/hostifOriginalTagTest |
+| hostif.7 | Verify hostif interface table match for entry type Wildcard and channel type = Callback with LLDP packet | saihostif.HostifTableMatchTest.
+wildcardEntryCbChannelLldp |
+| hostif.8 | Verify hostif interface table match for entry type Wildcard and channel type = Callback with LACP packet | saihostif.HostifTableMatchTest.wildcardEntryCbChannelLacp |
+| hostif.9 | Verify hostif interface table match for entry type Wildcard and channel type = Callback with STP packet | saihostif.HostifTableMatchTest.wildcardEntryCbChannelStp |
+| hostif.10 | Verify hostif trap packet action DROP | saihostif.HostifTrapActionTest.dropTrapActionTest  |
+| hostif.11 | Verify hostif trap packet action FORWARD | saihostif.HostifTrapActionTest.forwardTrapActionTest |
+| hostif.12 | Verify hostif trap packet action COPY | saihostif.HostifTrapActionTest.copyTrapActionTest |
+| hostif.13 | Verify hostif trap packet action TRAP | saihostif.HostifTrapActionTest.trapTrapActionTest |
+| hostif.14 | Verify hostif trap packet action LOG | saihostif.HostifTrapActionTest.logTrapActionTest |
+| hostif.15 | Verify hostif trap packet action DENY | saihostif.HostifTrapActionTest.denyTrapActionTest |
+| hostif.16 | Verify hostif trap packet action TRANSIT | saihostif.HostifTrapActionTest.transitTrapActionTest |
+| hostif.17 | Verify host interface Rx/Tx path wich ARP packet | saihostif.HostifTxTest.arpRxTxTest |
+| hostif.18 | Verify hostif Tx via host interface type netdev, objec type port | saihostif.HostifTxTest.portHostifTxTest |
+| hostif.19 | Verify hostif tx via host interface type netdev, objec type LAG | saihostif.HostifTxTest.lagHostifTxTest |
+| hostif.20 | Verify hostif trap type TTL error | saihostif.HostifTrapTypesTest.ttlErrorTrapTest |
+| hostif.21 | Verify hostif trap type ARP request | saihostif.HostifTrapTypesTest.arpTrapTest |
+| hostif.22 | Verify hostif trap type ARP response | saihostif.HostifTrapTypesTest.arpTrapTest |
+| hostif.23 | Verify hostif trap type BGP | saihostif.HostifTrapTypesTest.bgpTrapTest |
+| hostif.24 | Verify hostif trap type DHCP | saihostif.HostifTrapTypesTest.dhcpTrapTest |
+| hostif.25 | Verify hostif trap type IP2ME | saihostif.HostifTrapTypesTest.ip2meTrapTest |
+| hostif.26 | Verify hostif trap type LACP | saihostif.HostifTrapTypesTest.lacpTrapTest |
+| hostif.27 | Verify hostif trap type LLDP | saihostif.HostifTrapTypesTest.lldpTrapTest |
+| hostif.28 | Verify hostif trap type OSPF | saihostif.HostifTrapTypesTest.ospfTrapTest |
+| hostif.29 | Verify hostif trap type IGMP | saihostif.HostifTrapTypesTest.igmpTrapTest |
+| hostif.30 | Verify hostif trap type STP | saihostif.HostifTrapTypesTest.stpTrapTest |
+| hostif.31 | Verify hostif trap type PIM | saihostif.HostifTrapTypesTest.pimTrapTest |
+| hostif.32 | Verify hostif trap type UDLD | saihostif.HostifTrapTypesTest.udldTrapTest |
+| hostif.33 | Verify hostif trap type IPv6 neighbor discovery | saihostif.HostifTrapTypesTest.icmpV6TrapTest |
+| hostif.34 | Verify hostif trap type BGPV6 | saihostif.HostifTrapTypesTest.bgpTrapTest |
+| hostif.35 | Verify hostif trap type BFD_RX | saihostif.HostifTrapTypesTest.bfdRxTrapTest |
+| hostif.36 | Verify hostif trap type PTP | saihostif.HostifTrapTypesTest.ptpTrapTest |
+| hostif.37 | Verify hostif trap type MPLS router alert | saihostif.HostifTrapTypesTest.mplsRouterAlertTrapTest |
+| hostif.38 | Verify hostif trap type MPLS TTL error | saihostif.HostifTrapTypesTest.mplsTtlErrorTrapTest |
+| hostif.39 | Verify getting of trap priority hostif attribute | saihostif.HostifTrapAttributeGetterTest.trapPriorityTest |
+| hostif.40 | Verify getting of trap type hostif attribute | saihostif.HostifTrapAttributeGetterTest.trapTypeTest |
+| hostif.41 | Verify getting of trap group hostif attribute | saihostif.HostifTrapAttributeGetterTest.trapGroupTest |
+| hostif.42 | Verify getting of trap action hostif attribute | saihostif.HostifTrapAttributeGetterTest.trapActionTest |
+| hostif.43 | Verify hostif user defined trap - the traffic matching ACL rule associated with user defined trap | saihostif.HostifUserDefinedTrapTest.aclIpSrcNetdevTrapTest |
+| hostif.43 | Verify hostif priority handling | saihostif.HostifTrapActionTest.hostifPriorityTest |
+
 ## Lag
 
 | Test case id | Description | Test name |
