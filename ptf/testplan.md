@@ -232,6 +232,12 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 
 ## Hostif
 
+## Isolation Group
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| isolationgroup.1 | Verify isolation group CRUD operations | saiisolationgroup.PortIsolationTest.attributeTest |
+| isolationgroup.2 | Test forwarding between ports with isolation groups attached | saiisolationgroup.PortIsolationTest.forwardingTest |
+
 ## Lag
 
 | Test case id | Description | Test name |
