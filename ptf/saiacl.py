@@ -16,45 +16,40 @@
 Thrift SAI interface ACL tests
 """
 
-from bf_switcht_api_thrift.model_headers import *
 from sai_thrift.sai_headers import *
-from ptf.testutils import *
 from common.utils import *
 from sai_base_test import *
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(THIS_DIR, '..'))
 
 
 @group("draft")
 class AclGroupTest(SaiHelper):
     '''
-    Acl Group test class
+    ACL group test class
     '''
 
     def setUp(self):
         super(AclGroupTest, self).setUp()
 
-        self.mac_port = '00:11:22:33:44:55'
-        self.mac_lag = '00:11:22:33:44:56'
+        self.port_mac = '00:11:22:33:44:55'
+        self.lag_mac = '00:11:22:33:44:56'
 
-        self.fdb_entry_port = sai_thrift_fdb_entry_t(
+        self.port_fdb_entry = sai_thrift_fdb_entry_t(
             switch_id=self.switch_id,
-            mac_address=self.mac_port,
+            mac_address=self.port_mac,
             bv_id=self.vlan10)
         sai_thrift_create_fdb_entry(
             self.client,
-            self.fdb_entry_port,
+            self.port_fdb_entry,
             type=SAI_FDB_ENTRY_TYPE_STATIC,
             bridge_port_id=self.port0_bp)
 
-        self.fdb_entry_lag = sai_thrift_fdb_entry_t(
+        self.lag_fdb_entry = sai_thrift_fdb_entry_t(
             switch_id=self.switch_id,
-            mac_address=self.mac_lag,
+            mac_address=self.lag_mac,
             bv_id=self.vlan10)
         sai_thrift_create_fdb_entry(
             self.client,
-            self.fdb_entry_lag,
+            self.lag_fdb_entry,
             type=SAI_FDB_ENTRY_TYPE_STATIC,
             bridge_port_id=self.lag1_bp)
 
@@ -63,15 +58,15 @@ class AclGroupTest(SaiHelper):
         self.portLagEgressAclTableGroupTest()
 
     def tearDown(self):
-        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry_port)
-        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry_lag)
+        sai_thrift_remove_fdb_entry(self.client, self.port_fdb_entry)
+        sai_thrift_remove_fdb_entry(self.client, self.lag_fdb_entry)
 
         super(AclGroupTest, self).tearDown()
 
     def portLagIngressAclTableGroupTest(self):
         '''
-        Test verifying combination of port and LAG as
-        bind points to ingress acl table group.
+        Verify combination of port and LAG as
+        bind points to ingress ACL table group.
         '''
         print("portLagIngressAclTableGroupTest")
 
@@ -139,17 +134,17 @@ class AclGroupTest(SaiHelper):
 
         try:
             pkt1 = simple_udp_packet(
-                eth_dst=self.mac_port,
-                eth_src=self.mac_lag,
+                eth_dst=self.port_mac,
+                eth_src=self.lag_mac,
                 ip_src=src_ip,
                 pktlen=100)
             pkt2 = simple_udp_packet(
-                eth_dst=self.mac_lag,
-                eth_src=self.mac_port,
+                eth_dst=self.lag_mac,
+                eth_src=self.port_mac,
                 ip_src=src_ip,
                 pktlen=100)
 
-            print("Sending packet without acl table group")
+            print("Sending packet without ACL table group")
             print("Sending packet from lag to port")
             send_packet(self, self.dev_port4, pkt1)
             verify_packet(self, pkt1, self.dev_port0)
@@ -164,7 +159,7 @@ class AclGroupTest(SaiHelper):
                 self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 0)
 
-            print("Attach acl table group to port")
+            print("Attach ACL table group to port")
             sai_thrift_set_port_attribute(self.client, self.port0,
                                           ingress_acl=acl_group)
             print("Sending packet from port to lag, drop")
@@ -175,7 +170,7 @@ class AclGroupTest(SaiHelper):
                 self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 1)
 
-            print("Attach acl table group to lag")
+            print("Attach ACL table group to lag")
             sai_thrift_set_lag_attribute(self.client, self.lag1,
                                          ingress_acl=acl_group)
             print("Sending packet from lag to port, drop")
@@ -195,6 +190,9 @@ class AclGroupTest(SaiHelper):
                 self.client, acl_entry,
                 action_counter=action_counter_t)
 
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter, packets=None)
+
             packets = sai_thrift_get_acl_counter_attribute(
                 self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 0)
@@ -213,8 +211,8 @@ class AclGroupTest(SaiHelper):
 
     def portLagEgressAclTableGroupTest(self):
         '''
-        Test verifying combination of port and LAG as
-        bind points to egress acl table group.
+        Verify combination of port and LAG as
+        bind points to egress ACL table group.
         '''
         print("portLagEgressAclTableGroupTest")
         # create ACL table group
@@ -281,17 +279,17 @@ class AclGroupTest(SaiHelper):
 
         try:
             pkt1 = simple_udp_packet(
-                eth_dst=self.mac_port,
-                eth_src=self.mac_lag,
+                eth_dst=self.port_mac,
+                eth_src=self.lag_mac,
                 ip_src=src_ip,
                 pktlen=100)
             pkt2 = simple_udp_packet(
-                eth_dst=self.mac_lag,
-                eth_src=self.mac_port,
+                eth_dst=self.lag_mac,
+                eth_src=self.port_mac,
                 ip_src=src_ip,
                 pktlen=100)
 
-            print("Sending packet without acl table group")
+            print("Sending packet without ACL table group")
             print("Sending packet from lag to port")
             send_packet(self, self.dev_port4, pkt1)
             verify_packet(self, pkt1, self.dev_port0)
@@ -306,7 +304,7 @@ class AclGroupTest(SaiHelper):
                 self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 0)
 
-            print("Attach acl table group to port")
+            print("Attach ACL table group to port")
             sai_thrift_set_port_attribute(self.client, self.port0,
                                           egress_acl=acl_group)
             print("Sending packet from lag to port, drop")
@@ -317,7 +315,7 @@ class AclGroupTest(SaiHelper):
                 self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 1)
 
-            print("Attach acl table group to lag")
+            print("Attach ACL table group to lag")
             sai_thrift_set_lag_attribute(self.client, self.lag1,
                                          egress_acl=acl_group)
             print("Sending packet from port to lag, drop")
@@ -337,6 +335,9 @@ class AclGroupTest(SaiHelper):
                 self.client, acl_entry,
                 action_counter=action_counter_t)
 
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter, packets=None)
+
             packets = sai_thrift_get_acl_counter_attribute(
                 self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 0)
@@ -355,11 +356,9 @@ class AclGroupTest(SaiHelper):
 
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class SrcIpAclTest(SaiHelper):
     """
-    Matching on src ip address field
+    Verify matching on src ip address field
     """
 
     def setUp(self):
@@ -376,7 +375,7 @@ class SrcIpAclTest(SaiHelper):
         mac_src = '00:22:22:22:22:22'
         ip_addr_src = '192.168.100.100'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   ip_addr, rif_id1, dmac))
         self.nbr_entry = sai_thrift_neighbor_entry_t(
@@ -400,7 +399,6 @@ class SrcIpAclTest(SaiHelper):
         sai_thrift_create_route_entry(self.client, self.route_entry,
                                       next_hop_id=rif_id1)
 
-        # send the test packet(s)
         self.pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
                                      eth_src=mac_src,
                                      ip_dst=ip_addr,
@@ -425,19 +423,18 @@ class SrcIpAclTest(SaiHelper):
 
         try:
             print('#### NO ACL Applied ####')
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 172.16'
-                  '.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| 172.16'
-                  '.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
             verify_packets(self, self.exp_pkt, [self.dev_port10])
         finally:
             print('----------------------------------------------------------'
                   '------------------------------------')
 
-        print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 (192.168.0.1"
-              "-[acl]-> 172.16.10.1 [id = 105])")
-        # setup ACL to block based on Source IP and SPORT
+        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 (192.168.0.1"
+              "-[ACL]-> 172.16.10.1 [id = 105])")
 
         table_stage_ingress = SAI_ACL_STAGE_INGRESS
         table_stage_egress = SAI_ACL_STAGE_EGRESS
@@ -465,26 +462,12 @@ class SrcIpAclTest(SaiHelper):
             parameter=sai_thrift_acl_action_parameter_t(
                 s32=SAI_PACKET_ACTION_DROP))
 
-        u32range = sai_thrift_u32_range_t(min=1000, max=1000)
-        acl_range_id = sai_thrift_create_acl_range(
-            self.client,
-            type=SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE,
-            limit=u32range)
-        range_list = [acl_range_id]
-
-        range_list_t = sai_thrift_acl_field_data_t(
-            data=sai_thrift_acl_field_data_data_t(
-                objlist=sai_thrift_object_list_t(
-                    count=len(range_list),
-                    idlist=range_list)))
-
         acl_ingress_entry_id = sai_thrift_create_acl_entry(
             self.client,
             table_id=acl_ingress_table_id,
             priority=entry_priority,
             field_src_ip=src_ip_t,
-            action_packet_action=packet_action,
-            field_acl_range_type=range_list_t)
+            action_packet_action=packet_action)
 
         self.assertNotEqual(acl_ingress_entry_id, 0)
 
@@ -523,8 +506,7 @@ class SrcIpAclTest(SaiHelper):
                 table_id=acl_egress_table_id,
                 priority=entry_priority,
                 field_src_ip=src_ip_t,
-                action_packet_action=packet_action,
-                field_acl_range_type=range_list_t)
+                action_packet_action=packet_action)
 
             self.assertNotEqual(acl_egress_entry_id, 0)
 
@@ -548,7 +530,6 @@ class SrcIpAclTest(SaiHelper):
 
             # cleanup ACL
             sai_thrift_remove_acl_entry(self.client, acl_egress_entry_id)
-            sai_thrift_remove_acl_range(self.client, acl_range_id)
             sai_thrift_remove_acl_table(self.client, acl_egress_table_id)
 
     def tearDown(self):
@@ -559,11 +540,9 @@ class SrcIpAclTest(SaiHelper):
 
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class DstIpAclTest(SaiHelper):
     """
-    Matching on dst ip address field
+    Verify matching on dst ip address field
     """
 
     def setUp(self):
@@ -580,7 +559,7 @@ class DstIpAclTest(SaiHelper):
         mac_src = '00:22:22:22:22:22'
         ip_addr_src = '192.168.100.100'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   ip_addr, rif_id1, dmac))
         self.nbr_entry = sai_thrift_neighbor_entry_t(
@@ -604,7 +583,6 @@ class DstIpAclTest(SaiHelper):
         sai_thrift_create_route_entry(self.client, self.route_entry,
                                       next_hop_id=rif_id1)
 
-        # send the test packet(s)
         self.pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
                                      eth_src=mac_src,
                                      ip_dst=ip_addr,
@@ -630,19 +608,18 @@ class DstIpAclTest(SaiHelper):
 
         try:
             print('#### NO ACL Applied ####')
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 172.16'
-                  '.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| 172.16'
-                  '.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
             verify_packets(self, self.exp_pkt, [self.dev_port10])
         finally:
             print('----------------------------------------------------------')
 
-        print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 (192.168.0.1"
-              "-[acl]-> 172.16.10.1 [id = 105])")
+        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 (192.168.0.1"
+              "-[ACL]-> 172.16.10.1 [id = 105])")
 
-        # setup ACL to block based on Source IP and SPORT
         table_stage_ingress = SAI_ACL_STAGE_INGRESS
         table_stage_egress = SAI_ACL_STAGE_EGRESS
         entry_priority = 1
@@ -669,26 +646,12 @@ class DstIpAclTest(SaiHelper):
             parameter=sai_thrift_acl_action_parameter_t(
                 s32=SAI_PACKET_ACTION_DROP))
 
-        u32range = sai_thrift_u32_range_t(min=1000, max=1000)
-        acl_range_id = sai_thrift_create_acl_range(
-            self.client,
-            type=SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE,
-            limit=u32range)
-        range_list = [acl_range_id]
-
-        range_list_t = sai_thrift_acl_field_data_t(
-            data=sai_thrift_acl_field_data_data_t(
-                objlist=sai_thrift_object_list_t(
-                    count=len(range_list),
-                    idlist=range_list)))
-
         acl_ingress_entry_id = sai_thrift_create_acl_entry(
             self.client,
             table_id=acl_ingress_table_id,
             priority=entry_priority,
             field_dst_ip=dst_ip_t,
-            action_packet_action=packet_action,
-            field_acl_range_type=range_list_t)
+            action_packet_action=packet_action)
 
         self.assertNotEqual(acl_ingress_entry_id, 0)
 
@@ -726,8 +689,7 @@ class DstIpAclTest(SaiHelper):
                 table_id=acl_egress_table_id,
                 priority=entry_priority,
                 field_dst_ip=dst_ip_t,
-                action_packet_action=packet_action,
-                field_acl_range_type=range_list_t)
+                action_packet_action=packet_action)
 
             self.assertNotEqual(acl_egress_entry_id, 0)
 
@@ -751,7 +713,6 @@ class DstIpAclTest(SaiHelper):
 
             # cleanup ACL
             sai_thrift_remove_acl_entry(self.client, acl_egress_entry_id)
-            sai_thrift_remove_acl_range(self.client, acl_range_id)
             sai_thrift_remove_acl_table(self.client, acl_egress_table_id)
 
     def tearDown(self):
@@ -762,11 +723,9 @@ class DstIpAclTest(SaiHelper):
 
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class MACSrcAclTest(SaiHelper):
     """
-    Matching on src mac address field
+    Verify matching on src mac address field
     """
 
     def setUp(self):
@@ -781,7 +740,7 @@ class MACSrcAclTest(SaiHelper):
         self.mac_src = '00:22:22:22:22:22'
         ip_addr_src = '192.168.0.1'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   ip_addr, rif_id1, dmac))
         self.nbr_entry = sai_thrift_neighbor_entry_t(
@@ -805,7 +764,6 @@ class MACSrcAclTest(SaiHelper):
         sai_thrift_create_route_entry(self.client, self.route_entry,
                                       next_hop_id=rif_id1)
 
-        # send the test packet(s)
         self.pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
                                      eth_src=self.mac_src,
                                      ip_dst=ip_addr,
@@ -826,17 +784,17 @@ class MACSrcAclTest(SaiHelper):
 
         try:
             print('#### NO ACL Applied ####')
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 172.16'
-                  '.10.1 | 192.168.100.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '172.16.10.1 | 192.168.100.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| 172.16'
-                  '.10.1 | 192.168.100.1 | @ ptf_intf 1')
+            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+                  '172.16.10.1 | 192.168.100.1 | @ ptf_intf 1')
             verify_packets(self, self.exp_pkt, [self.dev_port10])
         finally:
             print('----------------------------------------------------------')
 
-            print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 (192.168.0.1-"
-                  "[acl]-> 172.16.10.1 [id = 105])")
+            print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 (192.168.0.1-"
+                  "[ACL]-> 172.16.10.1 [id = 105])")
             # setup ACL to block based on Source MAC
 
             table_stage_ingress = SAI_ACL_STAGE_INGRESS
@@ -864,25 +822,12 @@ class MACSrcAclTest(SaiHelper):
                 parameter=sai_thrift_acl_action_parameter_t(
                     s32=SAI_PACKET_ACTION_DROP))
 
-            u32range = sai_thrift_u32_range_t(min=1000, max=1000)
-            acl_range_id = sai_thrift_create_acl_range(
-                self.client, type=SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE,
-                limit=u32range)
-            range_list = [acl_range_id]
-
-            range_list_t = sai_thrift_acl_field_data_t(
-                data=sai_thrift_acl_field_data_data_t(
-                    objlist=sai_thrift_object_list_t(
-                        count=len(range_list),
-                        idlist=range_list)))
-
             acl_ingress_entry_id = sai_thrift_create_acl_entry(
                 self.client,
                 table_id=acl_ingress_table_id,
                 priority=entry_priority,
                 field_src_mac=src_mac_t,
-                action_packet_action=packet_action,
-                field_acl_range_type=range_list_t)
+                action_packet_action=packet_action)
 
             self.assertNotEqual(acl_ingress_entry_id, 0)
 
@@ -923,8 +868,7 @@ class MACSrcAclTest(SaiHelper):
                 table_id=acl_egress_table_id,
                 priority=entry_priority,
                 field_src_mac=src_mac_t,
-                action_packet_action=packet_action,
-                field_acl_range_type=range_list_t)
+                action_packet_action=packet_action)
 
             self.assertNotEqual(acl_egress_entry_id, 0)
 
@@ -951,7 +895,6 @@ class MACSrcAclTest(SaiHelper):
 
             # cleanup ACL
             sai_thrift_remove_acl_entry(self.client, acl_egress_entry_id)
-            sai_thrift_remove_acl_range(self.client, acl_range_id)
             sai_thrift_remove_acl_table(self.client, acl_egress_table_id)
 
     def tearDown(self):
@@ -962,11 +905,9 @@ class MACSrcAclTest(SaiHelper):
 
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class L3L4PortTest(SaiHelper):
     """
-    Test matching on l4_dst_port and l4_src_port fields
+    Verify matching on l4_dst_port and l4_src_port fields
     """
 
     def setUp(self):
@@ -983,7 +924,7 @@ class L3L4PortTest(SaiHelper):
         mac_src = '00:22:22:22:22:22'
         ip_addr_src = '192.168.100.100'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   ip_addr, rif_id1, dmac))
         self.nbr_entry = sai_thrift_neighbor_entry_t(
@@ -1007,7 +948,6 @@ class L3L4PortTest(SaiHelper):
         sai_thrift_create_route_entry(self.client, self.route_entry,
                                       next_hop_id=rif_id1)
 
-        # send the test packet(s)
         self.pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
                                      eth_src=mac_src,
                                      ip_dst=ip_addr,
@@ -1026,7 +966,7 @@ class L3L4PortTest(SaiHelper):
                                          ip_ttl=63)
 
     def runTest(self):
-        print("Testing L4 src/dest port acl filter")
+        print("Testing L4 src/dest port ACL filter")
         print('--------------------------------------------------------------'
               '--------------------------------')
         print("Sending packet ptf_intf 2 -> ptf_intf 1 (192.168.100.100 --->"
@@ -1034,11 +974,11 @@ class L3L4PortTest(SaiHelper):
 
         try:
             print('#### NO ACL Applied ####')
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 172.'
-                  '16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| 172.'
-                  '16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
             verify_packets(self, self.exp_pkt, [self.dev_port10])
         finally:
             print('----------------------------------------------------------'
@@ -1046,7 +986,6 @@ class L3L4PortTest(SaiHelper):
 
         print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 (192.168.0.1"
               "-[a]cl]-> 172.16.10.1 [id = 105])")
-        # setup ACL to block based on Source IP and SPORT
         table_stage_ingress = SAI_ACL_STAGE_INGRESS
         table_stage_egress = SAI_ACL_STAGE_EGRESS
         entry_priority = 1
@@ -1159,11 +1098,9 @@ class L3L4PortTest(SaiHelper):
 
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class L3AclRangeTest(SaiHelper):
     """
-    Matching on acl range
+    Verify matching on ACL range
     """
 
     def setUp(self):
@@ -1180,7 +1117,7 @@ class L3AclRangeTest(SaiHelper):
         mac_src = '00:22:22:22:22:22'
         ip_addr_src = '192.168.100.100'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   ip_addr, rif_id1, dmac))
         self.nbr_entry = sai_thrift_neighbor_entry_t(
@@ -1204,7 +1141,6 @@ class L3AclRangeTest(SaiHelper):
         sai_thrift_create_route_entry(self.client, self.route_entry,
                                       next_hop_id=rif_id1)
 
-        # send the test packet(s)
         self.pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
                                      eth_src=mac_src,
                                      ip_dst=ip_addr,
@@ -1227,18 +1163,17 @@ class L3AclRangeTest(SaiHelper):
 
         try:
             print('#### NO ACL Applied ####')
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 172.16'
-                  '.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| 172.16'
-                  '.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
             verify_packets(self, self.exp_pkt, [self.dev_port10])
         finally:
             print('----------------------------------------------------------')
 
-        print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 (192.168.0.1-"
-              "[acl]-> 172.16.10.1 [id = 105])")
-        # setup ACL to block based on Source IP and SPORT
+        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 (192.168.0.1-"
+              "[ACL]-> 172.16.10.1 [id = 105])")
         table_stage_ingress = SAI_ACL_STAGE_INGRESS
         table_stage_egress = SAI_ACL_STAGE_EGRESS
         entry_priority = 1
@@ -1358,10 +1293,9 @@ class L3AclRangeTest(SaiHelper):
 
 
 @group("draft")
-@group('acl-m1')
 class ACLGroupSeveralMembersTest(SaiHelper):
     """
-    Test matching on ACL groups with the IPv4 and IPv6 groups members
+    Verify matching on ACL groups with the IPv4 and IPv6 groups members
     """
     def setUp(self):
         super(ACLGroupSeveralMembersTest, self).setUp()
@@ -1374,7 +1308,7 @@ class ACLGroupSeveralMembersTest(SaiHelper):
         self.ipv6_addr = '4000::1'
         self.dmac = '00:22:22:22:22:22'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   self.ipv4_addr, rif_id1, self.dmac))
         self.nbr_entry1 = sai_thrift_neighbor_entry_t(
@@ -1390,7 +1324,7 @@ class ACLGroupSeveralMembersTest(SaiHelper):
             router_interface_id=rif_id1,
             type=SAI_NEXT_HOP_TYPE_IP)
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   self.ipv6_addr, rif_id1, self.dmac))
         self.nbr_entry2 = sai_thrift_neighbor_entry_t(
@@ -1526,8 +1460,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
                                         tcp_dport=0x51,
                                         ip_ttl=63)
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0'
-                  '.0.1 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.1 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.1'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1566,8 +1500,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
                                          tcp_dport=0x51,
                                          ip_ttl=63)
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0.0.'
-                  '3 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.3 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt2)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.3'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1577,8 +1511,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
             sai_thrift_set_port_attribute(
                 self.client, self.port11, ingress_acl=acl_group_ingress)
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0'
-                  '.0.1 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.1 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt)
             print('#### NOT Expecting ', self.dmac, ' | ', ROUTER_MAC, '| '
                   '20.0.0.1 | 192.168.0.1 | @ ptf_intf 1')
@@ -1595,8 +1529,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
             sai_thrift_set_port_attribute(
                 self.client, self.port11, ingress_acl=int(SAI_NULL_OBJECT_ID))
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0'
-                  '.0.1 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.1 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.1'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1609,8 +1543,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
                   ' | 2000::1 | @ ptf_intf 1')
             verify_packets(self, exp_pktv6, [self.dev_port10])
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0.0.'
-                  '3 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.3 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt2)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.3'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1686,8 +1620,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
                 field_src_ip=src_ip_t_mirror,
                 action_packet_action=packet_action)
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0'
-                  '.0.1 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.1 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.1'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1700,8 +1634,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
                   ' | 2000::1 | @ ptf_intf 1')
             verify_packets(self, exp_pktv6, [self.dev_port10])
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0.0.'
-                  '3 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.3 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt2)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.3'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1711,8 +1645,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
             sai_thrift_set_port_attribute(
                 self.client, self.port10, egress_acl=acl_group_egress)
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0'
-                  '.0.1 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.1 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt)
             print('#### NOT Expecting ', self.dmac, ' | ', ROUTER_MAC, '| '
                   '20.0.0.1 | 192.168.0.1 | @ ptf_intf 1')
@@ -1729,8 +1663,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
             sai_thrift_set_port_attribute(
                 self.client, self.port10, egress_acl=int(SAI_NULL_OBJECT_ID))
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0'
-                  '.0.1 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.1 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.1'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1743,8 +1677,8 @@ class ACLGroupSeveralMembersTest(SaiHelper):
                   ' | 2000::1 | @ ptf_intf 1')
             verify_packets(self, exp_pktv6, [self.dev_port10])
 
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | 20.0.0.'
-                  '3 | 192.168.0.1 | @ ptf_intf 2')
+            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+                  '20.0.0.3 | 192.168.0.1 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, pkt2)
             print('#### Expecting ', self.dmac, ' | ', ROUTER_MAC, '| 20.0.0.3'
                   ' | 192.168.0.1 | @ ptf_intf 1')
@@ -1774,10 +1708,9 @@ class ACLGroupSeveralMembersTest(SaiHelper):
 
 
 @group("draft")
-@group('mirror-acl')
 class MultAclTableGroupBindTest(SaiHelper):
     """
-    Test matching on ACL table groups
+    Verify matching on ACL table groups
     """
     def setUp(self):
         super(MultAclTableGroupBindTest, self).setUp()
@@ -1787,7 +1720,7 @@ class MultAclTableGroupBindTest(SaiHelper):
         self.ip_addr = '172.16.10.1'
         self.dmac = '00:11:22:33:44:55'
 
-        print("Create nieghbor with %s ip address, %d router interface"
+        print("Create neighbor with %s ip address, %d router interface"
               " id and %s destination mac" % (
                   self.ip_addr, rif_id, self.dmac))
         self.nbr_entry = sai_thrift_neighbor_entry_t(
@@ -1823,7 +1756,7 @@ class MultAclTableGroupBindTest(SaiHelper):
 
     def runTest(self):
         print('--------------------------------------------------------------')
-        print('Testing both IPV4, MIRROR ACL table within a acl table group on'
+        print('Testing both IPV4, MIRROR ACL table within a ACL table group on'
               ' same set of ports')
         print("Sending packet ptf_intf 4 -> [ptf_intf 1, ptf_intf 2, ptf_intf "
               "3] (192.168.0.1 ---> 172.16.10.1 [id = 105])")
@@ -1901,7 +1834,7 @@ class MultAclTableGroupBindTest(SaiHelper):
             acl_bind_point_type_list=table_bind_point_type_list,
             field_src_ip=True)
 
-        print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 (20.20.20.1-[acl]"
+        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 (20.20.20.1-[ACL]"
               "-> 172.16.10.1 [id = 105])")
         # setup ACL table to block on below matching param
         ip_src = "192.168.0.1"
@@ -2051,23 +1984,23 @@ class MultAclTableGroupBindTest(SaiHelper):
                                     tcp_sport=4000,
                                     tcp_dport=5000)
 
-            print("TX packet port 12 -> port 13, ipv4 acl blocks route pkt but"
-                  " mirror acl mirrors pkt to port 10")
+            print("TX packet port 12 -> port 13, ipv4 ACL blocks route pkt but"
+                  " mirror ACL mirrors pkt to port 10")
             send_packet(self, self.dev_port12, pkt)
             verify_packets(self, pkt, ports=[self.dev_port10])
 
-            # cleanup acl, remove acl group member
+            # cleanup ACL, remove ACL group member
             for mbr in acl_group_member_ingress_list:
                 sai_thrift_remove_acl_table_group_member(self.client, mbr)
 
-            # unlink this acl table from port10, port12, port13 object
+            # unlink this ACL table from port10, port12, port13 object
 
             for i, ports in enumerate(in_ports):
                 sai_thrift_set_port_attribute(
                     self.client, ports,
                     ingress_acl=int(SAI_NULL_OBJECT_ID))
 
-            # cleanup acl group, entries, tables
+            # cleanup ACL group, entries, tables
             for grp in acl_group_ingress_list:
                 sai_thrift_remove_acl_table_group(self.client, grp)
 
@@ -2150,15 +2083,15 @@ class MultAclTableGroupBindTest(SaiHelper):
             time.sleep(5)
 
         finally:
-            # cleanup acl, remove acl group member
+            # cleanup ACL, remove ACL group member
             sai_thrift_remove_acl_table_group_member(
                 self.client, acl_group_egress_ip_member_id)
 
-            # unlink this acl table from port4 object
+            # unlink this ACL table from port4 object
             sai_thrift_set_port_attribute(self.client, self.port13,
                                           egress_acl=int(SAI_NULL_OBJECT_ID))
 
-            # cleanup acl group, entries, tables
+            # cleanup ACL group, entries, tables
             sai_thrift_remove_acl_table_group(self.client,
                                               acl_table_group_egress)
             sai_thrift_remove_acl_entry(
@@ -2328,7 +2261,7 @@ class SonicACLTest(SaiHelper):
             acl_ingress_group_members_list.append(
                 acl_group_ingress_ip_member_id1)
 
-        # create acl entries in secondary ipv4 acl
+        # create ACL entries in secondary ipv4 ACL
 
         # "ACL_RULE|DATAACL|DEFAULT_RULE": {
         #     "type": "hash",
@@ -3120,13 +3053,15 @@ class SonicACLTest(SaiHelper):
 
 @group("draft")
 class TCPFlagsACLTest(SaiHelper):
-    """ Test ACL TCP Flags """
-
-    acl_table = None
-    acl_entry = None
+    """
+    Verify ACL TCP Flags
+    """
 
     def setUp(self):
         super(TCPFlagsACLTest, self).setUp()
+
+        self.acl_table = None
+        self.acl_entry = None
 
         self.dmac = '00:11:22:33:44:55'
         self.ip_addr1 = '10.10.10.1'
@@ -3277,7 +3212,7 @@ class TCPFlagsACLTest(SaiHelper):
 @group("draft")
 class AclTableTypeTest(SaiHelper):
     '''
-    Acl Type class. This test creates tables with various match fields
+    ACL Type class. This test creates tables with various match fields
     '''
     acl_range_type = sai_thrift_s32_list_t(count=0, int32list=[])
 
@@ -3323,6 +3258,11 @@ class AclTableTypeTest(SaiHelper):
         sai_thrift_create_route_entry(
             self.client, self.route_entry1, next_hop_id=self.nhop1)
 
+    def runTest(self):
+        self.testIPv4Acl()
+        self.testIPv6Acl()
+        self.testIPMirrorAcl()
+
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry0)
         sai_thrift_remove_route_entry(self.client, self.route_entry1)
@@ -3334,7 +3274,7 @@ class AclTableTypeTest(SaiHelper):
 
     def testIPv4Acl(self):
         '''
-        Test various IPv4 field combinations for table creation
+        Verify various IPv4 field combinations for table creation
         '''
         print("testIPv4Acl")
         pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
@@ -3392,7 +3332,7 @@ class AclTableTypeTest(SaiHelper):
                 field_dst_ip=dst_ip_t,
                 action_packet_action=packet_action)
 
-            # bind acl table to ingress port 24
+            # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
 
@@ -3407,7 +3347,7 @@ class AclTableTypeTest(SaiHelper):
 
     def testIPv6Acl(self):
         '''
-        Test various IPv6 field combinations for table creation
+        Verify various IPv6 field combinations for table creation
         '''
         print("testIPv6Acl")
         pkt = simple_tcpv6_packet(
@@ -3469,7 +3409,7 @@ class AclTableTypeTest(SaiHelper):
                 field_dst_ipv6=dst_ip_t,
                 action_packet_action=packet_action)
 
-            # bind acl table to ingress port 24
+            # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
 
@@ -3484,7 +3424,7 @@ class AclTableTypeTest(SaiHelper):
 
     def testIPMirrorAcl(self):
         '''
-        Test various IP mirror functionality
+        Verify various IP mirror functionality
         '''
         print("testIPMirrorAcl")
         pkt = simple_tcpv6_packet(
@@ -3556,7 +3496,7 @@ class AclTableTypeTest(SaiHelper):
                 field_dst_ipv6=dst_ip_t,
                 action_mirror_ingress=mirror_action)
 
-            # bind acl table to ingress port 24
+            # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
 
@@ -3571,17 +3511,11 @@ class AclTableTypeTest(SaiHelper):
             sai_thrift_remove_acl_table(self.client, acl_table)
             sai_thrift_remove_mirror_session(self.client, mirror_session)
 
-    def runTest(self):
-        self.testIPv4Acl()
-        self.testIPv6Acl()
-        self.testIPMirrorAcl()
-
 
 @group("draft")
-@group('acl-redirect')
 class AclRedirectTest(SaiHelper):
     """
-    Verify Acl redirection test cases
+    Verify ACL redirection test cases
     """
     def setUp(self):
         super(AclRedirectTest, self).setUp()
@@ -3806,7 +3740,7 @@ class AclRedirectTest(SaiHelper):
                 priority=group_member_priority)
 
         self.assertTrue(acl_group_member_id_ingress != 0,
-                        "ACL group member add failed for acl table 0x%lx, "
+                        "ACL group member add failed for ACL table 0x%lx, "
                         "acl group 0x%lx" % (
                             acl_table_id_ingress, acl_table_group_ingress))
         self.acl_grp_members.append(acl_group_member_id_ingress)
@@ -3834,7 +3768,7 @@ class AclRedirectTest(SaiHelper):
         self.acl_rules.append(acl_ip_entry_id_ingress)
         self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
-                        'failed for acl table 0x%lx' % (
+                        'failed for ACL table 0x%lx' % (
                             eth_type, self.port26, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt1[Ether].type, self.port26,
@@ -3862,7 +3796,7 @@ class AclRedirectTest(SaiHelper):
         self.acl_rules.append(acl_ip_entry_id_ingress)
         self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
-                        'failed for acl table 0x%lx' % (
+                        'failed for ACL table 0x%lx' % (
                             eth_type, self.lag_id, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt2[Ether].type, self.lag_id,
@@ -3877,8 +3811,8 @@ class AclRedirectTest(SaiHelper):
                 priority=200)
 
         self.assertTrue(acl_group_member_id_ingress != 0,
-                        "ACL group member add failed for acl table 0x%lx, "
-                        "acl group 0x%lx" % (
+                        "ACL group member add failed for ACL table 0x%lx, "
+                        "ACL group 0x%lx" % (
                             acl_table_id_ingress, acl_table_group_ingress))
         self.acl_grp_members.append(acl_group_member_id_ingress)
 
@@ -3932,7 +3866,7 @@ class AclRedirectTest(SaiHelper):
         self.acl_rules.append(acl_ip_entry_id_ingress)
         self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
-                        'failed for acl table 0x%lx' % (
+                        'failed for ACL table 0x%lx' % (
                             eth_type, self.lag_id, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt3[Ether].type, self.lag_id,
@@ -4025,10 +3959,9 @@ class AclRedirectTest(SaiHelper):
 
 
 @group("draft")
-@group("acl-ip-type")
 class AclIpTypeTrapTest(SaiHelper):
     '''
-    Test ACL IP type field
+    Verify ACL IP type field
     '''
 
     def setUp(self):
@@ -4084,6 +4017,11 @@ class AclIpTypeTrapTest(SaiHelper):
         self.ip6_pkt = simple_ipv6ip_packet()
         self.lldp_pkt = simple_eth_packet(eth_type=0x88cc)
 
+    def runTest(self):
+        self.testAclTypeAny()
+        self.testAclTypeIpv4Any()
+        self.testAclTypeIpv6Any()
+
     def tearDown(self):
         sai_thrift_remove_acl_table(self.client, self.acl_table_oid)
         sai_thrift_remove_hostif_table_entry(
@@ -4093,14 +4031,9 @@ class AclIpTypeTrapTest(SaiHelper):
         sai_thrift_remove_hostif(self.client, self.hostif_oid)
         super(AclIpTypeTrapTest, self).tearDown()
 
-    def runTest(self):
-        self.testAclTypeAny()
-        self.testAclTypeIpv4Any()
-        self.testAclTypeIpv6Any()
-
     def testAclTypeAny(self):
         '''
-        Test SAI_ACL_IP_TYPE_ANY
+        Verify SAI_ACL_IP_TYPE_ANY
         '''
         print("testAclTypeAny")
         acl_entry_oid = None
@@ -4146,7 +4079,7 @@ class AclIpTypeTrapTest(SaiHelper):
 
     def testAclTypeIpv4Any(self):
         '''
-        Test SAI_ACL_IP_TYPE_IPV4ANY
+        Verify SAI_ACL_IP_TYPE_IPV4ANY
         '''
         print("testAclTypeIpv4Any")
         acl_entry_oid = None
@@ -4193,7 +4126,7 @@ class AclIpTypeTrapTest(SaiHelper):
 
     def testAclTypeIpv6Any(self):
         '''
-        Test SAI_ACL_IP_TYPE_IPV6ANY
+        Verify SAI_ACL_IP_TYPE_IPV6ANY
         '''
         print("testAclTypeIpv6Any")
         acl_entry_oid = None
@@ -4242,10 +4175,9 @@ class AclIpTypeTrapTest(SaiHelper):
 
 
 @group("draft")
-@group('acl-pre-ingress')
 class AclPreIngressTest(AclTableTypeTest):
     '''
-    Test pre-ingress ACL
+    Verify pre-ingress ACL
     '''
 
     def setUp(self):
@@ -4290,7 +4222,7 @@ class AclPreIngressTest(AclTableTypeTest):
 
     def testPreIngressAcl(self):
         '''
-        Test pre-ingress matching and VRF assignment
+        Verify pre-ingress matching and VRF assignment
         '''
         print("testPreIngressAcl")
         acl_table_oid = None
@@ -4385,7 +4317,9 @@ class AclPreIngressTest(AclTableTypeTest):
 
 @group("draft")
 class IPv6NextHdrTest(SaiHelper):
-    """Verify ACL blocking TCP traffic"""
+    """
+    Verify ACL blocking TCP traffic
+    """
     def setUp(self):
         super(IPv6NextHdrTest, self).setUp()
         self.ip_addr1 = '1234:5678:9abc:def0:4422:1133:5577:99aa'
@@ -4487,8 +4421,19 @@ class IPv6NextHdrTest(SaiHelper):
         self.aclIPv6NextHdrTest(self.table_stage_ingress)
         self.aclIPv6NextHdrTest(self.table_stage_egress)
 
+    def tearDown(self):
+        sai_thrift_remove_route_entry(self.client, self.route_entry1)
+        sai_thrift_remove_next_hop(self.client, self.nhop1)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
+        sai_thrift_remove_route_entry(self.client, self.route_entry2)
+        sai_thrift_remove_next_hop(self.client, self.nhop2)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
+        super(IPv6NextHdrTest, self).tearDown()
+
     def aclRoutingTest(self):
-        """Test routing without ACL"""
+        """
+        Verify routing without ACL
+        """
         try:
             print('----------------------------------------------------------')
             print("Sending packet ptf_intf 2 -> ptf_intf 1 (", self.ip_addr2,
@@ -4522,7 +4467,7 @@ class IPv6NextHdrTest(SaiHelper):
 
     def aclIPv6NextHdrTest(self, table_stage):
         """
-        Test ACL with next header field
+        Verify ACL with next header field
         Args:
             table_stage (int): specifies ingress or egress type of ACL
         """
@@ -4600,8 +4545,8 @@ class IPv6NextHdrTest(SaiHelper):
             self.assertNotEqual(acl_table_id, 0)
             self.assertNotEqual(acl_entry_id, 0)
 
-            print("Sending packet ptf_intf 2-[acl]-> ptf_intf 1 (", src_ip,
-                  " -[acl]-> ", dst_ip, ")")
+            print("Sending packet ptf_intf 2-[ACL]-> ptf_intf 1 (", src_ip,
+                  " -[ACL]-> ", dst_ip, ")")
 
             print('#### Sending   TCP', ROUTER_MAC, ' | ', smac, ' | ',
                   src_ip, ' | ', dst_ip, ' | @ ptf_intf 2')
@@ -4650,21 +4595,12 @@ class IPv6NextHdrTest(SaiHelper):
             sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_table(self.client, acl_table_id)
 
-    def tearDown(self):
-        sai_thrift_remove_route_entry(self.client, self.route_entry1)
-        sai_thrift_remove_next_hop(self.client, self.nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
-        sai_thrift_remove_route_entry(self.client, self.route_entry2)
-        sai_thrift_remove_next_hop(self.client, self.nhop2)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
-        super(IPv6NextHdrTest, self).tearDown()
-
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class IPAclFragmentTest(SaiHelper):
-    """Verify ACL with IP fragmentation"""
+    """
+    Verify ACL with IP fragmentation
+    """
     def setUp(self):
         super(IPAclFragmentTest, self).setUp()
         print('--------------------------------------------------------------')
@@ -4756,8 +4692,19 @@ class IPAclFragmentTest(SaiHelper):
         self.aclIPFragmentTest(self.table_stage_ingress)
         self.aclIPFragmentTest(self.table_stage_egress)
 
+    def tearDown(self):
+        sai_thrift_remove_route_entry(self.client, self.route_entry1)
+        sai_thrift_remove_next_hop(self.client, self.nhop1)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
+        sai_thrift_remove_route_entry(self.client, self.route_entry2)
+        sai_thrift_remove_next_hop(self.client, self.nhop2)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
+        super(IPAclFragmentTest, self).tearDown()
+
     def aclRoutingTest(self):
-        """Test routing"""
+        """
+        Verify routing
+        """
         # send the test packet(s)
         try:
             print('#### NO ACL Applied ####')
@@ -4780,7 +4727,7 @@ class IPAclFragmentTest(SaiHelper):
 
     def aclIPFragmentTest(self, table_stage):
         """
-        Test ACL with IP frgamentation
+        Verify ACL with IP frgamentation
         Args:
             table_stage (int): specifies ingress or egress type of ACL
         """
@@ -4905,20 +4852,12 @@ class IPAclFragmentTest(SaiHelper):
             sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_table(self.client, acl_table_id)
 
-    def tearDown(self):
-        sai_thrift_remove_route_entry(self.client, self.route_entry1)
-        sai_thrift_remove_next_hop(self.client, self.nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
-        sai_thrift_remove_route_entry(self.client, self.route_entry2)
-        sai_thrift_remove_next_hop(self.client, self.nhop2)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
-        super(IPAclFragmentTest, self).tearDown()
-
 
 @group("draft")
-@group('acl')
 class L3AclCounterTest(SaiHelper):
-    """Verify ACL counter test case"""
+    """
+    Verify ACL counter test case
+    """
     def setUp(self):
         super(L3AclCounterTest, self).setUp()
 
@@ -4974,7 +4913,6 @@ class L3AclCounterTest(SaiHelper):
             self.route_entry2,
             next_hop_id=self.nhop2)
 
-        # send the test packet(s)
         self.pkt1 = simple_tcp_packet(eth_dst=ROUTER_MAC,
                                       eth_src=self.dmac2,
                                       ip_dst=self.ip_addr1,
@@ -5010,8 +4948,19 @@ class L3AclCounterTest(SaiHelper):
         self.l3AclCounterTest(self.table_stage_ingress)
         self.l3AclCounterTest(self.table_stage_egress)
 
+    def tearDown(self):
+        sai_thrift_remove_route_entry(self.client, self.route_entry1)
+        sai_thrift_remove_next_hop(self.client, self.nhop1)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
+        sai_thrift_remove_route_entry(self.client, self.route_entry2)
+        sai_thrift_remove_next_hop(self.client, self.nhop2)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
+        super(L3AclCounterTest, self).tearDown()
+
     def aclRoutingTest(self):
-        """Test ACL configuration"""
+        """
+        Verify ACL configuration
+        """
         print('--------------------------------------------------------------')
         print("Sending packet ptf_intf 2 -> ptf_intf 1 (", self.ip_addr2,
               " ---> ", self.ip_addr1, " [id = 105])")
@@ -5043,13 +4992,12 @@ class L3AclCounterTest(SaiHelper):
 
     def l3AclCounterTest(self, table_stage):
         """
-        Test acl with action counter
+        Verify ACL with action counter
         Args:
             table_stage (int): specifies the type of ACL table stage
         """
         print("Testing L3AclCounterTest")
 
-        # setup ACL to block based on Source IP and SPORT
         entry_priority = 1
         action = SAI_PACKET_ACTION_DROP
         ip_src_mask = "255.255.255.0"
@@ -5069,8 +5017,8 @@ class L3AclCounterTest(SaiHelper):
             dmac = self.dmac2
             smac = self.dmac1
 
-        print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 "
-              "(", ip_src, "-[acl]-> ", ip_dst, " [id = 105])")
+        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 "
+              "(", ip_src, "-[ACL]-> ", ip_dst, " [id = 105])")
 
         table_bind_points = [SAI_ACL_BIND_POINT_TYPE_ROUTER_INTF]
         table_bind_point_type_list = sai_thrift_s32_list_t(
@@ -5079,19 +5027,6 @@ class L3AclCounterTest(SaiHelper):
         src_ip_t = sai_thrift_acl_field_data_t(
             data=sai_thrift_acl_field_data_data_t(ip4=ip_src),
             mask=sai_thrift_acl_field_data_mask_t(ip4=ip_src_mask))
-
-        u32range = sai_thrift_u32_range_t(min=1000, max=1000)
-        acl_range_id = sai_thrift_create_acl_range(
-            self.client,
-            type=SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE,
-            limit=u32range)
-        range_list = [acl_range_id]
-
-        range_list_t = sai_thrift_acl_field_data_t(
-            data=sai_thrift_acl_field_data_data_t(
-                objlist=sai_thrift_object_list_t(
-                    count=len(range_list),
-                    idlist=range_list)))
 
         packet_action = sai_thrift_acl_action_data_t(
             parameter=sai_thrift_acl_action_parameter_t(
@@ -5108,8 +5043,7 @@ class L3AclCounterTest(SaiHelper):
             table_id=acl_table_id,
             priority=entry_priority,
             field_src_ip=src_ip_t,
-            action_packet_action=packet_action,
-            field_acl_range_type=range_list_t)
+            action_packet_action=packet_action)
 
         # bind this ACL table to rif_id2s object id
         if table_stage == SAI_ACL_STAGE_INGRESS:
@@ -5185,23 +5119,13 @@ class L3AclCounterTest(SaiHelper):
             sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_table(self.client, acl_table_id)
             sai_thrift_remove_acl_counter(self.client, acl_counter_id)
-            sai_thrift_remove_acl_range(self.client, acl_range_id)
-
-    def tearDown(self):
-        sai_thrift_remove_route_entry(self.client, self.route_entry1)
-        sai_thrift_remove_next_hop(self.client, self.nhop1)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
-        sai_thrift_remove_route_entry(self.client, self.route_entry2)
-        sai_thrift_remove_next_hop(self.client, self.nhop2)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
-        super(L3AclCounterTest, self).tearDown()
 
 
 @group("draft")
-@group('acl')
-@group('acl-ocp')
 class VlanAclTest(SaiHelper):
-    """Verify acl vlan test case"""
+    """
+    Verify ACL vlan test case
+    """
     def setUp(self):
         super(VlanAclTest, self).setUp()
         print("Sending L2 packet - port 24 -> port 25 [trunk vlan=100])")
@@ -5312,7 +5236,9 @@ class VlanAclTest(SaiHelper):
         super(VlanAclTest, self).tearDown()
 
     def noAclTest(self):
-        """Test communication without acl"""
+        """
+        Verify forwarding without ACL
+        """
         print('#### NO ACL Applied ####')
         # send the test packet(s)
         print("Sending TCP type test packet port 24 -> port 25")
@@ -5324,7 +5250,7 @@ class VlanAclTest(SaiHelper):
 
     def aclVlanTest(self, table_stage, group_stage):
         """
-        Test acl with vlan
+        Verify ACL with vlan
         Args:
             table_stage (int): specifies the type of ACL table stage
             group_stage (int): specifies the type of ACL group stage
@@ -5419,7 +5345,9 @@ class VlanAclTest(SaiHelper):
 
 @group("draft")
 class AclLagTest(SaiHelper):
-    """Verify acl with lag test case"""
+    """
+    Verify ACL with lag test case
+    """
     def setUp(self):
         super(AclLagTest, self).setUp()
 
@@ -5512,7 +5440,7 @@ class AclLagTest(SaiHelper):
 
     def lagAclEgressTest(self):
         '''
-        Test egress acl with lag
+        Verify egress ACL with lag
         "ACL_RULE|ACL_TABLE_IPV4_ID|RULE_1": {
             "type": "hash",
             "value": {
@@ -5610,7 +5538,7 @@ class AclLagTest(SaiHelper):
 
     def lagAclIngressTest(self):
         '''
-        Test ingress acl with lag
+        Verify ingress ACL with lag
         "ACL_RULE|ACL_TABLE_IPV4_ID|RULE_1": {
             "type": "hash",
             "value": {
@@ -5708,7 +5636,9 @@ class AclLagTest(SaiHelper):
 
 @group("draft")
 class IngressL3AclDscp(SaiHelper):
-    """Verify acl test case with the dscp field"""
+    """
+    Verify ACL test case with the dscp field
+    """
     def setUp(self):
         super(IngressL3AclDscp, self).setUp()
 
@@ -5729,7 +5659,6 @@ class IngressL3AclDscp(SaiHelper):
             router_interface_id=self.port10_rif,
             type=SAI_NEXT_HOP_TYPE_IP)
 
-        # send the test packet(s)
         self.pkt = simple_tcp_packet(
             eth_dst=ROUTER_MAC,
             eth_src='00:22:22:22:22:22',
@@ -5759,7 +5688,9 @@ class IngressL3AclDscp(SaiHelper):
         super(IngressL3AclDscp, self).tearDown()
 
     def routingTest(self):
-        """Test basic routing"""
+        """
+        Verify basic routing
+        """
         print('--------------------------------------------------------------')
         print("Sending packet ptf_intf 2 -> ptf_intf 1 (192.168.100.100 ---> "
               "172.16.10.1 [id = 105])")
@@ -5768,17 +5699,18 @@ class IngressL3AclDscp(SaiHelper):
             print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
                   '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
             send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| 172.16.'
-                  '10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
             verify_packets(self, self.exp_pkt, [self.dev_port10])
         finally:
             print('----------------------------------------------------------')
 
     def ingressL3AclDscpTest(self):
-        """Test acl with the dscp field"""
-        print("Sending packet ptf_intf 2 -[acl]-> ptf_intf 1 "
-              "(192.168.0.1-[acl]-> 172.16.10.1 [id = 105])")
-        # setup ACL to block based on Source IP and SPORT
+        """
+        Verify ACL with the dscp field
+        """
+        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 "
+              "(192.168.0.1-[ACL]-> 172.16.10.1 [id = 105])")
         table_stage = SAI_ACL_STAGE_INGRESS
         table_bind_point_list = [SAI_ACL_BIND_POINT_TYPE_ROUTER_INTF]
         entry_priority = 1
@@ -5798,21 +5730,6 @@ class IngressL3AclDscp(SaiHelper):
             data=sai_thrift_acl_field_data_data_t(ip4=ip_src),
             mask=sai_thrift_acl_field_data_mask_t(ip4=ip_src_mask))
 
-        u32range = sai_thrift_u32_range_t(min=1000, max=1000)
-        acl_range_id = sai_thrift_create_acl_range(
-            self.client,
-            type=SAI_ACL_RANGE_TYPE_L4_DST_PORT_RANGE,
-            limit=u32range)
-        range_list = [acl_range_id]
-
-        print("ACL range created 0x%lx" % (acl_range_id))
-
-        range_list_t = sai_thrift_acl_field_data_t(
-            data=sai_thrift_acl_field_data_data_t(
-                objlist=sai_thrift_object_list_t(
-                    count=len(range_list),
-                    idlist=range_list)))
-
         field_dscp = sai_thrift_acl_field_data_t(
             data=sai_thrift_acl_field_data_data_t(u8=50))
 
@@ -5830,7 +5747,6 @@ class IngressL3AclDscp(SaiHelper):
             priority=entry_priority,
             field_src_ip=src_ip_t,
             action_packet_action=packet_action,
-            field_acl_range_type=range_list_t,
             field_dscp=field_dscp)
 
         # bind this ACL table to rif_id2s object id
@@ -5859,4 +5775,3 @@ class IngressL3AclDscp(SaiHelper):
             # cleanup ACL
             sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_table(self.client, acl_table_id)
-            sai_thrift_remove_acl_range(self.client, acl_range_id)
