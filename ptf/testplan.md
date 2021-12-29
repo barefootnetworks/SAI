@@ -121,6 +121,72 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | dbgc.38 |  Verify SAI query DebugCounter availability | saidebugcounters.GetDebugCounterAvailability
 
 ## FDB
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| fdb.1 | Verify basic FDB attributes geting and setting | saifdb.FdbAttributeTest |
+| fdb.2 | Verify MAC not learned when VLAN learning disabled on port | saifdb.FdbNoLearnTest.vlanPortNoLearnTest |
+| fdb.3 | Verify MAC not learned when VLAN learning disabled on LAG | saifdb.FdbNoLearnTest.vlanLagNoLearnTest |
+| fdb.4 | Verify static MAC creation | saifdb.FdbStaticMacTest |
+| fdb.5 | Verify static MAC move from port->port | saifdb.FdbMacMoveTest.staticMacMoveTest |
+| fdb.6 | Verify static MAC move from LAG->LAG | saifdb.FdbMacMoveTest.staticMacMoveTest |
+| fdb.7 | Verify static MAC move from port->LAG | saifdb.FdbMacMoveTest.staticMacMoveTest |
+| fdb.8 | Verify static MAC move from LAG->port | saifdb.FdbMacMoveTest.staticMacMoveTest |
+| fdb.9 | Verify MAC learning on untagged port | saifdb.FdbLearnTest.dynamicMacLearnTest |
+| fdb.10 | Verify MAC learning on tagged port | saifdb.FdbLearnTest.dynamicMacLearnTest |
+| fdb.11 | Verify MAC learning on untagged LAG all members | saifdb.FdbLearnTest.dynamicMacLearnTest |
+| fdb.12 | Verify MAC learning on tagged LAG all members | saifdb.FdbLearnTest.dynamicMacLearnTest |
+| fdb.13 | Verify MAC learning on new VLAN member | saifdb.FdbLearnTest.dynamicMacLearnTest |
+| fdb.14 | Verify MAC learning on new LAG member | saifdb.FdbLearnTest.dynamicMacLearnTest |
+| fdb.15 | Verify dynamic MAC move from port -> port with static FDB entry previously installed | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.16 | Verify dynamic MAC move from LAG -> LAG with static FDB entry previously installed | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.17 | Verify dynamic MAC move from port -> LAG with static FDB entry previously installed  | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.18 | Verify dynamic MAC move from LAG -> port with static FDB entry previously installed  | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.19 | Verify MAC move from port -> port with FDB entry learned dynamically | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.20 | Verify MAC move from LAG -> LAG with FDB entry learned dynamically | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.21 | Verify MAC move from port -> LAG with FDB entry learned dynamically | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.22 | Verify MAC move from LAG -> port with FDB entry learned dynamically | saifdb.FdbMacMoveTest.dynamicMacMoveTest |
+| fdb.23 | Verify MAC aging on port | saifdb.FdbAgeTest.macAgingOnPortTest |
+| fdb.24 | Verify MAC aging on LAG | saifdb.FdbAgeTest.macAgingOnLagTest |
+| fdb.25 | Verify MAC aging after moving | saifdb.FdbAgeTest.macAgingAfterMoveTest |
+| fdb.26 | Verify MAC move after aging | saifdb.FdbAgeTest.macMoveAfterAgingTest |
+| fdb.27 | Verify MAC not learned for any dropped packets (test for different L2 drops) | saifdb.FdbLearnTest.macLearnErrorTest |
+| fdb.28 | Verify MAC not learned for invalid VLAN tagged packet | saifdb.FdbLearnTest.macLearnErrorTest |
+| fdb.29 | Verify MAC not moved for learned MAC if static MAC already present | saifdb.FdbLearnTest.macLearnErrorTest |
+| fdb.30 | Verify FDB atributes values after learn | saifdb.FdbEventTest.macLearnEventTest |
+| fdb.31 | Verify FDB atributes values after age | saifdb.FdbEventTest.macAgeEvenTest |
+| fdb.32 | Verify FDB atributes values after move | saifdb.FdbEventTest.macMoveEventTest |
+| fdb.33 | Verify FDB atributes values after flush | saifdb.FdbEventTest.macFlushEventTest |
+| fdb.34 | Verify FDB atributes values after delete | saifdb.FdbEventTest.macDeleteEventTest |
+| fdb.35 | Verify FDB static MACs flush per VLAN | saifdb.FdbFlushTest.flushStaticPerVlanTest |
+| fdb.36 | Verify FDB dynamic MACs flush per VLAN | saifdb.FdbFlushTest.flushDynamicPerVlanTest |
+| fdb.37 | Verify FDB all MACs flush per VLAN | saifdb.FdbFlushTest.flushAllPerVlanTest |
+| fdb.38 | Verify FDB static MACs flush per bridge port | saifdb.FdbFlushTest.flushStaticPerPortTest |
+| fdb.39 | Verify FDB dynamic MACs flush per bridge port | saifdb.FdbFlushTest.flushDynamicPerPortTest	 |
+| fdb.40 | Verify FDB all MACs flush per bridge port | saifdb.FdbFlushTest.flushAllPerPortTest |
+| fdb.41 | Verify FDB static MACs flush per bridge LAG port | saifdb.FdbFlushTest.flushStaticPerLagTest |
+| fdb.42 | Verify FDB dynamic MACs flush per bridge LAG port | saifdb.FdbFlushTest.flushDynamicPerLagTest |
+| fdb.43 | Verify FDB all MACs flush per bridge LAG port | saifdb.FdbFlushTest.flushAllPerLagTest |
+| fdb.44 | Verify FDB static MACs flush per VLAN/bridge port (for trunk port) | saifdb.FdbFlushTest.flushStaticPerVlanAndPortTest |
+| fdb.45 | Verify FDB dynamic MACs flush per VLAN/bridge port (for trunk port) | saifdb.FdbFlushTest.flushDynamicPerVlanAndPortTest |
+| fdb.46 | Verify FDB allMACs flush per VLAN/bridge port (for trunk port) | saifdb.FdbFlushTest.flushAllPerVlanAndPortTest |
+| fdb.47 | Verify FDB flush for all static MACs | saifdb.FdbFlushTest.flushAllStaticTest |
+| fdb.48 | Verify FDB flush for all dynamic MACs | saifdb.FdbFlushTest.flushAllDynamicTest |
+| fdb.49 | Verify FDB flush for all static and dynamic MACs | saifdb.FdbFlushTest.flushAllMacsTest |
+| fdb.50 | Verify MAC not learned after VLAN member removed on a port | saifdb.FdbLearnTest.macLearnErrorTest |
+| fdb.51 | Verify MAC not learned after lag member removed on a lag | saifdb.FdbLearnTest.macLearnErrorTest |
+| fdb.52 | Verify FDB miss - unicast with action drop | saifdb.FdbMissTest.unicastMissDropActionTest |
+| fdb.53 | Verify FDB miss - unicast with action copy to CPU | saifdb.FdbMissTest.unicastMissCopyActionTest |
+| fdb.54 | Verify FDB miss - unicast with action trap | saifdb.FdbMissTest.unicastMissTrapActionTest |
+| fdb.55 | Verify FDB miss - multicast with action drop | saifdb.FdbMissTest.multicastDropActionTest |
+| fdb.56 | Verify FDB miss - multicast with action copy to CPU | saifdb.FdbMissTest.multicastCopyActionTest |
+| fdb.57 | Verify FDB miss - multicast with action trap | saifdb.FdbMissTest.multicastTrapActionTest |
+| fdb.58 | Verify if LLDP packets are redirected to CPU regardless of multicast packet action | saifdb.FdbMissTest |
+| fdb.59 | Verify FDB miss - broadcast with action drop | saifdb.FdbMissTest.broadcastDropActionTest |
+| fdb.60 | Verify FDB miss - broadcast with action copy to CPU | saifdb.FdbMissTest.broadcastCopyActionTest |
+| fdb.61 | Verify FDB miss - broadcast with action trap | saifdb.FdbMissTest.broadcastTrapActionTest |
+| fdb.62 | Verify if ARP packets are redirected to CPU regardless of broadcast packet action | saifdb.FdbMissTest |
+| fdb.63 | Verify frame dropped when destination MAC is equall to ingress port MAC | saifdb.FdbStaticMacTest.selfForwardingTest |
+| fdb.64 | Verify packets forwarding on a port with static MAC entry installed | saifdb.FdbStaticMacTest.saifdb.FdbStaticMacTest |
 
 ## Hash
 | Test case id | Description | Test name |
