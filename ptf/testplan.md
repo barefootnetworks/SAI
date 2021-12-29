@@ -38,8 +38,6 @@ SAI PTF TESTPLAN contains all test cases coverd in ptf/ directory divided by fun
 | ------------ | ----------- | --------- |
 | bridgeport.1 | Verify sample bridge port attributes getting and setting | saibridgeport.BridgePortAttributeTest |
 | bridgeport.2 | Verify creation of bridge port of type Port | saibridgeport.BridgePortCreationTest.bpTypePortCreationTest |
-| acl. | Add ACL table group, V4 or V6 permit/deny/redirect ACL and V4/V6 mirror ACLs and attach to port, LAG, RIF, vlan | ACLGroupSeveralMembersTest |
-| acl. | Add ACL table group, V4 or V6 permit/deny/redirect ACL tables attach to port, LAG, RIF, vlan and add Mirror ACLs | MultAclTableGroupBindTest |
 | bridgeport.3 | Verify packet is dropped on port when no bridge_port is created on that port | saibridgeport.BridgePortCreationTest.noBpDropTest |
 | bridgeport.4 | Verify FDB is being flushed on port if bridge port admin_state is being set to DOWN | saibridgeport.BridgePortStateTest.bpStateDownFlushTest |
 | bridgeport.5 | Verify MAC address in not being learnt when bridge port admin_state is DOWN | saibridgeport.BridgePortStateTest.bpStateDownNoLearnTest |
