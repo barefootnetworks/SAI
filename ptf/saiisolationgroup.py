@@ -1,4 +1,4 @@
-# Copyright 2020-present Barefoot Networks, Inc.
+# Copyright 2021-present Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,25 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
+'''
 Thrift SAI interface Port Isolation tests
-"""
-
-from __future__ import print_function
+'''
 
 from sai_thrift.sai_headers import *
-
-from ptf.testutils import *
-from ptf.packet import *
-from ptf.thriftutils import *
 
 from sai_base_test import *
 
 
+@group("draft")
 class PortIsolationTest(SaiHelper):
-    """
-    The class runs VLAN test cases
-    """
+    '''
+    Wrapper class for port isolation test cases
+    '''
 
     def setUp(self):
         super(PortIsolationTest, self).setUp()
@@ -37,14 +32,14 @@ class PortIsolationTest(SaiHelper):
         self.mac22 = '00:22:22:22:22:22:22'
         self.mac33 = '00:33:33:33:33:33:33'
 
-        # create ingress RIFs, use port10_rif and port24_rif as ingress
+        # Create ingress RIFs, use port10_rif and port24_rif as ingress
         self.port24_rif = sai_thrift_create_router_interface(
             self.client,
             type=SAI_ROUTER_INTERFACE_TYPE_PORT,
             virtual_router_id=self.default_vrf,
             port_id=self.port24)
 
-        # create nhop for port11_rif
+        # Create nhop for port11_rif
         self.nhop1 = sai_thrift_create_next_hop(
             self.client,
             ip=sai_ipaddress('10.10.0.2'),
@@ -119,11 +114,8 @@ class PortIsolationTest(SaiHelper):
             isolation_object=self.port13)
 
     def runTest(self):
-        try:
-            self.attributeTest()
-            self.forwardingTest()
-        finally:
-            pass
+        self.attributeTest()
+        self.forwardingTest()
 
     def tearDown(self):
         sai_thrift_remove_isolation_group_member(self.client,
@@ -152,9 +144,9 @@ class PortIsolationTest(SaiHelper):
         super(PortIsolationTest, self).tearDown()
 
     def attributeTest(self):
-        """
-        Verify isolation group crud operations
-        """
+        '''
+        Verify isolation group CRUD operations
+        '''
         print("attributeTest")
         attrs = sai_thrift_get_isolation_group_attribute(self.client,
                                                          self.isolation_group1,
@@ -170,13 +162,13 @@ class PortIsolationTest(SaiHelper):
         self.assertEqual(attrs["isolation_object"], self.port11)
 
     def forwardingTest(self):
-        """
-        Forwarding between ports with isolation groups attached
+        '''
+        Test forwarding between ports with isolation groups attached
         Ingress ports: port10 and port24
         Isolation groups:
           grp1: port 11 and port12
           grp2: port 12 and port13
-        """
+        '''
         print("forwardingTest")
         try:
             pkt1 = simple_tcp_packet(eth_dst=ROUTER_MAC,
@@ -217,7 +209,7 @@ class PortIsolationTest(SaiHelper):
             send_packet(self, self.dev_port24, pkt3)
             verify_packet(self, exp_pkt3, self.dev_port13)
 
-            # attach isolation groups
+            # Attach isolation groups
             print("Attach isolation groups to ingress ports")
             sai_thrift_set_port_attribute(
                 self.client,
@@ -243,7 +235,7 @@ class PortIsolationTest(SaiHelper):
             send_packet(self, self.dev_port24, pkt3)
             verify_no_other_packets(self, timeout=1)
 
-            # detach isolation groups
+            # Detach isolation groups
             print("Detach isolation groups from ingress ports")
             sai_thrift_set_port_attribute(self.client,
                                           self.port10,
