@@ -751,6 +751,147 @@ wildcardEntryCbChannelLldp |
 
 ## Tunnel
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| | IPv4 underlay | |
+| tunnel.1 | Verify tunneled packet with malformed inner ethernet header is dropped - all 0's inner src MAC | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelInvalidInnerSmacTest |
+| tunnel.2 | Verify tunneled packet with malformed inner ethernet header is dropped - broadcast inner src MAC | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelInvalidInnerSmacTest |
+| tunnel.3 | Verify tunneled packet with malformed inner ethernet header is dropped - multicast inner src MAC | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelInvalidInnerSmacTest |
+| tunnel.4 | Verify tunneled packet with malformed inner ethernet header is dropped - all 0's inner dst MAC | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelInvalidInnerDmacTest |
+| tunnel.5 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay packet Invalid IP version - valid IPv4 Packet with incorrect version = 6 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidIpVersionTest |
+| tunnel.6 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Invalid IHL values 0-4 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidIhlTest |
+| tunnel.7 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt TTL = 0 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidTtlTest |
+| tunnel.8 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Invalid IPv4 checksum | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidChksumTest |
+| tunnel.9 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Source IP address = loopback IP | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidSrcIpTest |
+| tunnel.10 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Source IP address = multicast IP | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidSrcIpTest |
+| tunnel.11 | Verify Underlay MTU exceeded on IPv4 encap drop (overlay_pkt_size < overlay_mtu < underlay_mtu < underlay_pkt_size) | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidIpv4MtuTest |
+| tunnel.12 | Verify Tunnel Encap of IPv6 packet (packet having tunnel nexthop) with invalid IP headers (overlay) is dropped - Overlay Pkt Invalid IP version, Valid IPv6 Packet with incorrect version = 4 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidIpVersionTest |
+| tunnel.13 | Verify Tunnel Encap of IPv6 packet (packet having tunnel nexthop) with invalid IP headers (overlay) is dropped - Overlay Pkt Hop Limit = 0 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidHlimTest |
+| tunnel.14 | Verify Tunnel Encap of IPv6 packet (packet having tunnel nexthop) with invalid IP headers (overlay) is dropped - Overlay Pkt Source IP address = multicast IP | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidSrcIpv6Test |
+| tunnel.15 | Verify Underlay MTU exceeded on IPv6 encap drop (overlay_pkt_size < overlay_mtu < underlay_mtu < underlay_pkt_size) | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelEncapInvalidIpv6MtuTest |
+| tunnel.16 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner DMAC not equal to RMAC | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerDmacIpv4Test |
+| tunnel.17 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner Valid IPv4 Packet with Invalid IP version, version=6 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerIpVersionTest |
+| tunnel.18 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner IHL is invalid, IHL values 0-4 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerIhlTest |
+| tunnel.19 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner TTL=0 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerTtlTest |
+| tunnel.20 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner Checksum is invalid | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerChksumTest |
+| tunnel.21 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Invalid Inner Source IP: Loopback and Multicast | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerSrcIpv4Test |
+| tunnel.22 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Inner DMAC not equal to RMAC | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerDmacTest |
+| tunnel.23 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Inner Valid IPv4 Packet with Invalid IP version, version=6 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay |
+| tunnel.24 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Hop limit=0 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerHlimTest |
+| tunnel.25 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Invalid Inner Source IP: Loopback and Multicast | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidInnerSrcIpTest |
+| tunnel.26 | Verify Tunnel Decap with Invalid Outer IPv4 packet is dropped - Outer Valid IPv4 Packet with Invalid Version, version=6 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidOuterIpVersionTest |
+| tunnel.27 | Verify Tunnel Decap with Invalid Outer IPv4 packet is dropped - Outer IHL is invalid , IHL values 0-4 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidOuterIhlTest |
+| tunnel.28 | Verify Tunnel Decap with Invalid Outer IPv4 packet is dropped - Outer TTL=0 | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidOuterTtlTest |
+| tunnel.29 | Verify Tunnel Decap with Invalid Outer IPv4 packet is dropped - Outer Checksum is invalid | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidOuterChksumTest |
+| tunnel.30 | Verify Tunnel Decap with Invalid Outer IPv4 packet is dropped -  Invalid Source IP: Loopback IP or Multicast IP address | saitunnel.TunnelMalformedPacketsTestIpv4Underlay.tunnelDecapInvalidOuterSrcIpTest |
+| tunnel.31 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is L3 interface (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionIpv4UnderlayTest.tunnelL3IntfTest |
+| tunnel.32 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is L3 LAG interface (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionIpv4UnderlayTest.tunnelL3LagIntfTest |
+| tunnel.33 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is L3 Subport interface (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionIpv4UnderlayTest.tunnelL3SubPortIntfTest |
+| tunnel.34 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is an SVI (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionIpv4UnderlayTest.tunnelSviIntfTest |
+| tunnel.35 | Verify (Underlay) Nexthop Resolution with Multi Tunnels for different sequences of objects creation | saitunnel.TunnelNhopResolutionIpv4UnderlayTest.multiTunnelNhopTest |
+| tunnel.36 | Verify Tunnel Underlay Nexthop Resolution with Underlay ECMP | seitunnel.TunnelNhopResolutionIpv4UnderlayTest/underlayEcmpTunnelTest |
+| tunnel.37 | Verify Overlay Tunnel ECMP Nexthop Resolution | saitunnel.TunnelNhopResolutionIpv4UnderlayTest.ecmpTunnelTest |
+| tunnel.38 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay:(L3, L3 Subport , [SVI: Tagged & Untagged, Port & LAG], L3 LAG) <-> Underlay:(L3, L3 Subport, [SVI: Tagged & Untagged, Port & LAG], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv4UnderlayOportsTest.portsToPortsConfigTest |
+| tunnel.39 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay:(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) <-> Underlay:(ECMP(L3, L3 Subport, [SVI: Tagged & Untagged, Port & Lag], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv4UnderlayOportsTest.portsToEcmpConfigTest |
+| tunnel.40 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay:(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) <-> Underlay ECMP of L3 + L3 subport + SVI (tagged & untagged, Port & LAG) + L3 Lag
+ | saitunnel.VxLanRifsConfigTunnelIpv4UnderlayOportsTest.portsToPortsEcmpConfigTest |
+| tunnel.41 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay ECMP Tunnel Nexthops <-> Underlay:(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv4UnderlayOecmpTest.ecmpToPortsConfigTest |
+| tunnel.42 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay ECMP Tunnel Nexthop <-> Underlay:(ECMP(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv4UnderlayOecmpTest.ecmpToEcmpConfigTest |
+| tunnel.43 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay ECMP Tunnel Nexthop <-> Underlay ECMP of L3 + L3 subport + SVI (tagged & untagged) + L3 Lag | saitunnel.VxLanRifsConfigTunnelIpv4UnderlayOecmpTest.ecmpToPortsEcmpConfigTest |
+| tunnel.44 | Verify Multi Tunnel Forwarding with single overlay VRF, and multiple underlay VRFs | saitunnel.SingleOvrfMultiTunnelIpv4UnderlayTest |
+| tunnel.45 | Verify Multi Tunnel Forwarding with multiple overlay VRF, and multiple underlay VRFs | saitunnel.MultipleOvrfMultiTunnelIpv4UnderlayTest |
+| tunnel.46 | Verify Tunnel Encap/Decap for multi VRF<->VNI mapping, with different overlay interface types (for both: IPv4 and IPv6 overlay) | saitunnel.MultipleMapperEntriesIpv4UnderlayTest |
+| tunnel.47 | Verify tunnel encap/decap by dynamically adding and removing tunnel mapper entries (type = SAI_TUNNEL_MAP_TYPE_VNI_TO_VIRTUAL_ROUTER_ID and  SAI_TUNNEL_MAP_TYPE_VIRTUAL_ROUTER_ID_TO_VNI) from tunnel map object associated to tunnel object | saitunnel.MultipleMapperEntriesIpv4UnderlayTest.addDelMapperEntriesTest |
+| tunnel.48 | Verify tunnel encap/decap for P2MP VxLAN Tunnels | saitunnel.VxLanP2MpTnnnelIpv4UnderlayTest |
+| tunnel.49 | Verify tunnel encap/decap for P2MP IPinIP Tunnels V4 Underlay | saitunnel.IpInIpP2MpTnnnelIpv4UnderlayTest |
+| tunnel.50 | For P2P VxLAN tunnel - Verify tunnel encap/decap | saitunnel.VxLanTunnelIpv4UnderlayTest.encapDecapTest |
+| tunnel.51 | For P2P VxLAN tunnel - Verify tunnel de-encapsulation occurs only for tunneled packets with src IP =  SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_SRC_IP | saitunnel.VxLanTunnelIpv4UnderlayTest.tunnelTermSrcIpTest |
+| | IPv6 underlay | |
+| tunnel.52 | Verify tunneled packet with malformed inner ethernet header is dropped - all 0's inner src MAC | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelInvalidInnerSmacTest |
+| tunnel.53 | Verify tunneled packet with malformed inner ethernet header is dropped - broadcast inner src MAC | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelInvalidInnerSmacTest |
+| tunnel.54 | Verify tunneled packet with malformed inner ethernet header is dropped - multicast inner src MAC | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelInvalidInnerSmacTest |
+| tunnel.55 | Verify tunneled packet with malformed inner ethernet header is dropped - all 0's inner dst MAC | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelInvalidInnerDmacTest |
+| tunnel.56 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay packet Invalid IP version - valid IPv4 Packet with incorrect version = 6 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidIpVersionTest |
+| tunnel.57 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Invalid IHL values 0-4 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidIhlTest |
+| tunnel.58 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt TTL = 0 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidTtlTest |
+| tunnel.59 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Invalid IPv4 checksum | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidChksumTest |
+| tunnel.60 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Source IP address = loopback IP | saitunnel.TunnelMalformedPacketsTestIpv46Underlay.tunnelEncapInvalidSrcIpTest |
+| tunnel.61 | Verify tunnel Encap of IPv4 packet (packet having tunnel nexthop) with invalid (overlay) IP headers is dropped - Overlay Pkt Source IP address = multicast IP | saitunnel.TunnelMalformedPacketsTestIp6Underlay.tunnelEncapInvalidSrcIpTest |
+| tunnel.62 | Verify Underlay MTU exceeded on encap drop (overlay_pkt_size < overlay_mtu < underlay_mtu < underlay_pkt_size) | TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidIpv4MtuTest |
+| tunnel.63 | Verify Tunnel Encap of IPv6 packet (packet having tunnel nexthop) with invalid IP headers (overlay) is dropped - Overlay Pkt Invalid IP version, Valid IPv6 Packet with incorrect version = 4 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidIpVersionTest |
+| tunnel.64 | Verify Tunnel Encap of IPv6 packet (packet having tunnel nexthop) with invalid IP headers (overlay) is dropped - Overlay Pkt Hop Limit = 0 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidHlimTest |
+| tunnel.65 | Verify Tunnel Encap of IPv6 packet (packet having tunnel nexthop) with invalid IP headers (overlay) is dropped - Overlay Pkt Source IP address = multicast IP | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidSrcIpv6Test |
+| tunnel.66 | Verify Underlay MTU exceeded on IPv6 encap drop (overlay_pkt_size < overlay_mtu < underlay_mtu < underlay_pkt_size) | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelEncapInvalidIpv6MtuTest |
+| tunnel.67 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner DMAC not equal to RMAC | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerDmacIpv4Test |
+| tunnel.68 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner Valid IPv4 Packet with Invalid IP version, version=6 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerIpVersionTest |
+| tunnel.69 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner IHL is invalid, IHL values 0-4 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerIhlTest |
+| tunnel.70 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner TTL=0 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerTtlTest |
+| tunnel.71 | Verify Tunnel Decap Invalid Inner IPv4 packet is dropped - Inner Checksum is invalid | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerChksumTest |
+| tunnel.72 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Inner DMAC not equal to RMAC | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerDmacTest |
+| tunnel.73 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Inner Valid IPv4 Packet with Invalid IP version, version=6 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay |
+| tunnel.74 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Hop limit=0 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerHlimTest |
+| tunnel.75 | Verify Tunnel Decap with Invalid Inner IPv6 packet is dropped - Invalid Inner Source IP: Loopback and Multicast | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidInnerSrcIpTest |
+| tunnel.76 | Verify Tunnel Decap with Invalid Outer IPv6 packet is dropped - Outer Valid IPv6 Packet with Invalid Version, version=4 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidOuterIpVersionTest |
+| tunnel.77 | Verify Tunnel Decap with Invalid Outer IPv6 packet is dropped - Outer Hop Limit=0 | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidOuterHlimTest |
+| tunnel.78 | Verify Tunnel Decap with Invalid Outer IPv6 packet is dropped - Invalid Source IP: Loopback IP or Multicast IP address | saitunnel.TunnelMalformedPacketsTestIpv6Underlay.tunnelDecapInvalidOuterSrcIpv6Test |
+| tunnel.79 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is L3 interface (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionTestIpv6Underlay.tunnelL3IntfTest |
+| tunnel.80 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is L3 LAG interface (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionTestIpv6Underlay.tunnelL3LagIntfTest |
+| tunnel.81 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is L3 Subport interface (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionTestIpv6Underlay.tunnelL3SubPortIntfTest |
+| tunnel.82 | Verify Underlay Nexthop Resolution for Tunnels for different sequences of objects creation when underlay RIF is an SVI (for both IPv4 and IPv6 overlay) | saitunnel.TunnelNhopResolutionTestIpv6Underlay.tunnelSviIntfTest |
+| tunnel.83 | Verify (Underlay) Nexthop Resolution with Multi Tunnels for different sequences of objects creation | saitunnel.TunnelNhopResolutionTestIpv6Underlay.multiTunnelNhopTest |
+| tunnel.84 | Verify Tunnel Underlay Nexthop Resolution with Underlay ECMP | seitunnel.TunnelNhopResolutionTestIpv6Underlay/underlayEcmpTunnelTest |
+| tunnel.85 | Verify Overlay Tunnel ECMP Nexthop Resolution | saitunnel.TunnelNhopResolutionTestIpv6Underlay.ecmpTunnelTest |
+| tunnel.86 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay:(L3, L3 Subport , [SVI: Tagged & Untagged, Port & LAG], L3 LAG) <-> Underlay:(L3, L3 Subport, [SVI: Tagged & Untagged, Port & LAG], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv6UnderlayOportsTest.portsToPortsConfigTest |
+| tunnel.87 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay:(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) <-> Underlay:(ECMP(L3, L3 Subport, [SVI: Tagged & Untagged, Port & Lag], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv6UnderlayOportsTest.portsToEcmpConfigTest |
+| tunnel.88 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay:(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) <-> Underlay ECMP of L3 + L3 subport + SVI (tagged & untagged, Port & LAG) + L3 Lag
+ | saitunnel.VxLanRifsConfigTunnelIpv6UnderlayOportsTest.portsToPortsEcmpConfigTest |
+| tunnel.89 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay ECMP Tunnel Nexthops <-> Underlay:(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv6UnderlayOecmpTest.ecmpToPortsConfigTest |
+| tunnel.90 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay ECMP Tunnel Nexthop <-> Underlay:(ECMP(L3, L3 Subport, [SVI Tagged & SVI Untagged], L3 LAG) | saitunnel.VxLanRifsConfigTunnelIpv6UnderlayOecmpTest.ecmpToEcmpConfigTest |
+| tunnel.91 | Verify Tunnel Encap Decap for following Overlay/Underlay Combination: Overlay ECMP Tunnel Nexthop <-> Underlay ECMP of L3 + L3 subport + SVI (tagged & untagged) + L3 Lag | saitunnel.VxLanRifsConfigTunnelIpv6UnderlayOecmpTest.ecmpToPortsEcmpConfigTest |
+| tunnel.92 | Verify Multi Tunnel Forwarding with single overlay VRF, and multiple underlay VRFs | saitunnel.SingleOvrfMultiTunnelIpv6UnderlayTest |
+| tunnel.93 | Verify Multi Tunnel Forwarding with multiple overlay VRF, and multiple underlay VRFs | saitunnel.MultipleOvrfMultiTunnelIpv6UnderlayTest |
+| tunnel.94 | Verify Tunnel Encap/Decap for multi VRF<->VNI mapping, with different overlay interface types (for both: IPv4 and IPv6 overlay) | saitunnel.MultipleMapperEntriesIpv6UnderlayTest |
+| tunnel.95 | Verify tunnel encap/decap by dynamically adding and removing tunnel mapper entries (type = SAI_TUNNEL_MAP_TYPE_VNI_TO_VIRTUAL_ROUTER_ID and  SAI_TUNNEL_MAP_TYPE_VIRTUAL_ROUTER_ID_TO_VNI) from tunnel map object associated to tunnel object | saitunnel.MultipleMapperEntriesIpv6UnderlayTest.addDelMapperEntriesTest |
+| tunnel.96 | Verify tunnel encap/decap for P2MP VxLAN Tunnels | saitunnel.VxLanP2MpTnnnelIpv6UnderlayTest |
+| tunnel.97 | Verify tunnel encap/decap for P2MP IPinIP Tunnels V4 Underlay | saitunnel.IpInIpP2MpTnnnelIpv6UnderlayTest |
+| tunnel.98 | For P2P VxLAN tunnel - Verify tunnel encap/decap | saitunnel.VxLanTunnelIpv6UnderlayTest.encapDecapTest |
+| tunnel.99 | For P2P VxLAN tunnel - Verify tunnel de-encapsulation occurs only for tunneled packets with src IP =  SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_SRC_IP | saitunnel.VxLanTunnelIpv6UnderlayTest.tunnelTermSrcIpTest |
+| | General | |
+| tunnel.100 | Verify if TTL value is properly set according to SAI_TUNNEL_ATTR_ENCAP_TTL_VAL attribute in VXLAN packets | saitunnel.TunnelAtributesTest.encapTtlPipeModeVxlanTest |
+| tunnel.101 | Verify if TTL value is properly set according to SAI_TUNNEL_ATTR_ENCAP_TTL_VAL attribute in IP-in-IP packets | saitunnel.TunnelAtributesTest.encapTtlPipeModeIpInIpTest |
+| tunnel.102 | Verify if TTL value is properly set according to SAI_TUNNEL_ATTR_ENCAP_TTL_VAL attribute in IPv6-in-IPv6 packets | saitunnel.TunnelAtributesTest.encapTtlPipeModeIpv6InIpv6Test |
+| tunnel.103 | Verify if TTL value is properly set according to the inner packet, when using pipe mode in VXLAN packets | saitunnel.TunnelAtributesTest.decapTtlPipeModeVxlanTest |
+| tunnel.104 | Verify if TTL value is properly set according to the inner packet, when using pipe mode in IP-in-IP packets | saitunnel.TunnelAtributesTest.decapTtlPipeModeIpInIpTest |
+| tunnel.105 | Verify if TTL value is properly set according to the inner packet, when using pipe mode in IPv6-in-IPv6 packets | saitunnel.TunnelAtributesTest.decapTtlPipeModeIpv6InIpv6Test |
+| tunnel.106 | Verify if DSCP value is properly set in VXLAN packets, according to the received DSCP value | saitunnel.TunnelAtributesTest.encapDscpUniformModeVxlanTest |
+| tunnel.107 | Verify if DSCP value is properly set in VXLAN packets, according to the received DSCP value | saitunnel.TunnelAtributesTest.encapDscpUniformModeIpv4InIpv4Test |
+| tunnel.108 | Verify if DSCP value is properly set in VXLAN packets, according to the received DSCP value | saitunnel.TunnelAtributesTest.encapDscpUniformModeIpv6InIpv6Test |
+| tunnel.109 | Verify if DSCP value is properly set according to the outer packet, when using uniform mode in VXLAN packets | saitunnel.TunnelAtributesTest.decapDscpUniformModeVxlanTest |
+| tunnel.110 | Verify if DSCP value is properly set according to the outer packet, when using uniform mode in IP-in-IP packets | saitunnel.TunnelAtributesTest.decapDscpUniformModeIpv4InIpv4Test |
+| tunnel.111 | Verify if DSCP value is properly set according to the outer packet, when using uniform mode in IPv6-in-IPv6 packets | saitunnel.TunnelAtributesTest.decapDscpUniformModeIpv6InIpv6Test |
+| tunnel.112 | Verify if only tunneled packets with destination IP set as SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_DST_IP are de-encapsulated | saitunnel.TunnelAtributesTest.tunnelTermDstIpTest |
+| tunnel.113 | Verify if only tunneled packets coming in on VRF set as SAI_TUNNEL_TERM_TABLE_ENTRY_ATTR_VR_ID are de-encapsulated | saitunnel.TunnelAtributesTest.tunnelTermVrIdTest |
+| tunnel.114 | Verify that tunneled packets are still transmitted when the tunnel is defined with two encap mappers (VRF_TO_VNI and VLAN_TO_VNI) | saitunnel.TunnelAtributesTest.tunnelDualEncapMapperTest |
+| tunnel.115 | Verify that tunneled packets are still received when the tunnel is defined with two decap mappers (VNI_TO_VRF and VNI_TO_VLAN) | saitunnel.TunnelAtributesTest.tunnelDualDecapMapperTest |
+| tunnel.116 | Verify that tunneled packets are still received when the tunnel is defined with peer mode P2MP | saitunnel.TunnelAtributesTest.tunnelPeerModeTest |
+| tunnel.117 | Verify VxLAN L3 EVPN Prefix - check if packets are properly encapsulated and decapsulated after SAI API calls emulating SONiC L3 EVPN operation, specifically after receiving EVPN Type 5 (IP prefix) routes. | saitunnel.VxLanEvpnTest.vxLanL3EvpnPrefixTest |
+| tunnel.118 | Verify if TTL value is properly set in VXLAN packets, according to the received TTL value | saitunnel.TunnelTtlModeTest.encapTtlUniformModeVxlanTest |
+| tunnel.119 | Verify if TTL value is properly set in IPv4-in-IPv4 packets, according to the received TTL value | saitunnel.TunnelTtlModeTest.encapTtlUniformModeIpv4InIpv4Test |
+| tunnel.120 | Verify if TTL value is properly set in IPv4-in-IPv6 packets, according to the received TTL value | saitunnel.TunnelTtlModeTest.encapTtlUniformModeIpv4InIpv6Test |
+| tunnel.121 | Verify if TTL value is properly set in IPv6-in-IPv4 packets, according to the received TTL value | saitunnel.TunnelTtlModeTest.encapTtlUniformModeIpv6InIpv4Test |
+| tunnel.123 | Verify if TTL value is properly set in IPv6-in-IPv6 packets according to the received TTL value | saitunnel.TunnelTtlModeTest.encapTtlUniformModeIpv6InIpv6Test |
+| tunnel.124 | Verify if TTL value is properly set according to the outer packet, when using uniform mode in VXLAN packets | saitunnel.TunnelTtlModeTest.decapTtlUniformModeVxlanTest |
+| tunnel.125 | Verify if TTL value is properly set according to the outer packet, when using uniform mode in IPv4-in-IPv4 packets | saitunnel.TunnelTtlModeTest.decapTtlUniformModeIpv4InIpv4Test |
+| tunnel.126 | Verify if TTL value is properly set according to the outer packet, when using uniform mode in IPv4-in-IPv6 packets | saitunnel.TunnelTtlModeTest.decapTtlUniformModeIpv4InIpv6Test |
+| tunnel.127 | Verify if TTL value is properly set according to the outer packet, when using uniform mode in IPv6-in-IPv4 packets | saitunnel.TunnelTtlModeTest.decapTtlUniformModeIpv6InIpv4Test |
+| tunnel.128 | Verify if TTL value is properly set according to the outer packet, when using uniform mode in IPv6-in-IPv6 packets | saitunnel.TunnelTtlModeTest.decapTtlUniformModeIpv6InIpv6Test |
+| tunnel.129 | This verifies if DSCP value is properly set according to SAI_TUNNEL_ATTR_ENCAP_DSCP_VAL attribute | saitunnel.TunnelQosModeTest.encapDscpPipeModeVxlanTest |
+| tunnel.130 | This verifies if DSCP value is properly set according to SAI_TUNNEL_ATTR_ENCAP_DSCP_VAL attribute in IP-in-IP packets | saitunnel.TunnelQosModeTest.encapDscpPipeModeIpInIpTest |
+| tunnel.131 | This verifies if DSCP value is properly set according to SAI_TUNNEL_ATTR_ENCAP_DSCP_VAL attribute in IPv6-in-IPv6 packets | saitunnel.TunnelQosModeTest.encapDscpPipeModeIpv6InIpv6Test |
+| tunnel.132 | This verifies if DSCP value is properly set according to the inner packet, when using pipe mode in VXLAN packets | saitunnel.TunnelQosModeTest.decapDscpPipeModeVxlanTest |
+| tunnel.133 | This verifies if DSCP value is properly set according to the inner packet, when using pipe mode in IP-in-IP packets | saitunnel.TunnelQosModeTest.decapDscpPipeModeIpInIpTest |
+| tunnel.134 | This verifies if DSCP value is properly set according to the inner packet, when using pipe mode in IPv6-in-IPv6 packets | saitunnel.TunnelQosModeTest.decapDscpPipeModeIpv6InIpv6Test |
+
 ## VRF
 
 | Test case id | Description | Test name |
