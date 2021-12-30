@@ -447,6 +447,37 @@ wildcardEntryCbChannelLldp |
 
 ## Nexthop Group
 
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| nexthopgrp.1 | Verify IPv4 ECMP with all members with RIF as port | sainexthopgroup.L3IPv4EcmpHost.l3IPv4EcmpHostTest |
+| nexthopgrp.2 | Verify IPv6 ECMP with all members with RIF as port | sainexthopgroup.L3IPv6EcmpHost.l3IPv6EcmpHostTest |
+| nexthopgrp.3 | Verify IPv4 ECMP with all members with RIF as LAG | sainexthopgroup.L3IPv4EcmpLagTest.l3IPv4EcmpHostTwoLagsTest |
+| nexthopgrp.4 | Verify IPv6 ECMP with all members with RIF as LAG | sainexthopgroup.L3IPv6EcmpLagTest.l3IPv6EcmpHostTwoLagsTest |
+| nexthopgrp.5 | Verify IPv4 ECMP with members combination of port and LAG RIFs | sainexthopgroup.L3IPv4EcmpLagTest.L3IPv4EcmpHostPortLag |
+| nexthopgrp.6 | Verify IPv6 ECMP with members combination of port and LAG RIFs | sainexthopgroup.L3IPv6EcmpLagTest.L3IPv6EcmpHostPortLag |
+| nexthopgrp.7 | Verify IPv4 ECMP with SVI RIF as member | sainexthopgroup.L3IPv4SVIEcmpTest.l3IPv4EcmpSVIHostTest |
+| nexthopgrp.8 | Verify IPv6 ECMP with SVI RIF as member | sainexthopgroup.L3IPv6SVIEcmpTest.l3IPv6EcmpSVIHostTest |
+| nexthopgrp.9 | Verify IPv4 ECMP with Port, LAG and SVI RIFs as nexthop members | sainexthopgroup.L3IPv4SVIEcmpTest.L3IPv4EcmpSVILagHostTest |
+| nexthopgrp.10 | Verify IPv6 ECMP with Port, LAG and SVI RIFs as nexthop members | sainexthopgroup.L3IPv6SVIEcmpTest.L3IPv6EcmpSVIPortLagHostTest |
+| nexthopgrp.11 | Verify IPv4 ECMP rebalance with adding a new nexthop member | sainexthopgroup.L3IPv4EcmpLpmTest.L3Ipv4EcmpLpmAddRemoveNhopTest |
+| nexthopgrp.12 | Verify IPv6 ECMP rebalance with adding a new nexthop member | sainexthopgroup.L3IPv6EcmpLagTest.L3Ipv6EcmpAddRemoveNhopTest |
+| nexthopgrp.13 | Verify IPv4 ECMP rebalance with removal of a nexthop member | sainexthopgroup.L3IPv4EcmpLpmTest.L3Ipv4EcmpLpmAddRemoveNhopTest |
+| nexthopgrp.14 | Verify IPv6 ECMP rebalance with removal of a nexthop member | sainexthopgroup.L3IPv6EcmpLagTest.L3Ipv6EcmpAddRemoveNhopTest |
+| nexthopgrp.15 | Verify IPv4 ECMP with LAG RIF and some LAG member in disable state. Disable LAG members using SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE | sainexthopgroup.L3IPv4EcmpLagTest.L3IPv4EcmpHostTwoLagsDisabledLagMembersTest |
+| nexthopgrp.16 | Verify IPv6 ECMP with LAG RIF and some LAG member in disable state. Disable LAG members using SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE | sainexthopgroup.L3IPv6EcmpLagTest.l3IPv6EcmpHostTwoLagsDisabledLagMembersTest |
+| nexthopgrp.17 | Verify IPv4 ECMP load balance to check fair share on all members | sainexthopgroup.L3IPv4EcmpLagTest.L3IPv4EcmpHostPortLag |
+| nexthopgrp.18 | Verify IPv6 ECMP load balance to check fair share on all members | sainexthopgroup.L3IPv6EcmpLagTest.L3IPv6EcmpHostPortLag |
+| nexthopgrp.19 | Verify Multiple IPv4 ECMP with shared nexthop members | sainexthopgroup.L3IPv4EcmpLagTest.l3IPv4EcmpHostPortLagSharedMembersTest |
+| nexthopgrp.20 | Verify Multiple IPv6 ECMP with shared nexthop members | sainexthopgroup.L3IPv6EcmpLagTest.l3IPv6EcmpHostPortLagSharedMembersTest |
+| nexthopgrp.21 | Create hash object with all 5-tuple and set to switch using SAI_SWITCH_ATTR_ECMP_HASH_IPV4 attribute | sainexthopgroup.L3IPv4EcmpLagTest.l3IPv4EcmpHashPortLagTest |
+| nexthopgrp.22 | Create hash object with all 5-tuple and set to switch using SAI_SWITCH_ATTR_ECMP_HASH_IPV6 attribute | sainexthopgroup.L3IPv6EcmpLagTest.l3IPv6EcmpHashPortLagTest |
+| nexthopgrp.23 | IPv4: Create hash object with one in 5-tuple and send multiple packets. Validate that there is no load balancing. Validate with various fields in ECMP hash. | sainexthopgroup.L3IPv4EcmpLagTest.l3IPv4EcmpHashPortLagTest |
+| nexthopgrp.24 | IPv6: Create hash object with one in 5-tuple and send multiple packets. Validate that there is no load balancing. Validate with various fields in ECMP hash. | sainexthopgroup.L3IPv6EcmpLagTest.l3IPv6EcmpHashPortLagTest |
+| nexthopgrp.25 | Verify ECMP seed attribute changing using SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_SEED and check for rebalancing | sainexthopgroup.L3IPv4EcmpLagTest.l3IPv4EcmpHashSeedPortLag |
+| nexthopgrp.26 | Verify ECMP tunnel nexthop | saitunnel.TunnelNhopResolutionTestIpv4Underlay.underlayEcmpTunnelTest, saitunnel.TunnelNhopResolutionTestIpv6Underlay.underlayEcmpTunnelTest |
+| nexthopgrp.27 | Verify SAI switch ECMP attributes - SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS, SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY, SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY | sainexthopgroup.L3IPv4EcmpHost.l3SaiNhgSetGetTest |
+| nexthopgrp.28 | Validate get and set attributes of both nexthop_group and nexthop_group_member objects. | sainexthopgroup.L3IPv4EcmpHost.l3SaiNhgSetGetTest |
+
 ## Policer
 
 | Test case id | Description | Test name |
