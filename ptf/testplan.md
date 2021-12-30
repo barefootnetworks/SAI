@@ -506,6 +506,65 @@ wildcardEntryCbChannelLldp |
 | port.33 | Test port egress acl group add remove binding | saiport.PortEgressAclGroupAddRemoveBindingTest |
 
 ## QoS Map
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| qosmap.1 | Test L3 IPv4 DSCP to TC default mapping for ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv4QosMapDscpToTcDefaultMappingTest |
+| qosmap.2 | Test L3 IPv6 DSCP to TC default mapping ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv6QosMapDscpToTcDefaultMappingTest |
+| qosmap.3 | Test L3 IPv4 multiple DSCP to single TC mapping for ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv4QosMapMultipleDscpToSingleTcMappingTest |
+| qosmap.4 | Test L3 IPv6 multiple DSCP to single TC mapping for ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv6QosMapMultipleDscpToSingleTcMappingTest |
+| qosmap.5 | Test L3 IPv4 one DSCP to one TC mapping for ingress ports | saiqosmap.L3QosDscpToTcTest.l3IPv4QosMapOneDscpToOneTcMappingTest |
+| qosmap.6 | Test L3 IPv6 one DSCP to single TC mapping for ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv6QosMapOneDscpToOneTcMappingTest |
+| qosmap.7 | Test L3 IPv4 same DSCP to TC mapping for various ingress ports | saiqosmap.L3QosDscpToTcTest.l3IPv4QosSameDscpToTcMappingManyPortsTest |
+| qosmap.8 | Test L3 IPv6 same DSCP to TC mapping for various ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv6QosSameDscpToTcMappingManyPortsTest |
+| qosmap.9 | Test L3 IPv4 DSCP to TC mapping for various ingress ports | saiqosmap.L3QosDscpToTcTest.l3IPv4QosVariousDscpToTcMappingManyPortsTest |
+| qosmap.10 | Test L3 IPv6 various DSCP to TC mapping for various ingress port | saiqosmap.L3QosDscpToTcTest.l3IPv6QosVariousDscpToTcMappingManyPortsTest |
+| qosmap.11 | Test L3 IPv4 DSCP to color default mapping for ingress port | saiqosmap.QosDscpToColorTest.l3IPv4QosMapDscpToColorDefaultMappingTest |
+| qosmap.12 | Test L3 IPv6 DSCP to color default mapping for ingress port | saiqosmap.QosDscpToColorTest.l3IPv6QosMapDscpToColorDefaultMappingTest |
+| qosmap.13 | Test L3 IPv4 many DSCP to same color mapping for ingress port | saiqosmap.QosDscpToColorTest.l3IPv4QosMapManyDscpToSameColorTest |
+| qosmap.14 | Test L3 IPv6 many DSCP to same color mapping for ingress port | saiqosmap.QosDscpToColorTest.l3IPv6QosMapManyDscpToSameColorTest |
+| qosmap.15 | Test L3 IPv4 many DSCP to color mapping for various ingress port | saiqosmap.QosDscpToColorTest.l3IPv4QosMapSameDscpToColorManyIngressPortsTest |
+| qosmap.16 | Test L3 IPv6 same DSCP to color mapping for various ingress port | saiqosmap.QosDscpToColorTest.l3IPv6QosMapSameDscpToColorManyIngressPortsTest |
+| qosmap.17 | Test L3 IPv4 various DSCP to color mapping for various ingress port | saiqosmap.QosDscpToColorTest.l3IPv4QosMapVariousDscpToColorManyIngressPortsTest |
+| qosmap.18 | Test L3 IPv6 various DSCP to color mapping for various ingress port | saiqosmap.QosDscpToColorTest.l3IPv6QosMapVariousDscpToColorManyIngressPortsTest |
+| qosmap.19 | Test default no PFC to Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestPFC |
+| qosmap.20 | Test multiple PFC to the same Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestPFC |
+| qosmap.21 | Test one to one PFC to Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestPFC |
+| qosmap.22 | Test the same PFC to Priority Group mapping on many ingress ports | saiqosmap.QosTcToPriorityGroupTestPFC |
+| qosmap.23 | Test various PFC to Priority Group mapping on many ingress ports | saiqosmap.QosTcToPriorityGroupTestPFC |
+| qosmap.24 | Test no PFC to Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestPFC |
+| qosmap.25 | Test default no TC to Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestTC |
+| qosmap.26 | Test multiple TC to the same Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestTC |
+| qosmap.27 | Test one to one TC to Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestTC |
+| qosmap.28 | Test the same TC to Priority Group mapping on different ingress ports | saiqosmap.QosTcToPriorityGroupTestTC |
+| qosmap.29 | Test various TC to Priority Group mapping on different ingress ports | saiqosmap.QosTcToPriorityGroupTestTC |
+| qosmap.30 | Test no PFC to Priority Group mapping | saiqosmap.QosTcToPriorityGroupTestTC |
+| qosmap.31 | Verify no DSCP overriding of original packet in default L3 IPv4 no TC + color to DSCP mapping | saiqosmap.QosTcAndColorToDscpTest.l3IPv4QosMapTcColorToDscpDefaultMappingTest |
+| qosmap.32 | Verify no DSCP overriding of original packet in default L3 IPv6 no TC + color to DSCP mapping | saiqosmap.QosTcAndColorToDscpTest.l3IPv6QosMapTcColorToDscpDefaultMappingTest |
+| qosmap.33 | Verify no DSCP overriding of original packet in QoS L3 IPv4 TC + color to DSCP mapping | saiqosmap.QosTcAndColorToDscpTest.l3IPv4QosMapTcColorToDscpMappingTest |
+| qosmap.34 | Verify no DSCP overriding of original packet in QoS L3 IPv6 TC + color to DSCP mapping | saiqosmap.QosTcAndColorToDscpTest.l3IPv6QosMapTcColorToDscpMappingTest |
+| qosmap.35 | Verify no DSCP overriding of original packet in QoS L3 IPv4 TC + color to DSCP mapping defined on various egress ports | saiqosmap.QosTcAndColorToDscpTest.l3IPv4QosMapTcColorToDscpManyIngressPortsTest |
+| qosmap.36 | Verify no DSCP overriding of original packet in QoS L3 IPv6 TC + color to DSCP mapping defined on various egress ports | saiqosmap.QosTcAndColorToDscpTest.l3IPv6QosMapTcColorToDscpManyIngressPortsTest |
+| qosmap.37 | Verify no DSCP overriding of original packet in QoS L3 IPv4 TC + color to DSCP mapping defined on various ingress ports | saiqosmap.QosTcAndColorToDscpTest.l3IPv4QosMapVariousTcColorToDscpManyIngressPortsTest |
+| qosmap.38 | Verify no DSCP overriding of original packet in QoS L3 IPv6 TC + color to DSCP mapping defined on various ingress ports | saiqosmap.QosTcAndColorToDscpTest.l3IPv6QosMapVariousTcColorToDscpManyIngressPortsTest |
+| qosmap.39 | Verify default PCP to one color mapping on L2 traffic | saiqosmap.L2QosMapPcpToColorTest.l2QosMapPCPToColorDefaultMappingTest |
+| qosmap.40 | Verify many PCP to one color mapping on L2 traffic | saiqosmap.L2QosMapPcpToColorTest.l2QosMapMultiPCPToOneColorMappingTest |
+| qosmap.41 | Verify same PCP to one color mapping on L2 traffic | saiqosmap.L2QosMapPcpToColorTest.l2QosMapSamePCPToColorMultiIngresssPortTest |
+| qosmap.42 | Verify many PCP to one color mapping on L2 traffic on various ingress ports | saiqosmap.L2QosMapPcpToColorTest.l2QosMapDifferentPCPToColorMultiIngresssPortTest |
+| qosmap.43 | Verify default L2 PCP to TC mapping | saiqosmap.L2QosMapPcpToTcTest.l2QosMapPCPToTcDefaultMappingTest |
+| qosmap.44 | Verify L2 traffic multiple PCP to TC mapping | saiqosmap.L2QosMapPcpToTcTest.l2QosMapMultiplePCPToOneTcMappingTest |
+| qosmap.45 | Verify L2 traffic one to one PCP to TC mapping | saiqosmap.L2QosMapPcpToTcTest.l2QosMapOneToOnePCPToTcMappingTest |
+| qosmap.46 | Verify L2 traffic same PCP to many TC mapping for many ingress ports | saiqosmap.L2QosMapPcpToTcTest.l2QosMapSamePcpToTcManyIngressPortsTest |
+| qosmap.47 | Verify L2 traffic multiple PCP to various TC mapping for many ingress ports | saiqosmap.L2QosMapPcpToTcTest.l2QosMapVariousPcpToTcManyIngressPortsTest |
+| qosmap.48 | Verify creation and update of the QoS TC to queue map object | saiqosmap.QosMapCreateModifyTest.qosMapTcToQueueModifyTest |
+| qosmap.49 | Verify creation and update of the QoS TC + color to DSCP map object | saiqosmap.QosMapCreateModifyTest.qosMapTcColorToDscpCreateModifyTest |
+| qosmap.50 | Verify creation and update of the QoS DSCP to TC map object | saiqosmap.QosMapCreateModifyTest.qosMapDscpToTcCreateModifyTest |
+| qosmap.51 | Verify creation and update of the QoS DSCP to color map object | saiqosmap.QosMapCreateModifyTest.qosMapDscpToColorCreateModifyTest |
+| qosmap.52 | Verify creation and update of the QoS priority to queue map object | saiqosmap.QosMapCreateModifyTest.qosMapPrioToQueueModifyTest |
+| qosmap.53 | Verify creation and update of the QoS dot1p to TC map object | saiqosmap.QosMapCreateModifyTest.qosMapDot1ToTcCreateModifyTest |
+| qosmap.54 | Verify creation and update of the QoS dot1p to color map object | saiqosmap.QosMapCreateModifyTest.qosMapDot1ToColorCreateModifyTest |
+| qosmap.55 | Verify creation and update of the QoS TC + color to dot1p map object | saiqosmap.QosMapCreateModifyTest.qosMapTcColorToDot1pCreateModifyTest |
+| qosmap.56 | Verify creation and update of the QoS PFC priority to Priority Group map object | saiqosmap.QosMapCreateModifyTest.qosMapPfcPrioToPrioGroupCreateModifyTest |
+| qosmap.57 | Verify creation and update of the QoS TC to Priority Group map object | saiqosmap.QosMapCreateModifyTest.qosMapTcPgCreateModifyTest |
 
 ## Queue
 
