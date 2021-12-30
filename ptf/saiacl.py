@@ -2112,9 +2112,7 @@ class MultAclTableGroupBindTest(SaiHelper):
 @group("draft")
 class SonicACLTest(SaiHelper):
     """
-    Simulate the ACL setup used in ACL community tests
     Create an ACL group per port
-    Create 3 ACL tables for ipv4 and mirror types
     Create an ACL group member per table and per group
     Add entries in each of the tables and test ACLs work as expected
     """
@@ -2156,6 +2154,10 @@ class SonicACLTest(SaiHelper):
         # setup ACL table group
         acl_ingress_groups_list = []
         acl_ingress_group_members_list = []
+        counters = []
+        action_counters = []
+        acl_entries = []
+        acl_rules = []
         ip_mask = '255.255.255.0'
         ipv4_addr = '192.168.0.1'
 
@@ -2208,20 +2210,7 @@ class SonicACLTest(SaiHelper):
 
         # create ACL tables
         print("Create ACL tables")
-        acl_ingress_ipv4_table_id2 = sai_thrift_create_acl_table(
-            self.client,
-            acl_stage=table_stage_ingress,
-            acl_bind_point_type_list=table_bind_point_type_list,
-            field_src_ip=True)
-
-        acl_ingress_mirror_table_id = sai_thrift_create_acl_table(
-            self.client,
-            acl_stage=table_stage_ingress,
-            acl_bind_point_type_list=table_bind_point_type_list,
-            field_src_ip=True,
-            field_dscp=True)
-
-        acl_ingress_ipv4_table_id1 = sai_thrift_create_acl_table(
+        acl_ingress_ipv4_table_id = sai_thrift_create_acl_table(
             self.client,
             acl_stage=table_stage_ingress,
             acl_bind_point_type_list=table_bind_point_type_list,
@@ -2229,37 +2218,16 @@ class SonicACLTest(SaiHelper):
 
         # create ACL ingress table group members
         for acl_group in acl_ingress_groups_list:
-            # create ACL table group member 2 - v4 tables
-            acl_group_ingress_ip_member_id2 = \
-                sai_thrift_create_acl_table_group_member(
-                    self.client,
-                    acl_table_group_id=acl_group,
-                    acl_table_id=acl_ingress_ipv4_table_id2,
-                    priority=1)
-
-            # create ACL table group members - mirror tables
-            print("Create ACL group members")
-            acl_group_ingress_mirror_member_id = \
-                sai_thrift_create_acl_table_group_member(
-                    self.client,
-                    acl_table_group_id=acl_group,
-                    acl_table_id=acl_ingress_mirror_table_id,
-                    priority=1)
-
             # create ACL table group member 1 - v4 tables
-            acl_group_ingress_ip_member_id1 = \
+            acl_group_ingress_ip_member_id = \
                 sai_thrift_create_acl_table_group_member(
                     self.client,
                     acl_table_group_id=acl_group,
-                    acl_table_id=acl_ingress_ipv4_table_id1,
+                    acl_table_id=acl_ingress_ipv4_table_id,
                     priority=1)
 
             acl_ingress_group_members_list.append(
-                acl_group_ingress_ip_member_id2)
-            acl_ingress_group_members_list.append(
-                acl_group_ingress_mirror_member_id)
-            acl_ingress_group_members_list.append(
-                acl_group_ingress_ip_member_id1)
+                acl_group_ingress_ip_member_id)
 
         # create ACL entries in secondary ipv4 ACL
 
@@ -2278,7 +2246,7 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id_default = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id2,
+            table_id=acl_ingress_ipv4_table_id,
             priority=1,
             field_ether_type=ether_type,
             action_packet_action=packet_action)
@@ -2302,10 +2270,11 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id1 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id2,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9999,
             field_src_ip=src_ip_t_ipv4,
             action_packet_action=packet_action)
+
 
         # remove the entries just created in a secondary table
         # to simulate behaviour of SONiC CT
@@ -2328,10 +2297,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id_default = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=1,
             field_ether_type=ether_type,
             action_packet_action=packet_action)
+
+        # create ACL counter
+        acl_counter_default = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_default = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_default),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id_default,
+            action_counter=action_counter_default)
+
+        counters.append(acl_counter_default)
+        action_counters.append(action_counter_default)
+        acl_entries.append(acl_ingress_entry_id_default)
+        acl_rules.append("DEFAULT_RULE")
 
         # "ACL_RULE|DATAINGRESS|RULE_1": {
         #     "type": "hash",
@@ -2347,10 +2334,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id1 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9999,
             field_src_ip=src_ip_t_ipv4,
             action_packet_action=packet_action)
+
+        # create ACL counter
+        acl_counter_id1 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id1 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id1),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id1,
+            action_counter=action_counter_id1)
+
+        counters.append(acl_counter_id1)
+        action_counters.append(action_counter_id1)
+        acl_entries.append(acl_ingress_entry_id1)
+        acl_rules.append("RULE_1")
 
         # "ACL_RULE|DATAINGRESS|RULE_10": {
         #     "type": "hash",
@@ -2376,10 +2381,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id10 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9990,
             action_packet_action=packet_action,
             field_acl_range_type=range_list_t)
+
+        # create ACL counter
+        acl_counter_id10 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id10 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id10),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id10,
+            action_counter=action_counter_id10)
+
+        counters.append(acl_counter_id10)
+        action_counters.append(action_counter_id10)
+        acl_entries.append(acl_ingress_entry_id10)
+        acl_rules.append("RULE_10")
 
         # "ACL_RULE|DATAINGRESS|RULE_11": {
         #     "type": "hash",
@@ -2405,10 +2428,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id11 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9989,
             action_packet_action=packet_action,
             field_acl_range_type=range_list_t)
+
+        # create ACL counter
+        acl_counter_id11 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id11 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id11),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id11,
+            action_counter=action_counter_id11)
+
+        counters.append(acl_counter_id11)
+        action_counters.append(action_counter_id11)
+        acl_entries.append(acl_ingress_entry_id11)
+        acl_rules.append("RULE_11")
 
         # "ACL_RULE|DATAINGRESS|RULE_12": {
         #     "type": "hash",
@@ -2430,11 +2471,29 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id12 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9988,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t_ipv4,
             field_ip_protocol=ip_protocol)
+
+        # create ACL counter
+        acl_counter_id12 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id12 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id12),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id12,
+            action_counter=action_counter_id12)
+
+        counters.append(acl_counter_id12)
+        action_counters.append(action_counter_id12)
+        acl_entries.append(acl_ingress_entry_id12)
+        acl_rules.append("RULE_12")
 
         # "ACL_RULE|DATAINGRESS|RULE_13": {
         #     "type": "hash",
@@ -2452,11 +2511,29 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id13 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9987,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t_ipv4,
             field_ip_protocol=ip_protocol)
+
+        # create ACL counter
+        acl_counter_id13 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id13 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id13),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id13,
+            action_counter=action_counter_id13)
+
+        counters.append(acl_counter_id13)
+        action_counters.append(action_counter_id13)
+        acl_entries.append(acl_ingress_entry_id13)
+        acl_rules.append("RULE_13")
 
         # "ACL_RULE|DATAINGRESS|RULE_14": {
         #     "type": "hash",
@@ -2476,10 +2553,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id14 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9986,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t_ipv4)
+
+        # create ACL counter
+        acl_counter_id14 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id14 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id14),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id14,
+            action_counter=action_counter_id14)
+
+        counters.append(acl_counter_id14)
+        action_counters.append(action_counter_id14)
+        acl_entries.append(acl_ingress_entry_id14)
+        acl_rules.append("RULE_14")
 
         # "ACL_RULE|DATAINGRESS|RULE_15": {
         #     "type": "hash",
@@ -2495,10 +2590,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id15 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9985,
             action_packet_action=packet_action,
             field_dst_ip=dst_ip_t)
+
+        # create ACL counter
+        acl_counter_id15 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id15 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id15),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id15,
+            action_counter=action_counter_id15)
+
+        counters.append(acl_counter_id15)
+        action_counters.append(action_counter_id15)
+        acl_entries.append(acl_ingress_entry_id15)
+        acl_rules.append("RULE_15")
 
         # "ACL_RULE|DATAINGRESS|RULE_16": {
         #     "type": "hash",
@@ -2514,10 +2627,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id16 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9984,
             action_packet_action=packet_action,
             field_dst_ip=dst_ip_t)
+
+        # create ACL counter
+        acl_counter_id16 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id16 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id16),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id16,
+            action_counter=action_counter_id16)
+
+        counters.append(acl_counter_id16)
+        action_counters.append(action_counter_id16)
+        acl_entries.append(acl_ingress_entry_id16)
+        acl_rules.append("RULE_16")
 
         # "ACL_RULE|DATAINGRESS|RULE_17": {
         #     "type": "hash",
@@ -2534,10 +2665,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id17 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9983,
             action_packet_action=packet_action,
             field_l4_src_port=src_l4_port)
+
+        # create ACL counter
+        acl_counter_id17 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id17 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id17),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id17,
+            action_counter=action_counter_id17)
+
+        counters.append(acl_counter_id17)
+        action_counters.append(action_counter_id17)
+        acl_entries.append(acl_ingress_entry_id17)
+        acl_rules.append("RULE_17")
 
         # "ACL_RULE|DATAINGRESS|RULE_18": {
         #     "type": "hash",
@@ -2554,10 +2703,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id18 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9982,
             action_packet_action=packet_action,
             field_ip_protocol=ip_protocol)
+
+        # create ACL counter
+        acl_counter_id18 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id18 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id18),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id18,
+            action_counter=action_counter_id18)
+
+        counters.append(acl_counter_id18)
+        action_counters.append(action_counter_id18)
+        acl_entries.append(acl_ingress_entry_id18)
+        acl_rules.append("RULE_18")
 
         # "ACL_RULE|DATAINGRESS|RULE_19": {
         #     "type": "hash",
@@ -2574,10 +2741,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id19 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9981,
             action_packet_action=packet_action,
             field_tcp_flags=tcp_flags)
+
+        # create ACL counter
+        acl_counter_id19 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id19 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id19),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id19,
+            action_counter=action_counter_id19)
+
+        counters.append(acl_counter_id19)
+        action_counters.append(action_counter_id19)
+        acl_entries.append(acl_ingress_entry_id19)
+        acl_rules.append("RULE_19")
 
         # "ACL_RULE|DATAINGRESS|RULE_2": {
         #     "type": "hash",
@@ -2597,10 +2782,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id2 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9998,
             action_packet_action=packet_action,
             field_dst_ip=dst_ip_t)
+
+        # create ACL counter
+        acl_counter_id2 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id2 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id2),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id2,
+            action_counter=action_counter_id2)
+
+        counters.append(acl_counter_id2)
+        action_counters.append(action_counter_id2)
+        acl_entries.append(acl_ingress_entry_id2)
+        acl_rules.append("RULE_2")
 
         # "ACL_RULE|DATAINGRESS|RULE_20": {
         #     "type": "hash",
@@ -2616,10 +2819,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id20 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9980,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t)
+
+        # create ACL counter
+        acl_counter_id20 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id20 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id20),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id20,
+            action_counter=action_counter_id20)
+
+        counters.append(acl_counter_id20)
+        action_counters.append(action_counter_id20)
+        acl_entries.append(acl_ingress_entry_id20)
+        acl_rules.append("RULE_20")
 
         # "ACL_RULE|DATAINGRESS|RULE_21": {
         #     "type": "hash",
@@ -2635,10 +2856,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id21 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9979,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t)
+
+        # create ACL counter
+        acl_counter_id21 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id21 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id21),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id21,
+            action_counter=action_counter_id21)
+
+        counters.append(acl_counter_id21)
+        action_counters.append(action_counter_id21)
+        acl_entries.append(acl_ingress_entry_id21)
+        acl_rules.append("RULE_21")
 
         # "ACL_RULE|DATAINGRESS|RULE_22": {
         #     "type": "hash",
@@ -2655,10 +2894,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id22 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9978,
             action_packet_action=packet_action,
             field_l4_dst_port=dst_l4_port)
+
+        # create ACL counter
+        acl_counter_id22 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id22 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id22),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id22,
+            action_counter=action_counter_id22)
+
+        counters.append(acl_counter_id22)
+        action_counters.append(action_counter_id22)
+        acl_entries.append(acl_ingress_entry_id22)
+        acl_rules.append("RULE_22")
 
         # "ACL_RULE|DATAINGRESS|RULE_23": {
         #     "type": "hash",
@@ -2684,10 +2941,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id23 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9977,
             action_packet_action=packet_action,
             field_acl_range_type=range_list_t)
+
+        # create ACL counter
+        acl_counter_id23 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id23 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id23),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id23,
+            action_counter=action_counter_id23)
+
+        counters.append(acl_counter_id23)
+        action_counters.append(action_counter_id23)
+        acl_entries.append(acl_ingress_entry_id23)
+        acl_rules.append("RULE_23")
 
         # "ACL_RULE|DATAINGRESS|RULE_24": {
         #     "type": "hash",
@@ -2713,10 +2988,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id24 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9976,
             action_packet_action=packet_action,
             field_acl_range_type=range_list_t)
+
+        # create ACL counter
+        acl_counter_id24 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id24 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id24),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id24,
+            action_counter=action_counter_id24)
+
+        counters.append(acl_counter_id24)
+        action_counters.append(action_counter_id24)
+        acl_entries.append(acl_ingress_entry_id24)
+        acl_rules.append("RULE_24")
 
         # "ACL_RULE|DATAINGRESS|RULE_25": {
         #     "type": "hash",
@@ -2738,11 +3031,29 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id25 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9975,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t,
             field_ip_protocol=ip_protocol)
+
+        # create ACL counter
+        acl_counter_id25 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id25 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id25),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id25,
+            action_counter=action_counter_id25)
+
+        counters.append(acl_counter_id25)
+        action_counters.append(action_counter_id25)
+        acl_entries.append(acl_ingress_entry_id25)
+        acl_rules.append("RULE_25")
 
         # "ACL_RULE|DATAINGRESS|RULE_26": {
         #     "type": "hash",
@@ -2764,11 +3075,29 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id26 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9974,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t,
             field_ip_protocol=ip_protocol)
+
+        # create ACL counter
+        acl_counter_id26 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id26 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id26),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id26,
+            action_counter=action_counter_id26)
+
+        counters.append(acl_counter_id26)
+        action_counters.append(action_counter_id26)
+        acl_entries.append(acl_ingress_entry_id26)
+        acl_rules.append("RULE_26")
 
         # "ACL_RULE|DATAINGRESS|RULE_27": {
         #     "type": "hash",
@@ -2789,10 +3118,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id27 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9973,
             action_packet_action=packet_action,
             field_l4_src_port=src_l4_port)
+
+        # create ACL counter
+        acl_counter_id27 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id27 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id27),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id27,
+            action_counter=action_counter_id27)
+
+        counters.append(acl_counter_id27)
+        action_counters.append(action_counter_id27)
+        acl_entries.append(acl_ingress_entry_id27)
+        acl_rules.append("RULE_27")
 
         # "ACL_RULE|DATAINGRESS|RULE_28": {
         #     "type": "hash",
@@ -2809,10 +3156,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id28 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9972,
             action_packet_action=packet_action,
             field_l4_dst_port=dst_l4_port)
+
+        # create ACL counter
+        acl_counter_id28 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id28 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id28),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id28,
+            action_counter=action_counter_id28)
+
+        counters.append(acl_counter_id28)
+        action_counters.append(action_counter_id28)
+        acl_entries.append(acl_ingress_entry_id28)
+        acl_rules.append("RULE_28")
 
         # "ACL_RULE|DATAINGRESS|RULE_3": {
         #     "type": "hash",
@@ -2828,10 +3193,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id3 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9997,
             action_packet_action=packet_action,
             field_dst_ip=dst_ip_t)
+
+        # create ACL counter
+        acl_counter_id3 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id3 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id3),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id3,
+            action_counter=action_counter_id3)
+
+        counters.append(acl_counter_id3)
+        action_counters.append(action_counter_id3)
+        acl_entries.append(acl_ingress_entry_id3)
+        acl_rules.append("RULE_3")
 
         # "ACL_RULE|DATAINGRESS|RULE_4": {
         #     "type": "hash",
@@ -2848,10 +3231,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id4 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9996,
             action_packet_action=packet_action,
             field_l4_src_port=src_l4_port)
+
+        # create ACL counter
+        acl_counter_id4 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id4 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id4),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id4,
+            action_counter=action_counter_id4)
+
+        counters.append(acl_counter_id4)
+        action_counters.append(action_counter_id4)
+        acl_entries.append(acl_ingress_entry_id4)
+        acl_rules.append("RULE_4")
 
         # "ACL_RULE|DATAINGRESS|RULE_5": {
         #     "type": "hash",
@@ -2868,10 +3269,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id5 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9995,
             action_packet_action=packet_action,
             field_ip_protocol=ip_protocol)
+
+        # create ACL counter
+        acl_counter_id5 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id5 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id5),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id5,
+            action_counter=action_counter_id5)
+
+        counters.append(acl_counter_id5)
+        action_counters.append(action_counter_id5)
+        acl_entries.append(acl_ingress_entry_id5)
+        acl_rules.append("RULE_5")
 
         # "ACL_RULE|DATAINGRESS|RULE_6": {
         #     "type": "hash",
@@ -2888,10 +3307,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id6 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9994,
             action_packet_action=packet_action,
             field_tcp_flags=tcp_flags)
+
+        # create ACL counter
+        acl_counter_id6 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id6 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id6),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id6,
+            action_counter=action_counter_id6)
+
+        counters.append(acl_counter_id6)
+        action_counters.append(action_counter_id6)
+        acl_entries.append(acl_ingress_entry_id6)
+        acl_rules.append("RULE_6")
 
         # "ACL_RULE|DATAINGRESS|RULE_7": {
         #     "type": "hash",
@@ -2911,10 +3348,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id7 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9993,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t)
+
+        # create ACL counter
+        acl_counter_id7 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id7 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id7),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id7,
+            action_counter=action_counter_id7)
+
+        counters.append(acl_counter_id7)
+        action_counters.append(action_counter_id7)
+        acl_entries.append(acl_ingress_entry_id7)
+        acl_rules.append("RULE_7")
 
         # "ACL_RULE|DATAINGRESS|RULE_8": {
         #     "type": "hash",
@@ -2930,10 +3385,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id8 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9992,
             action_packet_action=packet_action,
             field_src_ip=src_ip_t)
+
+        # create ACL counter
+        acl_counter_id8 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id8 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id8),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id8,
+            action_counter=action_counter_id8)
+
+        counters.append(acl_counter_id8)
+        action_counters.append(action_counter_id8)
+        acl_entries.append(acl_ingress_entry_id8)
+        acl_rules.append("RULE_8")
 
         # "ACL_RULE|DATAINGRESS|RULE_9": {
         #     "type": "hash",
@@ -2950,10 +3423,28 @@ class SonicACLTest(SaiHelper):
 
         acl_ingress_entry_id9 = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_ipv4_table_id1,
+            table_id=acl_ingress_ipv4_table_id,
             priority=9991,
             action_packet_action=packet_action,
             field_l4_dst_port=dst_l4_port)
+
+        # create ACL counter
+        acl_counter_id9 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_ingress_ipv4_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter_id9 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_id9),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ingress_entry_id9,
+            action_counter=action_counter_id9)
+
+        counters.append(acl_counter_id9)
+        action_counters.append(action_counter_id9)
+        acl_entries.append(acl_ingress_entry_id9)
+        acl_rules.append("RULE_9")
 
         try:
             pkt = simple_tcp_packet(
@@ -2966,6 +3457,12 @@ class SonicACLTest(SaiHelper):
                 ip_ttl=64)
             send_packet(self, self.dev_port11, pkt)
             verify_no_other_packets(self, timeout=2)
+
+            print("Entries counters after sending the first packet:")
+            for i, acl_counter in enumerate(counters):
+                packets = sai_thrift_get_acl_counter_attribute(
+                    self.client, acl_counter, packets=True)
+                print(acl_rules[i], " : ", packets['packets'])
 
             pkt = simple_tcp_packet(
                 eth_dst=ROUTER_MAC,
@@ -2986,6 +3483,12 @@ class SonicACLTest(SaiHelper):
             send_packet(self, self.dev_port11, pkt)
             verify_packets(self, exp_pkt, [self.dev_port10])
 
+            print("Entries counters after sending the second packet:")
+            for i, acl_counter in enumerate(counters):
+                packets = sai_thrift_get_acl_counter_attribute(
+                    self.client, acl_counter, packets=True)
+                print(acl_rules[i], " : ", packets['packets'])
+
         finally:
             print("Unbind ACL groups from ports object id:")
             for i, ports in enumerate(ports_list):
@@ -3000,6 +3503,23 @@ class SonicACLTest(SaiHelper):
 
             for acl_group in acl_ingress_groups_list:
                 sai_thrift_remove_acl_table_group(self.client, acl_group)
+
+            for i, acl_action_counter in enumerate(action_counters):
+                acl_action_counter = sai_thrift_acl_action_data_t(
+                    parameter=sai_thrift_acl_action_parameter_t(
+                        oid=0),
+                    enable=True)
+                sai_thrift_set_acl_entry_attribute(
+                    self.client, acl_entries[i],
+                    action_counter=acl_action_counter)
+
+            for acl_counter in counters:
+                sai_thrift_set_acl_counter_attribute(
+                    self.client, acl_counter, packets=None)     
+                packets = sai_thrift_get_acl_counter_attribute(
+                    self.client, acl_counter, packets=True)
+                self.assertEqual(packets['packets'], 0)
+                sai_thrift_remove_acl_counter(self.client, acl_counter)
 
             # cleanup ACL
             sai_thrift_remove_acl_entry(self.client, acl_ingress_entry_id28)
@@ -3038,11 +3558,7 @@ class SonicACLTest(SaiHelper):
                                         acl_ingress_entry_id_default)
 
             sai_thrift_remove_acl_table(self.client,
-                                        acl_ingress_ipv4_table_id1)
-            sai_thrift_remove_acl_table(self.client,
-                                        acl_ingress_mirror_table_id)
-            sai_thrift_remove_acl_table(self.client,
-                                        acl_ingress_ipv4_table_id2)
+                                        acl_ingress_ipv4_table_id)
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry)
