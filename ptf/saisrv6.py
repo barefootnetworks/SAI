@@ -978,8 +978,8 @@ class Srv6MySidTest(SaiHelper):
         self.mySidEndDT46ReEncapTest()
         self.mySidB6EncapTest()
         self.mySidB6InsertTest()
-        self.getSetMySidEntryTest()
         self.mySidCounterTest()
+        self.getSetMySidEntryTest()
 
     def tearDown(self):
         sai_thrift_remove_my_sid_entry(self.client, self.end_b6_insert_sid)
@@ -1348,6 +1348,175 @@ class Srv6MySidTest(SaiHelper):
         finally:
             sai_thrift_remove_route_entry(self.client, dt4_v4_route_entry)
 
+    def mySidXConnectTest(self):
+        '''
+        Verify SRv6 End.X endpoint behavior
+        '''
+        print("\nmySidXConnectTest()")
+
+        sr6_more_seg_pkt = simple_ipv6_sr_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src=self.srv6_mac,
+            ipv6_src=self.srv6_src_ip,
+            ipv6_dst=self.node0_adj_sid,
+            ipv6_hlim=64,
+            srh_seg_left=2,
+            srh_first_seg=1,
+            srh_nh=0x4,
+            srh_seg_list=self.sid_list,
+            inner_frame=self.inner_v4_pkt[IP])
+        exp_pkt1 = simple_ipv6_sr_packet(
+            eth_src=ROUTER_MAC,
+            eth_dst=self.srv6_mac,
+            ipv6_src=self.srv6_src_ip,
+            ipv6_dst=self.node1_prefix_sid,
+            ipv6_hlim=63,
+            srh_seg_left=1,
+            srh_first_seg=1,
+            srh_nh=0x4,
+            srh_seg_list=self.sid_list,
+            inner_frame=self.inner_v4_pkt[IP])
+
+        sr6_one_seg_pkt = simple_ipv6_sr_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src=self.srv6_mac,
+            ipv6_src=self.srv6_src_ip,
+            ipv6_dst=self.node0_adj_sid,
+            ipv6_hlim=64,
+            srh_seg_left=1,
+            srh_first_seg=1,
+            srh_nh=0x4,
+            srh_seg_list=self.sid_list,
+            inner_frame=self.inner_v4_pkt[IP])
+        exp_pkt2 = simple_ipv6ip_packet(
+            eth_src=ROUTER_MAC,
+            eth_dst=self.srv6_mac,
+            ipv6_src=self.srv6_src_ip,
+            ipv6_dst=self.node2_prefix_sid,
+            ipv6_hlim=63,
+            inner_frame=self.inner_v4_pkt[IP])
+
+        sr6_zero_seg_pkt = simple_ipv6_sr_packet(
+            eth_dst=ROUTER_MAC,
+            eth_src=self.srv6_mac,
+            ipv6_src=self.srv6_src_ip,
+            ipv6_dst=self.node0_adj_sid,
+            ipv6_hlim=64,
+            srh_seg_left=0,
+            srh_first_seg=1,
+            srh_nh=0x4,
+            srh_seg_list=self.sid_list,
+            inner_frame=self.inner_v4_pkt[IP])
+        exp_pkt3 = simple_tcp_packet(
+            eth_src=ROUTER_MAC,
+            eth_dst=self.srv6_mac,
+            ip_dst=self.client_ip_dest,
+            ip_src=self.client_ip_src,
+            ip_id=105,
+            ip_ttl=63)
+
+        try:
+            print("END.X: Send packet with seg_left > 1, "
+                  "Cross-connect to port 13")
+            send_packet(self, self.dev_port11, sr6_more_seg_pkt)
+            verify_packets(self, exp_pkt1, [self.dev_port13])
+
+            print("END.X with PSP: Send packet with seg_left == 1, "
+                  "Cross-connect to port 13")
+            send_packet(self, self.dev_port11, sr6_one_seg_pkt)
+            verify_packets(self, exp_pkt2, [self.dev_port13])
+
+            print("END.X with USD: Send packet with seg_left == 0, "
+                  "Cross-connect to port 13")
+            send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
+            verify_packets(self, exp_pkt3, [self.dev_port13])
+
+            xconnect_ecmp = sai_thrift_create_next_hop_group(
+                self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
+            xconnect_ecmp1 = sai_thrift_create_next_hop_group_member(
+                self.client,
+                next_hop_group_id=xconnect_ecmp,
+                next_hop_id=self.und_nhop)
+            xconnect_ecmp2 = sai_thrift_create_next_hop_group_member(
+                self.client,
+                next_hop_group_id=xconnect_ecmp,
+                next_hop_id=self.xconn_nhop)
+
+            print("Set XConnect NHOP to ECMP")
+            sai_thrift_set_my_sid_entry_attribute(
+                self.client,
+                self.end_x_sid,
+                next_hop_id=xconnect_ecmp)
+
+            count = [0, 0]
+            max_iter = 60
+            sip_address = self.srv6_src_ip
+            inner_pkt = self.inner_v4_pkt
+            for i in range(0, max_iter):
+                tcp_sport = 1000 + i
+                tcp_dport = 1000 + i
+                inner_pkt['TCP'].sport = tcp_sport
+                inner_pkt['TCP'].dport = tcp_dport
+                inner_frame = inner_pkt
+                exp_pkt3['TCP'].sport = tcp_sport
+                exp_pkt3['TCP'].dport = tcp_dport
+
+                sr6_zero_seg_pkt = simple_ipv6_sr_packet(
+                    eth_dst=ROUTER_MAC,
+                    eth_src=self.srv6_mac,
+                    ipv6_src=sip_address,  # varying
+                    ipv6_dst=self.node0_adj_sid,
+                    ipv6_hlim=64,
+                    srh_seg_left=0,
+                    srh_first_seg=1,
+                    srh_nh=0x4,
+                    srh_seg_list=[self.node2_prefix_sid,
+                                  self.node1_prefix_sid],
+                    inner_frame=inner_frame[IP])
+
+                send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
+                recv_index = verify_any_packet_any_port(
+                    self,
+                    [exp_pkt3],
+                    [self.dev_port12, self.dev_port13])
+                count[recv_index] += 1
+            print("ECMP count: ", count)
+
+            for i in range(0, 2):
+                self.assertTrue(count[i] > 0.3*max_iter)
+
+            print("Set XConnect NHOP back to port and packet action to drop")
+            sai_thrift_set_my_sid_entry_attribute(self.client,
+                                                  self.end_x_sid,
+                                                  next_hop_id=self.xconn_nhop)
+            sai_thrift_set_my_sid_entry_attribute(
+                self.client,
+                self.end_x_sid,
+                packet_action=SAI_PACKET_ACTION_DROP)
+
+            print("END.X: Send packet with seg_left > 1, Drop the packet")
+            send_packet(self, self.dev_port11, sr6_more_seg_pkt)
+            verify_no_other_packets(self)
+
+            print("END.X: Send packet with seg_left == 1, Drop the packet")
+            send_packet(self, self.dev_port11, sr6_one_seg_pkt)
+            verify_no_other_packets(self)
+
+            print("END.X: Send packet with seg_left == 0, Drop the packet")
+            send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
+            verify_no_other_packets(self)
+
+        finally:
+            sai_thrift_set_my_sid_entry_attribute(
+                self.client,
+                self.end_x_sid,
+                packet_action=SAI_PACKET_ACTION_FORWARD)
+            sai_thrift_remove_next_hop_group_member(
+                self.client, xconnect_ecmp2)
+            sai_thrift_remove_next_hop_group_member(
+                self.client, xconnect_ecmp1)
+            sai_thrift_remove_next_hop_group(self.client, xconnect_ecmp)
+
     def mySidEndDT4ReEncapTest(self):
         '''
         Verify a following scenario:
@@ -1570,175 +1739,6 @@ class Srv6MySidTest(SaiHelper):
         finally:
             sai_thrift_remove_route_entry(self.client, sr_route)
 
-    def mySidXConnectTest(self):
-        '''
-        Verify SRv6 End.X endpoint behavior
-        '''
-        print("\nmySidXConnectTest()")
-
-        sr6_more_seg_pkt = simple_ipv6_sr_packet(
-            eth_dst=ROUTER_MAC,
-            eth_src=self.srv6_mac,
-            ipv6_src=self.srv6_src_ip,
-            ipv6_dst=self.node0_adj_sid,
-            ipv6_hlim=64,
-            srh_seg_left=2,
-            srh_first_seg=1,
-            srh_nh=0x4,
-            srh_seg_list=self.sid_list,
-            inner_frame=self.inner_v4_pkt[IP])
-        exp_pkt1 = simple_ipv6_sr_packet(
-            eth_src=ROUTER_MAC,
-            eth_dst=self.srv6_mac,
-            ipv6_src=self.srv6_src_ip,
-            ipv6_dst=self.node1_prefix_sid,
-            ipv6_hlim=63,
-            srh_seg_left=1,
-            srh_first_seg=1,
-            srh_nh=0x4,
-            srh_seg_list=self.sid_list,
-            inner_frame=self.inner_v4_pkt[IP])
-
-        sr6_one_seg_pkt = simple_ipv6_sr_packet(
-            eth_dst=ROUTER_MAC,
-            eth_src=self.srv6_mac,
-            ipv6_src=self.srv6_src_ip,
-            ipv6_dst=self.node0_adj_sid,
-            ipv6_hlim=64,
-            srh_seg_left=1,
-            srh_first_seg=1,
-            srh_nh=0x4,
-            srh_seg_list=self.sid_list,
-            inner_frame=self.inner_v4_pkt[IP])
-        exp_pkt2 = simple_ipv6ip_packet(
-            eth_src=ROUTER_MAC,
-            eth_dst=self.srv6_mac,
-            ipv6_src=self.srv6_src_ip,
-            ipv6_dst=self.node2_prefix_sid,
-            ipv6_hlim=63,
-            inner_frame=self.inner_v4_pkt[IP])
-
-        sr6_zero_seg_pkt = simple_ipv6_sr_packet(
-            eth_dst=ROUTER_MAC,
-            eth_src=self.srv6_mac,
-            ipv6_src=self.srv6_src_ip,
-            ipv6_dst=self.node0_adj_sid,
-            ipv6_hlim=64,
-            srh_seg_left=0,
-            srh_first_seg=1,
-            srh_nh=0x4,
-            srh_seg_list=self.sid_list,
-            inner_frame=self.inner_v4_pkt[IP])
-        exp_pkt3 = simple_tcp_packet(
-            eth_src=ROUTER_MAC,
-            eth_dst=self.srv6_mac,
-            ip_dst=self.client_ip_dest,
-            ip_src=self.client_ip_src,
-            ip_id=105,
-            ip_ttl=63)
-
-        try:
-            print("END.X: Send packet with seg_left > 1, "
-                  "Cross-connect to port 13")
-            send_packet(self, self.dev_port11, sr6_more_seg_pkt)
-            verify_packets(self, exp_pkt1, [self.dev_port13])
-
-            print("END.X with PSP: Send packet with seg_left == 1, "
-                  "Cross-connect to port 13")
-            send_packet(self, self.dev_port11, sr6_one_seg_pkt)
-            verify_packets(self, exp_pkt2, [self.dev_port13])
-
-            print("END.X with USD: Send packet with seg_left == 0, "
-                  "Cross-connect to port 13")
-            send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
-            verify_packets(self, exp_pkt3, [self.dev_port13])
-
-            xconnect_ecmp = sai_thrift_create_next_hop_group(
-                self.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
-            xconnect_ecmp1 = sai_thrift_create_next_hop_group_member(
-                self.client,
-                next_hop_group_id=xconnect_ecmp,
-                next_hop_id=self.und_nhop)
-            xconnect_ecmp2 = sai_thrift_create_next_hop_group_member(
-                self.client,
-                next_hop_group_id=xconnect_ecmp,
-                next_hop_id=self.xconn_nhop)
-
-            print("Set XConnect NHOP to ECMP")
-            sai_thrift_set_my_sid_entry_attribute(
-                self.client,
-                self.end_x_sid,
-                next_hop_id=xconnect_ecmp)
-
-            count = [0, 0]
-            max_iter = 60
-            sip_address = self.srv6_src_ip
-            inner_pkt = self.inner_v4_pkt
-            for i in range(0, max_iter):
-                tcp_sport = 1000 + i
-                tcp_dport = 1000 + i
-                inner_pkt['TCP'].sport = tcp_sport
-                inner_pkt['TCP'].dport = tcp_dport
-                inner_frame = inner_pkt
-                exp_pkt3['TCP'].sport = tcp_sport
-                exp_pkt3['TCP'].dport = tcp_dport
-
-                sr6_zero_seg_pkt = simple_ipv6_sr_packet(
-                    eth_dst=ROUTER_MAC,
-                    eth_src=self.srv6_mac,
-                    ipv6_src=sip_address,  # varying
-                    ipv6_dst=self.node0_adj_sid,
-                    ipv6_hlim=64,
-                    srh_seg_left=0,
-                    srh_first_seg=1,
-                    srh_nh=0x4,
-                    srh_seg_list=[self.node2_prefix_sid,
-                                  self.node1_prefix_sid],
-                    inner_frame=inner_frame[IP])
-
-                send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
-                recv_index = verify_any_packet_any_port(
-                    self,
-                    [exp_pkt3],
-                    [self.dev_port12, self.dev_port13])
-                count[recv_index] += 1
-            print("ECMP count: ", count)
-
-            for i in range(0, 2):
-                self.assertTrue(count[i] > 0.3*max_iter)
-
-            print("Set XConnect NHOP back to port and packet action to drop")
-            sai_thrift_set_my_sid_entry_attribute(self.client,
-                                                  self.end_x_sid,
-                                                  next_hop_id=self.xconn_nhop)
-            sai_thrift_set_my_sid_entry_attribute(
-                self.client,
-                self.end_x_sid,
-                packet_action=SAI_PACKET_ACTION_DROP)
-
-            print("END.X: Send packet with seg_left > 1, Drop the packet")
-            send_packet(self, self.dev_port11, sr6_more_seg_pkt)
-            verify_no_other_packets(self)
-
-            print("END.X: Send packet with seg_left == 1, Drop the packet")
-            send_packet(self, self.dev_port11, sr6_one_seg_pkt)
-            verify_no_other_packets(self)
-
-            print("END.X: Send packet with seg_left == 0, Drop the packet")
-            send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
-            verify_no_other_packets(self)
-
-        finally:
-            sai_thrift_set_my_sid_entry_attribute(
-                self.client,
-                self.end_x_sid,
-                packet_action=SAI_PACKET_ACTION_FORWARD)
-            sai_thrift_remove_next_hop_group_member(
-                self.client, xconnect_ecmp2)
-            sai_thrift_remove_next_hop_group_member(
-                self.client, xconnect_ecmp1)
-            sai_thrift_remove_next_hop_group(self.client, xconnect_ecmp)
-
     def mySidB6EncapTest(self):
         '''
         Verify SRv6 End.B6.Encaps.Red endpoint beahvior
@@ -1905,6 +1905,34 @@ class Srv6MySidTest(SaiHelper):
         send_packet(self, self.dev_port11, sr6_pkt)
         verify_packets(self, exp_pkt, [self.dev_port12])
 
+    def mySidCounterTest(self):
+        '''
+        Verify statistics of a counter attached to my_sid object
+        Also verify getting counter_id of my_sid object and statistics clearing
+        '''
+        print("\nmySidCounterTest()")
+
+        my_sid_cntr = sai_thrift_get_my_sid_entry_attribute(
+            self.client, self.end_sid, counter_id=True)
+        self.assertEqual(my_sid_cntr['counter_id'], self.end_sid_counter)
+
+        counter_stats = sai_thrift_get_counter_stats(
+            self.client, self.end_sid_counter)
+        self.assertEqual(counter_stats['SAI_COUNTER_STAT_PACKETS'],
+                         self.end_sid_stats)
+        self.asserNotEqual(counter_stats['SAI_COUNTER_STAT_BYTES'], 0)
+
+        print("My SID counter correct")
+
+        sai_thrift_clear_counter_stats(self.client, self.end_sid_counter)
+
+        counter_stats = sai_thrift_get_counter_stats(
+            self.client, self.end_sid_counter)
+        self.assertEqual(counter_stats['SAI_COUNTER_STAT_PACKETS'], 0)
+        self.assertEqual(counter_stats['SAI_COUNTER_STAT_BYTES'], 0)
+
+        print("My SID counter clear")
+
     def getSetMySidEntryTest(self):
         '''
         Verify getting and setting my SID entry attributes
@@ -2029,34 +2057,6 @@ class Srv6MySidTest(SaiHelper):
                 self.client,
                 self.end_sid,
                 vrf=None)
-
-    def mySidCounterTest(self):
-        '''
-        Verify statistics of a counter attached to my_sid object
-        Also verify getting counter_id of my_sid object and statistics clearing
-        '''
-        print("\nmySidCounterTest()")
-
-        my_sid_cntr = sai_thrift_get_my_sid_entry_attribute(
-            self.client, self.end_sid, counter_id=True)
-        self.assertEqual(my_sid_cntr['counter_id'], self.end_sid_counter)
-
-        counter_stats = sai_thrift_get_counter_stats(
-            self.client, self.end_sid_counter)
-        self.assertEqual(counter_stats['SAI_COUNTER_STAT_PACKETS'],
-                         self.end_sid_stats)
-        self.asserNotEqual(counter_stats['SAI_COUNTER_STAT_BYTES'], 0)
-
-        print("My SID counter correct")
-
-        sai_thrift_clear_counter_stats(self.client, self.end_sid_counter)
-
-        counter_stats = sai_thrift_get_counter_stats(
-            self.client, self.end_sid_counter)
-        self.assertEqual(counter_stats['SAI_COUNTER_STAT_PACKETS'], 0)
-        self.assertEqual(counter_stats['SAI_COUNTER_STAT_BYTES'], 0)
-
-        print("My SID counter clear")
 
 
 @group("draft")
