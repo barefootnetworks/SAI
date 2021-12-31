@@ -237,17 +237,14 @@ class Srv6SrcEncapTest(SaiHelper):
                                               ip_ttl=63)
 
     def runTest(self):
-        try:
-            self.clientIpRouteTest()
-            self.sourceEncapOneSidTest()
-            self.sourceEncapTwoSidTest()
-            self.sourceEncapThreeSidTest()
-            self.sourceEncapEcmpSidTest()
-            self.insertOneSidTest()
-            self.insertTwoSidTest()
-            self.getSetSidlistTest()
-        finally:
-            pass
+        self.clientIpRouteTest()
+        self.sourceEncapOneSidTest()
+        self.sourceEncapTwoSidTest()
+        self.sourceEncapThreeSidTest()
+        self.sourceEncapEcmpSidTest()
+        self.insertOneSidTest()
+        self.insertTwoSidTest()
+        self.getSetSidlistTest()
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.over_v6_route_entry)
@@ -288,21 +285,17 @@ class Srv6SrcEncapTest(SaiHelper):
         '''
         print("\nclientIpRouteTest()")
 
-        try:
-            exp_pkt = simple_tcp_packet(eth_dst=self.client_dmac,
-                                        eth_src=ROUTER_MAC,
-                                        ip_dst=self.client_ip_dest,
-                                        ip_src=self.client_ip_src,
-                                        ip_id=105,
-                                        ip_ttl=63)
-            print("Sending packet on port %d to port %d, forward from %s to %s"
-                  % (self.dev_port11, self.dev_port10, self.client_ip_src,
-                     self.client_ip_dest))
-            send_packet(self, self.dev_port11, self.pkt)
-            verify_packets(self, exp_pkt, [self.dev_port10])
-
-        finally:
-            pass
+        exp_pkt = simple_tcp_packet(eth_dst=self.client_dmac,
+                                    eth_src=ROUTER_MAC,
+                                    ip_dst=self.client_ip_dest,
+                                    ip_src=self.client_ip_src,
+                                    ip_id=105,
+                                    ip_ttl=63)
+        print("Sending packet on port %d to port %d, forward from %s to %s"
+                % (self.dev_port11, self.dev_port10, self.client_ip_src,
+                    self.client_ip_dest))
+        send_packet(self, self.dev_port11, self.pkt)
+        verify_packets(self, exp_pkt, [self.dev_port10])
 
     def sourceEncapOneSidTest(self):
         '''
@@ -325,17 +318,13 @@ class Srv6SrcEncapTest(SaiHelper):
             ipv6_hlim=64,
             inner_frame=self.exp_v6_pkt[IPv6])
 
-        try:
-            print("Sending IPv4 packet - encap with one SID")
-            send_packet(self, self.dev_port24, self.pkt)
-            verify_packets(self, sr6_v4_pkt, [self.dev_port12])
+        print("Sending IPv4 packet - encap with one SID")
+        send_packet(self, self.dev_port24, self.pkt)
+        verify_packets(self, sr6_v4_pkt, [self.dev_port12])
 
-            print("Sending IPv6 packet - encap with one SID")
-            send_packet(self, self.dev_port24, self.v6_pkt)
-            verify_packets(self, sr6_v6_pkt, [self.dev_port12])
-
-        finally:
-            pass
+        print("Sending IPv6 packet - encap with one SID")
+        send_packet(self, self.dev_port24, self.v6_pkt)
+        verify_packets(self, sr6_v6_pkt, [self.dev_port12])
 
     def sourceEncapTwoSidTest(self):
         '''
@@ -978,22 +967,19 @@ class Srv6MySidTest(SaiHelper):
                                               ipv6_hlim=63)
 
     def runTest(self):
-        try:
-            self.mySidEndTest()
-            self.mySidEndTTest()
-            self.mySidEndDT46Test()
-            self.mySidEndDT4Test()
-            self.mySidEndDT6Test()
-            self.mySidXConnectTest()
-            self.mySidEndDT4ReEncapTest()
-            self.mySidEndDT6ReEncapTest()
-            self.mySidEndDT46ReEncapTest()
-            self.mySidB6EncapTest()
-            self.mySidB6InsertTest()
-            self.getSetMySidEntryTest()
-            self.mySidCounterTest()
-        finally:
-            pass
+        self.mySidEndTest()
+        self.mySidEndTTest()
+        self.mySidEndDT46Test()
+        self.mySidEndDT4Test()
+        self.mySidEndDT6Test()
+        self.mySidXConnectTest()
+        self.mySidEndDT4ReEncapTest()
+        self.mySidEndDT6ReEncapTest()
+        self.mySidEndDT46ReEncapTest()
+        self.mySidB6EncapTest()
+        self.mySidB6InsertTest()
+        self.getSetMySidEntryTest()
+        self.mySidCounterTest()
 
     def tearDown(self):
         sai_thrift_remove_my_sid_entry(self.client, self.end_b6_insert_sid)
@@ -1097,24 +1083,20 @@ class Srv6MySidTest(SaiHelper):
             ip_id=105,
             ip_ttl=63)
 
-        try:
-            print("END: Send packet with seg_left > 1")
-            send_packet(self, self.dev_port11, sr6_more_seg_pkt)
-            verify_packet(self, exp_pkt1, self.dev_port12)
-            self.end_sid_stats += 1
+        print("END: Send packet with seg_left > 1")
+        send_packet(self, self.dev_port11, sr6_more_seg_pkt)
+        verify_packet(self, exp_pkt1, self.dev_port12)
+        self.end_sid_stats += 1
 
-            print("END with PSP: Send packet with seg_left == 1")
-            send_packet(self, self.dev_port11, sr6_one_seg_pkt)
-            verify_packet(self, exp_pkt2, self.dev_port12)
-            self.end_sid_stats += 1
+        print("END with PSP: Send packet with seg_left == 1")
+        send_packet(self, self.dev_port11, sr6_one_seg_pkt)
+        verify_packet(self, exp_pkt2, self.dev_port12)
+        self.end_sid_stats += 1
 
-            print("END with USD: Send packet with seg_left == 0")
-            send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
-            verify_packet(self, exp_pkt3, self.dev_port10)
-            self.end_sid_stats += 1
-
-        finally:
-            pass
+        print("END with USD: Send packet with seg_left == 0")
+        send_packet(self, self.dev_port11, sr6_zero_seg_pkt)
+        verify_packet(self, exp_pkt3, self.dev_port10)
+        self.end_sid_stats += 1
 
     def mySidEndTTest(self):
         '''
@@ -1146,15 +1128,12 @@ class Srv6MySidTest(SaiHelper):
             srh_seg_list=self.sid_list,
             inner_frame=self.inner_v4_pkt[IP])
 
-        try:
-            print("END.T: Sending packet on port %d to port %d - "
-                  "forward through another vrf"
-                  % (self.dev_port11, self.dev_port12))
-            send_packet(self, self.dev_port11, sr6_pkt)
-            verify_packet(self, exp_pkt, self.dev_port12)
+        print("END.T: Sending packet on port %d to port %d - "
+                "forward through another vrf"
+                % (self.dev_port11, self.dev_port12))
+        send_packet(self, self.dev_port11, sr6_pkt)
+        verify_packet(self, exp_pkt, self.dev_port12)
 
-        finally:
-            pass
 
     def mySidEndDT46Test(self):
         '''
@@ -1898,13 +1877,9 @@ class Srv6MySidTest(SaiHelper):
             addresses=[self.node2_prefix_sid, self.node1_prefix_sid])
         exp_pkt /= self.inner_v4_pkt[IP]
 
-        try:
-            print("Verify my_sid entry with B6.Insert with 2 segment NHOPs")
-            send_packet(self, self.dev_port11, sr6_pkt)
-            verify_packets(self, exp_pkt, [self.dev_port12])
-
-        finally:
-            pass
+        print("Verify my_sid entry with B6.Insert with 2 segment NHOPs")
+        send_packet(self, self.dev_port11, sr6_pkt)
+        verify_packets(self, exp_pkt, [self.dev_port12])
 
         sr6_pkt = simple_ipv6ip_packet(
             eth_dst=ROUTER_MAC,
@@ -1925,14 +1900,10 @@ class Srv6MySidTest(SaiHelper):
             srh_seg_list=[self.node0_b6_insert_sid, self.node1_prefix_sid],
             inner_frame=self.inner_v4_pkt[IP])
 
-        try:
-            print("Verify my_sid entry with B6.Insert with 2 segment NHOPs "
-                  "and IPinIP inner packet")
-            send_packet(self, self.dev_port11, sr6_pkt)
-            verify_packets(self, exp_pkt, [self.dev_port12])
-
-        finally:
-            pass
+        print("Verify my_sid entry with B6.Insert with 2 segment NHOPs "
+                "and IPinIP inner packet")
+        send_packet(self, self.dev_port11, sr6_pkt)
+        verify_packets(self, exp_pkt, [self.dev_port12])
 
     def getSetMySidEntryTest(self):
         '''
@@ -2202,17 +2173,14 @@ class Srv6MySidUsidTest(SaiHelper):
                                               ip_ttl=63)
 
     def runTest(self):
-        try:
-            self.mySidEndUNTest()
-            self.mySidEndUNPSPTest()
-            self.mySidEndUNUSDTest()
-            self.mySidEndUNUSDNoSRHTest()
-            self.mySidEndUATest()
-            self.mySidEndUAPSPTest()
-            self.mySidEndUAUSDTest()
-            self.mySidEndUAUSDNoSRHTest()
-        finally:
-            pass
+        self.mySidEndUNTest()
+        self.mySidEndUNPSPTest()
+        self.mySidEndUNUSDTest()
+        self.mySidEndUNUSDNoSRHTest()
+        self.mySidEndUATest()
+        self.mySidEndUAPSPTest()
+        self.mySidEndUAUSDTest()
+        self.mySidEndUAUSDNoSRHTest()
 
     def tearDown(self):
         sai_thrift_remove_my_sid_entry(self.client, self.end_ua_sid)
@@ -2757,11 +2725,8 @@ class Srv6MySidDropTest(SaiHelper):
                                                     ipv6_hlim=63)
 
     def runTest(self):
-        try:
-            self.packetActionDropTest()
-            self.nonZeroSlEndDTxDropTest()
-        finally:
-            pass
+        self.packetActionDropTest()
+        self.nonZeroSlEndDTxDropTest()
 
     def tearDown(self):
         sai_thrift_clear_port_stats(self.client, self.port11)
