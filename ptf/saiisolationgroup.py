@@ -23,7 +23,7 @@ from sai_base_test import *
 @group("draft")
 class PortIsolationTest(SaiHelper):
     '''
-    Wrapper class for port isolation test cases
+    Port isolation test class
     '''
 
     def setUp(self):
