@@ -32,8 +32,6 @@ class AclGroupTest(SaiHelper):
 
         self.port_mac = '00:11:22:33:44:55'
         self.lag_mac = '00:11:22:33:44:56'
-        self.port_mac2 = '00:11:22:33:44:57'
-        self.lag_mac2 = '00:11:22:33:44:58'
 
         self.port_fdb_entry = sai_thrift_fdb_entry_t(
             switch_id=self.switch_id,
@@ -4174,6 +4172,7 @@ class TCPFlagsACLTest(SaiHelper):
 
         self.acl_table = None
         self.acl_entry = None
+        self.acl_counter = None
 
         self.dmac = '00:11:22:33:44:55'
         self.ip_addr1 = '10.10.10.1'
@@ -4232,6 +4231,19 @@ class TCPFlagsACLTest(SaiHelper):
             field_tcp_flags=tcp_flag
         )
 
+        # create ACL counter
+        self.acl_counter = sai_thrift_create_acl_counter(
+            self.client, table_id=self.acl_table)
+
+        # attach ACL counter to ACL entry
+        action_counter = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=self.acl_counter),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, self.acl_entry,
+            action_counter=action_counter)
+
         sai_thrift_set_router_interface_attribute(
             self.client, self.port11_rif, ingress_acl=self.acl_table)
 
@@ -4255,6 +4267,10 @@ class TCPFlagsACLTest(SaiHelper):
         send_packet(self, self.dev_port11, pkt)
         verify_packet(self, exp_pkt, self.dev_port10)
 
+        packets = sai_thrift_get_acl_counter_attribute(
+            self.client, self.acl_counter, packets=True)
+        self.assertEqual(packets['packets'], 0)
+
         pkt = simple_udp_packet(
             eth_dst=ROUTER_MAC,
             eth_src=self.src_mac,
@@ -4273,6 +4289,10 @@ class TCPFlagsACLTest(SaiHelper):
         print("Sending udp packet on port %d, forward" % self.dev_port11)
         send_packet(self, self.dev_port11, pkt)
         verify_packet(self, exp_pkt, self.dev_port10)
+
+        packets = sai_thrift_get_acl_counter_attribute(
+            self.client, self.acl_counter, packets=True)
+        self.assertEqual(packets['packets'], 0)
 
         pkt = simple_tcp_packet(
             eth_dst=ROUTER_MAC,
@@ -4288,6 +4308,10 @@ class TCPFlagsACLTest(SaiHelper):
         send_packet(self, self.dev_port11, pkt)
         verify_no_other_packets(self, timeout=1)
 
+        packets = sai_thrift_get_acl_counter_attribute(
+            self.client, self.acl_counter, packets=True)
+        self.assertEqual(packets['packets'], 1)
+
         pkt = simple_udp_packet(
             eth_dst=ROUTER_MAC,
             eth_src=self.src_mac,
@@ -4307,7 +4331,26 @@ class TCPFlagsACLTest(SaiHelper):
         send_packet(self, self.dev_port11, pkt)
         verify_packet(self, exp_pkt, self.dev_port10)
 
+        packets = sai_thrift_get_acl_counter_attribute(
+            self.client, self.acl_counter, packets=True)
+        self.assertEqual(packets['packets'], 1)
+
     def tearDown(self):
+        # cleanup ACL
+        action_counter = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=0),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, self.acl_entry,
+            action_counter=action_counter)
+        sai_thrift_set_acl_counter_attribute(
+            self.client, self.acl_counter, packets=None)
+        packets = sai_thrift_get_acl_counter_attribute(
+            self.client, self.acl_counter, packets=True)
+        self.assertEqual(packets['packets'], 0)
+        sai_thrift_remove_acl_counter(self.client, self.acl_counter)
+
         sai_thrift_set_router_interface_attribute(
             self.client, self.port11_rif, ingress_acl=0)
 
@@ -4444,6 +4487,19 @@ class AclTableTypeTest(SaiHelper):
                 field_dst_ip=dst_ip_t,
                 action_packet_action=packet_action)
 
+            # create ACL counter
+            acl_counter_ingress = sai_thrift_create_acl_counter(
+                self.client, table_id=acl_table)
+
+            # attach ACL counter to ACL entry
+            action_counter_ingress = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=acl_counter_ingress),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry,
+                action_counter=action_counter_ingress)
+
             # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
@@ -4451,7 +4507,26 @@ class AclTableTypeTest(SaiHelper):
             # verify packet dropped after ACL apply
             send_packet(self, self.dev_port24, pkt)
             verify_no_other_packets(self, timeout=2)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 1)
+
         finally:
+            # cleanup ACL
+            action_counter_ingress = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=0),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry,
+                action_counter=action_counter_ingress)
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=None)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 0)
+            sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=0)
             sai_thrift_remove_acl_entry(self.client, acl_entry)
@@ -4521,6 +4596,19 @@ class AclTableTypeTest(SaiHelper):
                 field_dst_ipv6=dst_ip_t,
                 action_packet_action=packet_action)
 
+            # create ACL counter
+            acl_counter_ingress = sai_thrift_create_acl_counter(
+                self.client, table_id=acl_table)
+
+            # attach ACL counter to ACL entry
+            action_counter_ingress = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=acl_counter_ingress),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry,
+                action_counter=action_counter_ingress)
+
             # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
@@ -4528,7 +4616,26 @@ class AclTableTypeTest(SaiHelper):
             # verify packet dropped after ACL apply
             send_packet(self, self.dev_port24, pkt)
             verify_no_other_packets(self, timeout=2)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 1)
+
         finally:
+            # cleanup ACL
+            action_counter_ingress = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=0),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry,
+                action_counter=action_counter_ingress)
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=None)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 0)
+            sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=0)
             sai_thrift_remove_acl_entry(self.client, acl_entry)
@@ -4608,6 +4715,19 @@ class AclTableTypeTest(SaiHelper):
                 field_dst_ipv6=dst_ip_t,
                 action_mirror_ingress=mirror_action)
 
+            # create ACL counter
+            acl_counter_ingress = sai_thrift_create_acl_counter(
+                self.client, table_id=acl_table)
+
+            # attach ACL counter to ACL entry
+            action_counter_ingress = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=acl_counter_ingress),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry,
+                action_counter=action_counter_ingress)
+
             # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
@@ -4616,7 +4736,26 @@ class AclTableTypeTest(SaiHelper):
             send_packet(self, self.dev_port24, pkt)
             verify_each_packet_on_each_port(self, [exp_pkt, pkt],
                                             [self.dev_port25, self.dev_port26])
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 1)
+
         finally:
+            # cleanup ACL
+            action_counter_ingress = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=0),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry,
+                action_counter=action_counter_ingress)
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=None)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 0)
+            sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=0)
             sai_thrift_remove_acl_entry(self.client, acl_entry)
@@ -4636,20 +4775,20 @@ class AclRedirectTest(SaiHelper):
         self.acl_rules = []
         self.acl_tables = []
         self.vlan_members = []
-        self.vlans = []
         self.vlan_ports = []
         self.bridge_ports = []
         self.fdbs = []
         self.lags = []
         self.lag_members = []
+        self.action_counters = []
+        self.counters = []
 
         self.mac = '00:11:11:11:11:11'
         mac_action = SAI_PACKET_ACTION_FORWARD
 
         # Add port 24, 25, 26 to Vlan100
         vlan_id = 100
-        vlan_oid = sai_thrift_create_vlan(self.client, vlan_id)
-        self.vlans.append(vlan_oid)
+        self.vlan_oid = sai_thrift_create_vlan(self.client, vlan_id)
 
         port24_bp = sai_thrift_create_bridge_port(
             self.client,
@@ -4662,7 +4801,7 @@ class AclRedirectTest(SaiHelper):
 
         vlan_member1 = sai_thrift_create_vlan_member(
             self.client,
-            vlan_id=vlan_oid,
+            vlan_id=self.vlan_oid,
             bridge_port_id=port24_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
         self.vlan_members.append(vlan_member1)
@@ -4679,7 +4818,7 @@ class AclRedirectTest(SaiHelper):
 
         vlan_member2 = sai_thrift_create_vlan_member(
             self.client,
-            vlan_id=vlan_oid,
+            vlan_id=self.vlan_oid,
             bridge_port_id=port25_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
         self.vlan_members.append(vlan_member2)
@@ -4696,7 +4835,7 @@ class AclRedirectTest(SaiHelper):
 
         vlan_member3 = sai_thrift_create_vlan_member(
             self.client,
-            vlan_id=vlan_oid,
+            vlan_id=self.vlan_oid,
             bridge_port_id=port26_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
         self.vlan_members.append(vlan_member3)
@@ -4729,7 +4868,7 @@ class AclRedirectTest(SaiHelper):
 
         vlan_member4 = sai_thrift_create_vlan_member(
             self.client,
-            vlan_id=vlan_oid,
+            vlan_id=self.vlan_oid,
             bridge_port_id=lag1_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
 
@@ -4738,7 +4877,9 @@ class AclRedirectTest(SaiHelper):
         self.vlan_ports.append(self.port28)
 
         fdb_entry = sai_thrift_fdb_entry_t(
-            switch_id=self.switch_id, mac_address=self.mac, bv_id=vlan_oid)
+            switch_id=self.switch_id,
+            mac_address=self.mac,
+            bv_id=self.vlan_oid)
         sai_thrift_create_fdb_entry(
             self.client,
             fdb_entry,
@@ -4870,21 +5011,37 @@ class AclRedirectTest(SaiHelper):
 
         # create ACL entries
         print("Create ACL entries")
-        acl_ip_entry_id_ingress = sai_thrift_create_acl_entry(
+        acl_ip_entry_id_ingress1 = sai_thrift_create_acl_entry(
             self.client,
             table_id=acl_table_id_ingress,
             priority=entry_priority,
             field_ether_type=ether_type,
             action_redirect=redirect_action)
 
-        self.acl_rules.append(acl_ip_entry_id_ingress)
-        self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
+        # create ACL counter
+        acl_counter_ingress1 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id_ingress)
+
+        # attach ACL counter to ACL entry
+        action_counter_ingress1 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_ingress1),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ip_entry_id_ingress1,
+            action_counter=action_counter_ingress1)
+
+        self.counters.append(acl_counter_ingress1)
+        self.action_counters.append(action_counter_ingress1)
+
+        self.acl_rules.append(acl_ip_entry_id_ingress1)
+        self.assertTrue((acl_ip_entry_id_ingress1 != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
                         'failed for ACL table 0x%lx' % (
                             eth_type, self.port26, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt1[Ether].type, self.port26,
-                                 acl_ip_entry_id_ingress))
+                                 acl_ip_entry_id_ingress1))
 
         entry_priority += 1
         eth_type = 0x8136 - 0x10000
@@ -4898,21 +5055,37 @@ class AclRedirectTest(SaiHelper):
                 s32=acl_action,
                 oid=self.lag_id))
 
-        acl_ip_entry_id_ingress = sai_thrift_create_acl_entry(
+        acl_ip_entry_id_ingress2 = sai_thrift_create_acl_entry(
             self.client,
             table_id=acl_table_id_ingress,
             priority=entry_priority,
             field_ether_type=ether_type,
             action_redirect=redirect_action)
 
-        self.acl_rules.append(acl_ip_entry_id_ingress)
-        self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
+        # create ACL counter
+        acl_counter_ingress2 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id_ingress)
+
+        # attach ACL counter to ACL entry
+        action_counter_ingress2 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_ingress2),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ip_entry_id_ingress2,
+            action_counter=action_counter_ingress2)
+
+        self.counters.append(acl_counter_ingress2)
+        self.action_counters.append(action_counter_ingress2)
+
+        self.acl_rules.append(acl_ip_entry_id_ingress2)
+        self.assertTrue((acl_ip_entry_id_ingress2 != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
                         'failed for ACL table 0x%lx' % (
                             eth_type, self.lag_id, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt2[Ether].type, self.lag_id,
-                                 acl_ip_entry_id_ingress))
+                                 acl_ip_entry_id_ingress2))
 
         # create ACL table group members
         acl_group_member_id_ingress = \
@@ -4940,21 +5113,37 @@ class AclRedirectTest(SaiHelper):
                 oid=self.port26))
 
         print("Create ACL entries")
-        acl_ip_entry_id_ingress = sai_thrift_create_acl_entry(
+        acl_ip_entry_id_ingress3 = sai_thrift_create_acl_entry(
             self.client,
             table_id=acl_table_id_ingress,
             priority=entry_priority,
             field_ether_type=ether_type,
             action_redirect=redirect_action)
 
-        self.acl_rules.append(acl_ip_entry_id_ingress)
-        self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
+        # create ACL counter
+        acl_counter_ingress3 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id_ingress)
+
+        # attach ACL counter to ACL entry
+        action_counter_ingress3 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_ingress3),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ip_entry_id_ingress3,
+            action_counter=action_counter_ingress3)
+
+        self.counters.append(acl_counter_ingress3)
+        self.action_counters.append(action_counter_ingress3)
+
+        self.acl_rules.append(acl_ip_entry_id_ingress3)
+        self.assertTrue((acl_ip_entry_id_ingress3 != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
                         'failed for acl table 0x%lx' % (
                             eth_type, self.port26, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt3[Ether].type, self.port26,
-                                 acl_ip_entry_id_ingress))
+                                 acl_ip_entry_id_ingress3))
 
         eth_type = 0x8134 - 0x10000
 
@@ -4968,21 +5157,37 @@ class AclRedirectTest(SaiHelper):
                 oid=self.lag_id))
 
         print("Create ACL entries")
-        acl_ip_entry_id_ingress = sai_thrift_create_acl_entry(
+        acl_ip_entry_id_ingress4 = sai_thrift_create_acl_entry(
             self.client,
             table_id=acl_table_id_ingress,
             priority=entry_priority,
             field_ether_type=ether_type,
             action_redirect=redirect_action)
 
-        self.acl_rules.append(acl_ip_entry_id_ingress)
-        self.assertTrue((acl_ip_entry_id_ingress != 0), 'ACL entry Match: '
+        # create ACL counter
+        acl_counter_ingress4 = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id_ingress)
+
+        # attach ACL counter to ACL entry
+        action_counter_ingress4 = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter_ingress4),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_ip_entry_id_ingress4,
+            action_counter=action_counter_ingress4)
+
+        self.acl_rules.append(acl_ip_entry_id_ingress4)
+        self.assertTrue((acl_ip_entry_id_ingress4 != 0), 'ACL entry Match: '
                         'EthType-0x%lx Action: Redirect-0x%lx, create '
                         'failed for ACL table 0x%lx' % (
                             eth_type, self.lag_id, acl_table_id_ingress))
         print("ACL entry Match: EthType-0x%lx Action: Redirect-0x%lx "
               "created 0x%lx" % (eth_pkt3[Ether].type, self.lag_id,
-                                 acl_ip_entry_id_ingress))
+                                 acl_ip_entry_id_ingress4))
+
+        self.counters.append(acl_counter_ingress4)
+        self.action_counters.append(action_counter_ingress4)
 
         print("Binding ACL grp 0x%lx to Port25" % (acl_table_group_ingress))
         # bind ACL GRP to Port25
@@ -4995,6 +5200,19 @@ class AclRedirectTest(SaiHelper):
         send_packet(self, self.dev_port25, eth_pkt1)
         verify_packets(self, eth_pkt1, [self.dev_port26])
 
+        packets1 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress1, packets=True)
+        self.assertEqual(packets1['packets'], 1)
+        packets2 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress2, packets=True)
+        self.assertEqual(packets2['packets'], 0)
+        packets3 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress3, packets=True)
+        self.assertEqual(packets3['packets'], 0)
+        packets4 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress4, packets=True)
+        self.assertEqual(packets4['packets'], 0)
+
         # ensure packet is redirected!
         print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
               "-> Lag1 (Port 26/Port 27)" % (eth_pkt2[Ether].type))
@@ -5002,11 +5220,37 @@ class AclRedirectTest(SaiHelper):
         verify_packets_any(self, eth_pkt2, [self.dev_port27,
                                             self.dev_port28])
 
+        packets1 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress1, packets=True)
+        self.assertEqual(packets1['packets'], 1)
+        packets2 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress2, packets=True)
+        self.assertEqual(packets2['packets'], 1)
+        packets3 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress3, packets=True)
+        self.assertEqual(packets3['packets'], 0)
+        packets4 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress4, packets=True)
+        self.assertEqual(packets4['packets'], 0)
+
         # ensure packet is redirected!
         print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
               "-> port 26" % (eth_pkt3[Ether].type))
         send_packet(self, self.dev_port25, eth_pkt3)
         verify_packets(self, eth_pkt3, [self.dev_port26])
+
+        packets1 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress1, packets=True)
+        self.assertEqual(packets1['packets'], 1)
+        packets2 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress2, packets=True)
+        self.assertEqual(packets2['packets'], 1)
+        packets3 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress3, packets=True)
+        self.assertEqual(packets3['packets'], 1)
+        packets4 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress4, packets=True)
+        self.assertEqual(packets4['packets'], 0)
 
         # ensure packet is redirected!
         print("Sending Test packet EthType:0x%lx port 25 -> [ACL REDIRECT] "
@@ -5015,11 +5259,37 @@ class AclRedirectTest(SaiHelper):
         verify_packets_any(self, eth_pkt4, [self.dev_port27,
                                             self.dev_port28])
 
+        packets1 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress1, packets=True)
+        self.assertEqual(packets1['packets'], 1)
+        packets2 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress2, packets=True)
+        self.assertEqual(packets2['packets'], 1)
+        packets3 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress3, packets=True)
+        self.assertEqual(packets3['packets'], 1)
+        packets4 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress4, packets=True)
+        self.assertEqual(packets4['packets'], 1)
+
         # ensure packet is not redirected!
         print("Sending Test(negative test) packet EthType:0x%lx port 25 -> "
               "port 24" % (neg_test_pkt[Ether].type))
         send_packet(self, self.dev_port25, neg_test_pkt)
         verify_packets(self, neg_test_pkt, [self.dev_port24])
+
+        packets1 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress1, packets=True)
+        self.assertEqual(packets1['packets'], 1)
+        packets2 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress2, packets=True)
+        self.assertEqual(packets2['packets'], 1)
+        packets3 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress3, packets=True)
+        self.assertEqual(packets3['packets'], 1)
+        packets4 = sai_thrift_get_acl_counter_attribute(
+            self.client, acl_counter_ingress4, packets=True)
+        self.assertEqual(packets4['packets'], 1)
 
     def tearDown(self):
         # Clean up ACL configuration
@@ -5032,9 +5302,28 @@ class AclRedirectTest(SaiHelper):
         for acl_grp in list(self.acl_grps):
             sai_thrift_remove_acl_table_group(self.client, acl_grp)
             self.acl_grps.remove(acl_grp)
+
+        for i, acl_action_counter in enumerate(self.action_counters):
+            acl_action_counter = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=0),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, self.acl_rules[i],
+                action_counter=acl_action_counter)
+
+        for acl_counter in self.counters:
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter, packets=None)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 0)
+            sai_thrift_remove_acl_counter(self.client, acl_counter)
+
         for acl_rule in list(self.acl_rules):
             sai_thrift_remove_acl_entry(self.client, acl_rule)
             self.acl_rules.remove(acl_rule)
+
         for acl_table in list(self.acl_tables):
             sai_thrift_remove_acl_table(self.client, acl_table)
             self.acl_tables.remove(acl_table)
@@ -5063,9 +5352,7 @@ class AclRedirectTest(SaiHelper):
             self.client, self.port25, port_vlan_id=int(SAI_NULL_OBJECT_ID))
         sai_thrift_set_port_attribute(
             self.client, self.port26, port_vlan_id=int(SAI_NULL_OBJECT_ID))
-        for vlan in list(self.vlans):
-            sai_thrift_remove_vlan(self.client, vlan)
-            self.vlans.remove(vlan)
+        sai_thrift_remove_vlan(self.client, self.vlan_oid)
 
         super(AclRedirectTest, self).tearDown()
 
@@ -5669,6 +5956,19 @@ class IPv6NextHdrTest(SaiHelper):
             action_packet_action=packet_action,
             field_ipv6_next_header=field_ipv6_next_header)
 
+        # create ACL counter
+        acl_counter = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_entry_id,
+            action_counter=action_counter)
+
         if table_stage == SAI_ACL_STAGE_INGRESS:
             # bind this ACL table to ports object id
             sai_thrift_set_port_attribute(
@@ -5700,7 +6000,6 @@ class IPv6NextHdrTest(SaiHelper):
 
             print("Sending packet ptf_intf 2-[ACL]-> ptf_intf 1 (", src_ip,
                   " -[ACL]-> ", dst_ip, ")")
-
             print('#### Sending   TCP', ROUTER_MAC, ' | ', smac, ' | ',
                   src_ip, ' | ', dst_ip, ' | @ ptf_intf 2')
             send_packet(self, sport, pkt_tcp)
@@ -5709,6 +6008,10 @@ class IPv6NextHdrTest(SaiHelper):
             print('#### NOT Expecting TCP ', dmac, ' | ', ROUTER_MAC, ' | ',
                   src_ip, ' | ', dst_ip, ' | @ ptf_intf 1')
             verify_no_other_packets(self, timeout=2)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 1)
 
             print('#### Sending   UDP', ROUTER_MAC, ' | ', smac, ' | ',
                   src_ip, ' | ', dst_ip, ' | @ ptf_intf 2')
@@ -5736,7 +6039,26 @@ class IPv6NextHdrTest(SaiHelper):
             # check that TCP packet is forwarded
             verify_packets(self, exp_pkt_tcp, [dport])
 
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 1)
+
         finally:
+            # cleanup ACL
+            action_counter = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=0),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry_id,
+                action_counter=action_counter)
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter, packets=None)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 0)
+            sai_thrift_remove_acl_counter(self.client, acl_counter)
+
             # unbind this ACL table from ports object id
             if table_stage == SAI_ACL_STAGE_INGRESS:
                 sai_thrift_set_port_attribute(
@@ -5744,7 +6066,7 @@ class IPv6NextHdrTest(SaiHelper):
             elif table_stage == SAI_ACL_STAGE_EGRESS:
                 sai_thrift_set_port_attribute(
                     self.client, self.port11, egress_acl=0)
-            # cleanup ACL
+
             sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_table(self.client, acl_table_id)
 
@@ -5913,6 +6235,19 @@ class IPAclFragmentTest(SaiHelper):
             action_packet_action=packet_action,
             field_acl_ip_frag=acl_ip_frag)
 
+        # create ACL counter
+        acl_counter = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id)
+
+        # attach ACL counter to ACL entry
+        action_counter = sai_thrift_acl_action_data_t(
+            parameter=sai_thrift_acl_action_parameter_t(
+                oid=acl_counter),
+            enable=True)
+        sai_thrift_set_acl_entry_attribute(
+            self.client, acl_entry_id,
+            action_counter=action_counter)
+
         try:
             if table_stage == SAI_ACL_STAGE_INGRESS:
                 sai_thrift_set_port_attribute(
@@ -5970,6 +6305,9 @@ class IPAclFragmentTest(SaiHelper):
             print('#### NOT Expecting ', dmac, ' |', ROUTER_MAC, ' | ',
                   ip_addr1, ' | ', ip_addr2, ' | @ ptf_intf 1')
             verify_no_other_packets(self, timeout=2)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 1)
             print('#### ACL Drop, MF=1, offset = 20, '
                   'non head fragment, Applied ####')
             print('#### Sending      ', ROUTER_MAC, ' | ', smac, ' | ',
@@ -5981,6 +6319,9 @@ class IPAclFragmentTest(SaiHelper):
             print('#### NOT Expecting ', dmac, ' | ', ROUTER_MAC, ' | ',
                   ip_addr1, ' | ', ip_addr2, ' | @ ptf_intf 1')
             verify_no_other_packets(self, timeout=2)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 2)
             print('#### ACL Drop, MF=0, offset = 20, last fragment,'
                   ' Applied ####')
             print('#### Sending      ', ROUTER_MAC, ' | ', smac, ' | ',
@@ -5992,8 +6333,26 @@ class IPAclFragmentTest(SaiHelper):
             print('#### NOT Expecting ', dmac, ' | ', ROUTER_MAC, ' | ',
                   ip_addr1, ' | ', ip_addr2, ' | @ ptf_intf 1')
             verify_no_other_packets(self, timeout=2)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 3)
 
         finally:
+            # cleanup ACL
+            action_counter = sai_thrift_acl_action_data_t(
+                parameter=sai_thrift_acl_action_parameter_t(
+                    oid=0),
+                enable=True)
+            sai_thrift_set_acl_entry_attribute(
+                self.client, acl_entry_id,
+                action_counter=action_counter)
+            sai_thrift_set_acl_counter_attribute(
+                self.client, acl_counter, packets=None)
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter, packets=True)
+            self.assertEqual(packets['packets'], 0)
+            sai_thrift_remove_acl_counter(self.client, acl_counter)
+
             # unbind this ACL table from ports object id
             if table_stage == SAI_ACL_STAGE_INGRESS:
                 sai_thrift_set_port_attribute(
@@ -6001,7 +6360,7 @@ class IPAclFragmentTest(SaiHelper):
             elif table_stage == SAI_ACL_STAGE_EGRESS:
                 sai_thrift_set_port_attribute(
                     self.client, self.port11, egress_acl=0)
-            # cleanup ACL
+
             sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_table(self.client, acl_table_id)
 
