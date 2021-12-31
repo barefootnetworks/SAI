@@ -807,6 +807,44 @@ wildcardEntryCbChannelLldp |
 | schedulergroup.7 | Modify the parameters of the scheduler profile and verify if those attributes are updated per port or queue associated to the scheduler group. | saischedulergroup.SchGroupParamsTest |
 | schedulergroup.8 | Verify if scheduler group creation fails without mandatory parameters | saischedulergroup.SchGroupCreateFailTest |
 
+## Segment Routing v6
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| srv6.1 | Verify SRv6 source encapsulation with one SID | saisrv6.Srv6SrcEncapTest.sourceEncapOneSidTest |
+| srv6.2 | Verify SRv6 source encapsulation with two SIDs | saisrv6.Srv6SrcEncapTest.sourceEncapTwoSidTest |
+| srv6.3 | Verify SRv6 source encapsulation with three SIDs | saisrv6.Srv6SrcEncapTest.sourceEncapThreeSidTest |
+| srv6.4 | Verify SRv6 source encapsulation with ECMP SID | saisrv6.Srv6SrcEncapTest.sourceEncapEcmpSidTest |
+| srv6.5 | Verify SRv6 insert headend operation with a single SID | saisrv6.Srv6SrcEncapTest.insertOneSidTest |
+| srv6.6 | Verify SRv6 insert headend operation with two SIDs | saisrv6.Srv6SrcEncapTest.insertTwoSidTest |
+| srv6.7 | Verify getting and setting SRv6 sidlist members | saisrv6.Srv6SrcEncapTest.getSetSidlistTest |
+| srv6.8 | Verify SRv6 End endpoint behavior | saisrv6.Srv6MySidTest.mySidEndTest |
+| srv6.9 | Verify SRv6 End endpoint behavior with PSP flavor | saisrv6.Srv6MySidTest.mySidEndTest |
+| srv6.10 | Verify SRv6 End endpoint behavior with USD flavor | saisrv6.Srv6MySidTest.mySidEndTest |
+| srv6.11 | Verify SRv6 End.T endpoint behavior | saisrv6.Srv6MySidTest.mySidEndTTest |
+| srv6.12 | Verify SRv6 End.DT46 endpoint behavior | saisrv6.Srv6MySidTest.mySidEndDT46Test |
+| srv6.13 | Verify SRv6 End.DT6 endpoint behavior | saisrv6.Srv6MySidTest.mySidEndDT4Test |
+| srv6.14 | Verify SRv6 End.DT4 endpoint behavior | saisrv6.Srv6MySidTest.mySidEndDT6Test |
+| srv6.15 | Verify SRv6 End.X endpoint behavior | saisrv6.Srv6MySidTest.mySidXConnectTest |
+| srv6.16 | Verify SRv6 re-encapsulation with End.DT4 behavior | saisrv6.Srv6MySidTest.mySidEndDT4ReEncapTest |
+| srv6.17 | Verify SRv6 re-encapsulation with End.DT6 behavior | saisrv6.Srv6MySidTest.mySidEndDT6ReEncapTest |
+| srv6.18 | Verify SRv6 re-encapsulation with End.DT46 behavior | saisrv6.Srv6MySidTest.mySidEndDT46ReEncapTest |
+| srv6.19 | Verify SRv6 End.B6.Encaps.Red endpoint behavior | saisrv6.Srv6MySidTest.mySidB6EncapTest |
+| srv6.20 | Verify SRv6 End.B6.Insert.Red endpoint behavior | saisrv6.Srv6MySidTest.mySidB6InsertTest |
+| srv6.21 | Verify getting and setting my SID entry attributes | saisrv6.Srv6MySidTest.getSetMySidEntryTest |
+| srv6.22 | Verify statistics of a counter attached to my_sid object. Also verify getting counter_id of my_sid object and statistics clearing | saisrv6.Srv6MySidTest.mySidCounterTest |
+| srv6.23 | Verify SRv6 End.uN uSID behavior | saisrv6.Srv6MySidUsidTest.mySidEndUNTest |
+| srv6.24 | Verify SRv6 End.uN uSID behavior with PSP flavor | saisrv6.Srv6MySidUsidTest.mySidEndUNPSPTest |
+| srv6.25 | Verify SRv6 End.uN uSID behavior with USD flavor | saisrv6.Srv6MySidUsidTest.mySidEndUNUSDTest |
+| srv6.26 | Verify SRv6 End.uN uSID behavior with USD flavor and no SRH | saisrv6.Srv6MySidUsidTest.mySidEndUNUSDNoSRHTest |
+| srv6.27 | Verify SRv6 End.uA uSID behavior | saisrv6.Srv6MySidUsidTest.mySidEndUATest |
+| srv6.28 | Verify SRv6 End.uA uSID behavior with PSP flavor | saisrv6.Srv6MySidUsidTest.mySidEndUAPSPTest |
+| srv6.29 | Verify SRv6 End.uA uSID behavior with USD flavor | saisrv6.Srv6MySidUsidTest.mySidEndUAUSDTest |
+| srv6.30 | Verify SRv6 End.uA uSID behavior with USD flavor and no SRH | saisrv6.Srv6MySidUsidTest.mySidEndUAUSDNoSRHTest |
+| srv6.31 | Verify if packets are dropped when my SID packet action is SAI_PACKET_ACTION_DROP | saisrv6.Srv6MySidDropTest.packetActionDropTest |
+| srv6.32 | Verify if packets with SL!=0 are dropped for End.D* endpoints | saisrv6.Srv6MySidDropTest.nonZeroSlEndDTxDropTest |
+| srv6.33 | Verify if maximum number of MY SID entries may be created | saisrv6.MySidObjectsAvailibilityTest |
+
 ## Switch
 
 | Test case id | Description | Test name |
