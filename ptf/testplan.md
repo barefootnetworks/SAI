@@ -1142,3 +1142,16 @@ wildcardEntryCbChannelLldp |
 | vlan.47 | Verify disable learn on VLAN if mac entries in fdb table equals or more than MaxLearnedAddresses attribute | saivlan.L2VlanTest.vlanMacLearnedAddressesTest |
 
 ## WRED
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| wred.1 | Verify IPv4 wred | saiwred.WredTrafficTest._WredIPv4Test |
+| wred.2 | Verify IPv6 wred | saiwred.WredTrafficTest._WredIPv6Test |
+| wred.3 | Verify packet dropping for IPv4 wred | saiwred.WredTrafficTest._WredDropIPv4Test |
+| wred.4 | Verify packet dropping for IPv6 wred| saiwred.WredTrafficTest._WredDropIPv6Test |
+| wred.5 | Verify wred profile bind to a queue with no prior wred profile | saiwred.WredTest._WredBindProfileTest |
+| wred.6 | Verify wred profile bind to a queue with an existing wred profile | saiwred.WredTest._WredReplaceProfileTest |
+| wred.7 | Verify wred profile can be bound to multiple queues | saiwred.WredTest._WredBindProfileMultipleQueuesTest |
+| wred.8 | Verify non-ECN traffic is unaffected by wred profile on a queue | saiwred.WredTest._WredIPv4NonECNTest |
+| wred.9 | Verify ECN traffic is correctly dropped by wred „drop” profile on a queue | saiwred.WredTrafficTest._WredIPv4DropECNTest |
+| wred.10 | Verify all supported statistics | saiwred.WredTrafficTest._WredStatsTest |
