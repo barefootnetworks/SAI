@@ -11,9 +11,9 @@ SAI PTF TESTPLAN contains all test cases covered in ptf/ directory divided by fu
 |  acl.3 | Add ACL table group, V4 or V6 permit/deny/redirect ACL and V4/V6 mirror ACLs and attach to port/LAG/RIF/VLAN | saiacl.ACLGroupSeveralMembersTest |
 |  acl.4 | Add ACL table group, V4 or V6 permit/deny/redirect ACL tables attach to port/LAG/RIF/VLAN and add Mirror ACLs | saiacl.MultAclTableGroupBindTest |
 |  acl.5 | ACL field validation - src IP field | saiacl.SrcIpAclTest |
-|  acl.6 | ACL field validation - DST IP field | saiacl.DstIpAclTest |
-|  acl.7 | ACL field validation - SRC MAC field | saiacl.MACSrcAclTest |
-|  acl.8 | ACL field validation - L4 DST port and L4 SRC port fields | saiacl.L3L4PortTest |
+|  acl.6 | ACL field validation - dst IP field | saiacl.DstIpAclTest |
+|  acl.7 | ACL field validation - src MAC field | saiacl.MACSrcAclTest |
+|  acl.8 | ACL field validation - L4 dst port and L4 src port fields | saiacl.L3L4PortTest |
 |  acl.9 | ACL field validation - TCP flag field | saiacl.TCPFlagsACLTest |
 |  acl.10 | ACL field validation - ACL IP type field | saiacl.AclIpTypeTrapTest |
 |  acl.11 | ACL field validation - IPv6 next header field | saiacl.IPv6NextHdrTest |
@@ -288,7 +288,7 @@ wildcardEntryCbChannelLldp |
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
 | isolationgroup.1 | Verify isolation group CRUD operations | saiisolationgroup.PortIsolationTest.attributeTest |
-| isolationgroup.2 | Test forwarding between ports with isolation groups attached | saiisolationgroup.PortIsolationTest.forwardingTest |
+| isolationgroup.2 | Verify forwarding between ports with isolation groups attached | saiisolationgroup.PortIsolationTest.forwardingTest |
 
 ## Lag
 
@@ -507,34 +507,34 @@ wildcardEntryCbChannelLldp |
 | port.3 | Verify the creation of buffer profile list | saiport.PortAttributeTest.portBufferProfileList |
 | port.4 | Test port attributes | saiport.PortAttributeTest.portAttributeTest |
 | port.5 | Test list of port attributes | saiport.ListPortAttributesTest |
-| port.6 | Test port QOS attributes | saiport.PortQOSAttributeTest |
-| port.7 | Test port qos dscp to tc map attribute | saiport.PortQosMapAttributeTest.portQosDscpToTcMapAttributeTest |
-| port.8 | Test port qos dot1p to color map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToColorMapAttributeTest |
-| port.9 | Test port qos dot1p to tc map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToTcMapAttributeTest |
-| port.10 | Test port qos dscp to color map attribute | saiport.PortQosMapAttributeTest.portQosDscpToColorMapAttributeTest |
-| port.11 | Test port qos tc to queue map attribute | saiport.PortQosMapAttributeTest.portQosTcToQueueMapAttributeTest
-| port.12 | Test port qos tc to priority group map attribute | saiport.PortQosMapAttributeTest.portQosTcToPriorityGroupMapAttributeTest
-| port.13 | Test port qos tc and color to dscp map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDscpMapAttributeTest
-| port.14 | Test port qos tc and color to dot1p map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDot1pMapAttributeTest
-| port.15 | Test port qos pfc priority to queue map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToQueueMapAttributeTest
-| port.16 | Test port qos pfc priority to priority group map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToPriorityGroupMapAttributeTest
-| port.17 | Test port fec mode attribute | saiport.PortFecModeAttributeTest |
+| port.6 | Test port QoS attributes | saiport.PortQOSAttributeTest |
+| port.7 | Test port QoS DSCP to TC map attribute | saiport.PortQosMapAttributeTest.portQosDscpToTcMapAttributeTest |
+| port.8 | Test port QoS dot1p to color map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToColorMapAttributeTest |
+| port.9 | Test port QoS dot1p to TC map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToTcMapAttributeTest |
+| port.10 | Test port QoS DSCP to color map attribute | saiport.PortQosMapAttributeTest.portQosDscpToColorMapAttributeTest |
+| port.11 | Test port QoS TC to queue map attribute | saiport.PortQosMapAttributeTest.portQosTcToQueueMapAttributeTest
+| port.12 | Test port QoS TC to priority group map attribute | saiport.PortQosMapAttributeTest.portQosTcToPriorityGroupMapAttributeTest
+| port.13 | Test port QoS TC and color to DSCP map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDscpMapAttributeTest
+| port.14 | Test port QoS TC and color to dot1p map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDot1pMapAttributeTest
+| port.15 | Test port QoS PFC priority to queue map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToQueueMapAttributeTest
+| port.16 | Test port QoS PFC priority to priority group map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToPriorityGroupMapAttributeTest
+| port.17 | Test port FEC mode attribute | saiport.PortFecModeAttributeTest |
 | port.18 | Test port speed attribute | saiport.PortSpeedAttributeTest|
 | port.19 | Test auto negation attribute | saiport.PortAutoNegAttributeTest |
 | port.20 | Test port PortEgressMirrorSessionTest attributes | saiport.PortEgressMirrorSessionTest |
 | port.21 | Test port PortIngressMirrorSessionTest attributes | saiport.PortIngressMirrorSessionTest |
-| port.22 | Test single port ingress acl table binding | saiport.SinglePortIngressAclTableBindingTest |
-| port.23 | Test single port ingress acl group binding | saiport.SinglePortIngressAclGroupBindingTest |
-| port.24 | Test port ingress acl table binding | saiport.PortIngressAclTableBindingTest |
-| port.25 | Test port ingress acl table add remove binding | saiport.PortIngressAclTableAddRemoveBindingTest |
-| port.26 | Test port ingress acl group binding | saiport.PortIngressAclGroupBindingTest |
-| port.27 | Test port ingress acl group add remove binding | saiport.PortIngressAclGroupAddRemoveBindingTest |
-| port.28 | Test single port egress acl table binding | saiport.SinglePortEgressAclTableBindingTest |
-| port.29 | Test single port egress acl group binding | saiport.SinglePortEgressAclGroupBindingTest |
-| port.30 | Test port egress acl table binding | saiport.PortEgressAclTableBindingTest |
-| port.31 | Test port egress acl table add remove binding | saiport.PortEgressAclTableAddRemoveBindingTest |
-| port.32 | Test port egress acl group binding | saiport.PortEgressAclGroupBindingTest |
-| port.33 | Test port egress acl group add remove binding | saiport.PortEgressAclGroupAddRemoveBindingTest |
+| port.22 | Test single port ingress ACL table binding | saiport.SinglePortIngressAclTableBindingTest |
+| port.23 | Test single port ingress ACL group binding | saiport.SinglePortIngressAclGroupBindingTest |
+| port.24 | Test port ingress ACL table binding | saiport.PortIngressAclTableBindingTest |
+| port.25 | Test port ingress ACL table add remove binding | saiport.PortIngressAclTableAddRemoveBindingTest |
+| port.26 | Test port ingress ACL group binding | saiport.PortIngressAclGroupBindingTest |
+| port.27 | Test port ingress ACL group add remove binding | saiport.PortIngressAclGroupAddRemoveBindingTest |
+| port.28 | Test single port egress ACL table binding | saiport.SinglePortEgressAclTableBindingTest |
+| port.29 | Test single port egress ACL group binding | saiport.SinglePortEgressAclGroupBindingTest |
+| port.30 | Test port egress ACL table binding | saiport.PortEgressAclTableBindingTest |
+| port.31 | Test port egress ACL table add remove binding | saiport.PortEgressAclTableAddRemoveBindingTest |
+| port.32 | Test port egress ACL group binding | saiport.PortEgressAclGroupBindingTest |
+| port.33 | Test port egress ACL group add remove binding | saiport.PortEgressAclGroupAddRemoveBindingTest |
 
 ## QoS Map
 | Test case id | Description | Test name |
