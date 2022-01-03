@@ -11,9 +11,9 @@ SAI PTF TESTPLAN contains all test cases covered in ptf/ directory divided by fu
 |  acl.3 | Add ACL table group, V4 or V6 permit/deny/redirect ACL and V4/V6 mirror ACLs and attach to port/LAG/RIF/VLAN | saiacl.ACLGroupSeveralMembersTest |
 |  acl.4 | Add ACL table group, V4 or V6 permit/deny/redirect ACL tables attach to port/LAG/RIF/VLAN and add Mirror ACLs | saiacl.MultAclTableGroupBindTest |
 |  acl.5 | ACL field validation - src IP field | saiacl.SrcIpAclTest |
-|  acl.6 | ACL field validation - DST IP field | saiacl.DstIpAclTest |
-|  acl.7 | ACL field validation - SRC MAC field | saiacl.MACSrcAclTest |
-|  acl.8 | ACL field validation - L4 DST port and L4 SRC port fields | saiacl.L3L4PortTest |
+|  acl.6 | ACL field validation - dst IP field | saiacl.DstIpAclTest |
+|  acl.7 | ACL field validation - src MAC field | saiacl.MACSrcAclTest |
+|  acl.8 | ACL field validation - L4 dst port and L4 src port fields | saiacl.L3L4PortTest |
 |  acl.9 | ACL field validation - TCP flag field | saiacl.TCPFlagsACLTest |
 |  acl.10 | ACL field validation - IPv6 next header field | saiacl.IPv6NextHdrTest |
 |  acl.11 | ACL field validation - IP fragmentation field | saiacl.IPAclFragmentTest |
@@ -286,7 +286,7 @@ wildcardEntryCbChannelLldp |
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
 | isolationgroup.1 | Verify isolation group CRUD operations | saiisolationgroup.PortIsolationTest.attributeTest |
-| isolationgroup.2 | Test forwarding between ports with isolation groups attached | saiisolationgroup.PortIsolationTest.forwardingTest |
+| isolationgroup.2 | Verify forwarding between ports with isolation groups attached | saiisolationgroup.PortIsolationTest.forwardingTest |
 
 ## Lag
 
@@ -505,34 +505,34 @@ wildcardEntryCbChannelLldp |
 | port.3 | Verify the creation of buffer profile list | saiport.PortAttributeTest.portBufferProfileList |
 | port.4 | Test port attributes | saiport.PortAttributeTest.portAttributeTest |
 | port.5 | Test list of port attributes | saiport.ListPortAttributesTest |
-| port.6 | Test port QOS attributes | saiport.PortQOSAttributeTest |
-| port.7 | Test port qos dscp to tc map attribute | saiport.PortQosMapAttributeTest.portQosDscpToTcMapAttributeTest |
-| port.8 | Test port qos dot1p to color map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToColorMapAttributeTest |
-| port.9 | Test port qos dot1p to tc map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToTcMapAttributeTest |
-| port.10 | Test port qos dscp to color map attribute | saiport.PortQosMapAttributeTest.portQosDscpToColorMapAttributeTest |
-| port.11 | Test port qos tc to queue map attribute | saiport.PortQosMapAttributeTest.portQosTcToQueueMapAttributeTest
-| port.12 | Test port qos tc to priority group map attribute | saiport.PortQosMapAttributeTest.portQosTcToPriorityGroupMapAttributeTest
-| port.13 | Test port qos tc and color to dscp map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDscpMapAttributeTest
-| port.14 | Test port qos tc and color to dot1p map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDot1pMapAttributeTest
-| port.15 | Test port qos pfc priority to queue map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToQueueMapAttributeTest
-| port.16 | Test port qos pfc priority to priority group map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToPriorityGroupMapAttributeTest
-| port.17 | Test port fec mode attribute | saiport.PortFecModeAttributeTest |
+| port.6 | Test port QoS attributes | saiport.PortQOSAttributeTest |
+| port.7 | Test port QoS DSCP to TC map attribute | saiport.PortQosMapAttributeTest.portQosDscpToTcMapAttributeTest |
+| port.8 | Test port QoS dot1p to color map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToColorMapAttributeTest |
+| port.9 | Test port QoS dot1p to TC map attribute | saiport.PortQosMapAttributeTest.portQosDot1pToTcMapAttributeTest |
+| port.10 | Test port QoS DSCP to color map attribute | saiport.PortQosMapAttributeTest.portQosDscpToColorMapAttributeTest |
+| port.11 | Test port QoS TC to queue map attribute | saiport.PortQosMapAttributeTest.portQosTcToQueueMapAttributeTest
+| port.12 | Test port QoS TC to priority group map attribute | saiport.PortQosMapAttributeTest.portQosTcToPriorityGroupMapAttributeTest
+| port.13 | Test port QoS TC and color to DSCP map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDscpMapAttributeTest
+| port.14 | Test port QoS TC and color to dot1p map attribute | saiport.PortQosMapAttributeTest.portQosTcAndColorToDot1pMapAttributeTest
+| port.15 | Test port QoS PFC priority to queue map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToQueueMapAttributeTest
+| port.16 | Test port QoS PFC priority to priority group map attribute | saiport.PortQosMapAttributeTest.portQosPfcPriorityToPriorityGroupMapAttributeTest
+| port.17 | Test port FEC mode attribute | saiport.PortFecModeAttributeTest |
 | port.18 | Test port speed attribute | saiport.PortSpeedAttributeTest|
 | port.19 | Test auto negation attribute | saiport.PortAutoNegAttributeTest |
 | port.20 | Test port PortEgressMirrorSessionTest attributes | saiport.PortEgressMirrorSessionTest |
 | port.21 | Test port PortIngressMirrorSessionTest attributes | saiport.PortIngressMirrorSessionTest |
-| port.22 | Test single port ingress acl table binding | saiport.SinglePortIngressAclTableBindingTest |
-| port.23 | Test single port ingress acl group binding | saiport.SinglePortIngressAclGroupBindingTest |
-| port.24 | Test port ingress acl table binding | saiport.PortIngressAclTableBindingTest |
-| port.25 | Test port ingress acl table add remove binding | saiport.PortIngressAclTableAddRemoveBindingTest |
-| port.26 | Test port ingress acl group binding | saiport.PortIngressAclGroupBindingTest |
-| port.27 | Test port ingress acl group add remove binding | saiport.PortIngressAclGroupAddRemoveBindingTest |
-| port.28 | Test single port egress acl table binding | saiport.SinglePortEgressAclTableBindingTest |
-| port.29 | Test single port egress acl group binding | saiport.SinglePortEgressAclGroupBindingTest |
-| port.30 | Test port egress acl table binding | saiport.PortEgressAclTableBindingTest |
-| port.31 | Test port egress acl table add remove binding | saiport.PortEgressAclTableAddRemoveBindingTest |
-| port.32 | Test port egress acl group binding | saiport.PortEgressAclGroupBindingTest |
-| port.33 | Test port egress acl group add remove binding | saiport.PortEgressAclGroupAddRemoveBindingTest |
+| port.22 | Test single port ingress ACL table binding | saiport.SinglePortIngressAclTableBindingTest |
+| port.23 | Test single port ingress ACL group binding | saiport.SinglePortIngressAclGroupBindingTest |
+| port.24 | Test port ingress ACL table binding | saiport.PortIngressAclTableBindingTest |
+| port.25 | Test port ingress ACL table add remove binding | saiport.PortIngressAclTableAddRemoveBindingTest |
+| port.26 | Test port ingress ACL group binding | saiport.PortIngressAclGroupBindingTest |
+| port.27 | Test port ingress ACL group add remove binding | saiport.PortIngressAclGroupAddRemoveBindingTest |
+| port.28 | Test single port egress ACL table binding | saiport.SinglePortEgressAclTableBindingTest |
+| port.29 | Test single port egress ACL group binding | saiport.SinglePortEgressAclGroupBindingTest |
+| port.30 | Test port egress ACL table binding | saiport.PortEgressAclTableBindingTest |
+| port.31 | Test port egress ACL table add remove binding | saiport.PortEgressAclTableAddRemoveBindingTest |
+| port.32 | Test port egress ACL group binding | saiport.PortEgressAclGroupBindingTest |
+| port.33 | Test port egress ACL group add remove binding | saiport.PortEgressAclGroupAddRemoveBindingTest |
 
 ## QoS Map
 | Test case id | Description | Test name |
@@ -804,6 +804,44 @@ wildcardEntryCbChannelLldp |
 | schedulergroup.6 | Attach the scheduler profile to scheduler group using - SAI_SCHEDULER_GROUP_ATTR_SCHEDULER_PROFILE_ID | saischedulergroup.SchGroupParamsTest |
 | schedulergroup.7 | Modify the parameters of the scheduler profile and verify if those attributes are updated per port or queue associated to the scheduler group. | saischedulergroup.SchGroupParamsTest |
 | schedulergroup.8 | Verify if scheduler group creation fails without mandatory parameters | saischedulergroup.SchGroupCreateFailTest |
+
+## Segment Routing v6
+
+| Test case id | Description | Test name |
+| ------------ | ----------- | --------- |
+| srv6.1 | Verify SRv6 source encapsulation with one SID | saisrv6.Srv6SrcEncapTest.sourceEncapOneSidTest |
+| srv6.2 | Verify SRv6 source encapsulation with two SIDs | saisrv6.Srv6SrcEncapTest.sourceEncapTwoSidTest |
+| srv6.3 | Verify SRv6 source encapsulation with three SIDs | saisrv6.Srv6SrcEncapTest.sourceEncapThreeSidTest |
+| srv6.4 | Verify SRv6 source encapsulation with ECMP SID | saisrv6.Srv6SrcEncapTest.sourceEncapEcmpSidTest |
+| srv6.5 | Verify SRv6 insert headend operation with a single SID | saisrv6.Srv6SrcEncapTest.insertOneSidTest |
+| srv6.6 | Verify SRv6 insert headend operation with two SIDs | saisrv6.Srv6SrcEncapTest.insertTwoSidTest |
+| srv6.7 | Verify getting and setting SRv6 sidlist members | saisrv6.Srv6SrcEncapTest.getSetSidlistTest |
+| srv6.8 | Verify SRv6 End endpoint behavior | saisrv6.Srv6MySidTest.mySidEndTest |
+| srv6.9 | Verify SRv6 End endpoint behavior with PSP flavor | saisrv6.Srv6MySidTest.mySidEndTest |
+| srv6.10 | Verify SRv6 End endpoint behavior with USD flavor | saisrv6.Srv6MySidTest.mySidEndTest |
+| srv6.11 | Verify SRv6 End.T endpoint behavior | saisrv6.Srv6MySidTest.mySidEndTTest |
+| srv6.12 | Verify SRv6 End.DT46 endpoint behavior | saisrv6.Srv6MySidTest.mySidEndDT46Test |
+| srv6.13 | Verify SRv6 End.DT6 endpoint behavior | saisrv6.Srv6MySidTest.mySidEndDT4Test |
+| srv6.14 | Verify SRv6 End.DT4 endpoint behavior | saisrv6.Srv6MySidTest.mySidEndDT6Test |
+| srv6.15 | Verify SRv6 End.X endpoint behavior | saisrv6.Srv6MySidTest.mySidXConnectTest |
+| srv6.16 | Verify SRv6 re-encapsulation with End.DT4 behavior | saisrv6.Srv6MySidTest.mySidEndDT4ReEncapTest |
+| srv6.17 | Verify SRv6 re-encapsulation with End.DT6 behavior | saisrv6.Srv6MySidTest.mySidEndDT6ReEncapTest |
+| srv6.18 | Verify SRv6 re-encapsulation with End.DT46 behavior | saisrv6.Srv6MySidTest.mySidEndDT46ReEncapTest |
+| srv6.19 | Verify SRv6 End.B6.Encaps.Red endpoint behavior | saisrv6.Srv6MySidTest.mySidB6EncapTest |
+| srv6.20 | Verify SRv6 End.B6.Insert.Red endpoint behavior | saisrv6.Srv6MySidTest.mySidB6InsertTest |
+| srv6.21 | Verify getting and setting my SID entry attributes | saisrv6.Srv6MySidTest.getSetMySidEntryTest |
+| srv6.22 | Verify statistics of a counter attached to my_sid object. Also verify getting counter_id of my_sid object and statistics clearing | saisrv6.Srv6MySidTest.mySidCounterTest |
+| srv6.23 | Verify SRv6 End.uN uSID behavior | saisrv6.Srv6MySidUsidTest.mySidEndUNTest |
+| srv6.24 | Verify SRv6 End.uN uSID behavior with PSP flavor | saisrv6.Srv6MySidUsidTest.mySidEndUNPSPTest |
+| srv6.25 | Verify SRv6 End.uN uSID behavior with USD flavor | saisrv6.Srv6MySidUsidTest.mySidEndUNUSDTest |
+| srv6.26 | Verify SRv6 End.uN uSID behavior with USD flavor and no SRH | saisrv6.Srv6MySidUsidTest.mySidEndUNUSDNoSRHTest |
+| srv6.27 | Verify SRv6 End.uA uSID behavior | saisrv6.Srv6MySidUsidTest.mySidEndUATest |
+| srv6.28 | Verify SRv6 End.uA uSID behavior with PSP flavor | saisrv6.Srv6MySidUsidTest.mySidEndUAPSPTest |
+| srv6.29 | Verify SRv6 End.uA uSID behavior with USD flavor | saisrv6.Srv6MySidUsidTest.mySidEndUAUSDTest |
+| srv6.30 | Verify SRv6 End.uA uSID behavior with USD flavor and no SRH | saisrv6.Srv6MySidUsidTest.mySidEndUAUSDNoSRHTest |
+| srv6.31 | Verify if packets are dropped when my SID packet action is SAI_PACKET_ACTION_DROP | saisrv6.Srv6MySidDropTest.packetActionDropTest |
+| srv6.32 | Verify if packets with SL!=0 are dropped for End.D* endpoints | saisrv6.Srv6MySidDropTest.nonZeroSlEndDTxDropTest |
+| srv6.33 | Verify if maximum number of MY SID entries may be created | saisrv6.MySidObjectsAvailibilityTest |
 
 ## Switch
 
@@ -1105,13 +1143,7 @@ wildcardEntryCbChannelLldp |
 
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
-| wred.1 | Verify IPv4 wred | saiwred.WredTrafficTest._WredIPv4Test |
-| wred.2 | Verify IPv6 wred | saiwred.WredTrafficTest._WredIPv6Test |
-| wred.3 | Verify packet dropping for IPv4 wred | saiwred.WredTrafficTest._WredDropIPv4Test |
-| wred.4 | Verify packet dropping for IPv6 wred| saiwred.WredTrafficTest._WredDropIPv6Test |
-| wred.5 | Verify wred profile bind to a queue with no prior wred profile | saiwred.WredTest._WredBindProfileTest |
-| wred.6 | Verify wred profile bind to a queue with an existing wred profile | saiwred.WredTest._WredReplaceProfileTest |
-| wred.7 | Verify wred profile can be bound to multiple queues | saiwred.WredTest._WredBindProfileMultipleQueuesTest |
-| wred.8 | Verify non-ECN traffic is unaffected by wred profile on a queue | saiwred.WredTest._WredIPv4NonECNTest |
-| wred.9 | Verify ECN traffic is correctly dropped by wred „drop” profile on a queue | saiwred.WredTrafficTest._WredIPv4DropECNTest |
-| wred.10 | Verify all supported statistics | saiwred.WredTrafficTest._WredStatsTest |
+| wred.1 | Verify WRED profile bind to a queue with no prior WRED profile | saiwred.WredTest.WredBindProfileTest |
+| wred.2 | Verify WRED profile bind to a queue with an existing WRED profile | saiwred.WredTest.WredReplaceProfileTest |
+| wred.3 | Verify WRED profile can be bound to multiple queues | saiwred.WredTest.WredBindProfileMultipleQueuesTest |
+| wred.4 | Verify non-ECN traffic is unaffected by WRED profile on a queue | saiwred.WredTest.WredIPv4NonECNTest |
