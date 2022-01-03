@@ -5628,15 +5628,22 @@ class AclRedirectTest(SaiHelper):
             sai_thrift_remove_acl_table(self.client, acl_table)
             self.acl_tables.remove(acl_table)
 
-        # Clean up network configuration
         for fdb in list(self.fdbs):
             sai_thrift_remove_fdb_entry(self.client, fdb)
             self.fdbs.remove(fdb)
-        for vlan_port in list(self.vlan_ports):
-            self.vlan_ports.remove(vlan_port)
+
+        # Clean up network configuration
+        sai_thrift_set_port_attribute(
+            self.client, self.port24, port_vlan_id=int(SAI_NULL_OBJECT_ID))
+        sai_thrift_set_port_attribute(
+            self.client, self.port25, port_vlan_id=int(SAI_NULL_OBJECT_ID))
+        sai_thrift_set_port_attribute(
+            self.client, self.port26, port_vlan_id=int(SAI_NULL_OBJECT_ID))
+
         for vlan_member in list(self.vlan_members):
             sai_thrift_remove_vlan_member(self.client, vlan_member)
             self.vlan_members.remove(vlan_member)
+        sai_thrift_remove_vlan(self.client, self.vlan_oid)
         for lag_member in list(self.lag_members):
             sai_thrift_remove_lag_member(self.client, lag_member)
             self.lag_members.remove(lag_member)
@@ -5646,13 +5653,8 @@ class AclRedirectTest(SaiHelper):
         for lag in list(self.lags):
             sai_thrift_remove_lag(self.client, lag)
             self.lags.remove(lag)
-        sai_thrift_set_port_attribute(
-            self.client, self.port24, port_vlan_id=int(SAI_NULL_OBJECT_ID))
-        sai_thrift_set_port_attribute(
-            self.client, self.port25, port_vlan_id=int(SAI_NULL_OBJECT_ID))
-        sai_thrift_set_port_attribute(
-            self.client, self.port26, port_vlan_id=int(SAI_NULL_OBJECT_ID))
-        sai_thrift_remove_vlan(self.client, self.vlan_oid)
+        for vlan_port in list(self.vlan_ports):
+            self.vlan_ports.remove(vlan_port)
 
         super(AclRedirectTest, self).tearDown()
 
