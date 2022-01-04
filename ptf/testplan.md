@@ -6,8 +6,8 @@ SAI PTF TESTPLAN contains all test cases covered in ptf/ directory divided by fu
 
 | Test case id | Description | Test name |
 | ------------ | ----------- | --------- |
-|  acl.1 | Create ACL table, ACL entries and attach table to port/LAG/RIF/VLAN | saiacl.SonicACLTest, saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.TCPFlagsACLTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.IngressL3AclDscp, saiacl.AclRedirectTest, saiacl.AclLagTest, saiacl.AclPreIngressTest, saiacl.L3AclCounterTest, saiacl.AclGroupTest |
-|  acl.2 | Create ACL table, attach table to port and add entries to ACL | saiacl.SonicACLTest, saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.TCPFlagsACLTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.IngressL3AclDscp, saiacl.AclRedirectTest, saiacl.AclLagTest, saiacl.AclPreIngressTest, saiacl.L3AclCounterTest, saiacl.AclGroupTest |
+|  acl.1 | Create ACL table, ACL entries and attach table to port/LAG/RIF/VLAN | saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.TCPFlagsACLTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.IngressL3AclDscp, saiacl.AclRedirectTest, saiacl.AclLagTest, saiacl.AclPreIngressTest, saiacl.L3AclCounterTest, saiacl.AclGroupTest |
+|  acl.2 | Create ACL table, attach table to port and add entries to ACL | saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.TCPFlagsACLTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.IngressL3AclDscp, saiacl.AclRedirectTest, saiacl.AclLagTest, saiacl.AclPreIngressTest, saiacl.L3AclCounterTest, saiacl.AclGroupTest |
 |  acl.3 | Add ACL table group, V4 or V6 permit/deny/redirect ACL and V4/V6 mirror ACLs and attach to port/LAG/RIF/VLAN | saiacl.ACLGroupSeveralMembersTest |
 |  acl.4 | Add ACL table group, V4 or V6 permit/deny/redirect ACL tables attach to port/LAG/RIF/VLAN and add Mirror ACLs | saiacl.MultAclTableGroupBindTest |
 |  acl.5 | ACL field validation - src IP field | saiacl.SrcIpAclTest |
@@ -18,17 +18,15 @@ SAI PTF TESTPLAN contains all test cases covered in ptf/ directory divided by fu
 |  acl.10 | ACL field validation - IPv6 next header field | saiacl.IPv6NextHdrTest |
 |  acl.11 | ACL field validation - IP fragmentation field | saiacl.IPAclFragmentTest |
 |  acl.12 | ACL field validation - DSCP field | saiacl.IngressL3AclDscp |
-|  acl.13 | ACL action validation - permit | saiacl.SonicACLTest, saiacl.AclPreIngressTest, saiacl.IPv6NextHdrTest |
+|  acl.13 | ACL action validation - permit | saiacl.AclPreIngressTest, saiacl.IPv6NextHdrTest |
 |  acl.14 | ACL action validation - deny | saiacl.AclGroupTest, saiacl.SrcIpAclTest, saiacl.DstIpAclTest, saiacl.MACSrcAclTest, saiacl.L3L4PortTest, saiacl.L3AclRangeTest, saiacl.ACLGroupSeveralMembersTest, saiacl.MultAclTableGroupBindTest, saiacl.SonicACLTest, saiacl.TCPFlagsACLTest, saiacl.AclTableTypeTest, saiacl.IPv6NextHdrTest, saiacl.IPAclFragmentTest, saiacl.L3AclCounterTest, saiacl.VlanAclTest, saiacl.IngressL3AclDscp |
 |  acl.15 | ACL action validation - mirror | saiacl.AclTableTypeTest, saiacl.MultAclTableGroupBindTest |
 |  acl.16 | ACL action validation - redirect to port and LAG | saiacl.AclRedirectTest|
-|  acl.17 | Verify all ACL action modification | saiacl.SonicACLTest |
-|  acl.18 | Add higher/lower priority ACL rules with conflicting match and actions | saiacl.SonicACLTest |
-|  acl.19 | Matching on ACL range | saiacl.L3AclRangeTest |
-|  acl.20 | Test pre-ingress matching and VRF assignment | saiacl.AclPreIngressTest |
-|  acl.21 | Verify ACL counters | saiacl.L3AclCounterTest |
-|  acl.22 | Verify ACL with LAG | saiacl.AclLagTest |
-|  acl.23 | Attach ACL table group to set of combination of bind points(Port+LAG, Port+RIF, LAG+RIF etc.,) | saiacl.AclGroupTest |
+|  acl.17 | Matching on ACL range | saiacl.L3AclRangeTest |
+|  acl.18 | Test pre-ingress matching and VRF assignment | saiacl.AclPreIngressTest |
+|  acl.19 | Verify ACL counters | saiacl.L3AclCounterTest |
+|  acl.20 | Verify ACL with LAG | saiacl.AclLagTest |
+|  acl.21 | Attach ACL table group to set of combination of bind points(Port+LAG, Port+RIF, LAG+RIF etc.,) | saiacl.AclGroupTest |
 
 ## Bridge Port
 
