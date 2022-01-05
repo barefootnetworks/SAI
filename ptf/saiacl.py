@@ -3607,12 +3607,12 @@ class AclTableTypeTest(SaiHelper):
 
 
 @group("draft")
-class AclRedirectTest(SaiHelper):
+class AclRedirectPortAndLagTest(SaiHelper):
     """
-    Verify ACL redirection test cases
+    Verify ACL redirection for ports and lags test cases
     """
     def setUp(self):
-        super(AclRedirectTest, self).setUp()
+        super(AclRedirectPortAndLagTest, self).setUp()
         self.acl_grp_members = []
         self.acl_grps = []
         self.acl_rules = []
@@ -3732,7 +3732,7 @@ class AclRedirectTest(SaiHelper):
         self.fdbs.append(fdb_entry)
 
     def runTest(self):
-        print("Testing AclRedirectTest")
+        print("Testing AclRedirectPortAndLagTest")
         print('-------------------------------------------------------------')
 
         eth_pkt1 = simple_eth_packet(pktlen=100,
@@ -4199,7 +4199,7 @@ class AclRedirectTest(SaiHelper):
         for vlan_port in list(self.vlan_ports):
             self.vlan_ports.remove(vlan_port)
 
-        super(AclRedirectTest, self).tearDown()
+        super(AclRedirectPortAndLagTest, self).tearDown()
 
 
 @group("draft")
