@@ -3255,12 +3255,71 @@ class AclTableTypeTest(SaiHelper):
         sai_thrift_create_route_entry(
             self.client, self.route_entry1, next_hop_id=self.nhop1)
 
+        self.vlan_oid = sai_thrift_create_vlan(self.client, 100)
+        mac_action = SAI_PACKET_ACTION_FORWARD
+
+        self.port26_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port26,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+
+        self.vlan_member1 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.vlan_oid,
+            bridge_port_id=self.port26_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
+
+        self.port27_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port27,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+
+        self.vlan_member2 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.vlan_oid,
+            bridge_port_id=self.port27_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
+
+        self.fdb_entry1 = sai_thrift_fdb_entry_t(
+            switch_id=self.switch_id,
+            mac_address=self.src_mac,
+            bv_id=self.vlan_oid)
+        sai_thrift_create_fdb_entry(
+            self.client,
+            self.fdb_entry1,
+            type=SAI_FDB_ENTRY_TYPE_STATIC,
+            bridge_port_id=self.port26_bp,
+            packet_action=mac_action)
+
+        self.fdb_entry2 = sai_thrift_fdb_entry_t(
+            switch_id=self.switch_id,
+            mac_address=self.dmac,
+            bv_id=self.vlan_oid)
+        sai_thrift_create_fdb_entry(
+            self.client,
+            self.fdb_entry2,
+            type=SAI_FDB_ENTRY_TYPE_STATIC,
+            bridge_port_id=self.port27_bp,
+            packet_action=mac_action)
+
     def runTest(self):
         self.testIPv4Acl()
         self.testIPv6Acl()
         self.testIPMirrorAcl()
 
     def tearDown(self):
+        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry1)
+        sai_thrift_remove_fdb_entry(self.client, self.fdb_entry2)
+        sai_thrift_remove_vlan_member(self.client, self.vlan_member1)
+        sai_thrift_remove_vlan_member(self.client, self.vlan_member2)
+        sai_thrift_remove_bridge_port(self.client, self.port26_bp)
+        sai_thrift_remove_bridge_port(self.client, self.port27_bp)
+        sai_thrift_remove_vlan(self.client, self.vlan_oid)
+
         sai_thrift_remove_route_entry(self.client, self.route_entry0)
         sai_thrift_remove_route_entry(self.client, self.route_entry1)
         sai_thrift_remove_next_hop(self.client, self.nhop1)
@@ -3274,18 +3333,39 @@ class AclTableTypeTest(SaiHelper):
         Verify various IPv4 field combinations for table creation
         '''
         print("testIPv4Acl")
-        pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                eth_src=self.src_mac,
-                                ip_dst=self.ip_addr1,
-                                ip_ttl=64)
-        exp_pkt = simple_tcp_packet(eth_dst=self.dmac,
-                                    eth_src=ROUTER_MAC,
-                                    ip_dst=self.ip_addr1,
-                                    ip_ttl=63)
+        pkt1 = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                 eth_src=self.src_mac,
+                                 ip_dst=self.ip_addr1,
+                                 ip_ttl=64)
+        exp_pkt1 = simple_tcp_packet(eth_dst=self.dmac,
+                                     eth_src=ROUTER_MAC,
+                                     ip_dst=self.ip_addr1,
+                                     ip_ttl=63)
+
+        pkt2 = simple_tcp_packet(eth_dst=self.dmac,
+                                 eth_src=self.src_mac,
+                                 dl_vlan_enable=True,
+                                 vlan_vid=100,
+                                 ip_src=self.ip_addr2,
+                                 ip_dst=self.ip_addr1,
+                                 ip_id=102,
+                                 ip_ttl=64)
+        exp_pkt2 = simple_tcp_packet(eth_dst=self.dmac,
+                                     eth_src=self.src_mac,
+                                     ip_dst=self.ip_addr1,
+                                     ip_src=self.ip_addr2,
+                                     ip_id=102,
+                                     dl_vlan_enable=True,
+                                     vlan_vid=100,
+                                     ip_ttl=64)
+
         try:
             # verify packet forwarding without ACL
-            send_packet(self, self.dev_port24, pkt)
-            verify_packet(self, exp_pkt, self.dev_port25)
+            send_packet(self, self.dev_port24, pkt1)
+            verify_packet(self, exp_pkt1, self.dev_port25)
+
+            send_packet(self, self.dev_port26, pkt2)
+            verify_packet(self, exp_pkt2, self.dev_port27)
 
             # create ACL table
             table_stage = SAI_ACL_STAGE_INGRESS
@@ -3343,16 +3423,26 @@ class AclTableTypeTest(SaiHelper):
                 action_counter=action_counter_ingress)
 
             # bind ACL table to ingress port 24
-            sai_thrift_set_port_attribute(self.client, self.port24,
-                                          ingress_acl=acl_table)
+            sai_thrift_set_port_attribute(
+                self.client, self.port24, ingress_acl=acl_table)
+
+            sai_thrift_set_port_attribute(
+                self.client, self.port26, ingress_acl=acl_table)
 
             # verify packet dropped after ACL apply
-            send_packet(self, self.dev_port24, pkt)
+            send_packet(self, self.dev_port24, pkt1)
             verify_no_other_packets(self, timeout=2)
 
             packets = sai_thrift_get_acl_counter_attribute(
                 self.client, acl_counter_ingress, packets=True)
             self.assertEqual(packets['packets'], 1)
+
+            send_packet(self, self.dev_port26, pkt2)
+            verify_no_other_packets(self, timeout=2)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 2)
 
         finally:
             # cleanup ACL
@@ -3371,6 +3461,8 @@ class AclTableTypeTest(SaiHelper):
             sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=0)
+            sai_thrift_set_port_attribute(self.client, self.port26,
+                                          ingress_acl=0)
             sai_thrift_remove_acl_entry(self.client, acl_entry)
             sai_thrift_remove_acl_table(self.client, acl_table)
 
@@ -3379,19 +3471,41 @@ class AclTableTypeTest(SaiHelper):
         Verify various IPv6 field combinations for table creation
         '''
         print("testIPv6Acl")
-        pkt = simple_tcpv6_packet(
+        pkt1 = simple_tcpv6_packet(
             eth_dst=ROUTER_MAC,
             ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
             ipv6_hlim=64)
-        exp_pkt = simple_tcpv6_packet(
+        exp_pkt1 = simple_tcpv6_packet(
             eth_dst=self.dmac,
             eth_src=ROUTER_MAC,
             ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
             ipv6_hlim=63)
+
+        pkt2 = simple_tcpv6_packet(
+            eth_dst=self.dmac,
+            eth_src=self.src_mac,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
+            ipv6_src='2000::1',
+            ipv6_hlim=64)
+        exp_pkt2 = simple_tcpv6_packet(
+            eth_dst=self.dmac,
+            eth_src=self.src_mac,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
+            ipv6_src='2000::1',
+            ipv6_hlim=64)
+
         try:
             # verify packet forwarding without ACL
-            send_packet(self, self.dev_port24, pkt)
-            verify_packet(self, exp_pkt, self.dev_port25)
+            send_packet(self, self.dev_port24, pkt1)
+            verify_packet(self, exp_pkt1, self.dev_port25)
+
+            send_packet(self, self.dev_port26, pkt2)
+            # verify_no_other_packets(self)
+            verify_packet(self, exp_pkt2, self.dev_port27)
 
             # create ACL table
             table_stage = SAI_ACL_STAGE_INGRESS
@@ -3454,14 +3568,23 @@ class AclTableTypeTest(SaiHelper):
             # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
+            sai_thrift_set_port_attribute(self.client, self.port26,
+                                          ingress_acl=acl_table)
 
             # verify packet dropped after ACL apply
-            send_packet(self, self.dev_port24, pkt)
+            send_packet(self, self.dev_port24, pkt1)
             verify_no_other_packets(self, timeout=2)
 
             packets = sai_thrift_get_acl_counter_attribute(
                 self.client, acl_counter_ingress, packets=True)
             self.assertEqual(packets['packets'], 1)
+
+            send_packet(self, self.dev_port26, pkt2)
+            verify_no_other_packets(self, timeout=2)
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 2)
 
         finally:
             # cleanup ACL
@@ -3480,6 +3603,8 @@ class AclTableTypeTest(SaiHelper):
             sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=0)
+            sai_thrift_set_port_attribute(self.client, self.port26,
+                                          ingress_acl=0)
             sai_thrift_remove_acl_entry(self.client, acl_entry)
             sai_thrift_remove_acl_table(self.client, acl_table)
 
@@ -3488,23 +3613,45 @@ class AclTableTypeTest(SaiHelper):
         Verify various IP mirror functionality
         '''
         print("testIPMirrorAcl")
-        pkt = simple_tcpv6_packet(
+        pkt1 = simple_tcpv6_packet(
             eth_dst=ROUTER_MAC,
             ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
             ipv6_hlim=64)
-        exp_pkt = simple_tcpv6_packet(
+        exp_pkt1 = simple_tcpv6_packet(
             eth_dst=self.dmac,
             eth_src=ROUTER_MAC,
             ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
             ipv6_hlim=63)
+
+        pkt2 = simple_tcpv6_packet(
+            eth_dst=self.dmac,
+            eth_src=self.src_mac,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
+            ipv6_src='2000::1',
+            ipv6_hlim=64)
+        exp_pkt2 = simple_tcpv6_packet(
+            eth_dst=self.dmac,
+            eth_src=self.src_mac,
+            dl_vlan_enable=True,
+            vlan_vid=100,
+            ipv6_dst='1234:5678:9abc:def0:4422:1133:5577:99aa',
+            ipv6_src='2000::1',
+            ipv6_hlim=64)
+
         try:
             # verify packet forwarding without ACL
-            send_packet(self, self.dev_port24, pkt)
-            verify_packet(self, exp_pkt, self.dev_port25)
+            send_packet(self, self.dev_port24, pkt1)
+            verify_packet(self, exp_pkt1, self.dev_port25)
+
+            send_packet(self, self.dev_port26, pkt2)
+            # verify_no_other_packets(self)
+            verify_packet(self, exp_pkt2, self.dev_port27)
 
             mirror_session = sai_thrift_create_mirror_session(
                 self.client,
-                monitor_port=self.port26,
+                monitor_port=self.port28,
                 type=SAI_MIRROR_SESSION_TYPE_LOCAL)
 
             # create ACL table
@@ -3573,15 +3720,25 @@ class AclTableTypeTest(SaiHelper):
             # bind ACL table to ingress port 24
             sai_thrift_set_port_attribute(self.client, self.port24,
                                           ingress_acl=acl_table)
+            sai_thrift_set_port_attribute(self.client, self.port26,
+                                          ingress_acl=acl_table)
 
             # verify packet dropped after ACL apply
-            send_packet(self, self.dev_port24, pkt)
-            verify_each_packet_on_each_port(self, [exp_pkt, pkt],
-                                            [self.dev_port25, self.dev_port26])
+            send_packet(self, self.dev_port24, pkt1)
+            verify_each_packet_on_each_port(self, [exp_pkt1, pkt1],
+                                            [self.dev_port25, self.dev_port28])
 
             packets = sai_thrift_get_acl_counter_attribute(
                 self.client, acl_counter_ingress, packets=True)
             self.assertEqual(packets['packets'], 1)
+
+            send_packet(self, self.dev_port26, pkt2)
+            verify_each_packet_on_each_port(self, [exp_pkt2, pkt2],
+                                            [self.dev_port27, self.dev_port28])
+
+            packets = sai_thrift_get_acl_counter_attribute(
+                self.client, acl_counter_ingress, packets=True)
+            self.assertEqual(packets['packets'], 2)
 
         finally:
             # cleanup ACL
@@ -3599,6 +3756,8 @@ class AclTableTypeTest(SaiHelper):
             self.assertEqual(packets['packets'], 0)
             sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
             sai_thrift_set_port_attribute(self.client, self.port24,
+                                          ingress_acl=0)
+            sai_thrift_set_port_attribute(self.client, self.port26,
                                           ingress_acl=0)
             sai_thrift_remove_acl_entry(self.client, acl_entry)
             sai_thrift_remove_acl_table(self.client, acl_table)
