@@ -1589,54 +1589,114 @@ class L3AclRangeTest(SaiHelper):
         sai_thrift_create_route_entry(self.client, self.route_entry,
                                       next_hop_id=rif_id1)
 
-        self.pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
-                                     eth_src=mac_src,
-                                     ip_dst=ip_addr,
-                                     ip_src=ip_addr_src,
-                                     tcp_dport=l4_dst_port,
-                                     ip_id=105,
-                                     ip_ttl=64)
-        self.exp_pkt = simple_tcp_packet(eth_dst=dmac,
-                                         eth_src=ROUTER_MAC,
+        self.tcp_pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                         eth_src=mac_src,
                                          ip_dst=ip_addr,
                                          ip_src=ip_addr_src,
                                          tcp_dport=l4_dst_port,
                                          ip_id=105,
-                                         ip_ttl=63)
+                                         ip_ttl=64)
+        self.tcp_exp_pkt = simple_tcp_packet(eth_dst=dmac,
+                                             eth_src=ROUTER_MAC,
+                                             ip_dst=ip_addr,
+                                             ip_src=ip_addr_src,
+                                             tcp_dport=l4_dst_port,
+                                             ip_id=105,
+                                             ip_ttl=63)
+
+        self.udp_pkt = simple_udp_packet(eth_dst=ROUTER_MAC,
+                                         eth_src=mac_src,
+                                         ip_dst=ip_addr,
+                                         udp_dport=l4_dst_port,
+                                         ip_src=ip_addr_src,
+                                         ip_id=105,
+                                         ip_ttl=64)
+        self.udp_exp_pkt = simple_udp_packet(eth_dst=dmac,
+                                             eth_src=ROUTER_MAC,
+                                             ip_dst=ip_addr,
+                                             ip_src=ip_addr_src,
+                                             udp_dport=l4_dst_port,
+                                             ip_id=105,
+                                             ip_ttl=63)
+
+        self.table_stage_ingress = SAI_ACL_STAGE_INGRESS
+        self.table_stage_egress = SAI_ACL_STAGE_EGRESS
+
+        self.tcp_protocol = 0x06
+        self.udp_protocol = 0x11
 
     def runTest(self):
+        self.routingTest()
+        print("Sending TCP packet ptf_intf 2 -[ingress ACL]-> ptf_intf 1 "
+              "(192.168.0.1-[ingress ACL]-> 172.16.10.1 [id = 105])")
+        self.aclTest(self.table_stage_ingress, self.tcp_protocol)
+        print("Sending UDP packet ptf_intf 2 -[ingress ACL]-> ptf_intf 1 "
+              "(192.168.0.1-[ingress ACL]-> 172.16.10.1 [id = 105])")
+        self.aclTest(self.table_stage_ingress, self.udp_protocol)
+        print("Sending TCP packet ptf_intf 2 -[egress ACL]-> ptf_intf 1 "
+              "(192.168.0.1-[egress ACL]-> 172.16.10.1 [id = 105])")
+        self.aclTest(self.table_stage_egress, self.tcp_protocol)
+        print("Sending UDP packet ptf_intf 2 -[egress ACL]-> ptf_intf 1 "
+              "(192.168.0.1-[egress ACL]-> 172.16.10.1 [id = 105])")
+        self.aclTest(self.table_stage_egress, self.udp_protocol)
+
+    def routingTest(self):
+        """
+        Verifies routing for TCP and UDP traffic
+        """
         print('--------------------------------------------------------------')
-        print("Sending packet ptf_intf 2 -> ptf_intf 1 (192.168.100.100 ---> "
-              "172.16.10.1 [id = 105])")
+        print("Sending TCP packet ptf_intf 2 -> ptf_intf 1 (192.168.100.100 "
+              "---> 172.16.10.1 [id = 105])")
+        print('#### NO ACL Applied ####')
+        print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+              '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
+        send_packet(self, self.dev_port11, self.tcp_pkt)
+        print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+              '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+        verify_packets(self, self.tcp_exp_pkt, [self.dev_port10])
+        print('----------------------------------------------------------')
+        print("Sending UDP packet ptf_intf 2 -> ptf_intf 1 (192.168.100.100 "
+              "---> 172.16.10.1 [id = 105])")
+        print('#### NO ACL Applied ####')
+        print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
+              '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
+        send_packet(self, self.dev_port11, self.udp_pkt)
+        print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
+              '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
+        verify_packets(self, self.udp_exp_pkt, [self.dev_port10])
+        print('----------------------------------------------------------')
 
-        try:
-            print('#### NO ACL Applied ####')
-            print('#### Sending  ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
-                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 2')
-            send_packet(self, self.dev_port11, self.pkt)
-            print('#### Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
-                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
-            verify_packets(self, self.exp_pkt, [self.dev_port10])
-        finally:
-            print('----------------------------------------------------------')
+    def aclTest(self, stage, protocol):
+        """
+        Verifies ingress or egress ACLs for range and TCP or UDP traffic
 
-        print("Sending packet ptf_intf 2 -[ACL]-> ptf_intf 1 (192.168.0.1-"
-              "[ACL]-> 172.16.10.1 [id = 105])")
-        table_stage_ingress = SAI_ACL_STAGE_INGRESS
-        table_stage_egress = SAI_ACL_STAGE_EGRESS
+        Args:
+            stage (int): specifies ingress or egress type of ACL
+            protocol (int): specifies protocol field value
+        """
+        if protocol == 0x06:
+            pkt = self.tcp_pkt
+        elif protocol == 0x11:
+            pkt = self.udp_pkt
+
+        field_protocol = sai_thrift_acl_field_data_t(
+            data=sai_thrift_acl_field_data_data_t(u8=protocol),
+            mask=sai_thrift_acl_field_data_mask_t(u8=0x0F))
+
         entry_priority = 1
 
         table_bind_points = [SAI_ACL_BIND_POINT_TYPE_ROUTER_INTF]
         table_bind_point_type_list = sai_thrift_s32_list_t(
             count=len(table_bind_points), int32list=table_bind_points)
 
-        acl_ingress_table_id = sai_thrift_create_acl_table(
+        acl_table_id = sai_thrift_create_acl_table(
             self.client,
-            acl_stage=table_stage_ingress,
+            acl_stage=stage,
             acl_bind_point_type_list=table_bind_point_type_list,
-            field_src_ip=True)
+            field_src_ip=True,
+            field_ip_protocol=True)
 
-        self.assertNotEqual(acl_ingress_table_id, 0)
+        self.assertNotEqual(acl_table_id, 0)
 
         packet_action = sai_thrift_acl_action_data_t(
             parameter=sai_thrift_acl_action_parameter_t(
@@ -1656,30 +1716,36 @@ class L3AclRangeTest(SaiHelper):
                     count=len(range_list),
                     idlist=range_list)))
 
-        acl_ingress_entry_id = sai_thrift_create_acl_entry(
+        acl_entry_id = sai_thrift_create_acl_entry(
             self.client,
-            table_id=acl_ingress_table_id,
+            table_id=acl_table_id,
             priority=entry_priority,
             action_packet_action=packet_action,
-            field_acl_range_type=range_list_t)
-        print("ACL ingress table created 0x%lx" % (acl_ingress_table_id))
+            field_acl_range_type=range_list_t,
+            field_ip_protocol=field_protocol)
+        print("ACL ingress table created 0x%lx" % (acl_table_id))
 
         # create ACL counter
-        acl_counter_ingress = sai_thrift_create_acl_counter(
-            self.client, table_id=acl_ingress_table_id)
+        acl_counter = sai_thrift_create_acl_counter(
+            self.client, table_id=acl_table_id)
 
         # attach ACL counter to ACL entry
-        action_counter_ingress = sai_thrift_acl_action_data_t(
+        action_counter = sai_thrift_acl_action_data_t(
             parameter=sai_thrift_acl_action_parameter_t(
-                oid=acl_counter_ingress),
+                oid=acl_counter),
             enable=True)
         sai_thrift_set_acl_entry_attribute(
-            self.client, acl_ingress_entry_id,
-            action_counter=action_counter_ingress)
+            self.client, acl_entry_id,
+            action_counter=action_counter)
 
-        # bind this ACL table to rif_id2s object id
-        sai_thrift_set_router_interface_attribute(
-            self.client, self.rif_id2, ingress_acl=acl_ingress_table_id)
+        if stage == SAI_ACL_STAGE_INGRESS:
+            # bind this ACL table to rif_id2s object id
+            sai_thrift_set_router_interface_attribute(
+                self.client, self.rif_id2, ingress_acl=acl_table_id)
+        elif stage == SAI_ACL_STAGE_EGRESS:
+            # bind this ACL table to rif_id2s object id
+            sai_thrift_set_router_interface_attribute(
+                self.client, self.rif_id2, egress_acl=acl_table_id)
 
         try:
             print('#### ACL \'DROP, src ip 192.168.100.1/255.255.255.0, SPORT'
@@ -1687,113 +1753,46 @@ class L3AclRangeTest(SaiHelper):
             print('#### Sending      ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
                   '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
             # send the same packet
-            send_packet(self, self.dev_port11, self.pkt)
+            send_packet(self, self.dev_port11, pkt)
             # ensure packet is dropped
             # check for absence of packet here!
             print('#### NOT Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
                   '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 0')
             verify_no_other_packets(self, timeout=1)
-
             packets = sai_thrift_get_acl_counter_attribute(
-                self.client, acl_counter_ingress, packets=True)
-            self.assertEqual(packets['packets'], 1)
-
-            # cleanup ACL
-            action_counter_ingress = sai_thrift_acl_action_data_t(
-                parameter=sai_thrift_acl_action_parameter_t(
-                    oid=0),
-                enable=True)
-            sai_thrift_set_acl_entry_attribute(
-                self.client, acl_ingress_entry_id,
-                action_counter=action_counter_ingress)
-            sai_thrift_set_acl_counter_attribute(
-                self.client, acl_counter_ingress, packets=None)
-            packets = sai_thrift_get_acl_counter_attribute(
-                self.client, acl_counter_ingress, packets=True)
-            self.assertEqual(packets['packets'], 0)
-            sai_thrift_remove_acl_counter(self.client, acl_counter_ingress)
-
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.rif_id2, ingress_acl=int(SAI_NULL_OBJECT_ID))
-
-            sai_thrift_remove_acl_entry(self.client, acl_ingress_entry_id)
-            sai_thrift_remove_acl_table(self.client, acl_ingress_table_id)
-
-            acl_egress_table_id = sai_thrift_create_acl_table(
-                self.client,
-                acl_stage=table_stage_egress,
-                acl_bind_point_type_list=table_bind_point_type_list,
-                field_src_ip=True)
-
-            self.assertNotEqual(acl_egress_table_id, 0)
-
-            acl_egress_entry_id = sai_thrift_create_acl_entry(
-                self.client,
-                table_id=acl_egress_table_id,
-                priority=entry_priority,
-                action_packet_action=packet_action,
-                field_acl_range_type=range_list_t)
-            print("ACL egress table created 0x%lx" % (acl_egress_table_id))
-
-            # create ACL counter
-            acl_counter_egress = sai_thrift_create_acl_counter(
-                self.client, table_id=acl_egress_table_id)
-
-            # attach ACL counter to ACL entry
-            action_counter_egress = sai_thrift_acl_action_data_t(
-                parameter=sai_thrift_acl_action_parameter_t(
-                    oid=acl_counter_egress),
-                enable=True)
-            sai_thrift_set_acl_entry_attribute(
-                self.client, acl_egress_entry_id,
-                action_counter=action_counter_egress)
-
-            self.assertNotEqual(acl_egress_entry_id, 0)
-
-            # bind this ACL table to rif_id2s object id
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.rif_id2, egress_acl=acl_egress_table_id)
-
-            print('#### ACL \'DROP, src ip 192.168.100.1/255.255.255.0, SPORT'
-                  ' 1000, in_ports[ptf_intf_1,2]\' Applied ####')
-            print('#### Sending      ', ROUTER_MAC, '| 00:22:22:22:22:22 | '
-                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 1')
-            # send the same packet
-            send_packet(self, self.dev_port11, self.pkt)
-            # ensure packet is dropped
-            # check for absence of packet here!
-            print('#### NOT Expecting 00:11:22:33:44:55 |', ROUTER_MAC, '| '
-                  '172.16.10.1 | 192.168.100.100 | SPORT 1000 | @ ptf_intf 0')
-            verify_no_other_packets(self, timeout=1)
-
-            packets = sai_thrift_get_acl_counter_attribute(
-                self.client, acl_counter_egress, packets=True)
+                self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 1)
 
         finally:
             # unbind this ACL table from rif_id2s object id
-            sai_thrift_set_router_interface_attribute(
-                self.client, self.rif_id2, egress_acl=int(SAI_NULL_OBJECT_ID))
+            if stage == SAI_ACL_STAGE_INGRESS:
+                sai_thrift_set_router_interface_attribute(
+                    self.client, self.rif_id2, ingress_acl=int(
+                        SAI_NULL_OBJECT_ID))
+            elif stage == SAI_ACL_STAGE_EGRESS:
+                sai_thrift_set_router_interface_attribute(
+                    self.client, self.rif_id2, egress_acl=int(
+                        SAI_NULL_OBJECT_ID))
 
             # cleanup ACL
-            action_counter_egress = sai_thrift_acl_action_data_t(
+            action_counter = sai_thrift_acl_action_data_t(
                 parameter=sai_thrift_acl_action_parameter_t(
                     oid=0),
                 enable=True)
             sai_thrift_set_acl_entry_attribute(
-                self.client, acl_egress_entry_id,
-                action_counter=action_counter_egress)
+                self.client, acl_entry_id,
+                action_counter=action_counter)
             sai_thrift_set_acl_counter_attribute(
-                self.client, acl_counter_egress, packets=None)
+                self.client, acl_counter, packets=None)
             packets = sai_thrift_get_acl_counter_attribute(
-                self.client, acl_counter_egress, packets=True)
+                self.client, acl_counter, packets=True)
             self.assertEqual(packets['packets'], 0)
-            sai_thrift_remove_acl_counter(self.client, acl_counter_egress)
+            sai_thrift_remove_acl_counter(self.client, acl_counter)
 
             # cleanup ACL
-            sai_thrift_remove_acl_entry(self.client, acl_egress_entry_id)
+            sai_thrift_remove_acl_entry(self.client, acl_entry_id)
             sai_thrift_remove_acl_range(self.client, acl_range_id)
-            sai_thrift_remove_acl_table(self.client, acl_egress_table_id)
+            sai_thrift_remove_acl_table(self.client, acl_table_id)
 
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.route_entry)
