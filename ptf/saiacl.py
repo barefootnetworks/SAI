@@ -17,7 +17,6 @@ Thrift SAI interface ACL tests
 """
 
 from sai_thrift.sai_headers import *
-from common.utils import *
 from sai_base_test import *
 
 
