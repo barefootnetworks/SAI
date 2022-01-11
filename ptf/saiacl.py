@@ -3504,7 +3504,6 @@ class AclTableTypeTest(SaiHelper):
             verify_packet(self, exp_pkt1, self.dev_port25)
 
             send_packet(self, self.dev_port26, pkt2)
-            # verify_no_other_packets(self)
             verify_packet(self, exp_pkt2, self.dev_port27)
 
             # create ACL table
