@@ -388,8 +388,8 @@ sai_status_t status =
                                      &count);
 ```
 
-## Usage Examples for sai_json_t ##
-### Refer to an OID - Port ###
+# Usage Examples for sai_json_t #
+## Refer to an OID - Port ##
 ```json
 {
     "port_ref": {
@@ -402,7 +402,7 @@ sai_status_t status =
 }
 ```
 
-### Refer to an OID - Generic programmable block ###
+## Refer to an OID - Generic programmable block ##
 The sai_json_t type can include references to other SAI extension blocks. It is allowed to pass the new object type as a reference in the JSON like any other SAI object.
 ```json
 {
@@ -416,7 +416,7 @@ The sai_json_t type can include references to other SAI extension blocks. It is 
 }
 ```
 
-### Refer to a key based object - Route ###
+## Refer to a key based object - Route ##
 ```json
 "attributes": [
     {
