@@ -145,7 +145,7 @@ The following diagram describes a SAI pipeline with various HW blocks. The yello
 ## An Example - L4LB ##
 The API usage is explained via an example. The example chosen is L4 Load Balancer. The following steps summarize the operation of the HW block.
 
-![](https://raw.githubusercontent.com/Azure/DASH/main/Documentation/images/loadbalancer/load-balancer-architecture.png)
+![](lb_arch.png)
 
 
 - Hybrid architecture where the initial load-balancing decision is taken at the switch and connection tracking is implemented at the edge (NIC/Appliance etc)
