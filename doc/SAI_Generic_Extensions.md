@@ -31,7 +31,7 @@ SAI-Version | 1.11
   - [CRM API](#crm-usage)
 - [Usage Examples for sai_json_t](#usage-examples-for-saijsont)
   - [Refer to an OID - Port](#refer-to-an-oid---port)
-  - [Refer to an OID - Port](#refer-to-an-oid---generic-programmable-block)
+  - [Refer to an OID - Generic Programmable Object](#refer-to-an-oid---generic-programmable-block)
   - [Refer to a key based object - Route](#refer-to-a-key-based-object---route)
 
 # Scope #
