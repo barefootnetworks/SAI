@@ -38,8 +38,8 @@ This document defines the technical specification for the API used to support SA
 
 # Overview #
 SAI Generic extensions introduce a new SAI object SAI_OBJECT_TYPE_GENERIC_PROGRAMMABLE of object_type_oid. This new object uses a single attribute of type sai_json_t defined in this proposal. This object and its attribute provide an abstraction of target-specific configurable features otherwise not described in SAI. This new object enables the 
-- Ability to add exclusive features
-- Expose device-specific capabilities
+- Support ability to add user features
+- Support device-specific capabilities
 - Rapid application prototyping
 
 The purpose of this document is to introduce these new entities and how they can be leveraged to extend data plane functionality.
@@ -47,7 +47,7 @@ The purpose of this document is to introduce these new entities and how they can
 2. SAI_OBJECT_TYPE_GENERIC_PROGRAMMABLE - New SAI object type
 
 ## sai_json_t ##
-sai_json_t defines a generic data type using JSON as the data format with a predefined grammar allowed to be used within. This grammar allows validators like SAI metadata to verify data and corresponding types accurately. The user of this data type copies a JSON string into this type. The exact structure or content of the API is opaque and is considered a known contract between the application and SAI implementation.
+sai_json_t defines a generic data type using JSON as the data format with a predefined grammar allowed to be used within. This grammar allows validators like SAI metadata to verify data and corresponding types accurately. The user of this data type copies a JSON string into this type. The exact structure or content of the API is opaque and is considered an agreed contract between the application and SAI implementation.
 
 ```c
 /**
@@ -81,10 +81,6 @@ typedef struct _sai_json_t {
     sai_s8_list_t json;
 } sai_json_t;
 ```
-
-### Why is metadata required? ###
-1. Data validation for intermediate SW layers. sonic-sairedis in the SONiC operating system is an example. The meta infra can understand the object types from the JSON data type and perform the relevant validations.
-2. Reference counting. The OID on its own can just be a sequentially incrementing integer and does not hold any context. The additional metadata provides the context to allow an application to perform operations like reference counting, object references, etc.
 
 ## SAI_OBJECT_TYPE_GENERIC_PROGRAMMABLE ##
 
@@ -177,8 +173,7 @@ The JSON data includes the actual value and the associated metadata describing t
     {
         "nexthop_list": {
             "sai_metadata": {
-                "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_LIST",
-                "allowed_object_types": [ "SAI_OBJECT_TYPE_NEXTHOP" ]
+                "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_LIST"
             },
             "value": [ "0x1500000000001fa", "0x1500000000001fb" ]
         }
@@ -194,22 +189,20 @@ While there are multiple mechanisms to extend these, one recommendation is as be
   - SAI_ACL_ACTION_TYPE_CUSTOM_RANGE 
   - SAI_ACL_ACTION_TYPE_DO_LB = SAI_ACL_ACTION_TYPE_CUSTOM_RANGE + 1 
 - Add a new custom attribute. This attribute essentially acts as an input into the new VIP table filtering packets. 
-  - SAI_ACL_ENTRY_ACTION_DO_LB = SAI_ACL_ENTRY_ACTION_CUSTOM_RANGE + 1
-
-## References between 2 programmable blocks ##
-How to programmatically add references between different programmable HW blocks?
-The sai_json_t type can include references to other SAI extension blocks. It is allowed to pass the new object type as a reference in the JSON like any other SAI object.
-```json
-{
-    "object_id": {
-        "sai_metadata": {
-            "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_ID",
-            "allowed_object_types": ["SAI_OBJECT_TYPE_GENERIC_PROGRAMMABLE"]
-        },
-        "value": "0x150000000008ba"
-    }
-}
+```c
+    /**
+     * @brief Apply vip table
+     *
+     * @type boolean
+     * @flags CREATE_AND_SET
+     * @default false
+     */
+   SAI_ACL_ENTRY_ACTION_DO_LB = SAI_ACL_ENTRY_ACTION_CUSTOM_RANGE + 1
 ```
+
+## Why is metadata required? ##
+1. Data validation for intermediate SW layers. sonic-sairedis in the SONiC operating system is an example. The meta infra can understand the object types from the JSON data type and perform the relevant validations.
+2. Reference counting. The OID on its own can just be a sequentially incrementing integer and does not hold any context. The additional metadata provides the context to allow an application to perform operations like reference counting, object references, etc.
 
 ## Counters ##
 Counters in SAI use 2 patterns.
@@ -398,17 +391,29 @@ sai_status_t status =
 ## Usage Examples for sai_json_t ##
 ### Refer to an OID - Port ###
 ```json
-"attributes": [
-    {
-        "port_ref": {
-            "sai_metadata": {
-                "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_ID",
-                "allowed_object_types": ["SAI_OBJECT_TYPE_PORT"]
-            },
-            "value": "0x15000000000ffc"
-        }
+{
+    "port_ref": {
+        "sai_metadata": {
+            "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_ID",
+            "allowed_object_types": ["SAI_OBJECT_TYPE_PORT"]
+        },
+        "value": "0x15000000000ffc"
     }
-]
+}
+```
+
+### Refer to an OID - Generic programmable block ###
+The sai_json_t type can include references to other SAI extension blocks. It is allowed to pass the new object type as a reference in the JSON like any other SAI object.
+```json
+{
+    "object_id": {
+        "sai_metadata": {
+            "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_ID",
+            "allowed_object_types": ["SAI_OBJECT_TYPE_GENERIC_PROGRAMMABLE"]
+        },
+        "value": "0x150000000008ba"
+    }
+}
 ```
 
 ### Refer to a key based object - Route ###
