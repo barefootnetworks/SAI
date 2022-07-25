@@ -29,9 +29,10 @@ SAI-Version | 1.11
   - [Delete](#delete)
   - [Object Query](#object-query)
   - [CRM API](#crm-usage)
-  - [Usage Examples for sai_json_t](#usage-examples-for-saijsont)
-    - [Refer to an OID - Port](#refer-to-an-oid---port)
-    - [Refer to a key based object - Route](#refer-to-a-key-based-object---route)
+- [Usage Examples for sai_json_t](#usage-examples-for-saijsont)
+  - [Refer to an OID - Port](#refer-to-an-oid---port)
+  - [Refer to an OID - Port](#refer-to-an-oid---generic-programmable-block)
+  - [Refer to a key based object - Route](#refer-to-a-key-based-object---route)
 
 # Scope #
 This document defines the technical specification for the API used to support SAI Extensions. Extensions can be seen as an abstraction over niche/device-specific features. They facilitate the configuration of newly supported features of ASICs via the familiar SAI API model. The exact feature enabled via the extensions itself is outside the scope of this document but an example is provided below to better explain this feature. These extensions are not a replacement to the existing SAI objects but instead provide a complementary path to achieve the goals set out below.
