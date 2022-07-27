@@ -330,9 +330,8 @@ json.push_back(virtual_ip);
  
 // push metadata and value for nexthop_list
 nlohmann::json sai_metadata_json;
-sai_metadata_json[“sai_metadata”][“sai_attr_value_type”] = SAI_ATTR_VALUE_TYPE_OBJECT_ID;
-sai_metadata_json[“sai_metadata”][“allowed_object_types”] =
-    { SAI_OBJECT_TYPE_NEXTHOP };
+sai_metadata_json[“sai_metadata”][“sai_attr_value_type”] = SAI_ATTR_VALUE_TYPE_OBJECT_LIST;
+sai_metadata_json[“sai_metadata”][“allowed_object_types”] = { SAI_OBJECT_TYPE_NEXTHOP };
 nlohmann::json nexthop_list;
 nexthop_list [“nexthop_list”][“value”] = { nexthop_1_oid, nexthop_2_iod };
 nexthop_list [“nexthop_list”][“sai_metadata”] = sai_metadata_json.dump();
