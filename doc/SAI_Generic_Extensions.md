@@ -133,6 +133,7 @@ typedef enum _sai_generic_programmable_entry_attr_t
 
 } sai_generic_programmable_entry_attr_t;
 ```
+Note: The custom range attributes are not really necessary except to satisfy SAI meta.
 
 # SAI Pipeline #
 The following diagram describes a SAI pipeline with various HW blocks. The yellow boxes indicate fixed HW blocks which are typically not modifiable. The blue boxes indicate runtime modifiable blocks like ACLs or some other stateful entities. Both the yellow and blue boxes are today described in SAI and their programming semantics are well established. The red boxes indicate new extensions to the pipeline which are the subject of this proposal.
@@ -160,22 +161,15 @@ From an application standpoint,
 
 ## JSON data ##
 The following example is the actual data that flows down the software stack. Note that this format adheres to the grammar specified in the definition of sai_json_t.
-The JSON data includes the actual value and the associated metadata describing the attribute.
 ```json
 "attributes": [
     {
         "virtual_ip": {
-            "sai_metadata": {
-                "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_IP_ADDRESS"
-            },
             "value": "10.1.1.1"
         }
     },
     {
         "nexthop_list": {
-            "sai_metadata": {
-                "sai_attr_value_type": "SAI_ATTR_VALUE_TYPE_OBJECT_LIST"
-            },
             "value": [ "0x1500000000001fa", "0x1500000000001fb" ]
         }
     }
@@ -346,19 +340,6 @@ sai_status_t status =
     sai_generic_programmable_api->create_generic_programmable(
         &sai_generic_oid, gSwitchId, (uint32_t)attrs.size(), attrs.data());
 ```
-
-## Update ##
-Does update require the entire list of JSON attributes populated or just the attribute requiring update?
-
-FOR all attributes
-- Ease of programming for application
-- Application is not required to group attributes for a single update
-
-AGAINST all attributes
-- SAI implementation has to update all attributes even if that is not the intention
-- May result in unnecessary HW updates
-- Goes against the SAI API semantics for attribute update
-- May lead to performance degradation for updates
 
 ## Delete ##
 Delete requires no special information since the object is OID based. Just passing the OID should be sufficient to clear the entry.
