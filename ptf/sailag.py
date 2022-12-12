@@ -23,18 +23,14 @@ from sai_base_test import *
 
 
 @group("draft")
-class LAGCreateLagMember(SaiHelper):
+class CreateRemoveLagMemberTest(PlatformSaiHelper):
     '''
-    Test LAG member creation
+    Create and remove LAG members test
     '''
+    def setUp(self):
+        super(CreateRemoveLagMemberTest, self).setUp()
 
     def runTest(self):
-        self.createRemoveLagMemberTest()
-
-    def createRemoveLagMemberTest(self):
-        '''
-        Create and remove LAG members test
-        '''
 
         print("createRemoveLagMemberTest()")
 
@@ -96,6 +92,8 @@ class LAGCreateLagMember(SaiHelper):
         status = sai_thrift_remove_lag(self.client, lag3)
         self.assertNotEqual(status, SAI_STATUS_SUCCESS)
 
+    def tearDown(self):
+        super(CreateRemoveLagMemberTest, self).tearDown()
 
 def print_ports_stats(client, ports):
     '''
@@ -125,7 +123,7 @@ def print_ports_stats(client, ports):
 
 
 @group("draft")
-class LAGDisableIngressLagMember(SaiHelper):
+class LAGDisableIngressLagMember(PlatformSaiHelper):
     '''
     Test Disable Ingress LAG member feature
     '''
@@ -220,21 +218,14 @@ class LAGDisableIngressLagMember(SaiHelper):
 
 
 @group("draft")
-class LAGDisableEgressLagMember(SaiHelper):
+class LagMemberActivateBridgeTest(PlatformSaiHelper):
     '''
-    Test DisableEgress LAG member feature
+    The LAG mamber activate Bridge test
     '''
+    def setUp(self):
+        super(LagMemberActivateBridgeTest, self).setUp()
 
     def runTest(self):
-        self.disableEgressLagMemberTest()
-        self.multipleVlanTest()
-        self.lagMemberActivateFloodTest()
-        self.lagMemberActivateBridgeTest()
-
-    def lagMemberActivateBridgeTest(self):
-        '''
-        The LAG mamber activate Bridge test
-        '''
 
         print("lagMemberActivateBridgeTest()")
 
@@ -361,10 +352,18 @@ class LAGDisableEgressLagMember(SaiHelper):
             sai_thrift_remove_lag_member(self.client, lag1_member1)
             sai_thrift_remove_fdb_entry(self.client, fdb_entry)
 
-    def lagMemberActivateFloodTest(self):
-        '''
-        The LAG mamber activate Flood test
-        '''
+    def tearDown(self):
+        super(LagMemberActivateBridgeTest, self).tearDown()
+
+
+class LagMemberActivateFloodTest(PlatformSaiHelper):
+    '''
+    The LAG mamber activate Flood test
+    '''
+    def setUp(self):
+        super(LagMemberActivateFloodTest, self).setUp()
+
+    def runTest(self):
         print("lagMemberActivateFloodTest()")
 
         try:
@@ -456,10 +455,18 @@ class LAGDisableEgressLagMember(SaiHelper):
                     mbr,
                     egress_disable=False)
 
-    def disableEgressLagMemberTest(self):
-        '''
-        LAG disable egress LAG member test
-        '''
+    def tearDown(self):
+        super(LagMemberActivateFloodTest, self).tearDown()
+
+
+class DisableEgressLagMemberTest(PlatformSaiHelper):
+    '''
+    LAG disable egress LAG member test
+    '''
+    def setUp(self):
+        super(DisableEgressLagMemberTest, self).setUp()
+
+    def runTest(self):
 
         print("disableEgressLagMemberTest")
         vlan_id = 10
@@ -561,10 +568,18 @@ class LAGDisableEgressLagMember(SaiHelper):
             [[self.dev_port1],
              [self.dev_port4, self.dev_port5, self.dev_port6]])
 
-    def multipleVlanTest(self):
-        '''
-        Verify LAG members assigned to multiple vlans
-        '''
+    def tearDown(self):
+        super(DisableEgressLagMemberTest, self).tearDown()
+
+
+class MultipleVlanTest(PlatformSaiHelper):
+    '''
+    Verify LAG members assigned to multiple vlans
+    '''
+    def setUp(self):
+        super(MultipleVlanTest, self).setUp()
+
+    def runTest(self):
 
         print("multipleVlanTest")
         vlan10_id = 10
@@ -654,12 +669,17 @@ class LAGDisableEgressLagMember(SaiHelper):
             sai_thrift_set_lag_attribute(
                 self.client, self.lag1, port_vlan_id=0)
 
+    def tearDown(self):
+        super(MultipleVlanTest, self).tearDown()
+
 
 @group("draft")
-class LAGAttrPortList(SaiHelper):
+class LAGAttrPortList(PlatformSaiHelper):
     '''
     Test LAG port list attribute
     '''
+    def setUp(self):
+        super(LAGAttrPortList, self).setUp()
 
     def runTest(self):
         print("LAGAttrPortList")
@@ -684,9 +704,12 @@ class LAGAttrPortList(SaiHelper):
         assert self.lag2_member8 == lag_members[1]
         assert self.lag2_member9 == lag_members[2]
 
+    def tearDown(self):
+        super(LAGAttrPortList, self).tearDown()
+
 
 @group("draft")
-class LAGL2LoadBalancing(SaiHelper):
+class LAGL2LoadBalancing(PlatformSaiHelper):
     '''
     Test LAG L2 load balancing
     '''
@@ -774,9 +797,12 @@ class LAGL2LoadBalancing(SaiHelper):
                 bridge_port_id=self.port1_bp,
                 vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
 
+    def tearDown(self):
+        super(LAGL2LoadBalancing, self).tearDown()
+
 
 @group("draft")
-class LAGL3LoadBalancing(SaiHelper):
+class LAGL3LoadBalancingHelper(PlatformSaiHelper):
     '''
     Test LAG L3 load balancing
     '''
@@ -784,14 +810,26 @@ class LAGL3LoadBalancing(SaiHelper):
     max_itrs = 100
 
     def setUp(self):
-        super(LAGL3LoadBalancing, self).setUp()
+        super(LAGL3LoadBalancingHelper, self).setUp()
 
         sai_thrift_remove_vlan_member(self.client, self.vlan10_member1)
         sai_thrift_remove_bridge_port(self.client, self.port1_bp)
 
-    def runTest(self):
-        self.l3LoadBalancingDisableMembersTest()
-        self.l3LoadBalancingRemovedMembersTest()
+    def tearDown(self):
+        self.port1_bp = sai_thrift_create_bridge_port(
+            self.client,
+            bridge_id=self.default_1q_bridge,
+            port_id=self.port1,
+            type=SAI_BRIDGE_PORT_TYPE_PORT,
+            admin_state=True)
+        self.vlan10_member1 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.vlan10,
+            bridge_port_id=self.port1_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
+
+        super(LAGL3LoadBalancingHelper, self).tearDown()
+
 
     # Try all LAG members
     def lagL3LoadBalancePacketTest(self, exp_ports, traffic=True):
@@ -836,10 +874,15 @@ class LAGL3LoadBalancing(SaiHelper):
             dst_ip += 1
         return count
 
-    def l3LoadBalancingDisableMembersTest(self):
-        '''
-        L3 Load balancing simple for disabled egress LAG members
-        '''
+
+class l3LoadBalancingDisableMembersTest(LAGL3LoadBalancingHelper):
+    '''
+    L3 Load balancing simple for disabled egress LAG members
+    '''
+    def setUp(self):
+        super(l3LoadBalancingDisableMembersTest, self).setUp()
+
+    def runTest(self):
 
         print("l3LoadBalancingDisableMembersTest")
         try:
@@ -926,14 +969,21 @@ class LAGL3LoadBalancing(SaiHelper):
                 self.client, self.lag1_member6, egress_disable=False)
             self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-    # Try all LAG members
-    def l3LoadBalancingRemovedMembersTest(self):
-        '''
-            L3 Load balancing - remove members
+    def tearDown(self):
+        super(l3LoadBalancingDisableMembersTest, self).tearDown()
 
-            Test verifies the LAG load balancing for scenario when
-            LAG members are removed.
-        '''
+
+# Try all LAG members
+class l3LoadBalancingRemovedMembersTest(LAGL3LoadBalancingHelper):
+    '''
+        L3 Load balancing - remove members
+        Test verifies the LAG load balancing for scenario when
+        LAG members are removed.
+    '''
+    def setUp(self):
+        super(l3LoadBalancingRemovedMembersTest, self).setUp()
+
+    def runTest(self):
 
         print("l3LoadBalancingRemovedMembersTest")
         print("Verify L3 load balancing with all members")
@@ -1036,29 +1086,17 @@ class LAGL3LoadBalancing(SaiHelper):
         verify_packets(self, exp_pkt, [self.dev_port0])
 
     def tearDown(self):
-        self.port1_bp = sai_thrift_create_bridge_port(
-            self.client,
-            bridge_id=self.default_1q_bridge,
-            port_id=self.port1,
-            type=SAI_BRIDGE_PORT_TYPE_PORT,
-            admin_state=True)
-        self.vlan10_member1 = sai_thrift_create_vlan_member(
-            self.client,
-            vlan_id=self.vlan10,
-            bridge_port_id=self.port1_bp,
-            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
-
-        super(LAGL3LoadBalancing, self).tearDown()
+        super(l3LoadBalancingRemovedMembersTest, self).tearDown()
 
 
 @group("draft")
-class LagL3Nhop(SaiHelper):
+class LagL3NhopHelper(PlatformSaiHelper):
     '''
     LAG L3 Next Hop Group test
     '''
 
     def setUp(self):
-        super(LagL3Nhop, self).setUp()
+        super(LagL3NhopHelper, self).setUp()
 
         self.max_itrs = 50
 
@@ -1135,10 +1173,6 @@ class LagL3Nhop(SaiHelper):
         sai_thrift_create_route_entry(
             self.client, self.route_entry4, next_hop_id=self.nhop4)
 
-    def runTest(self):
-        self.runPreTest()
-        self.runPostTest()
-
     def packetTest(self, port_list, dst_ip_prefix, dmac):
         '''
         Packet test function that requests max_itrs packets
@@ -1176,10 +1210,39 @@ class LagL3Nhop(SaiHelper):
             dst_ip += 1
         return count
 
-    def runPreTest(self):
-        '''
-        Runs verification tests for number of different LAG ports
-        '''
+    def tearDown(self):
+        sai_thrift_remove_route_entry(self.client, self.route_entry4)
+        sai_thrift_remove_route_entry(self.client, self.route_entry3)
+        sai_thrift_remove_route_entry(self.client, self.route_entry2)
+        sai_thrift_remove_route_entry(self.client, self.route_entry1)
+        sai_thrift_remove_route_entry(self.client, self.route_entry10)
+
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry4)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry3)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
+        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry10)
+
+        sai_thrift_remove_next_hop(self.client, self.nhop4)
+        sai_thrift_remove_next_hop(self.client, self.nhop3)
+        sai_thrift_remove_next_hop(self.client, self.nhop2)
+        sai_thrift_remove_next_hop(self.client, self.nhop1)
+        sai_thrift_remove_next_hop(self.client, self.nhop10)
+
+        sai_thrift_remove_router_interface(self.client, self.lag2_rif)
+        sai_thrift_remove_router_interface(self.client, self.lag1_rif)
+
+        super(LagL3NhopHelper, self).tearDown()
+
+
+class runPreTest(LagL3NhopHelper):
+    '''
+    Runs verification tests for number of different LAG ports
+    '''
+    def setUp(self):
+        super(runPreTest, self).setUp()
+
+    def runTest(self):
         print('Pre warm reboot tests')
         plist = [self.dev_port4, self.dev_port5, self.dev_port6]
         count = self.packetTest(plist, "22.22.22.2", "00:22:22:22:22:22")
@@ -1198,11 +1261,20 @@ class LagL3Nhop(SaiHelper):
         print(plist, count)
         self.assertEqual(sum(count), self.max_itrs)
 
-    def runPostTest(self):
-        '''
-        Runs verification tests for number of different LAG ports
-        while removing and disabling the LAG members
-        '''
+    def tearDown(self):
+        super(runPreTest, self).tearDown()
+
+
+class runPostTest(LagL3NhopHelper):
+    '''
+    Runs verification tests for number of different LAG ports
+    while removing and disabling the LAG members
+    '''
+
+    def setUp(self):
+        super(runPostTest, self).setUp()
+
+    def runTest(self):
         print('Post warm reboot tests')
         plist = [self.dev_port17, self.dev_port18, self.dev_port19]
         count = self.packetTest(plist, "55.55.55.2", "00:55:55:55:55:55")
@@ -1333,25 +1405,4 @@ class LagL3Nhop(SaiHelper):
         self.assertEqual(sum(count), self.max_itrs)
 
     def tearDown(self):
-        sai_thrift_remove_route_entry(self.client, self.route_entry4)
-        sai_thrift_remove_route_entry(self.client, self.route_entry3)
-        sai_thrift_remove_route_entry(self.client, self.route_entry2)
-        sai_thrift_remove_route_entry(self.client, self.route_entry1)
-        sai_thrift_remove_route_entry(self.client, self.route_entry10)
-
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry4)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry3)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry2)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry1)
-        sai_thrift_remove_neighbor_entry(self.client, self.neighbor_entry10)
-
-        sai_thrift_remove_next_hop(self.client, self.nhop4)
-        sai_thrift_remove_next_hop(self.client, self.nhop3)
-        sai_thrift_remove_next_hop(self.client, self.nhop2)
-        sai_thrift_remove_next_hop(self.client, self.nhop1)
-        sai_thrift_remove_next_hop(self.client, self.nhop10)
-
-        sai_thrift_remove_router_interface(self.client, self.lag2_rif)
-        sai_thrift_remove_router_interface(self.client, self.lag1_rif)
-
-        super(LagL3Nhop, self).tearDown()
+        super(runPostTest, self).tearDown()
