@@ -46,13 +46,13 @@ def set_vlan_data(vlan_id=0, ports=None, untagged=None, large_port=0):
 
 
 @group("draft")
-class L2VlanTest(SaiHelper):
+class L2VlanTestHelper(PlatformSaiHelper):
     """
     The class runs VLAN test cases
     """
 
     def setUp(self):
-        super(L2VlanTest, self).setUp()
+        super(L2VlanTestHelper, self).setUp()
 
         self.pkt = 0
         self.tagged_pkt = 0
@@ -88,18 +88,6 @@ class L2VlanTest(SaiHelper):
             self.client,
             bridge_id=self.default_1q_bridge,
             port_id=self.port27,
-            type=SAI_BRIDGE_PORT_TYPE_PORT,
-            admin_state=True)
-        self.port28_bp = sai_thrift_create_bridge_port(
-            self.client,
-            bridge_id=self.default_1q_bridge,
-            port_id=self.port28,
-            type=SAI_BRIDGE_PORT_TYPE_PORT,
-            admin_state=True)
-        self.port29_bp = sai_thrift_create_bridge_port(
-            self.client,
-            bridge_id=self.default_1q_bridge,
-            port_id=self.port29,
             type=SAI_BRIDGE_PORT_TYPE_PORT,
             admin_state=True)
         self.port30_bp = sai_thrift_create_bridge_port(
@@ -275,28 +263,8 @@ class L2VlanTest(SaiHelper):
             bridge_port_id=self.lag11_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_UNTAGGED)
 
-    def runTest(self):
-        self.forwardingTest()
-        self.nativeVlanTest()
-        self.priorityTaggingTest()
-        self.pvDropTest()
-        self.lagPVMissTest()
-        self.vlanFloodTest()
-        self.vlanFloodEnhancedTest()
-        self.vlanFloodDisableTest()
-        self.vlanStatsTest()
-        self.vlanFloodPruneTest()
-        self.countersClearTest()
-        self.vlanMemberList()
-        self.vlanNegativeTest()
-        self.singleVlanMemberTest()
-        self.vlanIngressAclTest()
-        self.vlanEgressAclTest()
-        self.vlanLearningTest()
-        self.vlanMaxLearnedAddressesTest()
-
     def tearDown(self):
-        sai_thrift_set_port_attribute(self.client, self.port24, port_vlan_id=1)
+        sai_thrift_set_port_attribute(self.client, self.port24, port_vlan_id=0)
 
         sai_thrift_remove_fdb_entry(self.client, self.fdb_entry0)
         sai_thrift_remove_fdb_entry(self.client, self.fdb_entry1)
@@ -343,97 +311,220 @@ class L2VlanTest(SaiHelper):
         sai_thrift_remove_bridge_port(self.client, self.port25_bp)
         sai_thrift_remove_bridge_port(self.client, self.port26_bp)
         sai_thrift_remove_bridge_port(self.client, self.port27_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port28_bp)
-        sai_thrift_remove_bridge_port(self.client, self.port29_bp)
-        super(L2VlanTest, self).tearDown()
+        sai_thrift_remove_bridge_port(self.client, self.port30_bp)
+        sai_thrift_remove_bridge_port(self.client, self.port31_bp)
+        super(L2VlanTestHelper, self).tearDown()
 
-    def forwardingTest(self):
-        """
-        Forwarding between ports with different tagging mode
-        """
+
+class forwardingTest(L2VlanTestHelper):
+    """
+    Forwarding between ports with different tagging mode
+    """
+    def setUp(self):
+        super(forwardingTest, self).setUp()
+
+    def runTest(self):
         print("\nforwardingTest()")
-        print("\tAccessToAccessTest")
-        print("Sending L2 packet port 0 -> port 24 [access vlan=10])")
-        pkt = simple_tcp_packet(eth_dst='00:33:33:33:33:33',
-                                eth_src='00:11:11:11:11:11',
-                                ip_dst='172.16.0.1',
-                                ip_id=101,
-                                ip_ttl=64)
+        mac31 = '00:55:55:55:55:55'
+        vlan10_member31 = sai_thrift_create_vlan_member(
+            self.client,
+            vlan_id=self.vlan10,
+            bridge_port_id=self.port31_bp,
+            vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_PRIORITY_TAGGED)
+        fdb_entry31 = sai_thrift_fdb_entry_t(
+            switch_id=self.switch_id, mac_address=mac31, bv_id=self.vlan10)
+        sai_thrift_create_fdb_entry(
+            self.client,
+            fdb_entry31,
+            type=SAI_FDB_ENTRY_TYPE_STATIC,
+            bridge_port_id=self.port31_bp,
+            packet_action=SAI_PACKET_ACTION_FORWARD)
+        sai_thrift_set_port_attribute(
+            self.client, self.port31, port_vlan_id=10)
 
-        send_packet(self, self.dev_port0, pkt)
-        verify_packet(self, pkt, self.dev_port24)
-        self.i_pkt_count += 1
-        self.e_pkt_count += 1
-
-        print("\tAccessToTrunkTest")
-        print("Sending L2 packet - port 0 -> port 1 [trunk vlan=10])")
-        pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
-                                eth_src='00:11:11:11:11:11',
-                                ip_dst='172.16.0.1',
-                                ip_id=102,
-                                ip_ttl=64)
-        exp_pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
+        try:
+            print("\tAccessToAccessTest")
+            print("Sending L2 packet port 0 -> port 24 [access vlan=10])")
+            pkt = simple_tcp_packet(eth_dst='00:33:33:33:33:33',
                                     eth_src='00:11:11:11:11:11',
                                     ip_dst='172.16.0.1',
-                                    dl_vlan_enable=True,
-                                    vlan_vid=10,
-                                    ip_id=102,
-                                    ip_ttl=64,
-                                    pktlen=104)
-
-        send_packet(self, self.dev_port0, pkt)
-        verify_packet(self, exp_pkt, self.dev_port1)
-        self.i_pkt_count += 1
-        self.e_pkt_count += 1
-
-        print("\tTrunkToTrunkTest")
-        print("Sending L2 packet - port 1 -> port 25 [trunk vlan=10])")
-        pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
-                                eth_src='00:22:22:22:22:22',
-                                dl_vlan_enable=True,
-                                vlan_vid=10,
-                                ip_dst='172.16.0.1',
-                                ip_id=102,
-                                ip_ttl=64)
-        exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
-                                    eth_src='00:22:22:22:22:22',
-                                    ip_dst='172.16.0.1',
-                                    ip_id=102,
-                                    dl_vlan_enable=True,
-                                    vlan_vid=10,
+                                    ip_id=101,
                                     ip_ttl=64)
 
-        send_packet(self, self.dev_port1, pkt)
-        verify_packet(self, exp_pkt, self.dev_port25)
-        self.i_pkt_count += 1
-        self.e_pkt_count += 1
+            send_packet(self, self.dev_port0, pkt)
+            verify_packet(self, pkt, self.dev_port24)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
 
-        print("\tTrunkToAccessTest")
-        print("Sending L2 packet - port 1 -> port 0 [trunk vlan=10])")
-        pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
-                                eth_src='00:22:22:22:22:22',
-                                dl_vlan_enable=True,
-                                vlan_vid=10,
-                                ip_dst='172.16.0.1',
-                                ip_id=102,
-                                ip_ttl=64)
-        exp_pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
-                                    eth_src='00:22:22:22:22:22',
+            print("\tAccessToTrunkTest")
+            print("Sending L2 packet - port 0 -> port 1 [trunk vlan=10])")
+            pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
+                                    eth_src='00:11:11:11:11:11',
                                     ip_dst='172.16.0.1',
                                     ip_id=102,
-                                    ip_ttl=64,
-                                    pktlen=96)
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
+                                        eth_src='00:11:11:11:11:11',
+                                        ip_dst='172.16.0.1',
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_id=102,
+                                        ip_ttl=64,
+                                        pktlen=104)
 
-        send_packet(self, self.dev_port1, pkt)
-        verify_packet(self, exp_pkt, self.dev_port0)
-        self.i_pkt_count += 1
-        self.e_pkt_count += 1
+            send_packet(self, self.dev_port0, pkt)
+            verify_packet(self, exp_pkt, self.dev_port1)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
 
-    def nativeVlanTest(self):
-        """
-        Verifies forwarding of native vlan on tagged port
-        and on tagged LAG
-        """
+            print("\tAccessToPriorityTaggedTest")
+            print("Sending L2 packet - port 0 -> port 31 [prio vlan=0])")
+            pkt = simple_tcp_packet(eth_dst='00:55:55:55:55:55',
+                                    eth_src='00:11:11:11:11:11',
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:55:55:55:55:55',
+                                        eth_src='00:11:11:11:11:11',
+                                        ip_dst='172.16.0.1',
+                                        dl_vlan_enable=True,
+                                        vlan_vid=0,
+                                        ip_id=102,
+                                        ip_ttl=64,
+                                        pktlen=104)
+
+            send_packet(self, self.dev_port0, pkt)
+            verify_packet(self, exp_pkt, self.dev_port31)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print("\tTrunkToTrunkTest")
+            print("Sending L2 packet - port 1 -> port 25 [trunk vlan=10])")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print("\tTrunkToAccessTest")
+            print("Sending L2 packet - port 1 -> port 0 [trunk vlan=10])")
+            pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        ip_ttl=64,
+                                        pktlen=96)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port0)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print("\tTrunkToPriorityTaggedTest")
+            print("Sending L2 packet - port 1 -> port 31 [prio vlan=0])")
+            pkt = simple_tcp_packet(eth_dst='00:55:55:55:55:55',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:55:55:55:55:55',
+                                        eth_src='00:22:22:22:22:22',
+                                        dl_vlan_enable=True,
+                                        vlan_vid=0,
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port31)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print("\tPriorityTaggedToAccessTest")
+            print("Sending L2 packet - port 31 -> port 0 [trunk vlan=10])")
+            pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
+                                    eth_src='00:55:55:55:55:55',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=0,
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
+                                        eth_src='00:55:55:55:55:55',
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        ip_ttl=64,
+                                        pktlen=96)
+
+            send_packet(self, self.dev_port31, pkt)
+            verify_packet(self, exp_pkt, self.dev_port0)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print("\tPriorityTaggedToTrunkTest")
+            print("Sending L2 packet - port 31 -> port 25 [trunk vlan=10])")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:55:55:55:55:55',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=0,
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:55:55:55:55:55',
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port31, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+        finally:
+            sai_thrift_set_port_attribute(
+                self.client, self.port31, port_vlan_id=0)
+            sai_thrift_remove_fdb_entry(self.client, fdb_entry31)
+            sai_thrift_remove_vlan_member(self.client, vlan10_member31)
+
+    def tearDown(self):
+        super(forwardingTest, self).tearDown()
+
+
+class nativeVlanTest(L2VlanTestHelper):
+    """
+    Verifies forwarding of native vlan on tagged port
+    and on tagged LAG
+    """
+    def setUp(self):
+        super(nativeVlanTest, self).setUp()
+
+    def runTest(self):
         print("\nnativeVlanTest()")
         try:
             print("Configure vlan 10 with access/trunk members")
@@ -584,7 +675,7 @@ class L2VlanTest(SaiHelper):
                 [[self.dev_port2], [self.dev_port3]])
 
             sai_thrift_set_lag_attribute(
-                self.client, self.lag2, port_vlan_id=1)
+                self.client, self.lag2, port_vlan_id=0)
 
             print("Tx tag [vlan 10] packet on trunk port %d -> "
                   "trunk port %d of vlan 10" % (
@@ -597,7 +688,7 @@ class L2VlanTest(SaiHelper):
             print("Update native vlan of trunk port %d - reset to one" % (
                 self.dev_port1))
             sai_thrift_set_port_attribute(
-                self.client, self.port1, port_vlan_id=1)
+                self.client, self.port1, port_vlan_id=0)
 
             print("Tx untag packet on trunk port 1, "
                   "drop because no native vlan is set")
@@ -613,18 +704,26 @@ class L2VlanTest(SaiHelper):
             self.e_pkt_count += 1
 
         finally:
-            sai_thrift_set_port_attribute(
-                self.client, self.port1, port_vlan_id=1)
+            sai_thrift_set_port_attribut(
+                self.client, self.port1, port_vlan_id=0)
 
             sai_thrift_remove_fdb_entry(self.client, fdb_entry)
 
             sai_thrift_set_vlan_attribute(
                 self.client, self.vlan20, learn_disable=False)
 
-    def priorityTaggingTest(self):
-        """
-        Verifies forwarding of priority tagged packets on port and LAG
-        """
+    def tearDown(self):
+        super(nativeVlanTest, self).tearDown()
+
+
+class priorityTaggingTest(L2VlanTestHelper):
+    """
+    Verifies forwarding of priority tagged packets on port and LAG
+    """
+    def setUp(self):
+        super(priorityTaggingTest, self).setUp()
+
+    def runTest(self):
         print("\npriorityTaggingTest()")
         mac5 = '00:55:55:55:55:55'
         mac6 = '00:66:66:66:66:66'
@@ -871,9 +970,9 @@ class L2VlanTest(SaiHelper):
             verify_packet(self, exp_pkt, self.dev_port27)
         finally:
             sai_thrift_set_port_attribute(
-                self.client, self.port1, port_vlan_id=1)
+                self.client, self.port1, port_vlan_id=0)
             sai_thrift_set_lag_attribute(
-                self.client, self.lag2, port_vlan_id=1)
+                self.client, self.lag2, port_vlan_id=0)
 
             sai_thrift_remove_fdb_entry(self.client, fdb_entry1)
             sai_thrift_remove_fdb_entry(self.client, fdb_entry2)
@@ -883,11 +982,19 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_vlan_member(self.client, vlan_member1)
             sai_thrift_remove_vlan_member(self.client, vlan_member2)
 
-    def pvDropTest(self):
-        """
-        Verifies drops for invalid port-vlan packet on untagged port
-        and tagged port
-        """
+    def tearDown(self):
+        super(priorityTaggingTest, self).tearDown()
+
+
+class pvDropTest(L2VlanTestHelper):
+    """
+    Verifies drops for invalid port-vlan packet on untagged port
+    and tagged port
+    """
+    def setUp(self):
+        super(pvDropTest, self).setUp()
+
+    def runTest(self):
         print("\npvDropTest()")
         v100_pkt = simple_tcp_packet(eth_dst='00:11:11:11:11:11',
                                      eth_src='00:22:22:22:22:22',
@@ -918,41 +1025,52 @@ class L2VlanTest(SaiHelper):
                                     vlan_vid=11,
                                     ip_ttl=64)
 
-        print("Sending L2 vlan100 tagged packet to vlan10 tagged port %d, "
-              "dropped" % (self.dev_port1))
-        send_packet(self, self.dev_port1, v100_pkt)
-        verify_no_other_packets(self, timeout=1)
+        try:
+            print("Sending L2 vlan100 tagged packet to vlan10 tagged port %d, "
+                  "dropped" % (self.dev_port1))
+            send_packet(self, self.dev_port1, v100_pkt)
+            verify_no_other_packets(self, timeout=1)
 
-        print("Sending L2 untagged packet to vlan10 tagged port %d, "
-              "dropped" % (self.dev_port1))
-        send_packet(self, self.dev_port1, untagged_pkt)
-        verify_no_other_packets(self, timeout=1)
+            print("Sending L2 untagged packet to vlan10 tagged port %d, "
+                  "dropped" % (self.dev_port1))
+            send_packet(self, self.dev_port1, untagged_pkt)
+            verify_no_other_packets(self, timeout=1)
 
-        print("Sending L2 vlan10 tagged packet to vlan10 untagged "
-              "port %d, forwarded" % (self.dev_port0))
-        send_packet(self, self.dev_port0, v10_pkt)
-        verify_packet(self, exp_at_pkt, self.dev_port1)
-        self.i_pkt_count += 1
-        self.e_pkt_count += 1
+            print("Sending L2 vlan10 tagged packet to vlan10 untagged "
+                  "port %d, forwarded" % (self.dev_port0))
+            send_packet(self, self.dev_port0, v10_pkt)
+            verify_packet(self, exp_at_pkt, self.dev_port1)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
 
-        stats = sai_thrift_get_port_stats(self.client, self.port0)
-        if_in_vlan_discards_pre = \
-            stats['SAI_PORT_STAT_IF_IN_VLAN_DISCARDS']
+            stats = sai_thrift_get_port_stats(self.client, self.port0)
+            if_in_vlan_discards_pre = \
+                stats['SAI_PORT_STAT_IF_IN_VLAN_DISCARDS']
 
-        print("Sending L2 vlan11 tagged packet to vlan 10 untagged"
-              "port %d, dropped" % (self.dev_port0))
-        send_packet(self, self.dev_port0, v11_pkt)
-        verify_no_other_packets(self, timeout=1)
+            print("Sending L2 vlan11 tagged packet to vlan 10 untagged"
+                  "port %d, dropped" % (self.dev_port0))
+            send_packet(self, self.dev_port0, v11_pkt)
+            verify_no_other_packets(self, timeout=1)
 
-        stats = sai_thrift_get_port_stats(self.client, self.port0)
-        if_in_vlan_discards = stats['SAI_PORT_STAT_IF_IN_VLAN_DISCARDS']
-        self.assertEqual(if_in_vlan_discards_pre + 1, if_in_vlan_discards)
+            stats = sai_thrift_get_port_stats(self.client, self.port0)
+            if_in_vlan_discards = stats['SAI_PORT_STAT_IF_IN_VLAN_DISCARDS']
+            self.assertTrue(if_in_vlan_discards_pre + 1 == if_in_vlan_discards)
+        finally:
+            pass
 
-    def lagPVMissTest(self):
-        """
-        Verifies drops for invalid port-vlan packet on
-        untagged LAG all members and tagged LAG all members
-        """
+    def tearDown(self):
+        super(pvDropTest, self).tearDown()
+
+
+class lagPVMissTest(L2VlanTestHelper):
+    """
+    Verifies drops for invalid port-vlan packet on
+    untagged LAG all members and tagged LAG all members
+    """
+    def setUp(self):
+        super(lagPVMissTest, self).setUp()
+
+    def runTest(self):
         print("\nlagPVMissTest()")
         mac_action = SAI_PACKET_ACTION_FORWARD
         mac7 = '00:77:77:77:77:77'
@@ -1028,10 +1146,18 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_fdb_entry(self.client, fdb_entry2)
             sai_thrift_remove_fdb_entry(self.client, fdb_entry3)
 
-    def vlanIngressAclTest(self):
-        '''
-        Test sai get vlan ingress ACL attribute
-        '''
+    def tearDown(self):
+        super(lagPVMissTest, self).tearDown()
+
+
+class vlanIngressAclTest(L2VlanTestHelper):
+    '''
+    Test sai get vlan ingress ACL attribute
+    '''
+    def setUp(self):
+        super(vlanIngressAclTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanIngressAclTest()")
         v10_pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
                                     eth_src='00:11:11:11:11:11',
@@ -1092,10 +1218,18 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_acl_entry(self.client, acl_entry)
             sai_thrift_remove_acl_table(self.client, acl_table)
 
-    def vlanEgressAclTest(self):
-        '''
-        Test sai get vlan egress ACL attribute
-        '''
+    def tearDown(self):
+        super(vlanIngressAclTest, self).tearDown()
+
+
+class vlanEgressAclTest(L2VlanTestHelper):
+    '''
+    Test sai get vlan egress ACL attribute
+    '''
+    def setUp(self):
+        super(vlanEgressAclTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanEgressAclTest()")
         v10_pkt = simple_tcp_packet(eth_dst='00:22:22:22:22:22',
                                     eth_src='00:11:11:11:11:11',
@@ -1156,10 +1290,18 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_acl_entry(self.client, acl_entry)
             sai_thrift_remove_acl_table(self.client, acl_table)
 
-    def vlanFloodTest(self):
-        """
-        Verifies different cases of flooding
-        """
+    def tearDown(self):
+        super(vlanEgressAclTest, self).tearDown()
+
+
+class vlanFloodTest(L2VlanTestHelper):
+    """
+    Verifies different cases of flooding
+    """
+    def setUp(self):
+        super(vlanFloodTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanFloodTest()")
         sai_thrift_set_port_attribute(
             self.client, self.port26, port_vlan_id=40)
@@ -1266,13 +1408,17 @@ class L2VlanTest(SaiHelper):
 
         finally:
             sai_thrift_set_port_attribute(
-                self.client, self.port26, port_vlan_id=1)
+                self.client, self.port26, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port27, port_vlan_id=1)
+                self.client, self.port27, port_vlan_id=0)
             sai_thrift_set_lag_attribute(
-                self.client, self.lag10, port_vlan_id=1)
+                self.client, self.lag10, port_vlan_id=0)
             sai_thrift_set_lag_attribute(
-                self.client, self.lag11, port_vlan_id=1)
+                self.client, self.lag11, port_vlan_id=0)
+
+    def tearDown(self):
+        super(vlanFloodTest, self).tearDown()
+
 
     def _basicVlanFloodTest(self, vlan_data):
         """
@@ -1318,10 +1464,15 @@ class L2VlanTest(SaiHelper):
                 sai_thrift_flush_fdb_entries(
                     self.client, bv_id=vlan_key, entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
 
-    def vlanFloodEnhancedTest(self):
-        """
-        Verifies flooding for the vlan which contains ports and LAGs
-        """
+
+class vlanFloodEnhancedTest(L2VlanTestHelper):
+    """
+    Verifies flooding for the vlan which contains ports and LAGs
+    """
+    def setUp(self):
+        super(vlanFloodEnhancedTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanFloodEnhancedTest()")
         print("Flood test on ports 1,2, lag 1 and 2")
 
@@ -1547,15 +1698,15 @@ class L2VlanTest(SaiHelper):
 
         finally:
             sai_thrift_set_port_attribute(
-                self.client, self.port26, port_vlan_id=1)
+                self.client, self.port26, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port27, port_vlan_id=1)
+                self.client, self.port27, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port30, port_vlan_id=1)
+                self.client, self.port30, port_vlan_id=0)
             sai_thrift_set_lag_attribute(
-                self.client, self.lag10, port_vlan_id=1)
+                self.client, self.lag10, port_vlan_id=0)
             sai_thrift_set_lag_attribute(
-                self.client, self.lag11, port_vlan_id=1)
+                self.client, self.lag11, port_vlan_id=0)
 
             sai_thrift_set_vlan_attribute(
                 self.client, vlan100, learn_disable=False)
@@ -1579,11 +1730,19 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_lag_member(self.client, lag_mbr32)
             sai_thrift_remove_lag_member(self.client, lag_mbr42)
 
-    def vlanFloodDisableTest(self):
-        """
-        Verifies disable flooding for
-        unknown_unicast/unknown_multicast/broadcast
-        """
+    def tearDown(self):
+        super(vlanFloodEnhancedTest, self).tearDown()
+
+
+class vlanFloodDisableTest(L2VlanTestHelper):
+    """
+    Verifies disable flooding for
+    unknown_unicast/unknown_multicast/broadcast
+    """
+    def setUp(self):
+        super(vlanFloodDisableTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanFloodDisableTest()")
 
         vlan100 = sai_thrift_create_vlan(self.client, vlan_id=100)
@@ -1678,13 +1837,13 @@ class L2VlanTest(SaiHelper):
 
         finally:
             sai_thrift_set_port_attribute(
-                self.client, self.port24, port_vlan_id=1)
+                self.client, self.port24, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port25, port_vlan_id=1)
+                self.client, self.port25, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port26, port_vlan_id=1)
+                self.client, self.port26, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port27, port_vlan_id=1)
+                self.client, self.port27, port_vlan_id=0)
 
             sai_thrift_set_vlan_attribute(
                 self.client, vlan100, learn_disable=False)
@@ -1696,10 +1855,18 @@ class L2VlanTest(SaiHelper):
 
             sai_thrift_remove_vlan(self.client, vlan100)
 
-    def countersClearTest(self):
-        """
-        Verifies clear statistics for VLAN
-        """
+    def tearDown(self):
+        super(vlanFloodDisableTest, self).tearDown()
+
+
+class countersClearTest(L2VlanTestHelper):
+    """
+    Verifies clear statistics for VLAN
+    """
+    def setUp(self):
+        super(countersClearTest, self).setUp()
+
+    def runTest(self):
         print("\ncountersClearTest()")
         pkt = simple_tcp_packet(eth_dst='00:33:33:33:33:33',
                                 eth_src='00:11:11:11:11:11',
@@ -1726,21 +1893,21 @@ class L2VlanTest(SaiHelper):
         in_ucast_packets = stats["SAI_VLAN_STAT_IN_UCAST_PKTS"]
         out_packets = stats["SAI_VLAN_STAT_OUT_PACKETS"]
         out_ucast_packets = stats["SAI_VLAN_STAT_OUT_UCAST_PKTS"]
-        self.assertEqual((in_packets, in_packets_pre + 1),
+        self.assertTrue((in_packets == in_packets_pre + 1),
                         'vlan IN packets counter {} != {}'.format(
                             in_packets, in_packets_pre + 1))
-        self.assertEqual((in_ucast_packets, in_ucast_packets_pre + 1),
+        self.assertTrue((in_ucast_packets == in_ucast_packets_pre + 1),
                         'vlan IN unicats packets counter {} != {}'.format(
                             in_ucast_packets, in_ucast_packets_pre + 1))
-        self.assertNotEqual(((in_bytes - in_bytes_pre), 0),
+        self.assertTrue(((in_bytes - in_bytes_pre) != 0),
                         'vlan IN bytes counter is 0')
-        self.assertEqual((out_packets, out_packets_pre + 1),
+        self.assertTrue((out_packets == out_packets_pre + 1),
                         'vlan OUT packets counter {} != {}'.format(
                             out_packets, out_packets_pre + 1))
-        self.assertEqual((out_ucast_packets, out_ucast_packets_pre + 1),
+        self.assertTrue((out_ucast_packets == out_ucast_packets_pre + 1),
                         'vlan OUT unicats packets counter {} != {}'.format(
                             out_ucast_packets, out_ucast_packets_pre + 1))
-        self.assertEqual(((out_bytes - out_bytes_pre), 0),
+        self.assertTrue(((out_bytes - out_bytes_pre) != 0),
                         'vlan OUT bytes counter is 0')
 
         print("Sending L2 packet port 0 -> port 24 [access vlan=10])")
@@ -1769,10 +1936,18 @@ class L2VlanTest(SaiHelper):
                         'vlan OUT unicast packets counter is not 0')
         self.assertEqual(out_bytes, 0, 'vlan OUT bytes counter is not 0')
 
-    def vlanFloodPruneTest(self):
-        """
-        Verifies ingress port pruning on ports and LAG when flooding
-        """
+    def tearDown(self):
+        super(countersClearTest, self).tearDown()
+
+
+class vlanFloodPruneTest(L2VlanTestHelper):
+    """
+    Verifies ingress port pruning on ports and LAG when flooding
+    """
+    def setUp(self):
+        super(vlanFloodPruneTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanFloodPruneTest()")
         sai_thrift_set_vlan_attribute(
             self.client, self.vlan10, learn_disable=True)
@@ -1940,8 +2115,8 @@ class L2VlanTest(SaiHelper):
                  [self.dev_port0], [self.dev_port24],
                  [self.dev_port1], [self.dev_port25]])
 
-            sai_thrift_set_port_attribute(
-                self.client, self.port31, port_vlan_id=1)
+            sai_thrift_set_port_attribut(
+                self.client, self.port31, port_vlan_id=0)
             self.client.sai_thrift_remove_vlan_member(
                 vlan_member3)  # Remove port 31 from vlan 10
             sai_thrift_remove_lag_member(
@@ -1957,8 +2132,8 @@ class L2VlanTest(SaiHelper):
                 [lag0_ports, lag1_ports, [self.dev_port24],
                  [self.dev_port1], [self.dev_port25]])
         finally:
-            sai_thrift_set_lag_attribute(self.client, lag, port_vlan_id=1)
-            sai_thrift_set_lag_attribute(self.client, lag2, port_vlan_id=1)
+            sai_thrift_set_lag_attribute(self.client, lag, port_vlan_id=0)
+            sai_thrift_set_lag_attribute(self.client, lag2, port_vlan_id=0)
 
             self.client.sai_thrift_remove_vlan_member(vlan_member)
             self.client.sai_thrift_remove_vlan_member(vlan_member2)
@@ -1975,11 +2150,19 @@ class L2VlanTest(SaiHelper):
                 self.client, self.vlan10, learn_disable=False)
             sai_thrift_remove_bridge_port(self.client, self.port31_bp)
 
-    def vlanStatsTest(self):
-        """
-        Verifies ingress and egress Unicast/Multicast/Broadcast
-        statistics for VLAN
-        """
+    def tearDown(self):
+        super(vlanFloodPruneTest, self).tearDown()
+
+
+class vlanStatsTest(L2VlanTestHelper):
+    """
+    Verifies ingress and egress Unicast/Multicast/Broadcast
+    statistics for VLAN
+    """
+    def setUp(self):
+        super(vlanStatsTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanStatsTest()")
         stats = sai_thrift_get_vlan_stats(self.client, self.vlan10)
         in_bytes = stats["SAI_VLAN_STAT_IN_OCTETS"]
@@ -1989,25 +2172,33 @@ class L2VlanTest(SaiHelper):
         out_packets = stats["SAI_VLAN_STAT_OUT_PACKETS"]
         out_ucast_packets = stats["SAI_VLAN_STAT_OUT_UCAST_PKTS"]
 
-        self.assertEqual((in_packets, self.i_pkt_count),
+        self.assertTrue((in_packets == self.i_pkt_count),
                         'vlan IN packets counter {} != {}'.format(
                             in_packets, self.i_pkt_count))
-        self.assertEqual((in_ucast_packets, self.i_pkt_count),
+        self.assertTrue((in_ucast_packets == self.i_pkt_count),
                         'vlan IN unicast packets counter {} != {}'.format(
                             in_ucast_packets, self.i_pkt_count))
         self.assertNotEqual((in_bytes, 0), 'vlan IN bytes counter is 0')
-        self.assertEqual((out_packets, self.e_pkt_count),
+        self.assertTrue((out_packets == self.e_pkt_count),
                         'vlan OUT packets counter {} != {}'.format(
                             out_packets, self.e_pkt_count))
-        self.assertEqual((out_ucast_packets, self.e_pkt_count),
+        self.assertTrue((out_ucast_packets == self.e_pkt_count),
                         'vlan OUT unicast packets counter {} != {}'.format(
                             out_ucast_packets, self.e_pkt_count))
         self.assertNotEqual((out_bytes, 0), 'vlan OUT bytes counter is 0')
 
-    def vlanMemberList(self):
-        """
-        Verifies VLAN member list using SAI_VLAN_ATTR_MEMBER_LIST
-        """
+    def tearDown(self):
+        super(vlanStatsTest, self).tearDown()
+
+
+class vlanMemberList(L2VlanTestHelper):
+    """
+    Verifies VLAN member list using SAI_VLAN_ATTR_MEMBER_LIST
+    """
+    def setUp(self):
+        super(vlanMemberList, self).setUp()
+
+    def runTest(self):
         print("vlanMemberList")
         vlan_member_list = sai_thrift_object_list_t(count=100)
         mbr_list = sai_thrift_get_vlan_attribute(
@@ -2063,10 +2254,18 @@ class L2VlanTest(SaiHelper):
         self.assertEqual(self.vlan10_member3, vlan_members[3])
         self.assertEqual(self.vlan10_member4, vlan_members[4])
 
-    def vlanNegativeTest(self):
-        """
-        Verifies VLAN fails under inappropriate conditions
-        """
+    def tearDown(self):
+        super(vlanMemberList, self).tearDown()
+
+
+class vlanNegativeTest(L2VlanTestHelper):
+    """
+    Verifies VLAN fails under inappropriate conditions
+    """
+    def setUp(self):
+        super(vlanNegativeTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanNegativeTest()")
         # Create duplicate vlan
         duplicate_vlan = sai_thrift_create_vlan(self.client, vlan_id=10)
@@ -2106,10 +2305,18 @@ class L2VlanTest(SaiHelper):
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
         self.assertEqual(incorrect_member, 0)
 
-    def singleVlanMemberTest(self):
-        """
-        Verifies packet is dropped when ingress on single vlan member
-        """
+    def tearDown(self):
+        super(vlanNegativeTest, self).tearDown()
+
+
+class singleVlanMemberTest(L2VlanTestHelper):
+    """
+    Verifies packet is dropped when ingress on single vlan member
+    """
+    def setUp(self):
+        super(singleVlanMemberTest, self).setUp()
+
+    def runTest(self):
         print("\nsingleVlanMemberTest()")
         vlan100 = sai_thrift_create_vlan(self.client, vlan_id=100)
         vlan_member = sai_thrift_create_vlan_member(
@@ -2152,10 +2359,18 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_vlan_member(self.client, vlan_member)
             sai_thrift_remove_vlan(self.client, vlan100)
 
-    def vlanLearningTest(self):
-        """
-        Verifies disable learn on vlan
-        """
+    def tearDown(self):
+        super(singleVlanMemberTest, self).tearDown()
+
+
+class vlanLearningTest(L2VlanTestHelper):
+    """
+    Verifies disable learn on vlan
+    """
+    def setUp(self):
+        super(vlanLearningTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanLearningTest()")
 
         vlan100 = sai_thrift_create_vlan(self.client,
@@ -2236,11 +2451,11 @@ class L2VlanTest(SaiHelper):
 
         finally:
             sai_thrift_set_port_attribute(
-                self.client, self.port26, port_vlan_id=1)
+                self.client, self.port26, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port27, port_vlan_id=1)
+                self.client, self.port27, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port30, port_vlan_id=1)
+                self.client, self.port30, port_vlan_id=0)
 
             sai_thrift_remove_vlan_member(self.client, vlan_member101)
             sai_thrift_remove_vlan_member(self.client, vlan_member102)
@@ -2253,11 +2468,19 @@ class L2VlanTest(SaiHelper):
             sai_thrift_remove_vlan(self.client, vlan100)
             sai_thrift_remove_vlan(self.client, vlan200)
 
-    def vlanMaxLearnedAddressesTest(self):
-        """
-        Verifies disable learn on vlan if mac entries in fdb table
-        equals or more then MaxLearnedAddresses attribute
-        """
+    def tearDown(self):
+        super(vlanLearningTest, self).tearDown()
+
+
+class vlanMaxLearnedAddressesTest(L2VlanTestHelper):
+    """
+    Verifies disable learn on vlan if mac entries in fdb table
+    equals or more then MaxLearnedAddresses attribute
+    """
+    def setUp(self):
+        super(vlanMaxLearnedAddressesTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanMaxLearnedAddressesTest()")
 
         vlan100 = sai_thrift_create_vlan(self.client,
@@ -2394,11 +2617,11 @@ class L2VlanTest(SaiHelper):
                 entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
 
             sai_thrift_set_port_attribute(
-                self.client, self.port26, port_vlan_id=1)
+                self.client, self.port26, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port27, port_vlan_id=1)
+                self.client, self.port27, port_vlan_id=0)
             sai_thrift_set_port_attribute(
-                self.client, self.port30, port_vlan_id=1)
+                self.client, self.port30, port_vlan_id=0)
 
             sai_thrift_remove_vlan_member(self.client, vlan_member101)
             sai_thrift_remove_vlan_member(self.client, vlan_member102)
@@ -2410,3 +2633,137 @@ class L2VlanTest(SaiHelper):
 
             sai_thrift_remove_vlan(self.client, vlan200)
             sai_thrift_remove_vlan(self.client, vlan100)
+
+    def tearDown(self):
+        super(vlanMaxLearnedAddressesTest, self).tearDown()
+
+
+class forwardingWithIPFieldsTest(L2VlanTestHelper):
+    """
+    Forwarding b/w Vlans with wrong IP fields
+    """
+    def setUp(self):
+        super(forwardingWithIPFieldsTest, self).setUp()
+
+    def runTest(self):
+        print("\nforwardingWithIPFieldsTest()")
+        try:
+            print(
+                "Sending L2 packet with DIP 0 - port 1 -> port 25")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_dst='0.0.0.0',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_dst='0.0.0.0',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print(
+                "Sending L2 packet with SIP 0 - port 1 -> port 25 ")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_src='0.0.0.0',
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_src='0.0.0.0',
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print(
+                "Sending L2 packet with DIP 127.0.0.1 - port 1 -> port 25")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_dst='127.0.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_dst='127.0.0.1',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print(
+                "Sending L2 packet with SIP 127.0.0.1 - port 1 -> port 25 ")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_dst='127.0.0.1',
+                                    ip_id=102,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_dst='127.0.0.1',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=64)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+            print(
+                "Sending L2 packet with TTL 0 - port 1 -> port 25")
+            pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                    eth_src='00:22:22:22:22:22',
+                                    dl_vlan_enable=True,
+                                    vlan_vid=10,
+                                    ip_src='172.16.0.3',
+                                    ip_dst='172.16.0.1',
+                                    ip_id=102,
+                                    ip_ttl=0)
+            exp_pkt = simple_tcp_packet(eth_dst='00:44:44:44:44:44',
+                                        eth_src='00:22:22:22:22:22',
+                                        ip_src='172.16.0.3',
+                                        ip_dst='172.16.0.1',
+                                        ip_id=102,
+                                        dl_vlan_enable=True,
+                                        vlan_vid=10,
+                                        ip_ttl=0)
+
+            send_packet(self, self.dev_port1, pkt)
+            verify_packet(self, exp_pkt, self.dev_port25)
+            self.i_pkt_count += 1
+            self.e_pkt_count += 1
+
+        finally:
+            pass
+
+    def tearDown(self):
+        super(forwardingWithIPFieldsTest, self).tearDown()

@@ -21,7 +21,7 @@ from sai_base_test import *
 
 
 @group("draft")
-class FdbAttributeTest(SaiHelper):
+class FdbAttributeTest(PlatformSaiHelper):
     '''
     Basic FDB attributes getting and setting test
     '''
@@ -69,13 +69,13 @@ class FdbAttributeTest(SaiHelper):
 
 
 @group("draft")
-class FdbNoLearnTest(SaiHelper):
+class FdbNoLearnTestHelper(PlatformSaiHelper):
     '''
     Verify different cases when MAC addresses should not be learned
     '''
 
     def setUp(self):
-        super(FdbNoLearnTest, self).setUp()
+        super(FdbNoLearnTestHelper, self).setUp()
 
         vlan_id = 10
         self.src_mac = "00:11:11:11:11:11"
@@ -99,23 +99,23 @@ class FdbNoLearnTest(SaiHelper):
                                               vlan_vid=vlan_id,
                                               pktlen=104)
 
-    def runTest(self):
-        self.vlanPortNoLearnTest()
-        self.vlanLagNoLearnTest()
-        self.bpPortNoLearnTest()
-        self.bpLagNoLearnTest()
-        self.noBpNoLearnTest()
-        self.removedBpNoLearnTest()
+    def tearDown(self):
+        super(FdbNoLearnTestHelper, self).tearDown()
 
-    def vlanPortNoLearnTest(self):
-        '''
-        Verify if MAC addresses are not learned on port when VLAN learning
-        is disabled
-        Send a packet on port0 with SMAC 00:11:11:11:11:11 and we verify it
-        was broadcasted on other ports in VLAN.
-        Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
-        it was also broadcasted on other ports in VLAN
-        '''
+
+class vlanPortNoLearnTest(FdbNoLearnTestHelper):
+    '''
+    Verify if MAC addresses are not learned on port when VLAN learning
+    is disabled
+    Send a packet on port0 with SMAC 00:11:11:11:11:11 and we verify it
+    was broadcasted on other ports in VLAN.
+    Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
+    it was also broadcasted on other ports in VLAN
+    '''
+    def setUp(self):
+        super(vlanPortNoLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanPortNoLearnTest()")
 
         try:
@@ -151,15 +151,23 @@ class FdbNoLearnTest(SaiHelper):
             sai_thrift_set_vlan_attribute(
                 self.client, self.vlan10, learn_disable=False)
 
-    def vlanLagNoLearnTest(self):
-        '''
-        Verify if MAC addresses are not learned on LAG when VLAN learning
-        is disabled
-        Send a packet on LAG1 with SMAC 00:11:11:11:11:11, and verify it was
-        broadcasted on other ports in VLAN.
-        Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
-        it was also broadcasted on other ports in VLAN
-        '''
+    def tearDown(self):
+        super(vlanPortNoLearnTest, self).tearDown()
+
+
+class vlanLagNoLearnTest(FdbNoLearnTestHelper):
+    '''
+    Verify if MAC addresses are not learned on LAG when VLAN learning
+    is disabled
+    Send a packet on LAG1 with SMAC 00:11:11:11:11:11, and verify it was
+    broadcasted on other ports in VLAN.
+    Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
+    it was also broadcasted on other ports in VLAN
+    '''
+    def setUp(self):
+        super(vlanLagNoLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanLagNoLearnTest()")
 
         try:
@@ -193,15 +201,23 @@ class FdbNoLearnTest(SaiHelper):
             sai_thrift_set_vlan_attribute(
                 self.client, self.vlan10, learn_disable=False)
 
-    def bpPortNoLearnTest(self):
-        '''
-        Verify if MAC addresses are not learned on port when bridge port
-        learning is disabled.
-        Disable learning on port0, send a packet on port0 with SMAC
-        00:11:11:11:11:11 and verify it was broadcasted on other ports in VLAN.
-        Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
-        it was also broadcasted on other ports in VLAN
-        '''
+    def tearDown(self):
+        super(vlanLagNoLearnTest, self).tearDown()
+
+
+class bpPortNoLearnTest(FdbNoLearnTestHelper):
+    '''
+    Verify if MAC addresses are not learned on port when bridge port
+    learning is disabled.
+    Disable learning on port0, send a packet on port0 with SMAC
+    00:11:11:11:11:11 and verify it was broadcasted on other ports in VLAN.
+    Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
+    it was also broadcasted on other ports in VLAN
+    '''
+    def setUp(self):
+        super(bpPortNoLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nbpPortNoLearnTest()")
 
         try:
@@ -240,16 +256,24 @@ class FdbNoLearnTest(SaiHelper):
                 self.client, self.port0_bp,
                 fdb_learning_mode=SAI_BRIDGE_PORT_FDB_LEARNING_MODE_HW)
 
-    def bpLagNoLearnTest(self):
-        '''
-        Verify if MAC addresses are not learned on port when LAG bridge
-        port learning is disabled.
-        Disable learning on LAG1, send a packet on port0 with
-        SMAC: 00:11:11:11:11:11, and then we verify it was broadcasted on other
-        ports in VLAN.
-        Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
-        it was also broadcasted on other ports in VLAN
-        '''
+    def tearDown(self):
+        super(bpPortNoLearnTest, self).tearDown()
+
+
+class bpLagNoLearnTest(FdbNoLearnTestHelper):
+    '''
+    Verify if MAC addresses are not learned on port when LAG bridge
+    port learning is disabled.
+    Disable learning on LAG1, send a packet on port0 with
+    SMAC: 00:11:11:11:11:11, and then we verify it was broadcasted on other
+    ports in VLAN.
+    Next send a packet on port1 with DMAC 00:11:11:11:11:11 and verify
+    it was also broadcasted on other ports in VLAN
+    '''
+    def setUp(self):
+        super(bpLagNoLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nbpLagNoLearnTest()")
 
         try:
@@ -286,11 +310,19 @@ class FdbNoLearnTest(SaiHelper):
                 self.client, self.lag1_bp,
                 fdb_learning_mode=SAI_BRIDGE_PORT_FDB_LEARNING_MODE_HW)
 
-    def noBpNoLearnTest(self):
-        '''
-        Verify if MAC is not learned on port if bridge port is not created
-        on that port
-        '''
+    def tearDown(self):
+        super(bpLagNoLearnTest, self).tearDown()
+
+
+class noBpNoLearnTest(FdbNoLearnTestHelper):
+    '''
+    Verify if MAC is not learned on port if bridge port is not created
+    on that port
+    '''
+    def setUp(self):
+        super(noBpNoLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nnoBpNoLearnTest()")
 
         test_port = self.port24
@@ -331,11 +363,19 @@ class FdbNoLearnTest(SaiHelper):
             sai_thrift_set_port_attribute(
                 self.client, test_port, port_vlan_id=0)
 
-    def removedBpNoLearnTest(self):
-        '''
-        Verify if MAC address is not learned on port after bridge port
-        is removed on that port
-        '''
+    def tearDown(self):
+        super(noBpNoLearnTest, self).tearDown()
+
+
+class removedBpNoLearnTest(FdbNoLearnTestHelper):
+    '''
+    Verify if MAC address is not learned on port after bridge port
+    is removed on that port
+    '''
+    def setUp(self):
+        super(removedBpNoLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nremovedBpNoLearnTest()")
 
         try:
@@ -372,15 +412,18 @@ class FdbNoLearnTest(SaiHelper):
                 admin_state=True)
             self.assertNotEqual(self.port0_bp, 0)
 
+    def tearDown(self):
+        super(removedBpNoLearnTest, self).tearDown()
+
 
 @group("draft")
-class FdbLearnTest(SaiHelper):
+class FdbLearnTestHelper(PlatformSaiHelper):
     '''
     Verify different cases of FDB learning
     '''
 
     def setUp(self):
-        super(FdbLearnTest, self).setUp()
+        super(FdbLearnTestHelper, self).setUp()
 
         self.vlan_id = 10
 
@@ -403,28 +446,29 @@ class FdbLearnTest(SaiHelper):
         self.dst_ports = [[self.dev_port0], [self.dev_port1],
                           self.utg_lag_ports, self.tg_lag_ports]
 
-    def runTest(self):
-        self.dynamicMacLearnTest()
-        self.macLearnErrorTest()
-
     def tearDown(self):
         # remove LAG2 from VLAN 10
         sai_thrift_remove_vlan_member(self.client, self.vlan10_member3)
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
-        super(FdbLearnTest, self).tearDown()
+        super(FdbLearnTestHelper, self).tearDown()
 
-    def dynamicMacLearnTest(self):  # noqa pylint: disable=too-many-branches
-        '''
-        Verify if MAC addresses are learned on tagged and untagged VLAN
-        ports and LAGs. The test checks also if MAC addresses are learned on
-        newly added VLAN and LAG member.
-        Send packets with given SMACs and verify they are broadcasted
-        on other ports.
-        Next send packets with DMACs == previous SMACs and verify they are
-        forwarded only to the proper ports
-        '''
+
+class dynamicMacLearnTest(FdbLearnTestHelper):  # noqa pylint: disable=too-many-branches
+    '''
+    Verify if MAC addresses are learned on tagged and untagged VLAN
+    ports and LAGs. The test checks also if MAC addresses are learned on
+    newly added VLAN and LAG member.
+    Send packets with given SMACs and verify they are broadcasted
+    on other ports.
+    Next send packets with DMACs == previous SMACs and verify they are
+    forwarded only to the proper ports
+    '''
+    def setUp(self):
+        super(dynamicMacLearnTest, self).setUp()
+
+    def runTest(self):
         print("\ndynamicMacLearnTest()")
 
         try:
@@ -659,17 +703,25 @@ class FdbLearnTest(SaiHelper):
             sai_thrift_remove_vlan_member(self.client, vlan10_member4)
             sai_thrift_remove_bridge_port(self.client, new_vlan_member_bp)
 
-    def macLearnErrorTest(self):
-        '''
-        Verify if MAC addresses are not learned when different undesirable
-        conditions occured:
-        1 - invalid VLAN tag
-        2 - src_mac is a broadcast address (packet drop)
-        3 - src_mac is a multicast address (packet drop)
-        4 - src_mac previously added statically
-        5 - removed VLAN member
-        6 - removed LAG member
-        '''
+    def tearDown(self):
+        super(dynamicMacLearnTest, self).tearDown()
+
+
+class macLearnErrorTest(FdbLearnTestHelper):
+    '''
+    Verify if MAC addresses are not learned when different undesirable
+    conditions occured:
+    1 - invalid VLAN tag
+    2 - src_mac is a broadcast address (packet drop)
+    3 - src_mac is a multicast address (packet drop)
+    4 - src_mac previously added statically
+    5 - removed VLAN member
+    6 - removed LAG member
+    '''
+    def setUp(self):
+        super(macLearnErrorTest, self).setUp()
+
+    def runTest(self):
         print("\nmacLearnErrorTest()")
 
         access_port = self.dev_port0  # untagged
@@ -956,15 +1008,18 @@ class FdbLearnTest(SaiHelper):
                 self.client, vlan_id=self.vlan10, bridge_port_id=self.port1_bp,
                 vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
 
+    def tearDown(self):
+        super(macLearnErrorTest, self).tearDown()
+
 
 @group("draft")
-class FdbStaticMacTest(SaiHelper):
+class FdbStaticMacTestHelper(PlatformSaiHelper):
     '''
     Verify static MAC entries
     '''
 
     def setUp(self):
-        super(FdbStaticMacTest, self).setUp()
+        super(FdbStaticMacTestHelper, self).setUp()
 
         self.vlan_id = 10
 
@@ -1008,22 +1063,22 @@ class FdbStaticMacTest(SaiHelper):
         self.assertEqual(status, SAI_STATUS_SUCCESS)
         print("FDB entries added")
 
-    def runTest(self):
-        self.staticMacForwardTest()
-        self.selfForwardingTest()
-
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
-        super(FdbStaticMacTest, self).tearDown()
+        super(FdbStaticMacTestHelper, self).tearDown()
 
-    def staticMacForwardTest(self):
-        '''
-        Static MAC tests
-        Send a packet from one port with DMAC installed on other port and
-        verify packet forwarding
-        '''
+class staticMacForwardTest(FdbStaticMacTestHelper):
+    '''
+    Static MAC tests
+    Send a packet from one port with DMAC installed on other port and
+    verify packet forwarding
+    '''
+    def setUp(self):
+        super(staticMacForwardTest, self).setUp()
+
+    def runTest(self):
         print("\nstaticMacForwardTest()")
 
         try:
@@ -1053,11 +1108,18 @@ class FdbStaticMacTest(SaiHelper):
 
         except BaseException:
             print("Test error occured")
+    def tearDown(self):
+        super(staticMacForwardTest, self).tearDown()
 
-    def selfForwardingTest(self):
-        '''
-        Verify if packet send with ingress port MAC address is dropped
-        '''
+
+class selfForwardingTest(FdbStaticMacTestHelper):
+    '''
+    Verify if packet send with ingress port MAC address is dropped
+    '''
+    def setUp(self):
+        super(selfForwardingTest, self).setUp()
+
+    def runTest(self):
         print("\nselfForwardingTest()")
 
         test_port_dev = self.dev_port0
@@ -1070,15 +1132,18 @@ class FdbStaticMacTest(SaiHelper):
         verify_no_other_packets(self)
         print("\tOK")
 
+    def tearDown(self):
+        super(selfForwardingTest, self).tearDown()
+
 
 @group("draft")
-class FdbMacMoveTest(SaiHelper):
+class FdbMacMoveTestHelper(PlatformSaiHelper):
     '''
     Verify MAC entries moving
     '''
 
     def setUp(self):
-        super(FdbMacMoveTest, self).setUp()
+        super(FdbMacMoveTestHelper, self).setUp()
 
         # change port1 original tagging mode
         sai_thrift_remove_vlan_member(self.client, self.vlan10_member1)
@@ -1143,11 +1208,6 @@ class FdbMacMoveTest(SaiHelper):
                                              bridge_port_id=self.port24_bp)
         self.assertEqual(status, SAI_STATUS_SUCCESS)
 
-    def runTest(self):
-        self.dynamicMacMoveTest()
-        self.dynamicMacMoveTest(static_entry=True)
-        self.staticMacMoveTest()
-
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
@@ -1175,25 +1235,34 @@ class FdbMacMoveTest(SaiHelper):
             bridge_port_id=self.port1_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
 
-        super(FdbMacMoveTest, self).tearDown()
+        super(FdbMacMoveTestHelper, self).tearDown()
 
-    def dynamicMacMoveTest(self, static_entry=False):
-        '''
-        Dynamic MAC move test that verify if after receiving packet with known
-        SMAC, but from other port that on which it was learned previously,
-        next packets with such DMACs are forwarded to the new port.
+class dynamicMacMoveTests(FdbMacMoveTestHelper):
+    '''
+    Dynamic MAC move test that verify if after receiving packet with known
+    SMAC, but from other port that on which it was learned previously,
+    next packets with such DMACs are forwarded to the new port.
 
-        The test represents a chain of moves:
-            - port -> port
-            - port -> LAG
-            - LAG  -> LAG
-            - LAG  -> port
+    The test represents a chain of moves:
+        - port -> port
+        - port -> LAG
+        - LAG  -> LAG
+        - LAG  -> port
 
-        Args:
-             static_entry (bool): Check move for static fdb entry
-        '''
+    Args:
+         entry_type (int): Check move for static fdb entry
+    '''
+    def setUp(self):
+        super(dynamicMacMoveTests, self).setUp()
+
+    def runTest(self):
         print("\ndynamicMacMoveTest()")
+        self.dynamicMacMoveTest()
+        self.dynamicMacMoveTest(entry_type=SAI_FDB_ENTRY_TYPE_STATIC)
+        # SAI_FDB_ENTRY_TYPE_STATIC_MACMOVE
+        self.dynamicMacMoveTest(entry_type=SAI_FDB_ENTRY_TYPE_STATIC + 1)
 
+    def dynamicMacMoveTest(self, entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC):
         # a series of ports representing moving chain:
         # port->port->LAG->LAG->port
         port_chain = [self.dev_port0, self.dev_port1, self.dev_port5,
@@ -1207,8 +1276,8 @@ class FdbMacMoveTest(SaiHelper):
                                      eth_src=self.chck_mac)
 
         try:
-            if static_entry:
-                # inititally add moving MAC to FDB as static
+            if entry_type == SAI_FDB_ENTRY_TYPE_STATIC:
+                # initially add moving MAC to FDB as static
                 moving_fdb_entry = sai_thrift_fdb_entry_t(
                     switch_id=self.switch_id,
                     mac_address=self.moving_mac,
@@ -1221,6 +1290,18 @@ class FdbMacMoveTest(SaiHelper):
                     allow_mac_move=True)
                 self.assertEqual(status, SAI_STATUS_SUCCESS)
 
+            if entry_type == SAI_FDB_ENTRY_TYPE_STATIC + 1:
+                # initially add moving MAC to FDB as static_macmove
+                moving_fdb_entry = sai_thrift_fdb_entry_t(
+                    switch_id=self.switch_id,
+                    mac_address=self.moving_mac,
+                    bv_id=self.vlan10)
+                status = sai_thrift_create_fdb_entry(
+                    self.client,
+                    moving_fdb_entry,
+                    type=SAI_FDB_ENTRY_TYPE_STATIC + 1,
+                    bridge_port_id=self.port0_bp)
+                self.assertEqual(status, SAI_STATUS_SUCCESS)
             for src_port in port_chain:
                 print("Sending packet on port %d, %s -> %s - learn and "
                       "forward to port %d" % (src_port, self.moving_mac,
@@ -1249,19 +1330,27 @@ class FdbMacMoveTest(SaiHelper):
             print("\tVerification complete\n")
 
         finally:
-            if static_entry:
+            if entry_type != SAI_FDB_ENTRY_TYPE_DYNAMIC:
                 sai_thrift_remove_fdb_entry(self.client, moving_fdb_entry)
             else:
                 # flush dynamic MACs from FDB
                 sai_thrift_flush_fdb_entries(
                     self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_DYNAMIC)
 
-    def staticMacMoveTest(self):
-        '''
-        static MAC move tests.
-        Changee a bridge port id of some static FDB entry and check that
-        a packet is forwarded to this new port.
-        '''
+    def tearDown(self):
+        super(dynamicMacMoveTests, self).tearDown()
+
+
+class staticMacMoveTest(FdbMacMoveTestHelper):
+    '''
+    static MAC move tests.
+    Changee a bridge port id of some static FDB entry and check that
+    a packet is forwarded to this new port.
+    '''
+    def setUp(self):
+        super(staticMacMoveTest, self).setUp()
+
+    def runTest(self):
         print("\nstaticMacMoveTest()")
 
         # a series of ports representing moving chain:
@@ -1317,9 +1406,12 @@ class FdbMacMoveTest(SaiHelper):
         finally:
             sai_thrift_remove_fdb_entry(self.client, moving_fdb_entry)
 
+    def tearDown(self):
+        super(staticMacMoveTest, self).tearDown()
+
 
 @group("draft")
-class FdbFlushTest(SaiHelper):
+class FdbFlushTestHelper(PlatformSaiHelper):
     '''
     MAC flush test that checks flushing functionality for static and dynamic
     MAC addresses in FDB.
@@ -1329,7 +1421,7 @@ class FdbFlushTest(SaiHelper):
     '''
 
     def setUp(self):
-        super(FdbFlushTest, self).setUp()
+        super(FdbFlushTestHelper, self).setUp()
 
         # change port1 (VLAN 10) original tagging mode
         sai_thrift_remove_vlan_member(self.client, self.vlan10_member1)
@@ -1406,23 +1498,6 @@ class FdbFlushTest(SaiHelper):
         self.trunk_port_bp = self.port24_bp
         self.trunk_dev_port = self.dev_port24
 
-    def runTest(self):
-        self.flushStaticPerVlanTest()
-        self.flushDynamicPerVlanTest()
-        self.flushAllPerVlanTest()
-        self.flushStaticPerPortTest()
-        self.flushDynamicPerPortTest()
-        self.flushAllPerPortTest()
-        self.flushStaticPerLagTest()
-        self.flushDynamicPerLagTest()
-        self.flushAllPerLagTest()
-        self.flushStaticPerVlanAndPortTest()
-        self.flushDynamicPerVlanAndPortTest()
-        self.flushAllPerVlanAndPortTest()
-        self.flushAllStaticTest()
-        self.flushAllDynamicTest()
-        self.flushAllMacsTest()
-
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
@@ -1456,12 +1531,14 @@ class FdbFlushTest(SaiHelper):
             bridge_port_id=self.lag2_bp,
             vlan_tagging_mode=SAI_VLAN_TAGGING_MODE_TAGGED)
 
-        super(FdbFlushTest, self).tearDown()
+        super(FdbFlushTestHelper, self).tearDown()
 
     # additional helper functions
-    def _prepareFdb(self):
+    def _prepareFdb(self, static_fdb_entry_type=SAI_FDB_ENTRY_TYPE_STATIC):
         '''
         Helper function for preparing FDB with a large number of entries
+        Args:
+            static_fdb_entry_type (int): FDB entry type to add
         '''
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
@@ -1479,7 +1556,7 @@ class FdbFlushTest(SaiHelper):
             sai_thrift_create_fdb_entry(
                 self.client,
                 getattr(self, "vlan10_fdb_entry%d" % i),
-                type=SAI_FDB_ENTRY_TYPE_STATIC,
+                type=static_fdb_entry_type,
                 bridge_port_id=self.vlan10_ports_bp[i])
             self.assertEqual(self.status(), SAI_STATUS_SUCCESS)
 
@@ -1492,7 +1569,7 @@ class FdbFlushTest(SaiHelper):
             sai_thrift_create_fdb_entry(
                 self.client,
                 getattr(self, "vlan20_fdb_entry%d" % i),
-                type=SAI_FDB_ENTRY_TYPE_STATIC,
+                type=static_fdb_entry_type,
                 bridge_port_id=self.vlan20_ports_bp[i])
             self.assertEqual(self.status(), SAI_STATUS_SUCCESS)
 
@@ -1727,10 +1804,14 @@ class FdbFlushTest(SaiHelper):
                 break
 
     # tests funcions
-    def flushStaticPerVlanTest(self):
-        '''
-        Verify flushing of static MAC entries by VLAN
-        '''
+class flushStaticPerVlanTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of static MAC entries by VLAN
+    '''
+    def setUp(self):
+        super(flushStaticPerVlanTest, self).setUp()
+
+    def runTest(self):
         print("\nflushStaticPerVlanTest()")
         self._prepareFdb()
 
@@ -1765,10 +1846,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushDynamicPerVlanTest(self):
-        '''
-        Verify flushing of dynamic MAC entries by VLAN
-        '''
+    def tearDown(self):
+        super(flushStaticPerVlanTest, self).tearDown()
+
+
+class flushDynamicPerVlanTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of dynamic MAC entries by VLAN
+    '''
+    def setUp(self):
+        super(flushDynamicPerVlanTest, self).setUp()
+
+    def runTest(self):
         print("\nflushDynamicPerVlanTest()")
         self._prepareFdb()
 
@@ -1803,10 +1892,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushAllPerVlanTest(self):
-        '''
-        Verify flushing of all kinds of MAC entries by VLAN
-        '''
+    def tearDown(self):
+        super(flushDynamicPerVlanTest, self).tearDown()
+
+
+class flushAllPerVlanTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of all kinds of MAC entries by VLAN
+    '''
+    def setUp(self):
+        super(flushAllPerVlanTest, self).setUp()
+
+    def runTest(self):
         print("\nflushAllPerVlanTest()")
         self._prepareFdb()
 
@@ -1843,10 +1940,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushStaticPerPortTest(self):
-        '''
-        Verify flushing of static MAC entries by port
-        '''
+    def tearDown(self):
+        super(flushAllPerVlanTest, self).tearDown()
+
+
+class flushStaticPerPortTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of static MAC entries by port
+    '''
+    def setUp(self):
+        super(flushStaticPerPortTest, self).setUp()
+
+    def runTest(self):
         print("\nflushStaticPerPortTest()")
         self._prepareFdb()
 
@@ -1896,10 +2001,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushDynamicPerPortTest(self):
-        '''
-        Verify flushing of dynamic MAC entries by port
-        '''
+    def tearDown(self):
+        super(flushStaticPerPortTest, self).tearDown()
+
+
+class flushDynamicPerPortTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of dynamic MAC entries by port
+    '''
+    def setUp(self):
+        super(flushDynamicPerPortTest, self).setUp()
+
+    def runTest(self):
         print("\nflushDynamicPerPortTest()")
         self._prepareFdb()
 
@@ -1949,10 +2062,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushAllPerPortTest(self):
-        '''
-        Verify flushing of all kinds of MAC entries by port
-        '''
+    def tearDown(self):
+        super(flushDynamicPerPortTest, self).tearDown()
+
+
+class flushAllPerPortTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of all kinds of MAC entries by port
+    '''
+    def setUp(self):
+        super(flushAllPerPortTest, self).setUp()
+
+    def runTest(self):
         print("\nflushAllPerPortTest()")
         self._prepareFdb()
 
@@ -2009,10 +2130,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushStaticPerLagTest(self):
-        '''
-        Verify flushing of static MAC entries by LAG
-        '''
+    def tearDown(self):
+        super(flushAllPerPortTest, self).tearDown()
+
+
+class flushStaticPerLagTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of static MAC entries by LAG
+    '''
+    def setUp(self):
+        super(flushStaticPerLagTest, self).setUp()
+
+    def runTest(self):
         print("\nflushStaticPerLagTest()")
         self._prepareFdb()
 
@@ -2063,10 +2192,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushDynamicPerLagTest(self):
-        '''
-        Verify flushing of dynamic MAC entries by LAG
-        '''
+    def tearDown(self):
+        super(flushStaticPerLagTest, self).tearDown()
+
+
+class flushDynamicPerLagTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of dynamic MAC entries by LAG
+    '''
+    def setUp(self):
+        super(flushDynamicPerLagTest, self).setUp()
+
+    def runTest(self):
         print("\nflushDynamicPerLagTest()")
         self._prepareFdb()
 
@@ -2117,10 +2254,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushAllPerLagTest(self):
-        '''
-        Verify flushing of all kinds of MAC entries by LAG
-        '''
+    def tearDown(self):
+        super(flushDynamicPerLagTest, self).tearDown()
+
+
+class flushAllPerLagTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of all kinds of MAC entries by LAG
+    '''
+    def setUp(self):
+        super(flushAllPerLagTest, self).setUp()
+
+    def runTest(self):
         print("\nflushAllPerLagTest()")
         self._prepareFdb()
 
@@ -2171,10 +2316,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushStaticPerVlanAndPortTest(self):
-        '''
-        Verify flushing of static MAC entries by VLAN and port
-        '''
+    def tearDown(self):
+        super(flushAllPerLagTest, self).tearDown()
+
+
+class flushStaticPerVlanAndPortTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of static MAC entries by VLAN and port
+    '''
+    def setUp(self):
+        super(flushStaticPerVlanAndPortTest, self).setUp()
+
+    def runTest(self):
         print("\nflushStaticPerVlanAndPortTest()")
         self._prepareFdb()
 
@@ -2239,10 +2392,18 @@ class FdbFlushTest(SaiHelper):
 
             self._tearDownTrunkPort()
 
-    def flushDynamicPerVlanAndPortTest(self):
-        '''
-        Verify flushing of dynamic MAC entries by VLAN and port
-        '''
+    def tearDown(self):
+        super(flushStaticPerVlanAndPortTest, self).tearDown()
+
+
+class flushDynamicPerVlanAndPortTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of dynamic MAC entries by VLAN and port
+    '''
+    def setUp(self):
+        super(flushDynamicPerVlanAndPortTest, self).setUp()
+
+    def runTest(self):
         print("\nflushDynamicPerVlanAndPortTest()")
         self._prepareFdb()
 
@@ -2307,10 +2468,18 @@ class FdbFlushTest(SaiHelper):
 
             self._tearDownTrunkPort()
 
-    def flushAllPerVlanAndPortTest(self):
-        '''
-        Verify flushing of all kinds of MAC entries by VLAN and port
-        '''
+    def tearDown(self):
+        super(flushDynamicPerVlanAndPortTest, self).tearDown()
+
+
+class flushAllPerVlanAndPortTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of all kinds of MAC entries by VLAN and port
+    '''
+    def setUp(self):
+        super(flushAllPerVlanAndPortTest, self).setUp()
+
+    def runTest(self):
         print("\nflushAllPerVlanAndPortTest()")
         self._prepareFdb()
 
@@ -2378,12 +2547,25 @@ class FdbFlushTest(SaiHelper):
 
             self._tearDownTrunkPort()
 
-    def flushAllStaticTest(self):
-        '''
-        Verify flushing of all static MAC entries
-        '''
+    def tearDown(self):
+        super(flushAllPerVlanAndPortTest, self).tearDown()
+
+
+class flushAllStaticTests(FdbFlushTestHelper):
+    '''
+    Verify flushing of all static MAC entries
+    Args:
+        static_fdb_entry_type (int): FDB entry type to add
+    '''
+    def setUp(self):
+        super(flushAllStaticTests, self).setUp()
+
+    def runTest(self):
         print("\nflushAllStaticTest()")
-        self._prepareFdb()
+        self.flushAllStaticTest()
+        self.flushAllStaticTest(SAI_FDB_ENTRY_TYPE_STATIC + 1)
+    def flushAllStaticTest(self, static_fdb_entry_type=SAI_FDB_ENTRY_TYPE_STATIC):
+        self._prepareFdb(static_fdb_entry_type)
 
         print("Flush all static MACs")
         sai_thrift_flush_fdb_entries(
@@ -2414,10 +2596,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushAllDynamicTest(self):
-        '''
-        Verify flushing of all dynamic MAC entries
-        '''
+    def tearDown(self):
+        super(flushAllStaticTests, self).tearDown()
+
+
+class flushAllDynamicTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of all dynamic MAC entries
+    '''
+    def setUp(self):
+        super(flushAllDynamicTest, self).setUp()
+
+    def runTest(self):
         print("\nflushAllDynamicTest()")
         self._prepareFdb()
 
@@ -2450,10 +2640,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
-    def flushAllMacsTest(self):
-        '''
-        Verify flushing of all kinds of MAC entries
-        '''
+    def tearDown(self):
+        super(flushAllDynamicTest, self).tearDown()
+
+
+class flushAllMacsTest(FdbFlushTestHelper):
+    '''
+    Verify flushing of all kinds of MAC entries
+    '''
+    def setUp(self):
+        super(flushAllMacsTest, self).setUp()
+
+    def runTest(self):
         print("\nflushAllMacsTest()")
         self._prepareFdb()
 
@@ -2489,15 +2687,18 @@ class FdbFlushTest(SaiHelper):
 
         print("\tVerification complete")
 
+    def tearDown(self):
+        super(flushAllMacsTest, self).tearDown()
+
 
 @group("draft")
-class FdbAgeTest(SaiHelper):
+class FdbAgeTestHelper(PlatformSaiHelper):
     '''
     Verify FDB entries aging
     '''
 
     def setUp(self):
-        super(FdbAgeTest, self).setUp()
+        super(FdbAgeTestHelper, self).setUp()
 
         # age time used in tests (in sec)
         self.age_time = 10
@@ -2541,12 +2742,6 @@ class FdbAgeTest(SaiHelper):
                                     type=SAI_FDB_ENTRY_TYPE_STATIC,
                                     bridge_port_id=vrf_port_bp)
 
-    def runTest(self):
-        self.macAgingOnPortTest()
-        self.macAgingOnLagTest()
-        self.macAgingAfterMoveTest()
-        self.macMoveAfterAgingTest()
-
     def tearDown(self):
         # remove static MAC from FDB
         sai_thrift_remove_fdb_entry(self.client, self.fdb_entry)
@@ -2564,13 +2759,18 @@ class FdbAgeTest(SaiHelper):
                                                   fdb_aging_time=True)
         self.assertEqual(sw_attr["fdb_aging_time"], 0)
 
-        super(FdbAgeTest, self).tearDown()
+        super(FdbAgeTestHelper, self).tearDown()
 
-    def macAgingOnPortTest(self):
-        '''
-        FDB aging test verifying if dynamic FDB entry associated with port
-        is removed after the aging interval.
-        '''
+
+class macAgingOnPortTest(FdbAgeTestHelper):
+    '''
+    FDB aging test verifying if dynamic FDB entry associated with port
+    is removed after the aging interval.
+    '''
+    def setUp(self):
+        super(macAgingOnPortTest, self).setUp()
+
+    def runTest(self):
         print("\nmacAgingOnPortTest()")
 
         try:
@@ -2625,11 +2825,19 @@ class FdbAgeTest(SaiHelper):
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_DYNAMIC)
 
-    def macAgingOnLagTest(self):
-        '''
-        FDB aging test verifying if dynamic FDB entry associated with LAG
-        is removed after the aging interval
-        '''
+    def tearDown(self):
+        super(macAgingOnPortTest, self).tearDown()
+
+
+class macAgingOnLagTest(FdbAgeTestHelper):
+    '''
+    FDB aging test verifying if dynamic FDB entry associated with LAG
+    is removed after the aging interval
+    '''
+    def setUp(self):
+        super(macAgingOnLagTest, self).setUp()
+
+    def runTest(self):
         print("\nmacAgingOnLagTest()")
 
         try:
@@ -2681,13 +2889,21 @@ class FdbAgeTest(SaiHelper):
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_DYNAMIC)
 
-    def macAgingAfterMoveTest(self):
-        '''
-        FDB aging test verifying if dynamic FDB entry associated with one port
-        and then moved to another port is removed after the aging interval
-        counted starting from the moment of moving the address (not the initial
-        learning time)
-        '''
+    def tearDown(self):
+        super(macAgingOnLagTest, self).tearDown()
+
+
+class macAgingAfterMoveTest(FdbAgeTestHelper):
+    '''
+    FDB aging test verifying if dynamic FDB entry associated with one port
+    and then moved to another port is removed after the aging interval
+    counted starting from the moment of moving the address (not the initial
+    learning time)
+    '''
+    def setUp(self):
+        super(macAgingAfterMoveTest, self).setUp()
+
+    def runTest(self):
         print("\nmacAgingAfterMoveTest()")
 
         try:
@@ -2790,13 +3006,21 @@ class FdbAgeTest(SaiHelper):
             sai_thrift_set_switch_attribute(self.client,
                                             fdb_aging_time=self.age_time)
 
-    def macMoveAfterAgingTest(self):
-        '''
-        FDB aging test verifying if dynamic FDB entry associated with one port
-        and then aged and moved to another port is removed after the aging
-        interval counted starting from the moment of moving the address (not
-        the initial time)
-        '''
+    def tearDown(self):
+        super(macAgingAfterMoveTest, self).tearDown()
+
+
+class macMoveAfterAgingTest(FdbAgeTestHelper):
+    '''
+    FDB aging test verifying if dynamic FDB entry associated with one port
+    and then aged and moved to another port is removed after the aging
+    interval counted starting from the moment of moving the address (not
+    the initial time)
+    '''
+    def setUp(self):
+        super(macMoveAfterAgingTest, self).setUp()
+
+    def runTest(self):
         print("\nmacMoveAfterAgingTest()")
 
         try:
@@ -2862,15 +3086,18 @@ class FdbAgeTest(SaiHelper):
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_DYNAMIC)
 
+    def tearDown(self):
+        super(macMoveAfterAgingTest, self).tearDown()
+
 
 @group("draft")
-class FdbMissTest(SaiHelper):
+class FdbMissTestHelper(PlatformSaiHelper):
     '''
     Verify actions after missing FDB entry
     '''
 
     def setUp(self):
-        super(FdbMissTest, self).setUp()
+        super(FdbMissTestHelper, self).setUp()
 
         self.vlan_id = 100
 
@@ -2957,17 +3184,6 @@ class FdbMissTest(SaiHelper):
                                           pktlen=60,
                                           eth_type=0x88cc)
 
-    def runTest(self):
-        self.unicastMissDropActionTest()
-        self.unicastMissCopyActionTest()
-        self.unicastMissTrapActionTest()
-        self.multicastMissDropActionTest()
-        self.multicastMissCopyActionTest()
-        self.multicastMissTrapActionTest()
-        self.broadcastMissDropActionTest()
-        self.broadcastMissCopyActionTest()
-        self.broadcastMissTrapActionTest()
-
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
@@ -2992,13 +3208,18 @@ class FdbMissTest(SaiHelper):
         sai_thrift_remove_bridge_port(self.client, self.port25_bp)
         sai_thrift_remove_bridge_port(self.client, self.port26_bp)
 
-        super(FdbMissTest, self).tearDown()
+        super(FdbMissTestHelper, self).tearDown()
 
-    def unicastMissDropActionTest(self):
-        '''
-        Verify if packets, which destination MAC is not stored in FDB,
-        are dropped after setting miss packet action to drop
-        '''
+
+class unicastMissDropActionTest(FdbMissTestHelper):
+    '''
+    Verify if packets, which destination MAC is not stored in FDB,
+    are dropped after setting miss packet action to drop
+    '''
+    def setUp(self):
+        super(unicastMissDropActionTest, self).setUp()
+
+    def runTest(self):
         print("\nunicastMissDropActionTest()")
 
         try:
@@ -3038,11 +3259,19 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_unicast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def unicastMissCopyActionTest(self):
-        '''
-        Verify if packets, which destination MAC is not stored in FDB,
-        are copied to CPU after setting miss packet action to copy
-        '''
+    def tearDown(self):
+        super(unicastMissDropActionTest, self).tearDown()
+
+
+class unicastMissCopyActionTest(FdbMissTestHelper):
+    '''
+    Verify if packets, which destination MAC is not stored in FDB,
+    are copied to CPU after setting miss packet action to copy
+    '''
+    def setUp(self):
+        super(unicastMissCopyActionTest, self).setUp()
+
+    def runTest(self):
         print("\nunicastMissCopyActionTest()")
 
         try:
@@ -3093,11 +3322,19 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_unicast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def unicastMissTrapActionTest(self):
-        '''
-        Verify if packets, which destination MAC is not in FDB,
-        are redirected to CPU after setting action to trap
-        '''
+    def tearDown(self):
+        super(unicastMissCopyActionTest, self).tearDown()
+
+
+class unicastMissTrapActionTest(FdbMissTestHelper):
+    '''
+    Verify if packets, which destination MAC is not in FDB,
+    are redirected to CPU after setting action to trap
+    '''
+    def setUp(self):
+        super(unicastMissTrapActionTest, self).setUp()
+
+    def runTest(self):
         print("\nunicastMissTrapActionTest()")
 
         try:
@@ -3147,12 +3384,20 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_unicast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def multicastMissDropActionTest(self):
-        '''
-        Verify if multicast packets are dropped after setting miss packet
-        action to drop.
-        Verify also if LLDP packets are still redirected to CPU
-        '''
+    def tearDown(self):
+        super(unicastMissTrapActionTest, self).tearDown()
+
+
+class multicastMissDropActionTest(FdbMissTestHelper):
+    '''
+    Verify if multicast packets are dropped after setting miss packet
+    action to drop.
+    Verify also if LLDP packets are still redirected to CPU
+    '''
+    def setUp(self):
+        super(multicastMissDropActionTest, self).setUp()
+
+    def runTest(self):
         print("\nmulticastMissDropActionTest()")
 
         try:
@@ -3210,11 +3455,19 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_multicast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def multicastMissCopyActionTest(self):
-        '''
-        Verify if multicast packets are copied to CPU after setting miss packet action to copy.
-        Verify also if LLDP packets are still redirected to CPU
-        '''
+    def tearDown(self):
+        super(multicastMissDropActionTest, self).tearDown()
+
+
+class multicastMissCopyActionTest(FdbMissTestHelper):
+    '''
+    Verify if multicast packets are copied to CPU after setting miss packet action to copy.
+    Verify also if LLDP packets are still redirected to CPU
+    '''
+    def setUp(self):
+        super(multicastMissCopyActionTest, self).setUp()
+
+    def runTest(self):
         print("\nmulticastMissCopyActionTest()")
 
         try:
@@ -3283,12 +3536,20 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_multicast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def multicastMissTrapActionTest(self):
-        '''
-        Verify if multicast packets are redirected to CPU after setting miss
-        packet action to trap.
-        Verify also if LLDP packets are still redirected to CPU.
-        '''
+    def tearDown(self):
+        super(multicastMissCopyActionTest, self).tearDown()
+
+
+class multicastMissTrapActionTest(FdbMissTestHelper):
+    '''
+    Verify if multicast packets are redirected to CPU after setting miss
+    packet action to trap.
+    Verify also if LLDP packets are still redirected to CPU.
+    '''
+    def setUp(self):
+        super(multicastMissTrapActionTest, self).setUp()
+
+    def runTest(self):
         print("\nmulticastMissTrapActionTest()")
 
         try:
@@ -3356,12 +3617,20 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_multicast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def broadcastMissDropActionTest(self):
-        '''
-        Verify if broadcast packets are dropped after setting miss packet
-        action to drop.
-        Verify also if ARP packets are still redirected to CPU.
-        '''
+    def tearDown(self):
+        super(multicastMissTrapActionTest, self).tearDown()
+
+
+class broadcastMissDropActionTest(FdbMissTestHelper):
+    '''
+    Verify if broadcast packets are dropped after setting miss packet
+    action to drop.
+    Verify also if ARP packets are still redirected to CPU.
+    '''
+    def setUp(self):
+        super(broadcastMissDropActionTest, self).setUp()
+
+    def runTest(self):
         print("\nbroadcastMissDropActionTest()")
 
         try:
@@ -3389,20 +3658,6 @@ class FdbMissTest(SaiHelper):
             verify_no_other_packets(self)
             print("\tOK")
 
-            time.sleep(4)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue4)
-            print("Checking if ARP packes are still forwarded to CPU")
-            print("Sending ARP packet on port %d - will be redirected to CPU" %
-                  (self.send_port))
-            send_packet(self, self.send_port, self.arp_pkt)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue4)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"] -
-                pre_stats["SAI_QUEUE_STAT_PACKETS"],
-                1)
             print("\nVerificaion complete")
 
         finally:
@@ -3418,11 +3673,19 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_broadcast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def broadcastMissCopyActionTest(self):
-        '''
-        Verify if broadcast packets are copied to CPU after setting miss packet action to copy.
-        Verify also if ARP packets are still redirected to CPU.
-        '''
+    def tearDown(self):
+        super(broadcastMissDropActionTest, self).tearDown()
+
+
+class broadcastMissCopyActionTest(FdbMissTestHelper):
+    '''
+    Verify if broadcast packets are copied to CPU after setting miss packet action to copy.
+    Verify also if ARP packets are still redirected to CPU.
+    '''
+    def setUp(self):
+        super(broadcastMissCopyActionTest, self).setUp()
+
+    def runTest(self):
         print("\nbroadcastMissCopyActionTest()")
 
         try:
@@ -3461,20 +3724,6 @@ class FdbMissTest(SaiHelper):
                 1)
             print("\tOK")
 
-            time.sleep(4)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue4)
-            print("Checking if ARP packes are still forwarded to CPU")
-            print("Sending ARP packet on port %d - will be redirected to CPU" %
-                  (self.send_port))
-            send_packet(self, self.send_port, self.arp_pkt)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue4)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"] -
-                pre_stats["SAI_QUEUE_STAT_PACKETS"],
-                1)
             print("\nVerificaion complete")
 
         finally:
@@ -3490,12 +3739,20 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_broadcast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
-    def broadcastMissTrapActionTest(self):
-        '''
-        Verify if broacast packets are redirected to CPU after setting miss
-        packet action to trap.
-        Verify also if ARP packets are still redirected to CPU.
-        '''
+    def tearDown(self):
+        super(broadcastMissCopyActionTest, self).tearDown()
+
+
+class broadcastMissTrapActionTest(FdbMissTestHelper):
+    '''
+    Verify if broacast packets are redirected to CPU after setting miss
+    packet action to trap.
+    Verify also if ARP packets are still redirected to CPU.
+    '''
+    def setUp(self):
+        super(broadcastMissTrapActionTest, self).setUp()
+
+    def runTest(self):
         print("\nbroadcastMissTrapActionTest()")
 
         try:
@@ -3533,20 +3790,6 @@ class FdbMissTest(SaiHelper):
                 1)
             print("\tOK")
 
-            time.sleep(4)
-            pre_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue4)
-            print("Checking if ARP packes are still forwarded to CPU")
-            print("Sending ARP packet on port %d - will be redirected to CPU" %
-                  (self.send_port))
-            send_packet(self, self.send_port, self.arp_pkt)
-            time.sleep(4)
-            post_stats = sai_thrift_get_queue_stats(
-                self.client, self.cpu_queue4)
-            self.assertEqual(
-                post_stats["SAI_QUEUE_STAT_PACKETS"] -
-                pre_stats["SAI_QUEUE_STAT_PACKETS"],
-                1)
             print("\nVerificaion complete")
 
         finally:
@@ -3562,16 +3805,19 @@ class FdbMissTest(SaiHelper):
             self.assertEqual(sw_attr["fdb_broadcast_miss_packet_action"],
                              SAI_PACKET_ACTION_FORWARD)
 
+    def tearDown(self):
+        super(broadcastMissTrapActionTest, self).tearDown()
+
 
 @group("draft")
-class FdbEventTest(SaiHelper):
+class FdbEventTestHelper(PlatformSaiHelper):
     '''
     Verify correctness of FDB atributes values after events like:
     learning, aging, moving, flushing, deleting
     '''
 
     def setUp(self):
-        super(FdbEventTest, self).setUp()
+        super(FdbEventTestHelper, self).setUp()
 
         self.src_mac = "00:11:11:11:11:11"
         self.dst_mac = "00:22:22:22:22:22"
@@ -3596,23 +3842,21 @@ class FdbEventTest(SaiHelper):
                                                 mac_address=self.src_mac,
                                                 bv_id=self.vlan10)
 
-    def runTest(self):
-        self.macLearnEventTest()
-        self.macAgeEvenTest()
-        self.macMoveEventTest()
-        self.macFlushEventTest()
-        self.macDeleteEventTest()
 
     def tearDown(self):
         sai_thrift_flush_fdb_entries(
             self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
-        super(FdbEventTest, self).tearDown()
+        super(FdbEventTestHelper, self).tearDown()
 
-    def macLearnEventTest(self):
-        '''
-        Verify MAC learning event for FDB entry
-        '''
+class macLearnEventTest(FdbEventTestHelper):
+    '''
+    Verify MAC learning event for FDB entry
+    '''
+    def setUp(self):
+        super(macLearnEventTest, self).setUp()
+
+    def runTest(self):
         print("\nmacLearnEventTest()")
 
         try:
@@ -3645,10 +3889,18 @@ class FdbEventTest(SaiHelper):
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
-    def macAgeEvenTest(self):
-        '''
-        Verify MAC aging event for FDB entry
-        '''
+    def tearDown(self):
+        super(macLearnEventTest, self).tearDown()
+
+
+class macAgeEvenTest(FdbEventTestHelper):
+    '''
+    Verify MAC aging event for FDB entry
+    '''
+    def setUp(self):
+        super(macAgeEvenTest, self).setUp()
+
+    def runTest(self):
         print("\nmacAgeEvenTest()")
 
         age_time = 10
@@ -3701,10 +3953,18 @@ class FdbEventTest(SaiHelper):
 
             sai_thrift_set_switch_attribute(self.client, fdb_aging_time=0)
 
-    def macMoveEventTest(self):
-        '''
-        Verify MAC moving event for FDB entry
-        '''
+    def tearDown(self):
+        super(macAgeEvenTest, self).tearDown()
+
+
+class macMoveEventTest(FdbEventTestHelper):
+    '''
+    Verify MAC moving event for FDB entry
+    '''
+    def setUp(self):
+        super(macMoveEventTest, self).setUp()
+
+    def runTest(self):
         print("\nmacMoveEventTest()")
 
         mv_port = self.dev_port4
@@ -3760,10 +4020,18 @@ class FdbEventTest(SaiHelper):
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
-    def macFlushEventTest(self):
-        '''
-        Verify MAC flushing event for FDB entry
-        '''
+    def tearDown(self):
+        super(macMoveEventTest, self).tearDown()
+
+
+class macFlushEventTest(FdbEventTestHelper):
+    '''
+    Verify MAC flushing event for FDB entry
+    '''
+    def setUp(self):
+        super(macFlushEventTest, self).setUp()
+
+    def runTest(self):
         print("\nmacFlushEventTest()")
 
         try:
@@ -3809,10 +4077,18 @@ class FdbEventTest(SaiHelper):
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
 
-    def macDeleteEventTest(self):
-        '''
-        Verify MAC deletion event for FDB entry
-        '''
+    def tearDown(self):
+        super(macFlushEventTest, self).tearDown()
+
+
+class macDeleteEventTest(FdbEventTestHelper):
+    '''
+    Verify MAC deletion event for FDB entry
+    '''
+    def setUp(self):
+        super(macDeleteEventTest, self).setUp()
+
+    def runTest(self):
         print("\nmacDeleteEventTest()")
 
         try:
@@ -3855,3 +4131,6 @@ class FdbEventTest(SaiHelper):
         finally:
             sai_thrift_flush_fdb_entries(
                 self.client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+
+    def tearDown(self):
+        super(macDeleteEventTest, self).tearDown()
