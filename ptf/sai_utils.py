@@ -241,13 +241,41 @@ def num_to_dotted_quad(address, ipv4=True):
     mask = (1 << 128) - (1 << 128 >> int(address))
     i = 0
     result = ''
-    for sign in str(hex(mask)[2:]):
+    mask_str = '%032x' % mask
+    for sign in mask_str:
         if (i + 1) % 4 == 0:
             result = result + sign + ':'
         else:
             result = result + sign
         i += 1
     return result[:-1]
+
+
+def generate_mac_addresses(no_of_addr=1, base_mac="00:00:00:00:00:00"):
+    '''
+    Generate list of different mac addresses
+    Args:
+        no_of_addr (int): number of requested MAC addresses (max 256^4)
+        base_mac (str): base MAC address of the generated range
+    Return:
+        list: mac_list with generated MAC addresses
+    '''
+    mac_list = []
+    base_mac_list = base_mac.split(':')
+    mac_dec = 0
+    for i in range(6):
+        mac_dec |= (int(base_mac_list[5 - i], 16) << (i * 8))
+
+    for _ in range(no_of_addr):
+        mac_dec = mac_dec + 1
+        mac = ""
+        for i in range(6):
+            if mac:
+                mac = ':' + mac
+            mac = ('%02x' % ((mac_dec >> (i * 8)) & 0xFF)) + mac
+        mac_list.append(mac)
+
+    return mac_list
 
 
 def open_packet_socket(hostif_name):

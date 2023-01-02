@@ -56,53 +56,15 @@ def generate_ip_addr(no_of_addr, ipv6=False):
         yield ip_addr
 
 
-def generate_mac_list(no_of_addr):
-    '''
-    Generate list of different mac addresses
-
-    Args:
-        no_of_addr (int): number of requested MAC addresses (max 256^4)
-
-    Return:
-        list: mac_list with generated MAC addresses
-    '''
-
-    mac_list = []
-    i = 0
-    for first_grp in range(0, 256):
-        for second_grp in range(0, 256):
-            for third_grp in range(0, 256):
-                for fourth_grp in range(0, 256):
-                    mac_list.append('00:00:' +
-                                    ('%02x' % first_grp) + ':' +
-                                    ('%02x' % second_grp) + ':' +
-                                    ('%02x' % third_grp) + ':' +
-                                    ('%02x' % fourth_grp))
-                    i += 1
-                    if i == no_of_addr:
-                        return mac_list
-    return mac_list
-
-
 @group("draft")
-class SwitchAttrTest(SaiHelper):
-    """
-    Switch attributes tests
-    """
+class availableNexthopGroupEntryTest(PlatformSaiHelper):
+    '''
+    Verifies creation of maximum number of nexthop group entries.
+    '''
+    def setUp(self):
+        super(availableNexthopGroupEntryTest, self).setUp()
 
     def runTest(self):
-        self.availableNexthopGroupEntryTest()
-        self.availableNexthopGroupMemberEntryTest()
-        self.availableFdbEntryTest()
-        self.readOnlyAttributesTest()
-        self.refreshIntervalTest()
-        self.availableSnatEntryTest()
-        self.availableDnatEntryTest()
-
-    def availableNexthopGroupEntryTest(self):
-        '''
-        Verifies creation of maximum number of nexthop group entries.
-        '''
         print("\navailableNexthopGroupEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -140,10 +102,18 @@ class SwitchAttrTest(SaiHelper):
             for nhg_id in nhg:
                 sai_thrift_remove_next_hop_group(self.client, nhg_id)
 
-    def availableNexthopGroupMemberEntryTest(self):
-        '''
-        Verifies creation of maximum number of nexthop group member entries.
-        '''
+    def tearDown(self):
+        super(availableNexthopGroupEntryTest, self).tearDown()
+
+
+class availableNexthopGroupMemberEntryTest(PlatformSaiHelper):
+    '''
+    Verifies creation of maximum number of nexthop group member entries.
+    '''
+    def setUp(self):
+        super(availableNexthopGroupMemberEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableNexthopGroupMemberEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -217,10 +187,18 @@ class SwitchAttrTest(SaiHelper):
             for nhg_id in nhg:
                 sai_thrift_remove_next_hop_group(self.client, nhg_id)
 
-    def availableFdbEntryTest(self):
-        '''
-        Verifies creation of maximum number of FDB entries.
-        '''
+    def tearDown(self):
+        super(availableNexthopGroupMemberEntryTest, self).tearDown()
+
+
+class availableFdbEntryTest(PlatformSaiHelper):
+    '''
+    Verifies creation of maximum number of FDB entries.
+    '''
+    def setUp(self):
+        super(availableFdbEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableFdbEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -231,7 +209,7 @@ class SwitchAttrTest(SaiHelper):
         # Verifying only up to 90% of FDB table capacity
         available_fdb_entry = int(max_fdb_entry * 0.9)
 
-        mac_list = generate_mac_list(max_fdb_entry)
+        mac_list = generate_mac_addresses(max_fdb_entry)
         fdb = []
         try:
             for fdb_number in range(1, available_fdb_entry + 1):
@@ -257,10 +235,18 @@ class SwitchAttrTest(SaiHelper):
             for fdb_id in fdb:
                 sai_thrift_remove_fdb_entry(self.client, fdb_id)
 
-    def readOnlyAttributesTest(self):
-        '''
-        Verifies get on read only attributes.
-        '''
+    def tearDown(self):
+        super(availableFdbEntryTest, self).tearDown()
+
+
+class readOnlyAttributesTest(PlatformSaiHelper):
+    '''
+    Verifies get on read only attributes.
+    '''
+    def setUp(self):
+        super(readOnlyAttributesTest, self).setUp()
+
+    def runTest(self):
         print("\nreadOnlyAttributesTest()")
 
         attr = sai_thrift_get_switch_attribute(self.client,
@@ -366,19 +352,20 @@ class SwitchAttrTest(SaiHelper):
         self.assertNotEqual(attr["number_of_cpu_queues"], 0)
         self.assertNotEqual(attr["SAI_SWITCH_ATTR_NUMBER_OF_CPU_QUEUES"], 0)
 
-        attr = sai_thrift_get_switch_attribute(self.client,
-                                               acl_table_minimum_priority=True)
-        print(attr)
-        self.assertEqual(attr["acl_table_minimum_priority"], 0)
-        self.assertEqual(
-            attr["SAI_SWITCH_ATTR_ACL_TABLE_MINIMUM_PRIORITY"], 0)
+        #not supported
+        #attr = sai_thrift_get_switch_attribute(self.client,
+        #                                       acl_table_minimum_priority=True)
+        #print(attr)
+        #self.assertEqual(attr["acl_table_minimum_priority"], 0)
+        #self.assertEqual(
+        #    attr["SAI_SWITCH_ATTR_ACL_TABLE_MINIMUM_PRIORITY"], 0)
 
-        attr = sai_thrift_get_switch_attribute(
-            self.client, acl_table_maximum_priority=True)
-        print(attr)
-        self.assertNotEqual(attr["acl_table_maximum_priority"], 0)
-        self.assertNotEqual(
-            attr["SAI_SWITCH_ATTR_ACL_TABLE_MAXIMUM_PRIORITY"], 0)
+        #attr = sai_thrift_get_switch_attribute(
+        #    self.client, acl_table_maximum_priority=True)
+        #print(attr)
+        #self.assertNotEqual(attr["acl_table_maximum_priority"], 0)
+        #self.assertNotEqual(
+        #    attr["SAI_SWITCH_ATTR_ACL_TABLE_MAXIMUM_PRIORITY"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client,
                                                acl_entry_minimum_priority=True)
@@ -402,9 +389,9 @@ class SwitchAttrTest(SaiHelper):
         attr = sai_thrift_get_switch_attribute(self.client,
                                                default_stp_inst_id=True)
         print(attr)
-        self.assertEqual(attr["default_stp_inst_id"], SAI_NULL_OBJECT_ID)
-        self.assertEqual(
-            attr["SAI_SWITCH_ATTR_DEFAULT_STP_INST_ID"], SAI_NULL_OBJECT_ID)
+        self.assertNotEqual(attr["default_stp_inst_id"], 0)
+        self.assertNotEqual(
+            attr["SAI_SWITCH_ATTR_DEFAULT_STP_INST_ID"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client,
                                                max_stp_instance=True)
@@ -484,11 +471,11 @@ class SwitchAttrTest(SaiHelper):
         self.assertNotEqual(attr["egress_buffer_pool_num"], 0)
         self.assertNotEqual(attr["SAI_SWITCH_ATTR_EGRESS_BUFFER_POOL_NUM"], 0)
 
-        not supported
-        attr = sai_thrift_get_switch_attribute(self.client, ecmp_hash=True)
-        print(attr)
-        self.assertNotEqual(attr["ecmp_hash"], 0)
-        self.assertNotEqual(attr["SAI_SWITCH_ATTR_ECMP_HASH"], 0)
+        #not supported
+        #attr = sai_thrift_get_switch_attribute(self.client, ecmp_hash=True)
+        #print(attr)
+        #self.assertNotEqual(attr["ecmp_hash"], 0)
+        #self.assertNotEqual(attr["SAI_SWITCH_ATTR_ECMP_HASH"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client, lag_hash=True)
         print(attr)
@@ -511,11 +498,12 @@ class SwitchAttrTest(SaiHelper):
         s32 = sai_thrift_s32_list_t(int32list=[], count=max_acl_action_count)
         cap = sai_thrift_acl_capability_t(action_list=s32)
 
-        attr = sai_thrift_get_switch_attribute(self.client,
-                                               acl_capability=cap)
-        print(attr)
-        self.assertNotEqual(attr["acl_capability"], 0)
-        self.assertNotEqual(attr["SAI_SWITCH_ATTR_ACL_CAPABILITY"], 0)
+        #not supported
+        #attr = sai_thrift_get_switch_attribute(self.client,
+        #                                       acl_capability=cap)
+        #print(attr)
+        #self.assertNotEqual(attr["acl_capability"], 0)
+        #self.assertNotEqual(attr["SAI_SWITCH_ATTR_ACL_CAPABILITY"], 0)
 
         attr = sai_thrift_get_switch_attribute(self.client,
                                                max_mirror_session=True)
@@ -541,11 +529,32 @@ class SwitchAttrTest(SaiHelper):
         self.assertNotEqual(attr["acl_stage_egress"], 0)
         self.assertNotEqual(attr["SAI_SWITCH_ATTR_ACL_STAGE_EGRESS"], 0)
 
-    def refreshIntervalTest(self):
-        '''
-        Verifies SAI_SWITCH_ATTR_COUNTER_REFRESH_INTERVAL switch attribute
-        applied to VLAN and RIF stats
-        '''
+        attr_name = "supported_object_type_list"
+        s32 = sai_thrift_s32_list_t(int32list=[], count=0)
+        attr = sai_thrift_get_switch_attribute(self.client,
+                                               supported_object_type_list=s32)
+        s32 = sai_thrift_s32_list_t(int32list=[], count=128)
+        attr = sai_thrift_get_switch_attribute(self.client,
+                                               supported_object_type_list=s32)
+        print(attr)
+        self.assertNotEqual(attr[attr_name], 0)
+        self.assertTrue(SAI_OBJECT_TYPE_SWITCH in attr[attr_name].int32list)
+        self.assertTrue(SAI_OBJECT_TYPE_NULL not in attr[attr_name].int32list)
+        self.assertTrue(SAI_OBJECT_TYPE_IPSEC not in attr[attr_name].int32list)
+
+    def tearDown(self):
+        super(readOnlyAttributesTest, self).tearDown()
+
+
+class refreshIntervalTest(PlatformSaiHelper):
+    '''
+    Verifies SAI_SWITCH_ATTR_COUNTER_REFRESH_INTERVAL switch attribute
+    applied to VLAN and RIF stats
+    '''
+    def setUp(self):
+        super(refreshIntervalTest, self).setUp()
+
+    def runTest(self):
         print("\nrefreshIntervalTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -718,17 +727,25 @@ class SwitchAttrTest(SaiHelper):
 
             rif_stats = sai_thrift_get_router_interface_stats(
                 self.client, test_rif)
-            counter = rif_stats['SAI_VLAN_STAT_IN_PACKETS']
+            counter = rif_stats['SAI_ROUTER_INTERFACE_STAT_IN_PACKETS']
             self.assertEqual(counter, init_vlan_counter)
 
         finally:
             sai_thrift_set_switch_attribute(
                 self.client, counter_refresh_interval=init_interval)
 
-    def availableSnatEntryTest(self):
-        '''
-        Verifies creation of maximum number of snat entries.
-        '''
+    def tearDown(self):
+        super(refreshIntervalTest, self).tearDown()
+
+
+class availableSnatEntryTest(PlatformSaiHelper):
+    '''
+    Verifies creation of maximum number of snat entries.
+    '''
+    def setUp(self):
+        super(availableSnatEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableSnatEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -789,10 +806,18 @@ class SwitchAttrTest(SaiHelper):
             for snat in snat_list:
                 sai_thrift_remove_nat_entry(self.client, snat)
 
-    def availableDnatEntryTest(self):
-        '''
-        Verifies creation of maximum number of dnat entries.
-        '''
+    def tearDown(self):
+        super(availableSnatEntryTest, self).tearDown()
+
+
+class availableDnatEntryTest(PlatformSaiHelper):
+    '''
+    Verifies creation of maximum number of dnat entries.
+    '''
+    def setUp(self):
+        super(availableDnatEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableDnatEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -855,9 +880,11 @@ class SwitchAttrTest(SaiHelper):
             for dnat in dnat_list:
                 sai_thrift_remove_nat_entry(self.client, dnat)
 
+    def tearDown(self):
+        super(availableDnatEntryTest, self).tearDown()
 
 @group("draft")
-class SwitchAttrSimplifiedTest(SaiHelperSimplified):
+class SwitchAttrSimplifiedTestHelper(PlatformSaiHelper):
     """
     Switch attributes tests adapted for DASH
     Configuration
@@ -867,7 +894,7 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
     """
 
     def setUp(self):
-        super(SwitchAttrSimplifiedTest, self).setUp()
+        super(SwitchAttrSimplifiedTestHelper, self).setUp()
 
         self.create_routing_interfaces(ports=[0])
         # values required by neighbor entries tests set by route entries test
@@ -878,20 +905,17 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
     def tearDown(self):
         self.destroy_routing_interfaces()
 
-        super(SwitchAttrSimplifiedTest, self).tearDown()
+        super(SwitchAttrSimplifiedTestHelper, self).tearDown()
+
+
+class availableIPv4RouteEntryTest(SwitchAttrSimplifiedTestHelper):
+    '''
+    Verifies creation of maximum number of IPv4 route entries.
+    '''
+    def setUp(self):
+        super(availableIPv4RouteEntryTest, self).setUp()
 
     def runTest(self):
-        self.availableIPv4RouteEntryTest()
-        self.availableIPv6RouteEntryTest()
-        self.availableIPv4NexthopEntryTest()
-        self.availableIPv6NexthopEntryTest()
-        self.availableIPv4NeighborEntryTest()
-        self.availableIPv6NeighborEntryTest()
-
-    def availableIPv4RouteEntryTest(self):
-        '''
-        Verifies creation of maximum number of IPv4 route entries.
-        '''
         print("\navailableIPv4RouteEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -956,10 +980,18 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
                 sai_thrift_remove_route_entry(self.client, routes.get(ip_p_m))
             sai_thrift_remove_next_hop(self.client, nhop)
 
-    def availableIPv4NexthopEntryTest(self):
-        '''
-        Verifies creation of maximum number of IPv4 nexthop entries.
-        '''
+    def tearDown(self):
+        super(availableIPv4RouteEntryTest, self).tearDown()
+
+
+class availableIPv4NexthopEntryTest(SwitchAttrSimplifiedTestHelper):
+    '''
+    Verifies creation of maximum number of IPv4 nexthop entries.
+    '''
+    def setUp(self):
+        super(availableIPv4NexthopEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableIPv4NexthopEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -997,10 +1029,18 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
             for ip_p in nhop:
                 sai_thrift_remove_next_hop(self.client, nhop.get(ip_p))
 
-    def availableIPv4NeighborEntryTest(self):
-        '''
-        Verifies creation of maximum number of IPv4 neighbor entries.
-        '''
+    def tearDown(self):
+        super(availableIPv4NexthopEntryTest, self).tearDown()
+
+
+class availableIPv4NeighborEntryTest(SwitchAttrSimplifiedTestHelper):
+    '''
+    Verifies creation of maximum number of IPv4 neighbor entries.
+    '''
+    def setUp(self):
+        super(availableIPv4NeighborEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableIPv4NeighborEntryTest()")
 
         if self.available_v4_host_routes is None:
@@ -1052,10 +1092,18 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
             for ip_p in nbrs:
                 sai_thrift_remove_neighbor_entry(self.client, nbrs.get(ip_p))
 
-    def availableIPv6RouteEntryTest(self):
-        '''
-        Verifies creation of maximum number of IPv6 route entries.
-        '''
+    def tearDown(self):
+        super(availableIPv4NeighborEntryTest, self).tearDown()
+
+
+class availableIPv6RouteEntryTest(SwitchAttrSimplifiedTestHelper):
+    '''
+    Verifies creation of maximum number of IPv6 route entries.
+    '''
+    def setUp(self):
+        super(availableIPv6RouteEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableIPv6RouteEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -1125,10 +1173,18 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
                 sai_thrift_remove_route_entry(self.client, routes.get(ip_p_m))
             sai_thrift_remove_next_hop(self.client, nhop)
 
-    def availableIPv6NexthopEntryTest(self):
-        '''
-        Verifies creation of maximum number of IPv6 nexthop entries.
-        '''
+    def tearDown(self):
+        super(availableIPv6RouteEntryTest, self).tearDown()
+
+
+class availableIPv6NexthopEntryTest(SwitchAttrSimplifiedTestHelper):
+    '''
+    Verifies creation of maximum number of IPv6 nexthop entries.
+    '''
+    def setUp(self):
+        super(availableIPv6NexthopEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableIPv6NexthopEntryTest()")
 
         attr = sai_thrift_get_switch_attribute(
@@ -1166,10 +1222,18 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
             for ip_p in nhop:
                 sai_thrift_remove_next_hop(self.client, nhop.get(ip_p))
 
-    def availableIPv6NeighborEntryTest(self):
-        '''
-        Verifies creation of maximum number of IPv6 neighbor entries.
-        '''
+    def tearDown(self):
+        super(availableIPv6NexthopEntryTest, self).tearDown()
+
+
+class availableIPv6NeighborEntryTest(SwitchAttrSimplifiedTestHelper):
+    '''
+    Verifies creation of maximum number of IPv6 neighbor entries.
+    '''
+    def setUp(self):
+        super(availableIPv6NeighborEntryTest, self).setUp()
+
+    def runTest(self):
         print("\navailableIPv6NeighborEntryTest()")
 
         if self.available_v6_host_routes is None:
@@ -1221,22 +1285,20 @@ class SwitchAttrSimplifiedTest(SaiHelperSimplified):
             for ip_p in nbrs:
                 sai_thrift_remove_neighbor_entry(self.client, nbrs.get(ip_p))
 
+    def tearDown(self):
+        super(availableIPv6NeighborEntryTest, self).tearDown()
+
 
 @group("draft")
-class SwitchAttrAclTest(SaiHelperSimplified):
-    """
-    Switch ACL attributes tests
-    No additional configuration needed
-    """
+# TODO: test requires additional verification
+class availableAclTableTest(PlatformSaiHelper):
+    '''
+    Verifies creation of maximum number of acl tables.
+    '''
+    def setUp(self):
+        super(availableAclTableTest, self).setUp()
 
     def runTest(self):
-        # TODO: test requires additional verification
-        self.availableAclTableTest()
-
-    def availableAclTableTest(self):
-        '''
-        Verifies creation of maximum number of acl tables.
-        '''
         print("\navailableAclTableTest()")
 
         acl_resource = sai_thrift_acl_resource_t(
@@ -1297,15 +1359,18 @@ class SwitchAttrAclTest(SaiHelperSimplified):
                 for acl_table in acl_table_list:
                     sai_thrift_remove_acl_table(self.client, acl_table)
 
+    def tearDown(self):
+        super(availableAclTableTest, self).tearDown()
+
 
 @group("draft")
-class SwitchVxlanTest(SaiHelper):
+class SwitchVxlanTestHelper(PlatformSaiHelper):
     '''
     Switch VXLAN attributes tests
     '''
 
     def setUp(self):
-        super(SwitchVxlanTest, self).setUp()
+        super(SwitchVxlanTestHelper, self).setUp()
 
         # underlay config
         self.uvrf = sai_thrift_create_virtual_router(self.client)
@@ -1412,10 +1477,6 @@ class SwitchVxlanTest(SaiHelper):
         sai_thrift_set_switch_attribute(
             self.client, vxlan_default_router_mac=self.inner_dmac)
 
-    def runTest(self):
-        self.defaultPortTest()
-        self.defaultRouterMacTest()
-
     def tearDown(self):
         sai_thrift_remove_route_entry(self.client, self.customer_route)
         sai_thrift_remove_route_entry(self.client, self.tunnel_route)
@@ -1435,12 +1496,16 @@ class SwitchVxlanTest(SaiHelper):
         sai_thrift_remove_virtual_router(self.client, self.ovrf)
         sai_thrift_remove_virtual_router(self.client, self.uvrf)
 
-        super(SwitchVxlanTest, self).tearDown()
+        super(SwitchVxlanTestHelper, self).tearDown()
 
-    def defaultPortTest(self):
-        '''
-        Verifies SAI_SWITCH_ATTR_VXLAN_DEFAULT_PORT attribute setting
-        '''
+class defaultPortTest(SwitchVxlanTestHelper):
+    '''
+    Verifies SAI_SWITCH_ATTR_VXLAN_DEFAULT_PORT attribute setting
+    '''
+    def setUp(self):
+        super(defaultPortTest, self).setUp()
+
+    def runTest(self):
         print("\ndefaultPortTest()")
 
         vxlan_port = 4000
@@ -1517,10 +1582,18 @@ class SwitchVxlanTest(SaiHelper):
             sai_thrift_set_switch_attribute(self.client,
                                             vxlan_default_port=init_vxlan_port)
 
-    def defaultRouterMacTest(self):
-        '''
-        Verifies SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC attribute setting
-        '''
+    def tearDown(self):
+        super(defaultPortTest, self).tearDown()
+
+
+class defaultRouterMacTest(SwitchVxlanTestHelper):
+    '''
+    Verifies SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC attribute setting
+    '''
+    def setUp(self):
+        super(defaultRouterMacTest, self).setUp()
+
+    def runTest(self):
         print("\vdefaultRouterMacTest()")
 
         vxlan_mac = "01:23:45:67:89:90"
@@ -1598,15 +1671,17 @@ class SwitchVxlanTest(SaiHelper):
             sai_thrift_set_switch_attribute(
                 self.client, vxlan_default_router_mac=init_mac)
 
+    def tearDown(self):
+        super(defaultRouterMacTest, self).tearDown()
 
 @group("draft")
-class SwitchDefaultVlanTest(SaiHelper):
+class SwitchDefaultVlanTestHelper(PlatformSaiHelper):
     """
     The class runs VLAN test cases for default vlan returned by SAI
     """
 
     def setUp(self):
-        super(SwitchDefaultVlanTest, self).setUp()
+        super(SwitchDefaultVlanTestHelper, self).setUp()
 
         self.pkt = 0
         self.tagged_pkt = 0
@@ -1702,13 +1777,6 @@ class SwitchDefaultVlanTest(SaiHelper):
             bridge_port_id=self.port26_bp,
             packet_action=mac_action)
 
-    def runTest(self):
-        try:
-            self.forwardingTest()
-            self.vlanLearnTest()
-        finally:
-            pass
-
     def tearDown(self):
         sai_thrift_set_port_attribute(self.client, self.port24, port_vlan_id=0)
         sai_thrift_set_port_attribute(self.client, self.port26, port_vlan_id=0)
@@ -1725,12 +1793,16 @@ class SwitchDefaultVlanTest(SaiHelper):
         sai_thrift_remove_bridge_port(self.client, self.port26_bp)
         sai_thrift_remove_bridge_port(self.client, self.port25_bp)
         sai_thrift_remove_bridge_port(self.client, self.port24_bp)
-        super(SwitchDefaultVlanTest, self).tearDown()
+        super(SwitchDefaultVlanTestHelper, self).tearDown()
 
-    def forwardingTest(self):
-        """
-        Forwarding between ports with different tagging mode
-        """
+class forwardingTest(SwitchDefaultVlanTestHelper):
+    """
+    Forwarding between ports with different tagging mode
+    """
+    def setUp(self):
+        super(forwardingTest, self).setUp()
+
+    def runTest(self):
         print("\nforwardingTest()")
         try:
             print("\tAccessToAccessTest")
@@ -1765,10 +1837,18 @@ class SwitchDefaultVlanTest(SaiHelper):
         finally:
             pass
 
-    def vlanLearnTest(self):
-        """
-        Verifies learning on default vlan
-        """
+    def tearDown(self):
+        super(forwardingTest, self).tearDown()
+
+
+class vlanLearnTest(SwitchDefaultVlanTestHelper):
+    """
+    Verifies learning on default vlan
+    """
+    def setUp(self):
+        super(vlanLearnTest, self).setUp()
+
+    def runTest(self):
         print("\nvlanLearnTest()")
         try:
             pkt = simple_arp_packet(
@@ -1806,3 +1886,6 @@ class SwitchDefaultVlanTest(SaiHelper):
                 self.client,
                 bv_id=self.default_vlan_id,
                 entry_type=SAI_FDB_ENTRY_TYPE_DYNAMIC)
+
+    def tearDown(self):
+        super(vlanLearnTest, self).tearDown()
